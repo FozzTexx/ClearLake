@@ -1,0 +1,5 @@
+HTMLEncodeURL		[CLString stringByAddingPercentEscapes]
+HTMLDecodeURL		[CLString stringByReplacingPercentEscapes]
+HTMLDecodeBase64	[CLString decodeBase64]
+HTMLEncodeBase64	[CLData encodeBase64]
+HTMLDecodeHTMLEscapes	[CLString entityDecodedString];
