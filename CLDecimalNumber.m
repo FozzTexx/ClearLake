@@ -21,6 +21,7 @@
 #import "CLDecimalMPZ.h"
 #import "CLMutableString.h"
 #import "CLStream.h"
+#import "CLHashTable.h"
 
 #include <gmp.h>
 #include <math.h>
@@ -544,6 +545,14 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
 -(CLString *) json
 {
   return [self description];
+}
+
+-(CLUInteger) hash
+{
+  long long int val = [self intValue];
+
+
+  return CLHashBytes(&val, sizeof(val), 0);
 }
 
 @end

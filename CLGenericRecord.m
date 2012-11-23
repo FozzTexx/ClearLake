@@ -974,10 +974,13 @@ static id _model = nil;
   [CLDefaultContext removeObject:self];
 
   if ((anObject = [[self class] registerInstance:self]) && anObject != self) {
-    /* FIXME - replace ourselves or become a proxy */
+    /* FIXME - replace ourselves or become a proxy. At the moment I
+       hacked CLReadObject & CLReadType. */
 #if 0
-    [self error:"Read second instance of %s:%s", [_table UTF8String],
-	  [[[self primaryKey] description] UTF8String]];
+    [self error:@"Read second instance of %@:%@",  _table, [self primaryKey]];
+#else
+    fprintf(stderr, "Read second instance of %s:%s",  [_table UTF8String],
+	    [[[self primaryKey] description] UTF8String]);
 #endif
   }
 

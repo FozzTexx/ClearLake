@@ -105,13 +105,16 @@ CLString *CLImageDirs[] = {@"", @"Images/", @"images/", NULL};
 -(id) copy
 {
   CLImageRep *aCopy;
+  void *anImage;
 
 
   aCopy = [super copy];
   aCopy->path = [path copy];
-  if (!(aCopy->rep = malloc(sizeof(image))))
-    [self error:@"Unable to allocate memory"];
-  copyImage(aCopy->rep, [self loadImage]);
+  if ((anImage = [self loadImage])) {
+    if (!(aCopy->rep = malloc(sizeof(image))))
+      [self error:@"Unable to allocate memory"];
+    copyImage(aCopy->rep, anImage);
+  }
   return aCopy;
 }
 
@@ -213,7 +216,8 @@ CLString *CLImageDirs[] = {@"", @"Images/", @"images/", NULL};
 
   aSize.width = ceilf(aSize.width);
   aSize.height = ceilf(aSize.height);
-  aRep = [self loadImage];
+  if (!(aRep = [self loadImage]))
+    return;
   xpercent = aSize.width / aRep->width;
   ypercent = aSize.height / aRep->height;
   wantx = aSize.width;
@@ -237,6 +241,8 @@ CLString *CLImageDirs[] = {@"", @"Images/", @"images/", NULL};
 
 -(void) cropImage:(CLRect) aRect
 {
+  if (!rep)
+    return;
   cropImage(aRect.origin.x, aRect.origin.y,
 	    aRect.origin.x + aRect.size.width - 1,
 	    aRect.origin.y + aRect.size.height - 1, rep);
@@ -581,6 +587,9 @@ CLString *CLImageDirs[] = {@"", @"Images/", @"images/", NULL};
   CLImageRep *newRep;
 
 
+  if (![self loadImage])
+    return nil;
+  
   newRep = [self copy];
   anArray = [effects componentsSeparatedByString:@";"];
   for (i = 0, j = [anArray count]; i < j; i++)

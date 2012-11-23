@@ -68,9 +68,9 @@
 -(id) init
 {
   [super init];
-  if (!(dataPtr = malloc(sizeof(id))))
+  maxElements = 256;
+  if (!(dataPtr = malloc(maxElements * sizeof(id))))
     [self error:@"Unable to alloc dataPtr"];
-  maxElements = 1;
   numElements = 0;
   return self;
 }
@@ -89,6 +89,7 @@
   va_end(ap);
 
   numElements = maxElements = i;
+  maxElements = ((maxElements + 255) / 256) * 256;
   if (!(dataPtr = realloc(dataPtr, sizeof(id) * maxElements)))
     [self error:@"Unable to alloc dataPtr"];
   dataPtr[0] = [firstObj retain];
@@ -103,8 +104,9 @@
 {
   [self init];
   numElements = maxElements = count;
+  maxElements = ((maxElements + 255) / 256) * 256;
   if (!maxElements)
-    maxElements = 1;
+    maxElements = 256;
   if (!(dataPtr = realloc(dataPtr, sizeof(id) * maxElements)))
     [self error:@"Unable to alloc dataPtr"];
   memcpy(dataPtr, objects, sizeof(id) * count);
@@ -125,8 +127,9 @@
   
   [self init];
   numElements = maxElements = anArray->numElements;
+  maxElements = ((maxElements + 255) / 256) * 256;
   if (!maxElements)
-    maxElements = 1;
+    maxElements = 256;
   if (!(dataPtr = realloc(dataPtr, sizeof(id) * maxElements)))
     [self error:@"Unable to alloc dataPtr"];
   for (i = 0; i < numElements; i++) {
@@ -190,6 +193,7 @@
   [super read:stream];
   CLReadTypes(stream, "I", &numElements);
   maxElements = numElements + 1;
+  maxElements = ((maxElements + 255) / 256) * 256;
   if (!(dataPtr = malloc(sizeof(id) * maxElements)))
     [self error:@"Unable to alloc dataPtr"];
   for (i = 0; i < numElements; i++)

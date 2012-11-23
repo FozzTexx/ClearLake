@@ -33,6 +33,7 @@
 #import "CLManager.h"
 #import "CLCharacterSet.h"
 #import "CLMutableData.h"
+#import "CLGenericRecord.h"
 #import <objc/objc-api.h>
 #import <objc/encoding.h>
 
@@ -199,6 +200,12 @@ id CLReadObject(CLTypedStream *stream)
 
 
   objc_read_object(stream, &anObject);
+  /* FIXME - this shouldn't be here. Yes it will leak because
+     releasing things read in from the stream seems to cause
+     problems. */
+  if ([anObject isKindOfClass:[CLGenericRecord class]])
+    anObject = [CLGenericRecord registerInstance:anObject];
+  
   return anObject;
 }
 
@@ -211,6 +218,7 @@ int CLReadType(CLTypedStream *stream, const char *type, void *data)
 {
   char *p;
   int len;
+  id anObject;
   
   
   switch (*type) {
@@ -226,7 +234,13 @@ int CLReadType(CLTypedStream *stream, const char *type, void *data)
     break;
 
   default:
-    return objc_read_type(stream, type, data);
+    len = objc_read_type(stream, type, data);
+    anObject = *(id *) data;
+    if (*type == _C_ID && [anObject isKindOfClass:[CLGenericRecord class]]) {
+      anObject = [CLGenericRecord registerInstance:anObject];
+      *(id *) data = anObject;
+    }
+    return len;
   }
 
   return -1;

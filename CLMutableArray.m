@@ -89,11 +89,13 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
 -(void) grow
 {
+#if 0
   if (maxElements < 128)
     maxElements *= 2;
   else
+#endif
     maxElements += 256;
-  if (!(dataPtr = realloc(dataPtr, maxElements * sizeof(id))))
+  if (!(dataPtr = realloc(dataPtr, maxElements * sizeof(id) + 1)))
     [self error:@"Unable to allocate memory"];
   return;
 }
@@ -113,7 +115,6 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   for (i = 1; va_arg(ap, id); i++)
     ;
   va_end(ap);
-
 
   while (numElements + i > maxElements)
     [self grow];
