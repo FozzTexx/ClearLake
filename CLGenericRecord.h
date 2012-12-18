@@ -43,6 +43,7 @@
 +(CLDatabase *) database;
 +(CLArray *) loadTable:(CLString *) table qualifier:(id) qual;
 +(CLArray *) loadTable:(CLString *) table array:(CLArray *) anArray;
++(CLGenericRecord *) registerInstance:(CLGenericRecord *) anObject;
 +(CLDictionary *) recordDefForTable:(CLString *) aTable;
 +(id) classForTable:(CLString *) aString;
 +(CLString *) tableForClass:(id) aClass;

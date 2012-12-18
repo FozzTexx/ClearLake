@@ -196,15 +196,18 @@ void CLPrintf(CLStream *stream, CLString *format, ...)
 
 id CLReadObject(CLTypedStream *stream)
 {
-  id anObject;
+  id anObject, newObject;
 
 
   objc_read_object(stream, &anObject);
   /* FIXME - this shouldn't be here. Yes it will leak because
      releasing things read in from the stream seems to cause
      problems. */
-  if ([anObject isKindOfClass:[CLGenericRecord class]])
-    anObject = [CLGenericRecord registerInstance:anObject];
+  if ([anObject isKindOfClass:[CLGenericRecord class]]) {
+    newObject = [CLGenericRecord registerInstance:anObject];
+    if (newObject && newObject != anObject)
+      anObject = newObject;
+  }
   
   return anObject;
 }
@@ -218,7 +221,7 @@ int CLReadType(CLTypedStream *stream, const char *type, void *data)
 {
   char *p;
   int len;
-  id anObject;
+  id anObject, newObject;
   
   
   switch (*type) {
@@ -237,7 +240,9 @@ int CLReadType(CLTypedStream *stream, const char *type, void *data)
     len = objc_read_type(stream, type, data);
     anObject = *(id *) data;
     if (*type == _C_ID && [anObject isKindOfClass:[CLGenericRecord class]]) {
-      anObject = [CLGenericRecord registerInstance:anObject];
+      newObject = [CLGenericRecord registerInstance:anObject];
+      if (newObject && newObject != anObject)
+	anObject = newObject;
       *(id *) data = anObject;
     }
     return len;

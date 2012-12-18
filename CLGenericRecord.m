@@ -615,17 +615,18 @@ static id _model = nil;
   if (!(pk = [anObject primaryKey]))
     return;
 
-  table = [anObject table];
-  hTable = [_instancesDict objectForKey:table];
-  if ([hTable dataForKey:pk hash:[pk hash]] == anObject) {
-    pk = [hTable keyForKey:pk hash:[pk hash]];
-    [hTable removeDataForKey:pk hash:[pk hash]];
-    [pk release];
-    if (![hTable count])
-      [_instancesDict removeObjectForKey:table];
-    if (![_instancesDict count]) {
-      [_instancesDict release];
-      _instancesDict = nil;
+  if ((table = [anObject table])) {
+    hTable = [_instancesDict objectForKey:table];
+    if ([hTable dataForKey:pk hash:[pk hash]] == anObject) {
+      pk = [hTable keyForKey:pk hash:[pk hash]];
+      [hTable removeDataForKey:pk hash:[pk hash]];
+      [pk release];
+      if (![hTable count])
+	[_instancesDict removeObjectForKey:table];
+      if (![_instancesDict count]) {
+	[_instancesDict release];
+	_instancesDict = nil;
+      }
     }
   }
 
@@ -730,6 +731,11 @@ static id _model = nil;
 
   [super init];
 
+  if (!aString) {
+    [self release];
+    return nil;
+  }
+  
   _changed = DONTCHANGE;
   
   aRange = [aString rangeOfString:@"."];
