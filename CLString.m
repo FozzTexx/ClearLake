@@ -285,7 +285,6 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   aString = [CLString stringWithFormat:@"\"%@\"", mString];
   [mString release];
 
-  aString->isa = [CLString class];
   return aString;
 }
 

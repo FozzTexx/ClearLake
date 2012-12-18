@@ -588,7 +588,9 @@ static id _model = nil;
   if (!(pk = [anObject primaryKey]))
     return nil;
 
-  table = [anObject table];
+  if (!(table = [anObject table]))
+    return nil;
+  
   if (!(hTable = [_instancesDict objectForKey:table])) {
     if (!_instancesDict)
       _instancesDict = [[CLMutableDictionary alloc] init];
@@ -731,10 +733,12 @@ static id _model = nil;
 
   [super init];
 
+#if 0
   if (!aString) {
     [self release];
     return nil;
   }
+#endif
   
   _changed = DONTCHANGE;
   
