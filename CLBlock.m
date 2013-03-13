@@ -217,7 +217,7 @@
   }
   else if ([anObject isKindOfClass:[CLElement class]]) {
     if ((mDict = [anObject attributes])) {
-      anArray = [mDict allKeys];
+      anArray = [[mDict allKeys] retain];
       for (i = 0, j = [anArray count]; i < j; i++) {
 	aKey = [anArray objectAtIndex:i];
 	if ([aKey hasPrefix:@"cl_"]) {
@@ -228,6 +228,7 @@
 	  }
 	}
       }
+      [anArray release];
     }
 	
     if ([anObject isKindOfClass:[CLBlock class]] &&
