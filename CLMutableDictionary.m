@@ -155,4 +155,12 @@
   return;
 }
 
+/* Doing an extra retain & autorelease on allKeys because we are
+   mutable. If we get modified the array will be released unexpectedly
+   and it should stick around until the caller is done with it. */
+-(CLArray *) allKeys
+{
+  return [[[super allKeys] retain] autorelease];
+}
+
 @end
