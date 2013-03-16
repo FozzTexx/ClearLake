@@ -233,7 +233,7 @@ CS_RETCODE CLSybaseServerError(CS_CONTEXT *context, CS_CONNECTION *connection,
   CS_DATAFMT *dataFmt, strFmt;
   CS_INT result_type, cols, outlen;
   CS_RETCODE ret;
-  CS_INT *copied;
+  CS_INT *copied, rows_read;
   CS_SMALLINT *indicator;
   void **values;
   char *buf;
@@ -278,9 +278,25 @@ CS_RETCODE CLSybaseServerError(CS_CONTEXT *context, CS_CONNECTION *connection,
 	fprintf(stderr, "maxlength: %i\n", dataFmt[i].maxlength);
 	fprintf(stderr, "\n");
 #endif
+
+	/* For some reason if I use sum() to get a numeric/decimal
+	   when I fetch the row it fails, so make them into string
+	   types instead. */
+	if (dataFmt[i].datatype == CS_NUMERIC_TYPE || dataFmt[i].datatype == CS_NUMERIC_TYPE) {
+	  dataFmt[i].maxlength = dataFmt[i].precision + 2;
+	  dataFmt[i].datatype = CS_CHAR_TYPE;
+	  dataFmt[i].format = CS_FMT_NULLTERM;
+	  dataFmt[i].scale = 0;
+	  dataFmt[i].precision = 0;
+	  dataFmt[i].status = 0;
+	  dataFmt[i].count = 1;
+	  dataFmt[i].usertype = 0;
+	  dataFmt[i].locale = 0;
+	}
+
 	if (!(values[i] = calloc(dataFmt[i].maxlength+1, 1)))
 	  [self error:@"Unable to allocate memory"];
-	ct_bind(cmd, i+1, &dataFmt[i], values[i], &copied[i], &indicator[i]);
+	ret = ct_bind(cmd, i+1, &dataFmt[i], values[i], &copied[i], &indicator[i]);
 
 	if (!mArray)
 	  mArray = [[CLMutableArray alloc] init];
@@ -300,7 +316,8 @@ CS_RETCODE CLSybaseServerError(CS_CONTEXT *context, CS_CONNECTION *connection,
 	mArray = nil;
       }
       
-      while (ct_fetch(cmd, CS_UNUSED, CS_UNUSED, CS_UNUSED, NULL) == CS_SUCCEED) {
+      while ((ret = ct_fetch(cmd, CS_UNUSED, CS_UNUSED, CS_UNUSED, &rows_read)) ==
+	     CS_SUCCEED || ret == CS_ROW_FAIL) {
 	CLMutableArray *aRow;
 
 
