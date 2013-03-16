@@ -1354,14 +1354,14 @@ static CLMutableDictionary *CLConfig = nil;
 
   if (![acls count])
     return YES;
-  
+
+  foundMatch = NO;
   for (i = 0, j = [acls count]; i < j; i++)
     if ([[acls objectAtIndex:i] matchesObject:anObject]) {
       foundMatch = YES;
       if ((allow = [[acls objectAtIndex:i] checkPermission:anObject]))
 	return YES;
     }
-
 
   if (foundMatch && !allow) {
     if ([anObject isKindOfClass:[CLControl class]]) {
