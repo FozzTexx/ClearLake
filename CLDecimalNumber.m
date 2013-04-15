@@ -129,8 +129,8 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
 -(void) setValueFromString:(CLString *) numberValue
 {
   CLMutableString *mString = [numberValue mutableCopy];
-  unichar *buf;
-  int i, len;
+  unichar *buf, *buf2;
+  int i, j, len;
   int exp, dLoc;
   CLRange aRange;
   CLDecimalMPZ *val;
@@ -140,7 +140,17 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   len = [mString length];
   if (!(buf = malloc(sizeof(unichar) * len)))
     [self error:@"Unable to allocate memory"];
+  if (!(buf2 = malloc(sizeof(unichar) * len)))
+    [self error:@"Unable to allocate memory"];
   [mString getCharacters:buf];
+  for (i = j = 0; i < len; i++)
+    if (iswdigit(buf[i]) || buf[i] == '+' || buf[i] == '-' || buf[i] == '.' ||
+	buf[i] == 'e' || buf[i] == 'e')
+      buf2[j++] = buf[i];
+  free(buf);
+  buf = buf2;
+  len = j;
+  [mString setCharacters:buf length:len];
   for (i = 0; i < len && iswspace(buf[i]); i++)
     ;
   aRange.location = i;
