@@ -19,6 +19,7 @@
 
 #import "CLNull.h"
 #import "CLInvocation.h"
+#import "CLString.h"
 
 CLNull *CLNullObject = nil;
 
@@ -69,6 +70,11 @@ CLNull *CLNullObject = nil;
 -(CLUInteger) retainCount
 {
   return 1;
+}
+
+-(CLString *) json
+{
+  return @"null";
 }
 
 @end

@@ -281,13 +281,18 @@ CLString *CLStringMPZ(CLDecimalMPZ *num)
     mpz_clear(exp);
   }
   else if (num->exponent < 0) {
-    gmp_asprintf(&buf, "%Zd", num->mantissa);
+    mpz_init(n1);
+    mpz_abs(n1, num->mantissa);
+    gmp_asprintf(&buf, "%Zd", n1);
     mString = [[CLString stringWithUTF8String:buf] mutableCopy];
     pos = abs(num->exponent);
     while (pos >= [mString length])
       [mString insertString:@"0" atIndex:0];
     [mString insertString:@"." atIndex:[mString length] - abs(num->exponent)];
     aString = [mString autorelease];
+    mpz_clear(n1);
+    if (mpz_sgn(num->mantissa) < 0)
+      [mString insertString:@"-" atIndex:0];
     free(buf);
   }
   else {    

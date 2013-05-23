@@ -646,8 +646,7 @@
 
 -(CLString *) json
 {
-  return [[self descriptionWithCalendarFormat:@"%Y-%m-%d %H:%M:%S +0000"
-		timeZone:[CLTimeZone timeZoneWithName:@"UTC+0000"]] json];
+  return [CLString stringWithFormat:@"%lli", (long long) (when * 1000)];
 }
 
 -(CLString *) description
