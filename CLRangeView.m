@@ -165,7 +165,8 @@
       if (aBinding)
 	aValue = [aValue objectValueForBinding:aBinding];
       [self updateBindingFor:aValue];
-      [self addObject:aValue];
+      if (aValue)
+	[self addObject:aValue];
     }
   }
 
