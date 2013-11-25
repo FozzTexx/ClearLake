@@ -14,8 +14,8 @@ fi
 
 # Ubuntu
 if [ -e /usr/bin/apt-get ] ; then
-    sudo apt-get install make gobjc libpng12-dev libjpeg-dev libtiff4-dev \
-	libmysqlclient15-dev libgmp3-dev libpcre3-dev freetds-dev libssl-dev
+    sudo apt-get install make gobjc-4.6-multilib libpng12-dev libjpeg-dev libtiff4-dev \
+	libmysqlclient15-dev libgmp3-dev libpcre3-dev freetds-dev libssl-dev lib32gmp-dev
 fi
 
 make

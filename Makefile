@@ -32,6 +32,7 @@ MFILES= CLStream.m CLDecimal.m CLDecimalMPZ.m CLStringFunctions.m	\
 	CLGetArgs.m
 CFILES= 
 FFILES=
+CC=gcc-4.6
 CFLAGS= -m32 -g -Wall -Wno-import -I$(HOME)/Unix/$(OSTYPE)/include
 OCFLAGS=-fconstant-string-class=CLConstantString
 MAKEFILEDIR=/usr/local/Makefiles
