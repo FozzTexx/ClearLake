@@ -511,7 +511,7 @@ void CLWriteURL(CLStream *stream, id object,
     CLCloseMemory(stream, CL_FREEBUFFER);
   }
 
-  aURL = [[self class] rewriteURL:[aURL entityDecodedString]];
+  aURL = [[self class] rewriteURL:[[aURL description] entityDecodedString]];
 
   return aURL;
 }
