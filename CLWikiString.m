@@ -215,6 +215,7 @@
   CLString *segment = nil;
   CLArray *openings = nil;
   CLString *str, *str1;
+  id anObject;
 
 	
   if ([closings count] > 0) {
@@ -240,7 +241,8 @@
 	str1 = [openings objectAtIndex:1];
 	if ([str length])
 	  [results addObject:str];
-	[results addObject:[self createObjectFromString:str1]];
+	if ((anObject = [self createObjectFromString:str1]))
+	  [results addObject:anObject];
 	break;
       }
     }
