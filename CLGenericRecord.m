@@ -991,6 +991,8 @@ static id _model = nil;
 #else
     fprintf(stderr, "Read second instance of %s:%s",  [_table UTF8String],
 	    [[[self primaryKey] description] UTF8String]);
+    [self release];
+    return anObject;
 #endif
   }
 
