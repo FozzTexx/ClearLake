@@ -21,7 +21,6 @@
 #import "CLString.h"
 #import "CLStream.h"
 #import "CLMutableData.h"
-#import "CLOpenFile.h"
 #import "CLArray.h"
 
 #include <dirent.h>

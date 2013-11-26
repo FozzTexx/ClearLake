@@ -21,7 +21,6 @@
 #import "CLEmailHeader.h"
 #import "CLMutableString.h"
 #import "CLArray.h"
-#import "CLOpenFile.h"
 #import "CLDictionary.h"
 #import "CLStream.h"
 #import "CLManager.h"

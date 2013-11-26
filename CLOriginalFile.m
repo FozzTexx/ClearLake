@@ -24,7 +24,6 @@
 #import "CLManager.h"
 #import "CLControl.h"
 #import "CLCharacterSet.h"
-#import "CLOpenFile.h"
 #import "CLHashTable.h"
 
 #include <sys/stat.h>

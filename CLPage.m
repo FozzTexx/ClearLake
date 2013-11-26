@@ -20,7 +20,6 @@
 #import "CLPage.h"
 #import "CLPageStack.h"
 #import "CLPageObject.h"
-#import "CLOpenFile.h"
 #import "CLAutoreleasePool.h"
 #import "CLElement.h"
 #import "CLControl.h"

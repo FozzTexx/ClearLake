@@ -39,7 +39,6 @@
 #import <ClearLake/CLMutableDictionary.h>
 #import <ClearLake/CLMutableString.h>
 #import <ClearLake/CLNumber.h>
-#import <ClearLake/CLOpenFile.h>
 #import <ClearLake/CLOption.h>
 #import <ClearLake/CLPage.h>
 #import <ClearLake/CLPageObject.h>
