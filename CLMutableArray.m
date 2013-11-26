@@ -95,7 +95,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   else
 #endif
     maxElements += 256;
-  if (!(dataPtr = realloc(dataPtr, maxElements * sizeof(id) + 1)))
+  if (!(dataPtr = realloc(dataPtr, maxElements * sizeof(id))))
     [self error:@"Unable to allocate memory"];
   return;
 }
@@ -218,7 +218,10 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   id *oldData;
 
   
-  if (CLMaxRange(aRange) > numElements || !aRange.length)
+  if (CLMaxRange(aRange) > numElements)
+    [self error:@"range outside of bounds"];
+
+  if (!aRange.length)
     return;
 
   if (!(oldData = malloc(sizeof(id) * aRange.length)))

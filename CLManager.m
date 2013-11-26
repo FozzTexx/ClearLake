@@ -1739,3 +1739,9 @@ void CLInitializeQuery(CLString *aString)
 
   return;
 }
+
+void ughgdbstupid()
+{
+  [[CLMutableArray alloc] init];
+  return;
+}
