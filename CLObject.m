@@ -254,7 +254,7 @@ id CLDisposeInstance(id object)
   id newObject;
   
 
-  newObject = object_copy(self);
+  newObject = [[self class] alloc];
 #if DEBUG_LEAK || DEBUG_RETAIN
   numobj2++;
   if (printleak){
@@ -1101,11 +1101,23 @@ id CLDisposeInstance(id object)
 			class_get_class_method(self->isa, aSel));
 }
 
+/* This is just here to appease gdb */
+-(IMP) methodForSelector:(SEL) aSel
+{
+  return [self methodFor:aSel];
+}
+
 -(BOOL) respondsTo:(SEL) aSel
 {
   return !!(object_is_instance(self) ?
 	    class_get_instance_method(self->isa, aSel) :
 	    class_get_class_method(self->isa, aSel));
+}
+
+/* This is just here to appease gdb */
+-(BOOL) respondsToSelector:(SEL) aSel
+{
+  return [self respondsTo:aSel];
 }
 
 -(BOOL) isMemberOfClass:(Class) aClassObject
