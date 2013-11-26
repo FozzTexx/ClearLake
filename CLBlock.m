@@ -564,8 +564,9 @@
   printf("\n");
   printf("var test = document.getElementById('%s');\n",
 	 [[attributes objectForCaseInsensitiveString:@"ID"] UTF8String]);
-  aValue = [self expandBinding:[attributes objectForCaseInsensitiveString:@"CL_DBINDING"]
-		       success:&found];
+  aValue = [self objectValueForSpecialBinding:
+		   [attributes objectForCaseInsensitiveString:@"CL_DBINDING"]
+		 allowConstant:NO found:&found wasConstant:NULL];
   printf("test.innerHTML = '%s';\n",
 	 aValue ? [[aValue description] UTF8String] : "");
 
