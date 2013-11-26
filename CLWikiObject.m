@@ -44,17 +44,17 @@
   return aCopy;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   [super read:stream];
-  CLReadTypes(stream, "@", &attributes);
-  return;
+  [stream readTypes:@"@", &attributes];
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   [super write:stream];
-  CLWriteTypes(stream, "@", &attributes);
+  [stream writeTypes:@"@", &attributes];
   return;
 }
 
@@ -105,11 +105,12 @@
   [aBlock setValue:[aPage body]];
   [aPage release];
   [aBlock updateBinding];
-  stream = CLOpenMemory(NULL, 0, CL_WRITEONLY);
+  stream = [CLStream openMemoryForWriting];
   CLWriteHTMLObject(stream, aBlock);
-  aData = CLGetData(stream);
-  CLCloseMemory(stream, CL_FREEBUFFER);
+  [stream close];
   [aBlock release];
+  /* FIXME - we should be using nocopy to move the stream buffer into the string */
+  aData = [stream data];
   return [[CLString stringWithData:aData encoding:CLUTF8StringEncoding]
 	   stringByTrimmingWhitespaceAndNewlines];
 }  

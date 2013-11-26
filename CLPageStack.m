@@ -20,6 +20,7 @@
 #import "CLPageStack.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 @implementation CLPageStack
 

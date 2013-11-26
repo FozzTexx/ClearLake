@@ -31,6 +31,7 @@
 #import "CLCharacterSet.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 @implementation CLDatabase
 

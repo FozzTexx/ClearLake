@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <wctype.h>
+#include <string.h>
 
 @implementation CLArray
 
@@ -185,31 +186,31 @@
   return [[CLMutableArray alloc] initWithArray:self];
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   int i;
 
   
   [super read:stream];
-  CLReadTypes(stream, "I", &numElements);
+  [stream readTypes:@"I", &numElements];
   maxElements = numElements + 1;
   maxElements = ((maxElements + 255) / 256) * 256;
   if (!(dataPtr = malloc(sizeof(id) * maxElements)))
     [self error:@"Unable to alloc dataPtr"];
   for (i = 0; i < numElements; i++)
-    CLReadTypes(stream, "@", &dataPtr[i]);
-  return;
+    [stream readTypes:@"@", &dataPtr[i]];
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   int i;
 
   
   [super write:stream];
-  CLWriteTypes(stream, "I", &numElements);
+  [stream writeTypes:@"I", &numElements];
   for (i = 0; i < numElements; i++)
-    CLWriteTypes(stream, "@", &dataPtr[i]);
+    [stream writeTypes:@"@", &dataPtr[i]];
   return;
 }
 

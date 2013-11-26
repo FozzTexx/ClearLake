@@ -149,14 +149,14 @@
 }
 
 /* These just exist to do the init */
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   [super read:stream];
   attributes = [[CLMutableDictionary alloc] initWithSize:MAX_HASH];
-  return;
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   [super write:stream];
   return;

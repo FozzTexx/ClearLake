@@ -23,9 +23,10 @@
 #define DEBUG_LEAK	0
 #define DEBUG_RETAIN	0
 
-@class CLString, CLInvocation, CLData;
+@class CLString, CLInvocation, CLData, CLStream;
 
 #include <limits.h>
+#include <objc/objc.h>
 
 #define CL_URLDATA	@"CLurldata"
 #define CL_URLSEL	@"CLurlsel"
@@ -45,9 +46,6 @@ typedef unsigned int CLUInteger;
 #define CLUIntegerMax   UINT_MAX
 
 enum {CLNotFound = CLUIntegerMax};
-
-#include <objc/typedstream.h>
-#define CLTypedStream	TypedStream
 
 @protocol CLObject
 -(id) retain;
@@ -80,8 +78,8 @@ enum {CLNotFound = CLUIntegerMax};
 @end
 
 @protocol CLArchiving
--(void) read:(CLTypedStream *) stream;
--(void) write:(CLTypedStream *) stream;
+-(id) read:(CLStream *) stream;
+-(void) write:(CLStream *) stream;
 @end
 
 @interface CLObject <CLObject, CLArchiving, CLCopying>

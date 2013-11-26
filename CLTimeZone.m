@@ -78,16 +78,17 @@
   return aCopy;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   [super read:stream];
-  CLReadTypes(stream, "@", &zone);
+  [stream readTypes:@"@", &zone];
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   [super write:stream];
-  CLWriteTypes(stream, "@", &zone);
+  [stream writeTypes:@"@", &zone];
 }
 
 -(void) set

@@ -22,64 +22,97 @@
 
 #import <ClearLake/CLObject.h>
 #import <ClearLake/CLString.h>
+#import <ClearLake/CLHashTable.h>
 
 #include <pty.h>
+#include <stdio.h>
 
-@class CLString, CLOpenFile, CLData, CLArray;
+@class CLData, CLArray, CLFileStream, CLMemoryStream;
 
-#define CL_READONLY	OBJC_READONLY
-#define CL_WRITEONLY	OBJC_WRITEONLY
-#define CL_READWRITE	4
+#define CLReadOnly	1
+#define CLWriteOnly	2
+#define CLReadWrite	4
+#define CLEOF		-1
 
-#define CL_FREEBUFFER	0
+@protocol CLStream
+-(int) readByte;
+-(void) writeByte:(int) c;
+-(int) read:(void *) buffer length:(int) len;
+-(int) write:(const void *) buffer length:(int) len;
+-(void) close;
+@end
 
-typedef struct CLStream {
-  FILE *file;
-  char *buf;
-  size_t len;
-} CLStream;
+@interface CLStream:CLObject
+{
+  CLHashTable *streamObjects;
+}
+-(void) dealloc;
+@end
 
-extern int CLGetc(CLStream *stream);
-extern void CLPutc(CLStream *stream, int c);
-extern int CLRead(CLStream *stream, char *buf, int len);
-extern void CLWrite(CLStream *stream, const void *buf, int len);
+@interface CLStream (CLBasicIO) <CLStream>
+@end
+
+@interface CLStream (CLStreamObjects)
+-(CLData *) readDataOfLength:(int) len;
+-(void) writeData:(CLData *) aData;
+-(CLString *) readStringUsingEncoding:(CLStringEncoding) enc;
+-(void) writeString:(CLString *) aString usingEncoding:(CLStringEncoding) enc;
+-(void) writeFormat:(CLString *) aFormat usingEncoding:(CLStringEncoding) enc, ...;
+-(void) writeFormat:(CLString *) format usingEncoding:(CLStringEncoding) enc
+	  arguments:(va_list) argList;
+@end
+
+@interface CLStream (CLStreamOpening)
++(CLStream *) openFileAtPath:(CLString *) aPath mode:(int) mode;
++(CLStream *) openTemporaryFile:(CLString *) template;
++(CLStream *) openWithMemory:(void *) buf length:(int) len mode:(int) mode;
++(CLStream *) openWithData:(CLData *) aData mode:(int) mode;
++(CLStream *) openMemoryForWriting;
++(CLStream *) openPipe:(CLString *) aCommand mode:(int) mode;
++(CLStream *) openPty:(CLString *) aCommand termios:(struct termios *) termp
+	   windowSize:(struct winsize *) winp;
+@end
+
+@interface CLStream (CLStreamArchiving)
+-(void) readType:(CLString *) type data:(void *) data;
+-(void) writeType:(CLString *) type data:(void *) data;
+-(void) readTypes:(CLString *) type, ...;
+-(void) writeTypes:(CLString *) type, ...;
+@end
+
+@interface CLStream (CLMemoryStreams)
+-(const void *) bytes;
+-(CLUInteger) length;
+-(CLData *) data;
+@end
+
+@interface CLStream (CLFileStreams)
+-(CLString *) path;
+-(int) pid;
+-(void) closeAndRemove;
+-(int) closeAndWait;
+-(void) remove;
+@end
+
+/* I/O */
 extern void CLPrintf(CLStream *stream, CLString *format, ...);
-extern CLStream *CLOpenMemory(const char *buf, int len, int mode);
-extern void CLCloseMemory(CLStream *stream, int mode);
-extern void CLGetMemoryBuffer(CLStream *stream, char **data, int *len, int *alloced);
-extern CLData *CLGetData(CLStream *stream);
-extern id CLReadObject(CLTypedStream *stream);
-extern CLTypedStream *CLOpenTypedStream(CLStream *stream, int mode);
-extern int CLReadType(CLTypedStream *stream, const char *type, void *data);
-extern int CLWriteType(CLTypedStream *stream, const char *type, const void *data);
-extern int CLReadTypes(CLTypedStream *stream, const char *type, ...);
-extern int CLWriteTypes(CLTypedStream *stream, const char *type, ...);
-extern long CLTell(CLStream *stream);
-extern void CLSeek(CLStream *stream, long offset, int whence);
-extern CLOpenFile *CLTemporaryFile(CLString *template);
+/* Legacy I/O */
 extern CLString *CLGets(FILE *file, CLStringEncoding enc);
 extern CLString *CLGetsfd(int fd, CLStringEncoding enc);
+
 extern CLString *CLPathForFileID(int image_id);
 extern BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint,
 			    int seq);
+extern int CLNextFileSequence();
 extern int CLStoreFile(CLData *aData, CLString *extension, CLString *extensionHint);
 extern void CLWriteHTMLObject(CLStream *stream, id anObject);
 extern CLString *CLFullPathForFile(CLString *aFilename, CLArray *extensions,
 				   CLArray *directories);
-extern CLOpenFile *CLPtyOpen(CLString *aCommand, struct termios *termp,
-			     struct winsize *winp);
-extern CLOpenFile *CLPipeOpen(CLString *aCommand, CLString *type);
 extern int CLDeflate(const void *data, int len, int level, CLData **aData);
 
 #define CL_FROMSTART	SEEK_SET
 #define CL_FROMCURRENT	SEEK_CUR
 #define CL_FROMEND	SEEK_END
-
-#define CLCloseTypedStream	objc_close_typed_stream
-#define CLWriteObject		objc_write_object
-#define CLWriteObjectReference	objc_write_object_reference
-#define CLReadArray		objc_read_array
-#define CLWriteArray		objc_write_array
 
 @protocol CLStreamDelegate
 -(CLString *) delegateGetFileDirectory;

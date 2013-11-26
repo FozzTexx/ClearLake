@@ -21,6 +21,7 @@
 #import "CLString.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 @implementation CLMutableData
 

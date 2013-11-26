@@ -58,21 +58,21 @@
   return aCopy;
 }
       
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   CLString *aString;
   CLUInteger start;
 
   
   [super read:stream];
-  CLReadTypes(stream, "@ii", &aString, &maxPages, &start);
+  [stream readTypes:@"@ii", &aString, &maxPages, &start];
   if (![CLQuery objectForKey:QUERY_START])
     [CLQuery setObject:[CLNumber numberWithUnsignedInt:start] forKey:QUERY_START];
   [attributes setObject:aString forCaseInsensitiveString:@"CL_DATASOURCE"];
-  return;
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   CLString *aString;
   CLRange aRange;
@@ -81,7 +81,7 @@
   [super write:stream];
   aRange = [[self datasource] range];
   aString = [attributes objectForCaseInsensitiveString:@"CL_DATASOURCE"];
-  CLWriteTypes(stream, "@ii", &aString, &maxPages, &aRange.location);
+  [stream writeTypes:@"@ii", &aString, &maxPages, &aRange.location];
   return;
 }
 

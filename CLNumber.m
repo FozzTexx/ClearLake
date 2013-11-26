@@ -206,29 +206,29 @@ static CLString *humanSizes[] = { @"B", @"kB", @"MB", @"GB", nil };
   return self;  
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   [super read:stream];
-  CLReadTypes(stream, "i", &type);
+  [stream readTypes:@"i", &type];
   if (type == 'i')
-    CLReadTypes(stream, "l", &value.l);
+    [stream readTypes:@"l", &value.l];
   else if (type == 'u')
-    CLReadTypes(stream, "L", &value.ul);
+    [stream readTypes:@"L", &value.ul];
   else if (type == 'd')
-    CLReadTypes(stream, "d", &value.d);
-  return;
+    [stream readTypes:@"d", &value.d];
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   [super write:stream];
-  CLWriteTypes(stream, "i", &type);
+  [stream writeTypes:@"i", &type];
   if (type == 'i')
-    CLWriteTypes(stream, "l", &value.l);
+    [stream writeTypes:@"l", &value.l];
   else if (type == 'u')
-    CLWriteTypes(stream, "L", &value.ul);
+    [stream writeTypes:@"L", &value.ul];
   else if (type == 'd')
-    CLWriteTypes(stream, "d", &value.d);
+    [stream writeTypes:@"d", &value.d];
   return;
 }
 

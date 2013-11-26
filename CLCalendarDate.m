@@ -31,6 +31,7 @@
 
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define CLGregorianOffset	719163
 
@@ -274,17 +275,17 @@
   return aCopy;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   [super read:stream];
-  CLReadTypes(stream, "l@@", &when, &format, &zone);
-  return;
+  [stream readTypes:@"l@@", &when, &format, &zone];
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   [super write:stream];
-  CLWriteTypes(stream, "l@@", &when, &format, &zone);
+  [stream writeTypes:@"l@@", &when, &format, &zone];
   return;
 }
 

@@ -955,7 +955,7 @@ static id _model = nil;
   return;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   CLGenericRecord *anObject;
   CLDictionary *pk;
@@ -965,7 +965,7 @@ static id _model = nil;
 
 
   [super read:stream];
-  CLReadTypes(stream, "@@", &pk, &_table);
+  [stream readTypes:@"@@", &pk, &_table];
   _record = [[CLHashTable alloc] initWithSize:MAX_HASH];
   _recordDef = [[[self class] recordDefForTable:_table] retain];
   _loaded = nil;
@@ -994,17 +994,17 @@ static id _model = nil;
 #endif
   }
 
-  return;
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   id pk;
 
 
   [super write:stream];
   pk = [self primaryKey];
-  CLWriteTypes(stream, "@@", &pk, &_table);
+  [stream writeTypes:@"@@", &pk, &_table];
   return;
 }
 

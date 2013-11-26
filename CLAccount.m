@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <crypt.h>
 #include <unistd.h>
+#include <string.h>
 
 @implementation CLAccount
 

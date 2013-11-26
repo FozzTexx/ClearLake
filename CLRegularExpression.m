@@ -23,6 +23,7 @@
 #import "CLMutableArray.h"
 
 #include <pcre.h>
+#include <string.h>
 
 @implementation CLRegularExpression
 

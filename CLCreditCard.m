@@ -29,6 +29,7 @@
 
 #include <stdlib.h>
 #include <wctype.h>
+#include <string.h>
 
 @implementation CLCreditCard
 

@@ -27,6 +27,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <string.h>
 
 @implementation CLTCPStream
 
@@ -82,6 +83,35 @@
   }
 
   return;
+}
+
+-(int) readByte
+{
+  unsigned char buf[4];
+
+
+  [self read:buf length:1];
+  return buf[0];
+}
+
+-(void) writeByte:(int) c
+{
+  unsigned char buf[4];
+
+
+  buf[0] = c;
+  [self write:buf length:1];
+  return;
+}
+
+-(int) read:(void *) buf length:(int) len
+{
+  return read(sock, buf, len);
+}
+
+-(int) write:(const void *) buf length:(int) len
+{
+  return write(sock, buf, len);
 }
 
 -(void) close

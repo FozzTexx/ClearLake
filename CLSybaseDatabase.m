@@ -27,6 +27,8 @@
 #import "CLHashTable.h"
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 CLString *CLSybaseErrorsFor(CS_CONTEXT *context);
 CS_RETCODE CLSybaseClientError(CS_CONTEXT *context, CS_CONNECTION *connection,

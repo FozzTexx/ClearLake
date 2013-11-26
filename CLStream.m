@@ -25,16 +25,18 @@
 #include <unistd.h>
 
 #import "CLStream.h"
-#import "CLString.h"
-#import "CLOpenFile.h"
+#import "CLFileStream.h"
+#import "CLMemoryStream.h"
+#import "CLMutableString.h"
 #import "CLData.h"
 #import "CLArray.h"
 #import "CLElement.h"
 #import "CLManager.h"
 #import "CLCharacterSet.h"
 #import "CLMutableData.h"
-#import "CLGenericRecord.h"
-#import <objc/objc-api.h>
+#import "CLEditingContext.h"
+#import "CLStringFunctions.h"
+#import "CLObjCAPI.h"
 #import <objc/encoding.h>
 
 #include <stdlib.h>
@@ -47,7 +49,10 @@
 #include <dirent.h>
 #include <sys/param.h>
 #include <zlib.h>
+#include <math.h>
+#include <string.h>
 
+#define BUFSIZE		256
 #define FILE_DIR	@"filedb"
 #define FILE_SEQ	@"sequence"
 #define IMAGE_DIR	@"imagedb"
@@ -58,22 +63,113 @@
 
 static CLString *CLFileDirectory = nil;
 
-extern int objc_write_string(struct objc_typed_stream *stream,
-			     const unsigned char *string,
-			     unsigned int nbytes);
+@implementation CLStream
 
-/* Having to add a lot of complexity to this because of using a shared
-   server and the idiots filled /tmp on me */
+-(void) dealloc
+{
+  if (streamObjects)
+    [streamObjects release];
+  [super dealloc];
+  return;
+}
 
-#define TEMPLATE	"clstream.XXXXXX"
+@end
 
-CLOpenFile *CLTemporaryFile(CLString *template)
+@implementation CLStream (CLStreamObjects)
+
+-(CLData *) readDataOfLength:(int) len
+{
+  void *buf;
+  int rlen;
+
+
+  buf = malloc(len);
+  rlen = [self read:buf length:len];
+  if (rlen != CLEOF)
+    return [CLData dataWithBytesNoCopy:buf length:rlen];
+
+  free(buf);
+  return nil;
+}
+ 
+-(void) writeData:(CLData *) aData
+{
+  [self write:[aData bytes] length:[aData length]];
+  return;
+}
+
+-(CLString *) readStringUsingEncoding:(CLStringEncoding) enc
+{
+  /* FIXME - need to read up to a newline in the encoding, not in ascii/UTF8 */
+  [self error:@"Unimplemented"];
+  return nil;
+}
+
+-(void) writeString:(CLString *) aString usingEncoding:(CLStringEncoding) enc
+{
+  CLData *aData;
+  
+
+  if (![aString length])
+    return;
+
+  aData = [aString dataUsingEncoding:enc];
+  [self write:[aData bytes] length:[aData length]];
+  return;
+}
+
+-(void) writeFormat:(CLString *) aFormat usingEncoding:(CLStringEncoding) enc, ...
+{
+  va_list ap;
+
+
+  va_start(ap, enc);
+  [self writeFormat:aFormat usingEncoding:enc arguments:ap];
+  va_end(ap);
+  return;
+}
+
+-(void) writeFormat:(CLString *) format usingEncoding:(CLStringEncoding) enc
+	  arguments:(va_list) argList
+{
+  char *str;
+  char *buf;
+  CLUInteger blen;
+
+
+  vasprintf(&str, [format UTF8String], argList);
+  if (enc != CLUTF8StringEncoding)
+    CLStringConvertEncoding(str, strlen(str), CLUTF8StringEncoding,
+			    &buf, &blen, enc, NO);
+  else {
+    buf = str;
+    blen = strlen(str);
+  }
+
+  [self write:buf length:blen];
+
+  if (buf != str)
+    free(buf);
+  free(str);
+  
+  return;
+}
+
+@end
+
+@implementation CLStream (CLStreamOpening)
+
++(CLStream *) openFileAtPath:(CLString *) aPath mode:(int) mode
+{
+  return [CLFileStream openFileAtPath:aPath mode:mode];
+}
+
++(CLStream *) openTemporaryFile:(CLString *) template
 {
   int fd;
   struct passwd *pw;
   const char *p;
-  FILE *file;
-  CLOpenFile *oFile = nil;
+  CLFileStream *oFile = nil;
   char *tbuf;
 
 
@@ -103,85 +199,429 @@ CLOpenFile *CLTemporaryFile(CLString *template)
     fd = mkstemp(tbuf);
   }
 
-  if (fd >= 0) {
-    file = fdopen(fd, "r+");
-    oFile = [[CLOpenFile alloc] initWithFile:file path:[CLString stringWithUTF8String:tbuf]
-				pid:0];
-  }
+  if (fd >= 0)
+    oFile = [CLFileStream streamWithDescriptor:fd mode:CLReadWrite
+					atPath:[CLString stringWithUTF8String:tbuf] processID:0];
   
   if (tbuf)
     free(tbuf);
 
+  return oFile;
+}
+
++(CLStream *) openWithMemory:(void *) buf length:(int) len mode:(int) mode;
+{
+  return [CLMemoryStream openWithMemory:buf length:len mode:mode];
+}
+
++(CLStream *) openWithData:(CLData *) aData mode:(int) mode
+{
+  return [CLMemoryStream openWithData:aData mode:mode];
+}
+
++(CLStream *) openPipe:(CLString *) aCommand mode:(int) mode
+{
+  pid_t pid;
+  CLFileStream *oFile = nil;
+  int wp[2], rp[2];
+  int tty;
+  int fd, maxf;
+
+
+  pipe(wp);
+  pipe(rp);
+
+  pid = fork();
+  if (pid > 0) {
+    close(wp[0]);
+    close(rp[1]);
+    if (mode == CLReadOnly) {
+      close(wp[1]);
+      fd = rp[0];
+    }
+    else {
+      close(rp[0]);
+      fd = wp[1];
+    }
+    oFile = [CLFileStream streamWithDescriptor:fd mode:mode atPath:nil processID:pid];
+  }
+  else if (pid == 0) { /* child */
+    dup2(wp[0], 0);
+    dup2(rp[1], 1);
+    dup2(rp[1], 2);
+
+    maxf = getdtablesize();
+    for (fd = 3; fd < maxf; fd++)
+      close(fd);
+
+    if ((tty = open("/dev/tty", O_RDWR)) >= 0) {
+      ioctl(tty, TIOCNOTTY, 0);
+      close(tty);
+    }
+    
+    execl("/bin/sh", "/bin/sh", "-c", [aCommand UTF8String], NULL);
+  }
+
+  return oFile;
+}
+
++(CLStream *) openPty:(CLString *) aCommand termios:(struct termios *) termp
+	   windowSize:(struct winsize *) winp
+{
+  pid_t pid;
+  char pty[MAXPATHLEN+1];
+  int master;
+  CLFileStream *oFile = nil;
+  FILE *file;
+
+
+  pid = forkpty(&master, pty, termp, winp);
+  if (pid > 0) {
+    if ((file = fdopen(master, "r+")))
+      oFile = [[CLFileStream alloc] initWithFile:file path:[CLString stringWithUTF8String:pty]
+				       processID:pid];
+  }
+  else if (pid == 0) /* child */
+    execl("/bin/sh", "/bin/sh", "-c", [aCommand UTF8String], NULL);
+
   return [oFile autorelease];
 }
 
-CLStream *CLOpenMemory(const char *buf, int len, int mode)
++(CLStream *) openMemoryForWriting
 {
-  CLStream *stream = NULL;
+  return [CLMemoryStream openWithMemory:NULL length:0 mode:CLReadWrite];
+}
+
+@end
+
+@implementation CLStream (CLStreamArchiving)
+
+/* Most of this archiving stuff is used for writing URLs. Want it to
+   be as compact as possible. Head has variable length. Its end is
+   marked by the first occurrence of a 0. Count the number of ones in
+   head. The total number of bytes will be 2 ^ count.
+
+   Should probably do something with negative numbers so they can be
+   more compact. Maybe use the absolute value to determine size then
+   convert back to twos complement before writing.
+
+   
+*/
+
+-(int64_t) readInteger
+{
+  uint64_t val;
+  int byte, i;
 
 
-  stream = calloc(1, sizeof(CLStream));
+  val = i = 0;
+  do {
+    byte = [self readByte];
+    if (byte == CLEOF)
+      [self error:@"EOF before finished reading integer"];
+    val |= ((uint64_t) (byte & 0x7f)) << 7 * i;
+    i++;
+  } while (byte & 0x80);
+
+  return val;
+}
+
+-(void) writeInteger:(int64_t) aValue
+{
+  uint64_t val;
+  int num;
   
-  switch (mode) {
-  case CL_READONLY:
-    stream->file = fmemopen((void *) buf, len, "r");
+
+  /* FIXME - do something better about negative values */
+
+  val = aValue;
+  val >>= 7;
+  for (num = 1; val; num++, val >>= 7)
+    ;
+
+  for (val = aValue; num; num--, val >>= 7)
+    [self writeByte:(num > 1 ? 0x80 : 0x00) | (val & 0x7f)];
+  return;
+}
+
+-(void) readType:(CLString *) type data:(void *) data
+{
+  int32_t iVal;
+  int64_t lVal;
+  double dVal;
+  int ctype;
+
+
+  ctype = [type characterAtIndex:0];
+  switch (ctype) {
+  case _C_ID:
+    /* FIXME - if this object is already unarchived, don't create a duplicate */
+    {
+      id anObject = nil;
+      char *className;
+      int len;
+      size_t objHash;
+
+
+      [self readType:@"i" data:&len];
+      if (len) {
+	className = calloc(1, len + 1);
+	[self read:className length:len];
+	objHash = [self readInteger];
+
+	if (!streamObjects)
+	  streamObjects = [[CLHashTable alloc] initWithSize:100];
+	if (!(anObject = [streamObjects dataForKeyIdenticalTo:(id) objHash hash:objHash])) {
+	  anObject = [objc_lookUpClass(className) alloc];
+	  if ([anObject respondsTo:@selector(read:)])
+	    anObject = [anObject read:self];
+	  free(className);
+	  [streamObjects setData:anObject forKey:(id) objHash hash:objHash];
+	}
+      }
+
+      *(id *) data = anObject;
+    }
     break;
-      
-  case CL_WRITEONLY:
-  case CL_READWRITE:
-    stream->file = open_memstream(&stream->buf, &stream->len);
+
+  case _C_CHR:
+  case _C_UCHR:
+  case _C_SHT:
+  case _C_USHT:
+  case _C_INT:
+  case _C_UINT:
+  case _C_LNG:
+  case _C_ULNG:
+  case _C_LNG_LNG:
+  case _C_ULNG_LNG:
+    lVal = [self readInteger];
+    if (ctype == _C_CHR || ctype == _C_UCHR)
+      *(int *) data = lVal;
+    else if (ctype == _C_SHT || ctype == _C_USHT)
+      *(short *) data = lVal;
+    else if (ctype == _C_INT || ctype == _C_UINT)
+      *(int *) data = lVal;
+    else if (ctype == _C_LNG || ctype == _C_ULNG)
+      *(long *) data = lVal;
+    else if (ctype == _C_LNG_LNG || ctype == _C_ULNG_LNG)
+      *(long long *) data = lVal;
+    break;
+
+  case _C_FLT:
+    [self read:&iVal length:sizeof(iVal)];
+    iVal = le32toh(iVal);
+    dVal = INT32_MAX / iVal;
+    [self read:&iVal length:sizeof(iVal)];
+    iVal = le32toh(iVal);
+    *(float *) data = ldexp(dVal, iVal);
+    break;
+
+  case _C_DBL:
+    [self read:&lVal length:sizeof(lVal)];
+    lVal = le64toh(lVal);
+    dVal = INT64_MAX / lVal;
+    [self read:&iVal length:sizeof(iVal)];
+    iVal = le32toh(iVal);
+    *(double *) data = ldexp(dVal, iVal);
+    break;
+
+  case _C_CHARPTR:
+    {
+      char *str = NULL;
+      int len;
+
+
+      [self readType:@"i" data:&len];
+      if (len > -1) {
+	str = calloc(1, len + 1);
+	if (len)
+	  [self read:str length:len];
+      }
+      *(char **) data = str;
+    }
+    break;
+
+  case _C_SEL:
+    {
+      char *str = NULL;
+      int len;
+
+
+      [self readType:@"i" data:&len];
+      if (len > -1) {
+	str = calloc(1, len + 1);
+	if (len)
+	  [self read:str length:len];
+      }
+      *(SEL *) data = sel_getUid(str);
+    }
+    break;
+
+  default:
+    [self error:@"Unknown type %c", ctype];
     break;
   }
 
-  return stream;
-}
-
-void CLCloseMemory(CLStream *stream, int mode)
-{
-  fclose(stream->file);
-  if (stream->buf)
-    free(stream->buf);
-  free(stream);
   return;
 }
 
-void CLGetMemoryBuffer(CLStream *stream, char **data, int *len, int *alloced)
+-(void) writeType:(CLString *) type data:(void *) data
 {
-  fflush(stream->file);
-  *data = stream->buf;
-  *len = stream->len;
-  *alloced = stream->len;
+  int exp;
+  int32_t iVal;
+  int64_t lVal;
+  int ctype;
+
+
+  ctype = [type characterAtIndex:0];
+  switch (ctype) {
+  case _C_ID:
+    /* FIXME - don't write the same object to the stream multiple times */
+    {
+      id anObject = *(id *) data;
+      const char *className;
+      int len = 0;
+
+
+      if (anObject) {
+	className = [[anObject className] UTF8String];
+	len = strlen(className);
+      }
+      [self writeType:@"i" data:&len];
+      if (len) {
+	[self write:className length:len];
+	[self writeInteger:(size_t) anObject];
+	if (!streamObjects)
+	  streamObjects = [[CLHashTable alloc] initWithSize:100];
+	if ([anObject respondsTo:@selector(write:)] &&
+	    ![streamObjects dataForKeyIdenticalTo:anObject hash:(size_t) anObject]) {
+	  [anObject write:self];
+	  [streamObjects setData:anObject forKey:anObject hash:(size_t) anObject];
+	}
+      }
+    }
+    break;
+
+  case _C_CHR:
+  case _C_UCHR:
+  case _C_SHT:
+  case _C_USHT:
+  case _C_INT:
+  case _C_UINT:
+  case _C_LNG:
+  case _C_ULNG:
+  case _C_LNG_LNG:
+  case _C_ULNG_LNG:
+    if (ctype == _C_CHR || ctype == _C_UCHR)
+      lVal = *(int *) data;
+    else if (ctype == _C_SHT || ctype == _C_USHT)
+      lVal = *(short *) data;
+    else if (ctype == _C_INT || ctype == _C_UINT)
+      lVal = *(int *) data;
+    else if (ctype == _C_LNG || ctype == _C_ULNG)
+      lVal = *(long *) data;
+    else if (ctype == _C_LNG_LNG || ctype == _C_ULNG_LNG)
+      lVal = *(long long *) data;
+    [self writeInteger:lVal];
+    break;
+
+  case _C_FLT:
+    iVal = INT32_MAX * frexp(*(float *) data, &exp);
+    iVal = htole32(iVal);
+    [self write:&iVal length:sizeof(iVal)];
+    iVal = htole32(exp);
+    [self write:&iVal length:sizeof(iVal)];
+    break;
+
+  case _C_DBL:
+    lVal = INT64_MAX * frexp(*(float *) data, &exp);
+    lVal = htole32(lVal);
+    [self write:&lVal length:sizeof(lVal)];
+    iVal = htole32(exp);
+    [self write:&iVal length:sizeof(iVal)];
+    break;
+
+  case _C_CHARPTR:
+    {
+      const char *str = *(char **) data;
+      int len = 0;
+
+
+      /* FIXME - find a better way to write out NULL pointers or maybe
+	 disallow them entirely? */
+      if (!str)
+	len = -1;
+      else
+	len = strlen(str);
+      [self writeType:@"i" data:&len];
+      if (len > 0)
+	[self write:str length:len];
+    }
+    break;
+
+  case _C_SEL:
+    {
+      const char *str = sel_getName(*(SEL *) data);
+      int len = 0;
+
+
+      len = strlen(str);
+      [self writeType:@"i" data:&len];
+      [self write:str length:len];
+    }
+    break;
+    
+  default:
+    [self error:@"Unknown type %c", ctype];
+    break;
+  }
+
+  return;
+}
+
+-(void) readTypes:(CLString *) type, ...
+{
+  va_list args;
+  const char *c;
+  CLMutableString *mString;
+
+
+  mString = [[CLMutableString alloc] init];
+  va_start(args, type);
+  for (c = [type UTF8String]; *c; c = objc_skip_typespec(c)) {
+    [mString setString:@""];
+    [mString appendCharacter:*c];
+    [self readType:mString data:va_arg(args, void *)];
+  }
+  va_end(args);
+  [mString release];
   
   return;
 }
 
-CLData *CLGetData(CLStream *stream)
+-(void) writeTypes:(CLString *) type, ...
 {
-  fflush(stream->file);
-  return [CLData dataWithBytes:stream->buf length:stream->len];
-}
+  va_list args;
+  const char *c;
+  CLMutableString *mString;
 
-int CLGetc(CLStream *stream)
-{
-  return getc(stream->file);
-}
 
-void CLPutc(CLStream *stream, int c)
-{
-  putc(c, stream->file);
+  mString = [[CLMutableString alloc] init];
+  va_start(args, type);
+  for (c = [type UTF8String]; *c; c = objc_skip_typespec(c)) {
+    [mString setString:@""];
+    [mString appendCharacter:*c];
+    [self writeType:mString data:va_arg(args, void *)];
+  }
+  va_end(args);
+  [mString release];
+  
   return;
 }
 
-int CLRead(CLStream *stream, char *buf, int len)
-{
-  return fread(buf, 1, len, stream->file);
-}
+@end
 
-void CLWrite(CLStream *stream, const void *buf, int len)
-{
-  fwrite(buf, 1, len, stream->file);
-  return;
-}
+/* I/O as functions */
 
 void CLPrintf(CLStream *stream, CLString *format, ...)
 {
@@ -189,130 +629,12 @@ void CLPrintf(CLStream *stream, CLString *format, ...)
 
 
   va_start(ap, format);
-  vfprintf(stream->file, [format UTF8String], ap);
+  [stream writeFormat:format usingEncoding:CLUTF8StringEncoding arguments:ap];
   va_end(ap);
   return;
 }
 
-id CLReadObject(CLTypedStream *stream)
-{
-  id anObject, newObject;
-
-
-  objc_read_object(stream, &anObject);
-  /* FIXME - this shouldn't be here. Yes it will leak because
-     releasing things read in from the stream seems to cause
-     problems. */
-  if ([anObject isKindOfClass:[CLGenericRecord class]]) {
-    newObject = [CLGenericRecord registerInstance:anObject];
-    if (newObject && newObject != anObject)
-      anObject = newObject;
-  }
-  
-  return anObject;
-}
-
-CLTypedStream *CLOpenTypedStream(CLStream *stream, int mode)
-{
-  return objc_open_typed_stream(stream->file, mode);
-}
-
-int CLReadType(CLTypedStream *stream, const char *type, void *data)
-{
-  char *p;
-  int len;
-  id anObject, newObject;
-  
-  
-  switch (*type) {
-  case _C_CHARPTR:
-    len = objc_read_type(stream, type, &p);
-    if (!len) {
-      *(char **)data = NULL;
-      free(p);
-    }
-    else
-      *(char **)data = p;
-    return len;
-    break;
-
-  default:
-    len = objc_read_type(stream, type, data);
-    anObject = *(id *) data;
-    if (*type == _C_ID && [anObject isKindOfClass:[CLGenericRecord class]]) {
-      newObject = [CLGenericRecord registerInstance:anObject];
-      if (newObject && newObject != anObject)
-	anObject = newObject;
-      *(id *) data = anObject;
-    }
-    return len;
-  }
-
-  return -1;
-}
-    
-int CLWriteType(CLTypedStream *stream, const char *type, const void *data)
-{
-  const char *p;
-
-
-  switch (*type) {
-  case _C_CHARPTR:
-    p = *(char **)data;
-    if (!p)
-      return objc_write_string(stream, (unsigned char *) "", 0);
-    else
-      return objc_write_string(stream, (unsigned char *) p, strlen(p));
-    break;
-
-  default:
-    return objc_write_type(stream, type, data);
-  }
-  
-  return -1;
-}
-
-int CLReadTypes(CLTypedStream *stream, const char *type, ...)
-{
-  const char *c;
-  va_list args;
-
-
-  va_start(args, type);
-
-  for (c = type; *c; c = objc_skip_typespec(c))
-    CLReadType(stream, c, va_arg(args, void *));
-  va_end(args);
-  
-  return 0;
-}
-  
-int CLWriteTypes(CLTypedStream *stream, const char *type, ...)
-{
-  const char *c;
-  va_list args;
-
-
-  va_start(args, type);
-
-  for (c = type; *c; c = objc_skip_typespec(c))
-    CLWriteType(stream, c, va_arg(args, void *));
-  va_end(args);
-  
-  return 0;
-}
-
-long CLTell(CLStream *stream)
-{
-  return ftell(stream->file);
-}
-
-void CLSeek(CLStream *stream, long offset, int whence)
-{
-  fseek(stream->file, offset, whence);
-  return;
-}
-
+/* Legacy I/O */
 CLString *CLGets(FILE *file, CLStringEncoding enc)
 {
   char *buf;
@@ -332,8 +654,10 @@ CLString *CLGets(FILE *file, CLStringEncoding enc)
       buf = realloc(buf, buflen *= 2);
   }
 
-  if (pos || err) 
-    aString = [CLString stringWithBytesNoCopy:buf length:pos encoding:enc];
+  if (pos || err)  {
+    aString = [CLString stringWithBytes:buf length:pos encoding:enc];
+    free(buf);
+  }
   else
     aString = nil;
   return aString;
@@ -357,8 +681,10 @@ CLString *CLGetsfd(int fd, CLStringEncoding enc)
       buf = realloc(buf, buflen *= 2);
   }
 
-  if (len > 0)
-    aString = [CLString stringWithBytesNoCopy:buf length:pos encoding:enc];
+  if (len > 0) {
+    aString = [CLString stringWithBytes:buf length:pos encoding:enc];
+    free(buf);
+  }
   else
     aString = nil;
   return aString;
@@ -366,6 +692,9 @@ CLString *CLGetsfd(int fd, CLStringEncoding enc)
 
 void CLFindFileDirectory()
 {
+#if DEBUG_RETAIN
+    id self = nil;
+#endif
   if (!CLFileDirectory) {
     if ([CLDelegate respondsTo:@selector(delegateGetFileDirectory)])
       CLFileDirectory = [[CLDelegate delegateGetFileDirectory] copy];
@@ -412,6 +741,18 @@ CLString *CLPathForFileID(int file_id)
   return aPath;
 }
 
+void CLCreateWorldWritableDirectory(CLString *aPath)
+{
+  struct stat st;
+  
+
+  mkdir([aPath UTF8String], 0777);
+  stat([aPath UTF8String], &st);
+  st.st_mode |= 0777;
+  chmod([aPath UTF8String], st.st_mode);
+  return;
+}
+
 BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint, int seq)
 {
   CLString *aPath, *aString, *mimeType = nil;
@@ -426,13 +767,14 @@ BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint
   
   aPath = [CLFileDirectory stringByAppendingPathComponent:
 			       [CLString stringWithFormat:@"%i", seq % 10]];
-  mkdir([aPath UTF8String], 0755);
+  CLCreateWorldWritableDirectory(aPath);
   aPath = [aPath stringByAppendingPathComponent:
 		     [CLString stringWithFormat:@"%i", (seq / 10) % 10]];
-  mkdir([aPath UTF8String], 0755);
+  CLCreateWorldWritableDirectory(aPath);
   aPath = [aPath stringByAppendingPathComponent:[CLString stringWithFormat:@"%i", seq]];
   if ((file = fopen([aPath UTF8String], "w"))) {
-    fwrite([aData bytes], 1, [aData length], file);
+    if ([aData length])
+      fwrite([aData bytes], 1, [aData length], file);
     fclose(file);
 
     if (!extension) {
@@ -486,7 +828,7 @@ BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint
   return !!seq;
 }
 
-int CLStoreFile(CLData *aData, CLString *extension, CLString *extensionHint)
+int CLNextFileSequence()
 {
   int fd;
   FILE *file;
@@ -509,7 +851,7 @@ int CLStoreFile(CLData *aData, CLString *extension, CLString *extensionHint)
   CLFindFileDirectory();
   
   aPath = CLFileDirectory;
-  mkdir([aPath UTF8String], 0755);
+  CLCreateWorldWritableDirectory(aPath);
   aPath = [aPath stringByAppendingPathComponent:FILE_SEQ];
   if ((fd = open([aPath UTF8String], O_RDWR | O_CREAT, 0644)) >= 0) {
     if (!flock(fd, LOCK_EX) && (file = fdopen(fd, "r+"))) {
@@ -527,6 +869,15 @@ int CLStoreFile(CLData *aData, CLString *extension, CLString *extensionHint)
       close(fd);
   }
 
+  return seq;
+}
+
+int CLStoreFile(CLData *aData, CLString *extension, CLString *extensionHint)
+{
+  int seq;
+
+
+  seq = CLNextFileSequence();
   if (!CLStoreFileAsID(aData, extension, extensionHint, seq))
     seq = 0;
   
@@ -570,19 +921,35 @@ static CLString *CLTryExtensions(CLString *aFilename, CLArray *extensions)
     }
     else
       aString = aFilename;
-    
-    for (i = 0, j = [extensions count]; i < j; i++) {
-      aString2 = [aString stringByAppendingPathExtension:[extensions objectAtIndex:i]];
-      if (!access([aString2 UTF8String], R_OK))
-	break;
-    }
-    if (i == j)
+
+    {
+      CLUInteger max;
+      CLMutableString *mString;
+
+
       aString2 = nil;
-    [aString2 retain];    
+      for (i = max = 0, j = [extensions count]; i < j; i++)
+	if ([[extensions objectAtIndex:i] length] > max)
+	  max = [[extensions objectAtIndex:i] length];
+
+      mString = [[CLMutableString alloc] init];
+      for (i = 0, j = [extensions count]; i < j; i++) {
+	[mString setString:aString];
+	[mString appendPathExtension:[extensions objectAtIndex:i]];
+	if (!access([mString UTF8String], R_OK)) {
+	  aString2 = [mString retain];
+	  break;
+	}
+      }
+      [mString release];
+    }
   }
   else
     aString2 = [aFilename copy];
 
+#if DEBUG_RETAIN
+    id self = nil;
+#endif
   return [aString2 autorelease];
 }
 
@@ -608,9 +975,14 @@ CLString *CLFullPathForFile(CLString *aFilename, CLArray *extensions,
 
   if (!aString) {
     if (![aFilename isAbsolutePath]) {
-      if (!(aString = CLTryExtensions([CLAppPath stringByAppendingPathComponent:aFilename],
-				      extensions)))
+      CLMutableString *mString;
+
+
+      mString = [CLAppPath mutableCopy];
+      [mString appendPathComponent:aFilename];
+      if (!(aString = CLTryExtensions(mString, extensions)))
 	aString = CLTryExtensions(aFilename, extensions);
+      [mString release];
     }
     else
       aString = CLTryExtensions(aFilename, extensions);
@@ -625,74 +997,6 @@ CLString *CLFullPathForFile(CLString *aFilename, CLArray *extensions,
   }
 
   return aString;
-}
-
-CLOpenFile *CLPtyOpen(CLString *aCommand, struct termios *termp, struct winsize *winp)
-{
-  pid_t pid;
-  char pty[MAXPATHLEN+1];
-  int master;
-  CLOpenFile *oFile = nil;
-  FILE *file;
-
-
-  pid = forkpty(&master, pty, termp, winp);
-  if (pid > 0) {
-    if ((file = fdopen(master, "r+")))
-      oFile = [[CLOpenFile alloc] initWithFile:file path:[CLString stringWithUTF8String:pty]
-				  pid:pid];
-  }
-  else if (pid == 0) /* child */
-    execl("/bin/sh", "/bin/sh", "-c", [aCommand UTF8String], NULL);
-
-  return [oFile autorelease];
-}
-
-CLOpenFile *CLPipeOpen(CLString *aCommand, CLString *type)
-{
-  pid_t pid;
-  CLOpenFile *oFile = nil;
-  FILE *file;
-  int wp[2], rp[2];
-  int tty;
-  int fd, maxf;
-
-
-  pipe(wp);
-  pipe(rp);
-
-  pid = fork();
-  if (pid > 0) {
-    close(wp[0]);
-    close(rp[1]);
-    if ([type characterAtIndex:0] == 'r') {
-      close(wp[1]);
-      file = fdopen(rp[0], "r");
-    }
-    else {
-      close(rp[0]);
-      file = fdopen(wp[1], "w");
-    }
-    oFile = [[CLOpenFile alloc] initWithFile:file path:nil pid:pid];
-  }
-  else if (pid == 0) { /* child */
-    dup2(wp[0], 0);
-    dup2(rp[1], 1);
-    dup2(rp[1], 2);
-
-    maxf = getdtablesize();
-    for (fd = 3; fd < maxf; fd++)
-      close(fd);
-
-    if ((tty = open("/dev/tty", O_RDWR)) >= 0) {
-      ioctl(tty, TIOCNOTTY, 0);
-      close(tty);
-    }
-    
-    execl("/bin/sh", "/bin/sh", "-c", [aCommand UTF8String], NULL);
-  }
-
-  return [oFile autorelease];
 }
 
 int CLDeflate(const void *data, int len, int level, CLData **aData)

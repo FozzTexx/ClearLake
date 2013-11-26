@@ -1150,12 +1150,12 @@ id CLDisposeInstance(id object)
   return aString;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
-  return;
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   return;
 }

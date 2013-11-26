@@ -19,6 +19,8 @@
 
 #import <ClearLake/CLObject.h>
 
+#include <stdio.h>
+
 @class CLString;
 
 @interface CLOpenFile:CLObject

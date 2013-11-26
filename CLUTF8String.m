@@ -21,6 +21,7 @@
 #import "CLStringFunctions.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 @implementation CLUTF8String
 

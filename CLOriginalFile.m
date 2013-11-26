@@ -101,15 +101,15 @@
   return;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   [super read:stream];
   loaded = NO;
   data = nil;
-  return;
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   [super write:stream];
   return;
@@ -219,12 +219,12 @@
   FILE *file;
   CLRange aRange;
   CLCharacterSet *ws = [CLCharacterSet whitespaceAndNewlineCharacterSet];
-  CLOpenFile *tFile = nil;
+  CLStream *tFile = nil;
 
 
-  if (![self objectID]) {
-    tFile = CLTemporaryFile(@"file.XXXXXX");
-    fwrite([data bytes], 1, [data length], [tFile file]);
+  if (![super objectID]) {
+    tFile = [CLStream openTemporaryFile:@"file.XXXXXX"];
+    [tFile writeData:data];
     [tFile close];
     aPath = [tFile path];
   }

@@ -20,7 +20,7 @@
 #ifndef _CLTCPSTREAM_H
 #define _CLTCPSTREAM_H
 
-#import <ClearLake/CLObject.h>
+#import <ClearLake/CLStream.h>
 #import <ClearLake/CLString.h>
 
 typedef enum {
@@ -30,7 +30,7 @@ typedef enum {
 
 /* FIXME - Convert CLStream to a class cluster and have this inherit from it */
 
-@interface CLTCPStream:CLObject
+@interface CLTCPStream:CLStream <CLStream>
 {
   CLString *host;
   int port;

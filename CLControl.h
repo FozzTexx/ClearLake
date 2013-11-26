@@ -60,16 +60,16 @@ extern CLString *CLTargetFrame;
 -(BOOL) writeContents;
 -(CLString *) generateURL;
 
--(void) readURL:(CLTypedStream *) stream;
--(void) writeURL:(CLTypedStream *) stream;
+-(void) readURL:(CLStream *) stream;
+-(void) writeURL:(CLStream *) stream;
 -(void) writeHTML:(CLStream *) stream;
 
 @end
 
 @protocol CLControlDelegate
 -(BOOL) controlShouldPerform:(CLControl *) aControl;
--(void) control:(CLControl *) aControl readPersistentData:(CLTypedStream *) stream;
--(void) control:(CLControl *) aControl writePersistentData:(CLTypedStream *) stream;
+-(void) control:(CLControl *) aControl readPersistentData:(CLStream *) stream;
+-(void) control:(CLControl *) aControl writePersistentData:(CLStream *) stream;
 
 -(CLString *) delegateEncodeSimpleURL:(id) aControl
 			    localQuery:(CLMutableDictionary *) localQuery;

@@ -37,6 +37,7 @@
 #include <iconv.h>
 #include <errno.h>
 #include <wctype.h>
+#include <string.h>
 
 Class CLStringClass = nil, CLUTF8StringClass = nil, CLConstantStringClass = nil,
   CLConstantUnicodeStringClass = nil, CLMutableStringClass = nil;

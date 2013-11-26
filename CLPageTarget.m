@@ -57,27 +57,27 @@
   return aCopy;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   char *buf;
 
   
   [super read:stream];
-  CLReadTypes(stream, "*", &buf);
+  [stream readTypes:@"*", &buf];
   if (buf)
     path = [[CLString alloc] initWithUTF8String:buf];
   free(buf);
-  return;
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   const char *buf;
 
 
   [super write:stream];
   buf = [path UTF8String];
-  CLWriteTypes(stream, "*", &buf);
+  [stream writeTypes:@"*", &buf];
   return;
 }
 

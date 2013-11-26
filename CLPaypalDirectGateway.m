@@ -30,6 +30,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 @implementation CLPaypalDirectGateway
 

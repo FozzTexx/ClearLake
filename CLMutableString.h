@@ -42,4 +42,9 @@
 				   range:(CLRange) range;
 @end
 
+@interface CLMutableString (CLStringPaths)
+-(void) appendPathComponent:(CLString *) aString;
+-(void) appendPathExtension:(CLString *) ext;
+@end
+
 #endif /* _CLMUTABLESTRING_H */
