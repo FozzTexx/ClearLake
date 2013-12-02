@@ -1413,6 +1413,18 @@ static IMP CLFindForwardFunction(SEL sel)
   return (IMP) CLForwardPointerMethod;
 }
 
+void CLObjectSetInstanceVariable(id anObject, const char *name, void *data)
+{
+  void *ivarPtr;
+  int type;
+
+
+  if ((ivarPtr = [anObject pointerForIvar:name type:&type]))
+    *(id *) ivarPtr = (id) data;
+
+  return;
+}
+
 /* FIXME - just for finding memory leaks */
 
 int numblocks = 0, maxblocks = 0, marker = 0;
