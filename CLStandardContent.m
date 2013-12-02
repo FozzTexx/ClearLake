@@ -39,6 +39,9 @@
 #import "CLData.h"
 #import "CLMutableDictionary.h"
 #import "CLSortDescriptor.h"
+#import "CLOriginalImage.h"
+#import "CLField.h"
+#import "CLFileType.h"
 
 #define FIELD_CAT		@"cl_sc"
 #define FIELD_CATDEPTH		FIELD_CAT @"_depth"

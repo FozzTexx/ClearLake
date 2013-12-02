@@ -24,6 +24,7 @@
 #import "CLMutableDictionary.h"
 #import "CLStream.h"
 #import "CLArray.h"
+#import "CLNumber.h"
 
 #include <unistd.h>
 #include <sys/wait.h>

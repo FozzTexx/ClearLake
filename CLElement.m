@@ -28,7 +28,6 @@
 #import "CLExpression.h"
 #import "CLManager.h"
 #import "CLDecimalNumber.h"
-#import <objc/objc-api.h>
 
 #include <wctype.h>
 #include <stdlib.h>

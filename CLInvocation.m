@@ -21,9 +21,9 @@
 #import "CLMethodSignature.h"
 #import "CLNumber.h"
 #import "CLString.h"
-#import "CLObjCAPI.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 @implementation CLInvocation
 

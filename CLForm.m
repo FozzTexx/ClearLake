@@ -33,10 +33,10 @@
 #import "CLAttribute.h"
 #import "CLCalendarDate.h"
 #import "CLDecimalNumber.h"
-#import "CLObjCAPI.h"
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #define FIELD_PLIST	@"cl_plist"
 

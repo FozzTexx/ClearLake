@@ -46,7 +46,7 @@
 #import "CLAccessControl.h"
 #import "CLDatabase.h"
 #import "CLNull.h"
-#import "CLObjCAPI.h"
+#import "CLEditingContext.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -56,6 +56,7 @@
 #include <crypt.h>
 #include <ctype.h>
 #include <sys/time.h>
+#include <string.h>
 
 /* FIXME - sposed to be declared in stdio.h but it's not */
 extern char *cuserid(char *string);

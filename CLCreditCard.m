@@ -26,6 +26,7 @@
 #import "CLString.h"
 #import "CLCalendarDate.h"
 #import "CLNumber.h"
+#import "CLMailingAddress.h"
 
 #include <stdlib.h>
 #include <wctype.h>

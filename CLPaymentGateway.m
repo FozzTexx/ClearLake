@@ -19,6 +19,7 @@
 
 #import "CLPaymentGateway.h"
 #import "CLString.h"
+#import "CLDictionary.h"
 
 CLString * const CLGatewayPassword = @"CLGatewayPassword";
 CLString * const CLGatewayUser = @"CLGatewayUser";

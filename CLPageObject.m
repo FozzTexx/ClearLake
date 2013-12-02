@@ -18,6 +18,7 @@
  */
 
 #import "CLPageObject.h"
+#import "CLString.h"
 
 @implementation CLPageObject
 

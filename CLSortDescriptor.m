@@ -21,7 +21,6 @@
 #import "CLString.h"
 #import "CLMutableArray.h"
 #import "CLNull.h"
-#import "CLObjCAPI.h"
 
 extern CLNull *CLNullObject;
 

@@ -22,7 +22,6 @@
 
 #import "CLMethodSignature.h"
 #import "CLMutableString.h"
-#import "CLObjCAPI.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -31,7 +30,7 @@
 
 +(CLMethodSignature *) methodSignatureForSelector:(SEL) aSel
 {
-  const char *types = aSel->sel_types;
+  const char *types = ((struct objc_method_description *) aSel)->types;
   const char *p;
   CLUInteger i, j, offset;
   CLMutableString *mString;
@@ -52,7 +51,7 @@
     types = [mString UTF8String];
   }    
     
-  return [[[self alloc] initFromTypes:types] autorelease];
+  return [[self alloc] initFromTypes:types];
 }
 
 +(CLMethodSignature *) methodSignatureForDescription:(struct objc_method_description *) aDesc

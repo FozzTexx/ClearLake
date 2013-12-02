@@ -46,7 +46,6 @@
 #import "CLPageTarget.h"
 #import "CLData.h"
 #import "CLCalendarDate.h"
-#import "CLObjCAPI.h"
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -54,6 +53,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <wctype.h>
+#include <string.h>
 
 #define BUFSIZE		256
 #define QUERY_DEBUG	@"CLdbg"

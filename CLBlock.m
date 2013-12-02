@@ -33,6 +33,7 @@
 #import "CLNull.h"
 #import "CLCharacterSet.h"
 #import "CLExpression.h"
+#import "CLCalendarDate.h"
 
 @implementation CLBlock
 

@@ -27,7 +27,6 @@
 #import "CLPage.h"
 #import "CLSession.h"
 #import "CLDictionary.h"
-#import "CLObjCAPI.h"
 
 @implementation CLAccessControl
 
