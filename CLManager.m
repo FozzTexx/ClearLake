@@ -1359,6 +1359,8 @@ static CLMutableDictionary *CLConfig = nil;
   foundMatch = NO;
   for (i = 0, j = [acls count]; i < j; i++)
     if ([[acls objectAtIndex:i] matchesObject:anObject]) {
+      fprintf(stderr, "matched %s %s\n", [[[acls objectAtIndex:i] object] UTF8String],
+	      [[[acls objectAtIndex:i] accountFlags] UTF8String]);
       foundMatch = YES;
       if ((allow = [[acls objectAtIndex:i] checkPermission:anObject]))
 	return YES;
@@ -1758,5 +1760,11 @@ void CLInitializeQuery(CLString *aString)
     free(w);
   }
 
+  return;
+}
+
+void ughgdbstupid()
+{
+  [[CLMutableArray alloc] init];
   return;
 }

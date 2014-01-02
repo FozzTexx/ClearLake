@@ -29,6 +29,7 @@
 @interface CLMutableString (CLMutableStringAdditions)
 -(void) insertString:(CLString *) aString atIndex:(CLUInteger) anIndex;
 -(void) setString:(CLString *) aString;
+-(void) setCharacters:(unichar *) aBuffer length:(CLUInteger) length;
 -(void) deleteCharactersInRange:(CLRange) aRange;
 -(void) appendCharacter:(unichar) aChar;
 -(void) appendString:(CLString *) aString;

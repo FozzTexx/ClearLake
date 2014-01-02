@@ -17,6 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifdef __GNU_LIBOBJC__
+#error This will not work with newer GNU runtime
+#endif
+
 #define NO_OVERRIDE	1
 
 #define _GNU_SOURCE
@@ -171,7 +175,7 @@ id CLDisposeInstance(id object)
 
 +(id) alloc
 {
-  return class_create_instance(self);
+  return CLCreateInstance(self);
 }
 
 +(void) poseAsClass:(Class) aClassObject
@@ -233,7 +237,7 @@ id CLDisposeInstance(id object)
      do anything and will abort if called */
   isa = CLReleaseTrackerClass;
 #else
-  object_dispose(self);
+  CLDisposeInstance(self);
 #endif
 
 #if 0
@@ -1167,14 +1171,15 @@ CLString *CLPropertyListString(id anObject)
 
   if ([anObject isKindOfClass:[CLString class]]) {
     aString = anObject;
-    len = [aString length];
-    buf = malloc(sizeof(unichar) * len);
-    [aString getCharacters:buf];
-    for (i = 0; i < len && iswalnum(buf[i]); i++)
-      ;
-    if (!len || i < len)
-      aString = [aString propertyListString];
-    free(buf);
+    if ((len = [aString length])) {
+      buf = malloc(sizeof(unichar) * len);
+      [aString getCharacters:buf];
+      for (i = 0; i < len && iswalnum(buf[i]); i++)
+	;
+      if (!len || i < len)
+	aString = [aString propertyListString];
+      free(buf);
+    }
   }
   else if ([anObject respondsTo:@selector(propertyList)])
     aString = [anObject propertyList];

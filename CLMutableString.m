@@ -110,6 +110,19 @@
   return;
 }
 
+-(void) setCharacters:(unichar *) aBuffer length:(CLUInteger) length
+{
+  CLStringStorage *stor;
+
+
+  stor = data;
+  if (len < length && !(stor->str = realloc(stor->str, length * sizeof(unichar))))
+    [self error:@"Unable to allocate memory"];
+  len = length;
+  wmemmove(stor->str, aBuffer, len);
+  return;
+}
+
 -(void) deleteCharactersInRange:(CLRange) aRange
 {
   CLStringReplaceCharacters(self, aRange, nil);

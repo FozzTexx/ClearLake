@@ -252,7 +252,8 @@ CLString *CLImageDirs[] = {@"", @"Images/", @"images/", NULL};
 
 -(void) autocropImage:(int) margin
 {
-  autoCropImage(rep, margin);
+  if (rep)
+    autoCropImage(rep, margin);
   [self clearPath];
   return;
 }
@@ -411,7 +412,7 @@ CLString *CLImageDirs[] = {@"", @"Images/", @"images/", NULL};
     if ([saveFormat isEqualToString:@"eps"])
       saveFormat = @"png";
     [self loadImage];
-    if (!save_pic(tpath, [saveFormat UTF8String], rep)) {
+    if (rep && !save_pic(tpath, [saveFormat UTF8String], rep)) {
       if ([format isEqualToString:@"eps"]) {
 	cmd = [CLString stringWithFormat:@"/usr/bin/convert %@ eps:-", [oFile path]];
 	oFile = CLPipeOpen(cmd, @"r");

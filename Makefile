@@ -2,6 +2,7 @@ PRODUCT= libClearLake.a
 # If PRODUCT= line is missing, be sure to insert one
 # $(PRODUCT).c will be automatically compiled, so it
 # doesn't need to be inserted below
+CC=gcc44
 CLASSES= CLArray.m CLAutoreleasePool.m CLCharacterSet.m			\
 	CLMutableCharacterSet.m CLControl.m CLCookie.m CLData.m		\
 	CLMutableData.m CLDictionary.m CLElement.m CLField.m CLForm.m	\
@@ -32,6 +33,7 @@ MFILES= CLStream.m CLDecimal.m CLDecimalMPZ.m CLStringFunctions.m	\
 	CLGetArgs.m
 CFILES= 
 FFILES=
+CC=gcc-4.6
 CFLAGS= -m32 -g -Wall -Wno-import -I$(HOME)/Unix/$(OSTYPE)/include
 OCFLAGS=-fconstant-string-class=CLConstantString
 MAKEFILEDIR=/usr/local/Makefiles
