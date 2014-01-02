@@ -57,6 +57,7 @@
 #include <crypt.h>
 #include <ctype.h>
 #include <sys/time.h>
+#include <sys/sysinfo.h>
 
 /* FIXME - sposed to be declared in stdio.h but it's not */
 extern char *cuserid(char *string);
@@ -1612,6 +1613,28 @@ void CLRun(CLString *mainObjectName)
   SEL mainAction;
 
 
+  {
+    struct sysinfo info;
+    int i;
+    double load;
+
+
+    sysinfo(&info);
+    for (i = 0; i < 3; i++) {
+      load = info.loads[i] / 65536.0;
+      if (load > 12)
+	break;
+    }
+
+    if (i < 3) {
+      printf("Status: 503\r\n");
+      printf("Content-Type: text/plain\r\n");
+      printf("\r\n");
+      printf("The rent is too high\r\n");
+      exit(1);
+    }
+  }
+  
   CLInit();
 
   PATH_INFO = getenv("PATH_INFO");
