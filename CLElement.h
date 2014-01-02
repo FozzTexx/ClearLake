@@ -33,6 +33,8 @@
   id datasource, parentBlock;
 }
 
++(void) writeAttributes:(CLDictionary *) aDict using:(id) anElement to:(CLStream *) stream;
+
 -(id) init;
 -(id) initFromString:(CLString *) aString onPage:(CLPage *) aPage; /* This is the designated initializer */
 -(id) initFromElement:(CLElement *) anElement onPage:(CLPage *) aPage;

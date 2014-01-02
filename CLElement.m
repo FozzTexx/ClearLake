@@ -38,6 +38,89 @@
 
 @implementation CLElement
 
++(CLString *) expandClass:(CLString *) aString using:(id) anElement
+{
+  CLMutableArray *mArray;
+  int i;
+  CLRange aRange;
+  CLString *aValue;
+  CLExpression *anExp;
+  id anObject;
+  BOOL flag;
+
+
+  mArray = [[aString componentsSeparatedByString:@" "] mutableCopy];
+  for (i = [mArray count] - 1; i >= 0; i--) {
+    aValue = [mArray objectAtIndex:i];
+    aRange = [aValue rangeOfString:@"="];
+    if (aRange.length) {
+      anExp = [[CLExpression alloc]
+		initFromString:[aValue substringFromIndex:CLMaxRange(aRange)]];
+      anObject = [anExp evaluate:anElement];
+      [anExp release];
+
+      [mArray removeObjectAtIndex:i];
+      if (!aRange.location) {
+	aValue = anObject;
+	flag = YES;
+      }
+      else {
+	aValue = [aValue substringToIndex:aRange.location];
+	if ([anObject isKindOfClass:[CLNumber class]])
+	  flag = [anObject boolValue];
+	else
+	  flag = !!anObject;
+      }
+      if (flag && aValue)
+	[mArray insertObject:aValue atIndex:i];
+    }
+  }
+
+  aString = [mArray componentsJoinedByString:@" "];
+  [mArray release];
+  return aString;
+}
+  
++(void) writeAttributes:(CLDictionary *) aDict using:(id) anElement to:(CLStream *) stream
+{
+  int i, j;
+  CLArray *keys;
+  CLString *aKey;
+  id aValue;
+  BOOL found;
+
+
+  keys = [aDict allKeys];
+  for (i = 0, j = [keys count]; i < j; i++) {
+    aKey = [keys objectAtIndex:i];
+
+    /* Not using hasPrefix: because I need case insensitive */
+    if ([aKey length] >= 3 && ![aKey compare:@"CL_" options:CLCaseInsensitiveSearch
+				     range:CLMakeRange(0, 3)]) {
+      if (![aKey caseInsensitiveCompare:@"CL_CLASS"])
+	aValue = [self expandClass:[aDict objectForKey:aKey] using:anElement];
+      else {
+	aValue = [anElement objectValueForSpecialBinding:
+			      [[anElement attributes] objectForCaseInsensitiveString:aKey]
+			    allowConstant:NO found:&found wasConstant:NULL];
+	if (!aValue && found)
+	  aValue = [CLNull null];
+      }
+      aKey = [aKey substringFromIndex:3];
+    }
+    else
+      aValue = [aDict objectForKey:aKey];
+
+    if (aValue) {
+      CLPrintf(stream, @" %@", aKey);
+      if (![aValue isKindOfClass:[CLNull class]])
+	CLPrintf(stream, @"=\"%@\"", [[aValue description] entityEncodedString]);
+    }
+  }
+
+  return;
+}
+
 -(id) init
 {
   return [self initFromString:nil onPage:nil];
@@ -314,93 +397,40 @@
   return anObject;
 }
 
--(CLString *) expandClass:(CLString *) aString
-{
-  CLMutableArray *mArray;
-  int i;
-  CLRange aRange;
-  CLString *aValue;
-  CLExpression *anExp;
-  id anObject;
-  BOOL flag;
-
-
-  mArray = [[aString componentsSeparatedByString:@" "] mutableCopy];
-  for (i = [mArray count] - 1; i >= 0; i--) {
-    aValue = [mArray objectAtIndex:i];
-    aRange = [aValue rangeOfString:@"="];
-    if (aRange.length) {
-      anExp = [[CLExpression alloc]
-		initFromString:[aValue substringFromIndex:CLMaxRange(aRange)]];
-      anObject = [anExp evaluate:self];
-      [anExp release];
-
-      [mArray removeObjectAtIndex:i];
-      if (!aRange.location) {
-	aValue = anObject;
-	flag = YES;
-      }
-      else {
-	aValue = [aValue substringToIndex:aRange.location];
-	if ([anObject isKindOfClass:[CLNumber class]])
-	  flag = [anObject boolValue];
-	else
-	  flag = !!anObject;
-      }
-      if (flag && aValue)
-	[mArray insertObject:aValue atIndex:i];
-    }
-  }
-
-  aString = [mArray componentsJoinedByString:@" "];
-  [mArray release];
-  return aString;
-}
-  
 -(void) writeAttributes:(CLDictionary *) aDict to:(CLStream *) stream
 {
-  int i, j;
-  CLArray *keys;
+  return [[self class] writeAttributes:aDict using:self to:stream];
+}
+
+-(void) writeAttributes:(CLStream *) stream ignore:(CLMutableArray *) ignore
+{
   CLString *aKey;
-  id aValue;
-  BOOL found;
+  CLMutableDictionary *mDict;
+  int i, j;
 
 
-  keys = [aDict allKeys];
-  for (i = 0, j = [keys count]; i < j; i++) {
-    aKey = [keys objectAtIndex:i];
-
-    /* Not using hasPrefix: because I need case insensitive */
-    if ([aKey length] >= 3 && ![aKey compare:@"CL_" options:CLCaseInsensitiveSearch
-				     range:CLMakeRange(0, 3)]) {
-      if (![aKey caseInsensitiveCompare:@"CL_CLASS"])
-	aValue = [self expandClass:[aDict objectForKey:aKey]];
-      else {
-	aValue = [self objectValueForSpecialBinding:
-			 [attributes objectForCaseInsensitiveString:aKey]
-				      allowConstant:NO found:&found wasConstant:NULL];
-	if (!aValue && found)
-	  aValue = [CLNull null];
-      }
-      aKey = [aKey substringFromIndex:3];
-    }
-    else
-      aValue = [aDict objectForKey:aKey];
-
-    if (aValue) {
-      CLPrintf(stream, @" %@", aKey);
-      if (![aValue isKindOfClass:[CLNull class]])
-	CLPrintf(stream, @"=\"%@\"", [[aValue description] entityEncodedString]);
-    }
+  mDict = [attributes mutableCopy];  
+  if (!ignore)
+    ignore = [CLMutableArray array];
+  
+  [ignore addObjects:@"CL_VISIBLE", @"CL_SORT", @"CL_FORMAT", @"CL_AUTONUMBER",
+	  @"CL_DATASOURCE", @"CL_BINDING", @"CL_DBINDING", @"CL_VARNAME", nil];
+  
+  for (i = 0, j = [ignore count]; i < j; i++) {
+    aKey = [ignore objectAtIndex:i];
+    if ([mDict objectForCaseInsensitiveString:aKey])
+      [mDict removeObjectForCaseInsensitiveString:aKey];
   }
 
+  [[self class] writeAttributes:mDict using:self to:stream];
+  [mDict release];
   return;
 }
 
 -(void) writeHTML:(CLStream *) stream
 {
   CLPrintf(stream, @"<%@", title);
-  [self writeAttributes:attributes to:stream];
+  [[self class] writeAttributes:attributes using:self to:stream];
   CLPrintf(stream, @">");
 
   return;

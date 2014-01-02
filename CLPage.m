@@ -1216,8 +1216,6 @@ void CLSetDelegate(id anObject)
   CLStream *stream2;
   char *data;
   int gz = NO;
-  CLArray *keys;
-  id anObject;
   CLAccount *anAccount = nil;
 
 
@@ -1289,16 +1287,7 @@ void CLSetDelegate(id anObject)
 
   if (!frames) {
     CLPrintf(stream2, @"<BODY");
-    keys = [bodyAttributes allKeys];
-    for (i = 0, j = [keys count]; i < j; i++) {
-      anObject = [keys objectAtIndex:i];
-      /* Not using hasPrefix: because I need case insensitive */
-      if ([anObject length] >= 3 && ![anObject compare:@"CL_" options:CLCaseInsensitiveSearch
-					       range:CLMakeRange(0, 3)])
-	continue;
-      CLPrintf(stream2, @" %@=\"%@\"", anObject,
-	       [[bodyAttributes objectForKey:anObject] entityEncodedString]);
-    }
+    [CLElement writeAttributes:bodyAttributes using:self to:stream2];
     CLPrintf(stream2, @">\n");
   }
 
