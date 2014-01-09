@@ -25,6 +25,8 @@
 {
   CLString *zone;
   CLString *oldZone;
+
+  BOOL _isUTC;
 }
 
 +(id) timeZoneWithName:(CLString *) aName;

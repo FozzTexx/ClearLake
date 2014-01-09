@@ -54,7 +54,7 @@
       return CLAmericanExpressIssuer;
     else if (identifier >= 400000 && identifier <= 499999)
       return CLVISAIssuer;
-    else if (identifier >= 510000 && identifier <= 559999)
+    else if (identifier >= 500000 && identifier <= 559999)
       return CLMasterCardIssuer;
     else if (identifier >= 601100 && identifier <= 601199)
       return CLDiscoverIssuer;
