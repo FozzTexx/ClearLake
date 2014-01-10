@@ -38,7 +38,7 @@
 #import "CLValue.h"
 #import "CLExpression.h"
 #import "CLNull.h"
-#import "CLObjCAPI.h"
+#import "CLImageRep.h"
 
 #include <stdlib.h>
 

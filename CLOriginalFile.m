@@ -20,7 +20,7 @@
 #import "CLOriginalFile.h"
 #import "CLData.h"
 #import "CLField.h"
-#import "CLDictionary.h"
+#import "CLMutableDictionary.h"
 #import "CLManager.h"
 #import "CLControl.h"
 #import "CLCharacterSet.h"

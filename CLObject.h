@@ -47,6 +47,10 @@ typedef unsigned int CLUInteger;
 
 enum {CLNotFound = CLUIntegerMax};
 
+typedef struct CLObjectReserved {
+  CLUInteger retainCount;
+} CLObjectReserved;
+
 @protocol CLObject
 -(id) retain;
 -(void) release;
@@ -101,6 +105,7 @@ enum {CLNotFound = CLUIntegerMax};
 -(BOOL) isEqual:(id) anObject;
 -(BOOL) isKindOfClass:(Class) aClassObject;
 -(BOOL) isMemberOfClass:(Class) aClassObject;
+-(BOOL) isInstance;
 -(BOOL) respondsTo:(SEL) aSel;
 +(IMP) instanceMethodFor:(SEL) aSel;
 -(IMP) methodFor:(SEL) aSel;
@@ -111,7 +116,7 @@ enum {CLNotFound = CLUIntegerMax};
 -(void) doesNotRecognize:(SEL) aSel;
 -(void) error:(CLString *) aString, ...;
 
--(void *) pointerForIvar:(CLString *) anIvar type:(int *) aType;
+-(void *) pointerForIvar:(const char *) anIvar type:(int *) aType;
 -(id) objectForMethod:(CLString *) aMethod found:(BOOL *) found;
 -(id) objectForIvar:(CLString *) anIvar found:(BOOL *) found;
 -(CLString *) findFileForKey:(CLString *) aKey;

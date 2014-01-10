@@ -26,6 +26,7 @@
 #import "CLMutableDictionary.h"
 #import "CLImageRep.h"
 #import "CLNull.h"
+#import "CLNumber.h"
 
 #include <unistd.h>
 #include <stdlib.h>

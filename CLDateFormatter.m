@@ -19,6 +19,7 @@
 
 #import "CLDateFormatter.h"
 #import "CLCalendarDate.h"
+#import "CLString.h"
 
 @implementation CLDateFormatter
 

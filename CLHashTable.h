@@ -17,6 +17,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLHASHTABLE_H
+#define _CLHASHTABLE_H
+
 #import <ClearLake/CLObject.h>
 
 #include <sys/types.h>
@@ -65,3 +68,5 @@ typedef u_int32_t CLUInteger32;
 
 extern CLUInteger32 CLHashBytes(const void *buf, register CLUInteger32 length,
 				register CLUInteger32 initval);
+
+#endif /* _CLHASHTABLE_H */

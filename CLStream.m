@@ -36,8 +36,6 @@
 #import "CLMutableData.h"
 #import "CLEditingContext.h"
 #import "CLStringFunctions.h"
-#import "CLObjCAPI.h"
-#import <objc/encoding.h>
 
 #include <stdlib.h>
 #include <stdarg.h>

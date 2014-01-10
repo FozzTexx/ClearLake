@@ -22,7 +22,7 @@
 #import "CLDictionary.h"
 #import "CLData.h"
 #import "CLImageRep.h"
-#import "CLArray.h"
+#import "CLMutableArray.h"
 #import "CLDatabase.h"
 #import "CLRelationship.h"
 

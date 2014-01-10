@@ -123,7 +123,7 @@ static CLString *jsBlock =
 
   name = [attributes objectForCaseInsensitiveString:@"NAME"];
   if (!name)
-    name = [CLString stringWithFormat:@"CL%u", (unsigned) self];
+    name = [CLString stringWithFormat:@"CL%u", (size_t) self];
   otherValue = [attributes objectForCaseInsensitiveString:@"CL_OTHER"];
 
   javascript = [[CLBlock alloc] init];

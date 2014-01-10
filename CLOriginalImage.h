@@ -17,6 +17,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLORIGINALIMAGE_H
+#define _CLORIGINALIMAGE_H
+
 #import <ClearLake/CLOriginalFile.h>
 #import <ClearLake/CLImageElement.h>
 
@@ -36,3 +39,5 @@
 @interface CLOriginalImage (CLMagic)
 -(CLArray *) cachedImages;
 @end
+
+#endif /* _CLORIGINALIMAGE_H */

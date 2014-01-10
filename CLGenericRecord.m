@@ -40,7 +40,6 @@
 #import "CLSybaseDatabase.h"
 #import "CLTimeZone.h"
 #import "CLCalendarDate.h"
-#import "CLObjCAPI.h"
 
 #include <stdlib.h>
 #include <wctype.h>
@@ -923,7 +922,7 @@ static id _model = nil;
 
   for (i = 0, j = [_autoretain count]; i < j; i++) {
     aKey = [_autoretain objectAtIndex:i];
-    if ((var = [self pointerForIvar:aKey type:&aType])) {
+    if ((var = [self pointerForIvar:[aKey UTF8String] type:&aType])) {
       switch (aType) {
       case _C_ID:
 	[(*(id *) var) release];
@@ -1556,7 +1555,7 @@ static id _model = nil;
     return;
   }
 
-  if ((var = [self pointerForIvar:aField type:&aType])) {
+  if ((var = [self pointerForIvar:[aField UTF8String] type:&aType])) {
     switch (aType) {
     case _C_ID:
       {
@@ -1690,7 +1689,7 @@ static id _model = nil;
   fieldName = [[fieldName substringWithRange:CLMakeRange(3, [fieldName length]-4)]
 		lowerCamelCaseString];
   
-  if (!(var = [self pointerForIvar:fieldName type:&aType]))
+  if (!(var = [self pointerForIvar:[fieldName UTF8String] type:&aType]))
     return NO;
 
   p = [[anInvocation methodSignature] getArgumentTypeAtIndex:2];
