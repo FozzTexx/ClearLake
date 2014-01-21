@@ -742,7 +742,7 @@ static id _model = nil;
   _changed = DONTCHANGE;
   
   aRange = [aString rangeOfString:@"."];
-  if (!aRange.length) {
+  if (aString && !aRange.length) {
     CLDictionary *model = [[self class] model];
 
 
