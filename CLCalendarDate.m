@@ -35,7 +35,7 @@
 
 #define CLGregorianOffset	719163
 
- CLUInteger CLLastDayOfGregorianMonth(CLUInteger month, CLUInteger year)
+CLUInteger CLLastDayOfGregorianMonth(CLUInteger month, CLUInteger year)
 {
   switch (month) {
   case 2:
@@ -52,8 +52,8 @@
   }
 }
 
- CLUInteger CLAbsoluteGregorianDay(CLUInteger day, CLUInteger month,
-					    CLUInteger year)
+CLUInteger CLAbsoluteGregorianDay(CLUInteger day, CLUInteger month,
+				  CLUInteger year)
 {
   if (month > 1)
     while (--month)
@@ -70,8 +70,8 @@
      + year/400);   // ...plus prior years divisible by 400
 }
 
- CLTimeInterval CLMakeTime(CLUInteger year, CLUInteger month, CLUInteger day,
-			   CLUInteger hour, CLUInteger minute, CLUInteger second)
+CLTimeInterval CLMakeTime(CLUInteger year, CLUInteger month, CLUInteger day,
+			  CLUInteger hour, CLUInteger minute, CLUInteger second)
 {
   CLTimeInterval a;
   
@@ -88,8 +88,8 @@
   return a;
 }
 
- void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day,
-					   int *month, int *year)
+void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day,
+				 int *month, int *year)
 {
   *year = abs / 366;
   while (abs >= CLAbsoluteGregorianDay(1, 1, (*year)+1))
