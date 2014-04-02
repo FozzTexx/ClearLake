@@ -30,6 +30,7 @@
 #import "CLValue.h"
 
 #include <time.h>
+#define __USE_ISOC99
 #include <stdlib.h>
 #include <string.h>
 

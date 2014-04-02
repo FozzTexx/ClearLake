@@ -636,7 +636,7 @@ void CLSetDelegate(id anObject)
   int l1 = 0, l2 = 0;
   int p1 = 0, p2 = 0;
   unichar *b1 = NULL, *b2 = NULL;
-  int inString, inElement, inComment, inScript, allowComment;
+  int inString, inElement, inComment, inScript, allowComment, commentCount;
   CLMutableArray *objStack;
   CLMutableArray *mArray;
   id anObject;
@@ -669,7 +669,7 @@ void CLSetDelegate(id anObject)
   while ([fileStack count]) {
     while ((c = [[fileStack lastObject] nextCharacter])) {
       if (c == '<') {
-	inString = inElement = inComment = allowComment = 0;
+	inString = inElement = inComment = commentCount = allowComment = 0;
 	anObject = [mArray lastObject];
 	inScript = [anObject isKindOfClass:[CLElement class]] &&
 	  ![[(CLElement *) anObject title] caseInsensitiveCompare:@"SCRIPT"];
@@ -684,8 +684,14 @@ void CLSetDelegate(id anObject)
 	  
 	  if (c == '!' && p1 == 2)
 	    allowComment++;
-	  if (allowComment && c == '-' && p1 > 3 && b1[p1-2] == '-')
-	    inComment = !inComment;
+	  if (allowComment) {
+	    if (c == '-')
+	      commentCount++;
+	    else
+	      commentCount = 0;
+	    if (commentCount && !(commentCount % 2))
+	      inComment = !inComment;
+	  }
 	  else if (!inComment && (c == '"' || c == '\'')) {
 	    if (!inString)
 	      inString = c;
