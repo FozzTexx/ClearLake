@@ -1438,6 +1438,10 @@ static void *(*CLoldMallocHook)(size_t, const void *);
 static void *(*CLoldReallocHook)(void *ptr, size_t size, const void *caller);
 static void (*CLoldFreeHook)(void *ptr, const void *caller);
 
+/* FIXME - hooks are deprecated
+   http://stackoverflow.com/questions/17803456/an-alternative-for-the-deprecated-malloc-hook-functionality-of-glibc
+*/
+
 void *CLoldMalloc(size_t size)
 {
   void *ptr, *saveHook;
