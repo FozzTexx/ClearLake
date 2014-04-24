@@ -28,12 +28,12 @@
 #import "CLSession.h"
 #import "CLString.h"
 #import "CLStream.h"
-#import "CLOpenFile.h"
 #import "CLEmailMessage.h"
 
 #include <stdlib.h>
 #include <crypt.h>
 #include <unistd.h>
+#include <string.h>
 
 @implementation CLAccount
 

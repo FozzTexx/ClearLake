@@ -21,7 +21,6 @@
 #import "CLString.h"
 #import "CLStream.h"
 #import "CLMutableData.h"
-#import "CLOpenFile.h"
 #import "CLArray.h"
 
 #include <dirent.h>
@@ -36,6 +35,7 @@
 #include <unistd.h>
 #include <wctype.h>
 #include <math.h>
+#include <string.h>
 
 #define IMAGE_DIR	@"imagedb"
 
@@ -73,19 +73,19 @@ CLString *CLImageDirs[] = {@"", @"Images/", @"images/", NULL};
 
 -(id) initFromData:(CLData *) aData
 {
-  CLOpenFile *oFile;
+  CLStream *oFile;
   CLImageRep *aRep;
 
 
   /* FIXME - this is gross having to write a file to read it back in */
-  if (!(oFile = CLTemporaryFile(@"climagerepXXXXXX"))) {
+  if (!(oFile = [CLStream openTemporaryFile:@"climagerepXXXXXX"])) {
     [super init];
     [self release];
     return nil;
   }
 
-  fwrite([aData bytes], [aData length], 1, [oFile file]);
-  fclose([oFile file]);
+  [oFile writeData:aData];
+  [oFile close];
   aRep = [self initFromFile:[oFile path]];
   [oFile remove];
   return aRep;
@@ -118,14 +118,14 @@ CLString *CLImageDirs[] = {@"", @"Images/", @"images/", NULL};
   return aCopy;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   id anObject;
   CLImageRep *aRep;
 
   
   [super read:stream];
-  CLReadTypes(stream, "@", &anObject);
+  [stream readTypes:@"@", &anObject];
   if ([anObject isKindOfClass:[CLString class]]) {
     path = anObject;
     if (!(rep = malloc(sizeof(image))))
@@ -139,20 +139,20 @@ CLString *CLImageDirs[] = {@"", @"Images/", @"images/", NULL};
     [aRep release];
   }
     
-  return;
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   CLData *aData;
 
   
   [super write:stream];
   if (path)
-    CLWriteTypes(stream, "@", &path);
+    [stream writeTypes:@"@", &path];
   else {
     aData = [self representationUsingFormat:@"png"];
-    CLWriteTypes(stream, "@", &aData);
+    [stream writeTypes:@"@", &aData];
   }
   
   return;
@@ -395,7 +395,7 @@ CLString *CLImageDirs[] = {@"", @"Images/", @"images/", NULL};
 
 -(CLData *) representationUsingFormat:(CLString *) format
 {
-  CLOpenFile *oFile;
+  CLStream *oFile;
   const char *tpath;
   CLData *aData = nil;
   CLString *saveFormat = format;
@@ -405,19 +405,19 @@ CLString *CLImageDirs[] = {@"", @"Images/", @"images/", NULL};
   size_t len;
 
 
-  if ((oFile = CLTemporaryFile(@"climage.XXXXXX"))) {
-    fclose([oFile file]);
+  if ((oFile = [CLStream openTemporaryFile:@"climage.XXXXXX"])) {
+    [oFile close];
     tpath = [[oFile path] UTF8String];
 
     if ([saveFormat isEqualToString:@"eps"])
       saveFormat = @"png";
     [self loadImage];
-    if (rep && !save_pic(tpath, [saveFormat UTF8String], rep)) {
+    if (!save_pic(tpath, [saveFormat UTF8String], rep)) {
       if ([format isEqualToString:@"eps"]) {
 	cmd = [CLString stringWithFormat:@"/usr/bin/convert %@ eps:-", [oFile path]];
-	oFile = CLPipeOpen(cmd, @"r");
+	oFile = [CLStream openPipe:cmd mode:CLReadOnly];
 	mData = [CLMutableData data];
-	while ((len = fread(buf, 1, sizeof(buf), [oFile file])))
+	while ((len = [oFile read:buf length:sizeof(buf)]))
 	  [mData appendBytes:buf length:len];
 	[oFile closeAndWait];
 	aData = mData;
@@ -678,13 +678,13 @@ CLString *CLPathForImageID(int image_id)
 
 int CLStoreImage(CLData *aData)
 {
-  CLOpenFile *oFile;
+  CLStream *oFile;
   CLString *extension = nil;
   imageInfo info;
 
 
-  if ((oFile = CLTemporaryFile(@"climageXXXXXX"))) {
-    fwrite([aData bytes], 1, [aData length], [oFile file]);
+  if ((oFile = [CLStream openTemporaryFile:@"climageXXXXXX"])) {
+    [oFile writeData:aData];
     [oFile close];
 
     if (!getImageInfo([[oFile path] UTF8String], &info))

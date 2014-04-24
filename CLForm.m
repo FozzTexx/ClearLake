@@ -33,10 +33,10 @@
 #import "CLAttribute.h"
 #import "CLCalendarDate.h"
 #import "CLDecimalNumber.h"
-#import "CLObjCAPI.h"
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #define FIELD_PLIST	@"cl_plist"
 
@@ -1065,7 +1065,6 @@ typedef struct ContentInfo {
 -(void) performAction
 {
   CLStream *stream;
-  CLTypedStream *tstream;
   CLAutoreleasePool *pool;
   CLControl *aControl;
 
@@ -1080,11 +1079,9 @@ typedef struct ContentInfo {
 
     if ((aString = [CLQuery objectForKey:CL_URLDATA])) {
       aData = [aString decodeBase64];
-      stream = CLOpenMemory([aData bytes], [aData length], CL_READONLY);
-      tstream = CLOpenTypedStream(stream, CL_READONLY);
-      [self readURL:tstream];
-      CLCloseTypedStream(tstream);
-      CLCloseMemory(stream, CL_FREEBUFFER);
+      stream = [CLStream openWithData:aData mode:CLReadOnly];
+      [self readURL:stream];
+      [stream close];
     }
   }
 
@@ -1190,25 +1187,22 @@ typedef struct ContentInfo {
 
 -(CLString *) generateURL:(BOOL) get
 {
-  CLStream *stream;
-  CLStream *stream2;
-  CLTypedStream *tstream;
+  CLStream *stream, *stream2;
   CLString *aURL = nil;
   CLData *aData;
 
 
-  stream = CLOpenMemory(NULL, 0, CL_WRITEONLY);
-  stream2 = CLOpenMemory(NULL, 0, CL_WRITEONLY);
-  tstream = CLOpenTypedStream(stream2, CL_WRITEONLY);
-  [self writeURL:tstream];
-  CLCloseTypedStream(tstream);
-  aData = CLGetData(stream2);
+  stream = [CLStream openMemoryForWriting];
+  stream2 = [CLStream openMemoryForWriting];
+  [self writeURL:stream2];
+  aData = [stream2 data];
   CLWriteURLForGet(stream, self, aData, localQuery, get);
   [CLQuery removeObjectForKey:CL_URLSEL];
-  CLCloseMemory(stream2, CL_FREEBUFFER);
-  aData = CLGetData(stream);
+  [stream2 close];
+  /* FIXME - we should be using nocopy to move the stream buffer into the string */
+  aData = [stream data];
   aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
-  CLCloseMemory(stream, CL_FREEBUFFER);
+  [stream close];
 
   aURL = [[self class] rewriteURL:[aURL entityDecodedString]];
 

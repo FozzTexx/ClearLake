@@ -18,6 +18,7 @@
  */
 
 #import "CLMailingAddress.h"
+#import "CLString.h"
 
 @implementation CLMailingAddress
 

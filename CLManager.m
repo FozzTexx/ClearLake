@@ -36,7 +36,6 @@
 #import "CLForm.h"
 #import "CLData.h"
 #import "CLField.h"
-#import "CLOpenFile.h"
 #import "CLAccount.h"
 #import "CLHashTable.h"
 #import "CLValidation.h"
@@ -47,7 +46,7 @@
 #import "CLAccessControl.h"
 #import "CLDatabase.h"
 #import "CLNull.h"
-#import "CLObjCAPI.h"
+#import "CLEditingContext.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -396,18 +395,15 @@ static CLMutableDictionary *CLConfig = nil;
 	     localQuery:(CLDictionary *) aQuery
 {
   CLStream *stream;
-  CLTypedStream *tstream;
   CLData *aData;
   CLString *aString;
 
   
-  stream = CLOpenMemory(NULL, 0, CL_WRITEONLY);
-  tstream = CLOpenTypedStream(stream, CL_WRITEONLY);
-  CLWriteTypes(tstream, "@:@", &anObject, &anAction, &aQuery);
-  CLCloseTypedStream(tstream);
-  aData = CLGetData(stream);
+  stream = [CLStream openMemoryForWriting];
+  [stream writeTypes:@"@:@", &anObject, &anAction, &aQuery];
+  aData = [stream data];
   aString = [aData encodeBase64];
-  CLCloseMemory(stream, CL_FREEBUFFER);
+  [stream close];
   
   return aString;
 }
@@ -445,12 +441,12 @@ static CLMutableDictionary *CLConfig = nil;
   return;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   if (!_manager)
     [self becomeManager];
   [super read:stream];
-  return;
+  return self;
 }
   
 -(void) setupSession:(int) anID
@@ -689,7 +685,6 @@ static CLMutableDictionary *CLConfig = nil;
 -(BOOL) return:(id) sender
 {
   CLStream *stream;
-  CLTypedStream *tstream;
   id anObject;
   SEL anAction;
   CLDictionary *aQuery;
@@ -713,11 +708,9 @@ static CLMutableDictionary *CLConfig = nil;
   }
   else {
     aData = [retString decodeBase64];
-    stream = CLOpenMemory([aData bytes], [aData length], CL_READONLY);
-    tstream = CLOpenTypedStream(stream, CL_READONLY);
-    CLReadTypes(tstream, "@:@", &anObject, &anAction, &aQuery);
-    CLCloseTypedStream(tstream);
-    CLCloseMemory(stream, CL_FREEBUFFER);
+    stream = [CLStream openWithData:aData mode:CLReadOnly];
+    [stream readTypes:@"@:@", &anObject, &anAction, &aQuery];
+    [stream close];
     [CLQuery addEntriesFromDictionary:aQuery];
     [aQuery release];
     [anObject perform:anAction with:sender];
@@ -790,10 +783,11 @@ static CLMutableDictionary *CLConfig = nil;
 	      " Please click the activation link that was emailed to you. "];
 	  [c1 addObject:c2];
 
-	  stream = CLOpenMemory(NULL, 0, CL_WRITEONLY);
+	  stream = [CLStream openMemoryForWriting];
 	  [c1 writeHTML:stream];
-	  aData = CLGetData(stream);
-	  CLCloseMemory(stream, CL_FREEBUFFER);
+	  [stream close];
+	  /* FIXME - we should be using nocopy to move the stream buffer into the string */
+	  aData = [stream data];
 	  [[sender page] appendErrorString:[CLString stringWithData:aData
 						     encoding:CLUTF8StringEncoding]];
 	  [c1 release];
@@ -1008,14 +1002,13 @@ static CLMutableDictionary *CLConfig = nil;
 -(void) emailUser:(CLString *) aUser password:(CLString *) aPass to:(CLString *) anEmail
      instructions:(CLString *) instr bcc:(CLString *) bcc
 {
-  CLOpenFile *oFile;
+  CLStream *oFile;
   CLRange aRange, aRange2;
   CLMutableString *head = nil, *body = nil;
-  FILE *msg;
   CLString *aString;
 
 
-  oFile = CLTemporaryFile(@"manager.XXXXXX");
+  oFile = [CLStream openTemporaryFile:@"manager.XXXXXX"];
 
   if (instr) {
     aRange2 = CLMakeRange(0, [instr length]);
@@ -1051,47 +1044,46 @@ static CLMutableDictionary *CLConfig = nil;
 	  options:0 range:CLMakeRange(0, [head length])];
   }
 
-  msg = [oFile file];
   if (head)
-    fprintf(msg, "%s", [head UTF8String]);
+    [oFile writeString:head usingEncoding:CLUTF8StringEncoding];
   aRange2 = CLMakeRange(0, [head length]);
   aRange = [head rangeOfString:@"From:" options:0 range:aRange2];
   if (!head || !aRange.length || (aRange.location > 0 &&
 				  [head characterAtIndex:aRange.location - 1] != '\n'))
-    fprintf(msg, "From: support@%s\n", [[[self class] domain] UTF8String]);
+    CLPrintf(oFile, @"From: support@%@\n", [[self class] domain]);
   aRange = [head rangeOfString:@"Subject:" options:0 range:aRange2];
   if (!head || !aRange.length || (aRange.location > 0 &&
 				  [head characterAtIndex:aRange.location - 1] != '\n'))
-    fprintf(msg, "Subject: Your %s password\n", [[[self class] domain] UTF8String]);
+    CLPrintf(oFile, @"Subject: Your %@ password\n", [[self class] domain]);
   aRange = [head rangeOfString:@"To:" options:0 range:aRange2];
   if (!head || !aRange.length || (aRange.location > 0 &&
 				  [head characterAtIndex:aRange.location - 1] != '\n'))
-    fprintf(msg, "To: %s\n", [anEmail UTF8String]);
+    CLPrintf(oFile, @"To: %@\n", anEmail);
   aRange = [head rangeOfString:@"Bcc:" options:0 range:aRange2];
   if (bcc && (!head || !aRange.length ||
 	      (aRange.location > 0 &&
 	       [head characterAtIndex:aRange.location - 1] != '\n')))
-    fprintf(msg, "Bcc: %s\n", [bcc UTF8String]);
+    CLPrintf(oFile, @"Bcc: %@\n", bcc);
   aRange = [head rangeOfString:@"Errors-To:" options:0 range:aRange2];
   if (!head || !aRange.length || (aRange.location > 0 &&
 				  [head characterAtIndex:aRange.location - 1] != '\n'))
-    fprintf(msg, "Errors-To: support@%s\n", [[[self class] domain] UTF8String]);
-  fprintf(msg, "X-Remote-Addr: %s\n", getenv("REMOTE_ADDR"));
-  fprintf(msg, "\n");
+    CLPrintf(oFile, @"Errors-To: support@%@\n", [[self class] domain]);
+  CLPrintf(oFile, @"X-Remote-Addr: %s\n", getenv("REMOTE_ADDR"));
+  CLPrintf(oFile, @"\n");
 
   if (body)
-    fprintf(msg, "%s", [body UTF8String]);
+    CLPrintf(oFile, @"%s", body);
   else {
-    fprintf(msg, "Your username and password are:\n");
-    fprintf(msg, "\n");
-    fprintf(msg, "Username: %s\n", [aUser UTF8String]);
-    fprintf(msg, "Password: %s\n", [aPass UTF8String]);
+    CLPrintf(oFile, @"Your username and password are:\n");
+    CLPrintf(oFile, @"\n");
+    CLPrintf(oFile, @"Username: %@\n", aUser);
+    CLPrintf(oFile, @"Password: %@\n", aPass);
   }
   
-  fclose(msg);
+  [oFile close];
   aString = [CLString stringWithFormat:@"/usr/lib/sendmail -t < %@", [oFile path]];
   system([aString UTF8String]);
-  unlink([[oFile path] UTF8String]);
+  [oFile remove];
 
   [head release];
   [body release];

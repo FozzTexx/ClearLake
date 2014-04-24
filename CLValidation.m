@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
+#include <string.h>
 
 /* FIXME - can non ascii characters be valid in an email address? */
 static CLString *validEmailChars =

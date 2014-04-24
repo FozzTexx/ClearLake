@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 
 extern CLNull *CLNullObject;
 static id *CLQsortDescriptors;

@@ -27,6 +27,8 @@
 #import "CLHashTable.h"
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 CLString *CLSybaseErrorsFor(CS_CONTEXT *context);
 CS_RETCODE CLSybaseClientError(CS_CONTEXT *context, CS_CONNECTION *connection,
@@ -449,15 +451,15 @@ void CLSybaseAddErrorFor(CS_CONTEXT *context, CLString *error)
   }
 
   if ((oldString = [CLSybaseErrors dataForKeyIdenticalTo:(id) context
-				   hash:(CLUInteger) context]))
+				   hash:(size_t) context]))
     newString = [oldString stringByAppendingString:error];
   else
     newString = error;
 
-  [CLSybaseErrors removeDataForKeyIdenticalTo:(id) context hash:(CLUInteger) context];
+  [CLSybaseErrors removeDataForKeyIdenticalTo:(id) context hash:(size_t) context];
   [newString retain];
   [oldString release];
-  [CLSybaseErrors setData:newString forKey:(id) context hash:(CLUInteger) context];
+  [CLSybaseErrors setData:newString forKey:(id) context hash:(size_t) context];
   return;
 }
 
@@ -467,8 +469,8 @@ CLString *CLSybaseErrorsFor(CS_CONTEXT *context)
 
 
   if ((aString = [CLSybaseErrors dataForKeyIdenticalTo:(id) context
-				 hash:(CLUInteger) context]))
-    [CLSybaseErrors removeDataForKeyIdenticalTo:(id) context hash:(CLUInteger) context];
+				 hash:(size_t) context]))
+    [CLSybaseErrors removeDataForKeyIdenticalTo:(id) context hash:(size_t) context];
 
   return [aString autorelease];
 }

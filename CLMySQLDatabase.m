@@ -25,6 +25,7 @@
 #import "CLData.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #define QUERY_TIME 0
 

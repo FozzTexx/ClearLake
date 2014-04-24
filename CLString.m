@@ -41,6 +41,7 @@
 #include <wctype.h>
 #include <ctype.h>
 #include <features.h>
+#include <string.h>
 
 #define PATHSEP_CHAR	'/'
 #define PATHSEP_STRING	@"/"
@@ -189,24 +190,23 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   return [[CLMutableString alloc] initWithString:self];
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   char *p;
 
 
   [super read:stream];
-  CLReadTypes(stream, "*", &p);
-  [self initWithBytesNoCopy:p length:strlen(p) encoding:CLUTF8StringEncoding];
-  return;
+  [stream readTypes:@"*", &p];
+  return [self initWithBytesNoCopy:p length:strlen(p) encoding:CLUTF8StringEncoding];
 }
   
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   const char *p = [self UTF8String];
 
 
   [super write:stream];
-  CLWriteTypes(stream, "*", &p);
+  [stream writeTypes:@"*", &p];
   return;
 }
 

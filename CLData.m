@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
 
 /* FIXME - Bleh - and now we are dependent on OpenSSL. Use a public
    domain implementation */
@@ -134,21 +135,21 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   return [[CLMutableData alloc] initWithBytes:data length:len];
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   [super read:stream];
-  CLReadTypes(stream, "I", &len);
+  [stream readType:@"I" data:&len];
   if (!(data = malloc(len)))
     [self error:@"Unable to allocate memory"];
-  CLReadArray(stream, "C", len, data);
-  return;
+  [stream read:data length:len];
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   [super write:stream];
-  CLWriteTypes(stream, "I", &len);
-  CLWriteArray(stream, "C", len, data);
+  [stream writeType:@"I" data:&len];
+  [stream write:data length:len];
   return;
 }
 

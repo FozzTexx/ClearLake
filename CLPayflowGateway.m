@@ -24,6 +24,7 @@
 #import "CLMutableDictionary.h"
 #import "CLArray.h"
 #import "CLStream.h"
+#import "CLNumber.h"
 
 @implementation CLPayflowGateway
 

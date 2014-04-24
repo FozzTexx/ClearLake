@@ -180,24 +180,24 @@
   return [[CLMutableDictionary alloc] initFromDictionary:self];
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   int i, j;
   id aKey, aValue;
 
   
   [super read:stream];
-  table = [[CLHashTable alloc] init];
-  CLReadTypes(stream, "i", &j);
+  table = [[CLHashTable alloc] initWithSize:1024];
+  [stream readType:@"i" data:&j];
   for (i = 0; i < j; i++) {
-    CLReadTypes(stream, "@@", &aKey, &aValue);
+    [stream readTypes:@"@@", &aKey, &aValue];
     [table setData:aValue forKey:aKey hash:[aKey hash]];
   }
 
-  return;
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   CLArray *anArray;
   id aKey, aValue;
@@ -207,11 +207,11 @@
   [super write:stream];
   anArray = [self allKeys];
   j = [anArray count];
-  CLWriteTypes(stream, "i", &j);
+  [stream writeTypes:@"i", &j];
   for (i = 0; i < j; i++) {
     aKey = [anArray objectAtIndex:i];
     aValue = [self objectForKey:aKey];
-    CLWriteTypes(stream, "@@", &aKey, &aValue);
+    [stream writeTypes:@"@@", &aKey, &aValue];
   }
 
   return;

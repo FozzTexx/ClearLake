@@ -1,4 +1,4 @@
-/* Copyright 2008 by Traction Systems, LLC. <http://tractionsys.com/>
+/* Copyright 2012 by Traction Systems, LLC. <http://tractionsys.com/>
  *
  * This file is part of ClearLake.
  *
@@ -17,28 +17,31 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#import <ClearLake/CLObject.h>
+#import <ClearLake/CLStream.h>
 
-@class CLString;
+@class CLString, CLData;
 
-@interface CLOpenFile:CLObject
+@interface CLMemoryStream:CLStream <CLStream>
 {
   FILE *file;
-  CLString *path;
-  int pid;
+  CLData *data;
+  void *buffer;
+  size_t length;
+  BOOL freeBuffer;
 }
 
-+(CLOpenFile *) openFileAtPath:(CLString *) aString mode:(CLString *) aMode;
++(CLMemoryStream *) openWithMemory:(void *) buf length:(int) len mode:(int) mode;
++(CLMemoryStream *) openWithData:(CLData *) aData mode:(int) mode;
++(CLStream *) openMemoryForWriting;
 
--(id) initWithFile:(FILE *) aFile path:(CLString *) aString pid:(int) aPid;
+-(id) init;
+-(id) initWithMemory:(void *) buf length:(int) len mode:(int) mode;
+-(id) initWithData:(CLData *) aData mode:(int) mode;
 -(void) dealloc;
 
--(FILE *) file;
--(CLString *) path;
--(int) pid;
 -(void) close;
--(void) closeAndRemove;
--(int) closeAndWait;
--(void) remove;
+-(const void *) bytes;
+-(CLUInteger) length;
+-(CLData *) data;
 
 @end

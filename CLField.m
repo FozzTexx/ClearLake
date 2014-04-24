@@ -28,7 +28,6 @@
 #import "CLForm.h"
 #import "CLExpression.h"
 #import "CLNull.h"
-#import "CLObjCAPI.h"
 
 static CLString *CLFieldTypes[] = {
   @"UNDEFINED",

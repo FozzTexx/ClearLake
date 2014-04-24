@@ -17,6 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+/* Has been renamed to PayPal Payments Pro.
+   https://developer.paypal.com/docs/classic/paypal-payments-pro/gs_PayPalPaymentsPro/
+*/
+
 #import "CLPaypalDirectGateway.h"
 #import "CLMutableDictionary.h"
 #import "CLCreditCard.h"
@@ -30,6 +34,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 @implementation CLPaypalDirectGateway
 

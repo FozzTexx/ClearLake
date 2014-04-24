@@ -24,10 +24,12 @@
 #import "CLMutableDictionary.h"
 #import "CLStream.h"
 #import "CLArray.h"
+#import "CLNumber.h"
 
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <string.h>
 
 @implementation CLAuthorizeNetGateway
 

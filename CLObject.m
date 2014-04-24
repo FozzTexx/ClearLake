@@ -17,8 +17,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifdef __GNU_LIBOBJC__
-#error This will not work with newer GNU runtime
+/* ARGH! NASTY NASTY BUG IN gcc and/or GNU ObjC runtime!!!!!!! On
+   __x86_64__ there's a problem with the va_start (__builtin_va_start)
+   after the call to objc_msg_lookup. I haven't yet figured out a
+   workaround other than to compile 32bit using the -m32 option. */
+#if __x86_64__ && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 6))
+#error Due to a bug in gcc you MUST compile 32 bit with -m32
 #endif
 
 #define NO_OVERRIDE	1
@@ -38,8 +42,8 @@
 #import "CLControl.h"
 #import "CLManager.h"
 #import "CLCookie.h"
-#import "CLArray.h"
-#import "CLObjCAPI.h"
+#import "CLMutableArray.h"
+#import "CLRuntime.h"
 
 #if DEBUG_LEAK || DEBUG_RETAIN
 #import "CLReleaseTracker.h"
@@ -48,9 +52,7 @@ Class CLReleaseTrackerClass;
 
 #include <stdlib.h>
 #include <wctype.h>
-
-#define sel_getName	sel_get_name
-struct objc_method_list *CLClassNextMethodList(Class aClass, void **iterator);
+#include <ctype.h>
 
 static IMP CLFindForwardFunction(SEL sel);
 
@@ -135,24 +137,39 @@ CL_INLINE CLUInteger CLExtraRefCount(id anObject)
 id CLCreateInstance(Class class)
 {
   void *buf;
-  id anObject;
+  Class isa;
+  id new;
 
 
-  buf = calloc(1, class->instance_size + sizeof(CLUInteger));
-  anObject = buf + sizeof(CLUInteger);
-  anObject->class_pointer = class;
-  return anObject;
+#ifdef __GNU_LIBOBJC__
+  buf = class_createInstance(class, sizeof(CLObjectReserved));
+  isa = ((id) buf)->class_pointer;
+#else
+  buf = calloc(1, class->instance_size + sizeof(CLObjectReserved));
+  isa = class;
+#endif /* __GNU_LIBOBJC__ */
+  new = buf + sizeof(CLObjectReserved);
+  new->class_pointer = isa;
+  *((CLUInteger *) buf) = 0;
+  
+  return new;
 }
 
-id CLDisposeInstance(id object)
+void CLDisposeInstance(id object)
 {
   void *buf;
 
   
   buf = object;
-  buf -= sizeof(CLUInteger);
+  buf -= sizeof(CLObjectReserved);
+#ifdef __GNU_LIBOBJC__
+  ((id) buf)->class_pointer = ((id) object)->class_pointer;
+  object_dispose(buf);
+#else
   free(buf);
-  return nil;
+#endif
+
+  return;
 }
 
 @implementation CLObject
@@ -160,8 +177,6 @@ id CLDisposeInstance(id object)
 +(void) load
 {
   __objc_msg_forward = CLFindForwardFunction;
-  _objc_object_alloc = CLCreateInstance;
-  _objc_object_dispose = CLDisposeInstance;
   return;
 }
 
@@ -180,7 +195,11 @@ id CLDisposeInstance(id object)
 
 +(void) poseAsClass:(Class) aClassObject
 {
+#ifdef __GNU_LIBOBJC__
+  [self error:@"Pose-as got borked!"];
+#else
   class_pose_as(self, aClassObject);
+#endif
 }
 
 -(id) init
@@ -254,7 +273,7 @@ id CLDisposeInstance(id object)
   id newObject;
   
 
-  newObject = object_copy(self);
+  newObject = [[self class] alloc];
 #if DEBUG_LEAK || DEBUG_RETAIN
   numobj2++;
   if (printleak){
@@ -295,58 +314,6 @@ id CLDisposeInstance(id object)
 -(CLUInteger) retainCount
 {
   return CLExtraRefCount(self) + 1;
-}
-
--(int) returnType:(id) anObject forBinding:(CLString *) aBinding
-{
-  struct objc_class *aClass;
-  void *iterator = NULL;
-  struct objc_method_list* mlist;
-  Method cMethod;
-  int i;
-  const char *p;
-  int aType = 0;
-  Ivar_t rtIvar;
-  struct objc_ivar_list* ivarList;
-
-
-  aClass = anObject->class_pointer;
-  p = [aBinding UTF8String];
-
-  while ((mlist = CLClassNextMethodList(aClass, &iterator))) {
-    for (i = 0; i < mlist->method_count; i++) {
-      cMethod = mlist->method_list[i];
-      if (!strcmp(p, sel_get_name(cMethod.method_name))) {
-	aType = *sel_get_type(cMethod.method_name);
-	break;
-      }
-    }
-    
-    if (i < mlist->method_count)
-      break;
-  }
-
-  if (!mlist) { /* No get method, see if there's an ivar with the same name */
-    while (aClass) {
-      ivarList = aClass->ivars;
-      if (ivarList && ivarList->ivar_count > 0) {
-	for (i = 0; i < ivarList->ivar_count; i++) {
-	  rtIvar = ivarList->ivar_list + i;
-	  if (!strcmp(p, rtIvar->ivar_name)) {
-	    aType = *rtIvar->ivar_type;
-	    break;
-	  }
-	}
-
-	if (i < ivarList->ivar_count)
-	  break;
-      }
-
-      aClass = aClass->super_class;
-    }      
-  }
-  
-  return aType;
 }
 
 -(id) objectForMethod:(CLString *) aMethod found:(BOOL *) found
@@ -452,13 +419,30 @@ id CLDisposeInstance(id object)
   return anObject;
 }
 
--(void *) pointerForIvar:(CLString *) anIvar type:(int *) aType
+#ifdef __GNU_LIBOBJC__
+-(void *) pointerForIvar:(const char *) anIvar type:(int *) aType
+{
+  void *var = NULL;
+  const char *enc;
+  Ivar iv;
+
+
+  iv = class_getInstanceVariable([self class], anIvar);
+  if (iv) {
+    enc = ivar_getTypeEncoding(iv);
+    *aType = *enc;
+    var = ((void *) self) + ivar_getOffset(iv);
+  }
+
+  return var;
+}
+#else
+-(void *) pointerForIvar:(const char *) anIvar type:(int *) aType
 {
   Class aClass = [self class];
   void *var = NULL;
   struct objc_ivar_list* ivarList;
   int i;
-  const char *p = [anIvar UTF8String];
   Ivar_t rtIvar;
 
 
@@ -467,7 +451,7 @@ id CLDisposeInstance(id object)
     if (ivarList && ivarList->ivar_count > 0) {
       for (i = 0; i < ivarList->ivar_count; i++) {
 	rtIvar = ivarList->ivar_list + i;
-	if (!strcmp(p, rtIvar->ivar_name)) {
+	if (!strcmp(anIvar, rtIvar->ivar_name)) {
 	  *aType = *rtIvar->ivar_type;
 	  var = ((void *) self) + rtIvar->ivar_offset;
 	  break;
@@ -483,6 +467,7 @@ id CLDisposeInstance(id object)
 
   return var;
 }
+#endif
 
 -(id) objectForIvar:(CLString *) anIvar found:(BOOL *) found
 {
@@ -493,7 +478,7 @@ id CLDisposeInstance(id object)
 
   *found = NO;
   
-  if (!(var = [self pointerForIvar:anIvar type:&aType]))
+  if (!(var = [self pointerForIvar:[anIvar UTF8String] type:&aType]))
     return nil;
 
   *found = YES;
@@ -648,7 +633,7 @@ id CLDisposeInstance(id object)
   int aType;
 
 
-  if ((var = [self pointerForIvar:aField type:&aType])) {
+  if ((var = [self pointerForIvar:[aField UTF8String] type:&aType])) {
     switch (aType) {
     case _C_ID:
       /* FIXME - retain?? */
@@ -823,7 +808,7 @@ id CLDisposeInstance(id object)
 
 -(CLUInteger) hash
 {
-  return (CLUInteger) self;
+  return (size_t) self;
 }
 
 -(BOOL) setIvarFromInvocation:(CLInvocation *) anInvocation
@@ -831,14 +816,17 @@ id CLDisposeInstance(id object)
   int aType, aType2;
   const char *p;
   void *var;
-  CLString *fieldName;
+  char *fieldName;
 
 
-  fieldName = [CLString stringWithUTF8String:sel_getName([anInvocation selector])];
-  fieldName = [[fieldName substringWithRange:CLMakeRange(3, [fieldName length]-4)]
-		lowerCamelCaseString];
+  p = sel_getName([anInvocation selector]);
+  fieldName = strdup(p+3);
+  fieldName[strlen(fieldName) - 2] = 0;
+  fieldName[0] = tolower(fieldName[0]);
+  var = [self pointerForIvar:fieldName type:&aType];
+  free(fieldName);
   
-  if (!(var = [self pointerForIvar:fieldName type:&aType]))
+  if (!var)
     return NO;
 
   p = [[anInvocation methodSignature] getArgumentTypeAtIndex:2];
@@ -904,6 +892,15 @@ id CLDisposeInstance(id object)
   CLRange aRange;
   id anObject;
 
+
+  /* Sometimes when the runtime is stacking up method calls on a
+     CLFault that hasn't fired yet it thinks that the object doesn't
+     respond to a selector that it will respond to after the fault has
+     fired. */
+  if ([self respondsTo:[anInvocation selector]]) {
+    [anInvocation invoke];
+    return;
+  }
   
   aBinding = [CLString stringWithUTF8String:sel_getName([anInvocation selector])];
   aRange = [aBinding rangeOfString:@":" options:0 range:CLMakeRange(0, [aBinding length])];
@@ -916,18 +913,16 @@ id CLDisposeInstance(id object)
       }
     }
     else if (*[[anInvocation methodSignature] getArgumentTypeAtIndex:2] == _C_ID) {
-      aBinding = [aBinding substringToIndex:aRange.location];
       [anInvocation getArgument:&anObject atIndex:2];
-      if ([self replacePage:anObject key:aBinding]) {
+      if ([anObject isKindOfClass:[CLControl class]] &&
+	  [self replacePage:anObject selector:[anInvocation selector]]) {
 	anObject = nil;
 	[anInvocation setReturnValue:&anObject];
 	return;
       }
     }
   }
-  else if ((var = [self pointerForIvar:[CLString stringWithUTF8String:
-						   sel_getName([anInvocation selector])]
-			type:&aType])) {
+  else if ((var = [self pointerForIvar:sel_getName([anInvocation selector]) type:&aType])) {
     [anInvocation setReturnValue:var];
     return;
   }
@@ -1025,34 +1020,33 @@ id CLDisposeInstance(id object)
 
 +(IMP) instanceMethodFor:(SEL) aSel
 {
-  return method_get_imp(class_get_instance_method(self, aSel));
+  return method_getImplementation(class_getInstanceMethod(self, aSel));
 }
 
 -(void) error:(CLString *) aString, ...
 {
   va_list ap;
+  char *str = "";
 
 
   if (aString) {
     va_start(ap, aString);
-    aString = [[[CLString alloc] initWithFormat:aString arguments:ap] autorelease];
+    vasprintf(&str, [aString UTF8String], ap);
     va_end(ap);
   }
-  else
-    aString = @"";
 
-  aString = [CLString stringWithFormat:@"error: %s (%s)\n%@\n",
-		      object_get_class_name(self),
-		      object_is_instance(self) ? "instance" : "class",
-		      aString];
-  objc_error(self, OBJC_ERR_UNKNOWN, [aString UTF8String]);
+  fprintf(stderr, "error: %s (%s)\n%s\n",
+	  object_getClassName(self),
+	  [self isInstance] ? "instance" : "class",
+	  str);
+  abort();
   return;
 }
 
 -(void) doesNotRecognize:(SEL) aSel
 {
   [self error:@"%s does not recognize %s",
-	object_get_class_name(self), sel_get_name(aSel)];
+	object_getClassName(self), sel_getName(aSel)];
   return;
 }
 
@@ -1062,7 +1056,7 @@ id CLDisposeInstance(id object)
 
   
   if (!msg)
-    [self error:@"invalid selector passed to %s", sel_get_name(_cmd)];
+    [self error:@"invalid selector passed to %s", sel_getName(_cmd)];
   return (*msg)(self, aSel);
 }
 
@@ -1072,7 +1066,7 @@ id CLDisposeInstance(id object)
 
   
   if (!msg)
-    [self error:@"invalid selector passed to %s", sel_get_name(_cmd)];
+    [self error:@"invalid selector passed to %s", sel_getName(_cmd)];
   return (*msg)(self, aSel, anObject);
 }
 
@@ -1082,30 +1076,58 @@ id CLDisposeInstance(id object)
 
   
   if (!msg)
-    [self error:@"invalid selector passed to %s", sel_get_name(_cmd)];
+    [self error:@"invalid selector passed to %s", sel_getName(_cmd)];
   return (*msg)(self, aSel, anObject1, anObject2);
 }
 
 -(struct objc_method_description *) descriptionForMethod:(SEL) aSel
 {
   return (struct objc_method_description *)
-           (object_is_instance(self) ?
-	    class_get_instance_method(self->isa, aSel) :
-	    class_get_class_method(self->isa, aSel));
+           ([self isInstance] ?
+	    class_getInstanceMethod(self->isa, aSel) :
+	    class_getClassMethod(self->isa, aSel));
 }
 
 -(IMP) methodFor:(SEL) aSel
 {
-  return method_get_imp(object_is_instance(self) ?
-			class_get_instance_method(self->isa, aSel) :
-			class_get_class_method(self->isa, aSel));
+  return method_getImplementation([self isInstance] ?
+			class_getInstanceMethod(self->isa, aSel) :
+			class_getClassMethod(self->isa, aSel));
+}
+
+/* This is just here to appease gdb */
+-(IMP) methodForSelector:(SEL) aSel
+{
+  return [self methodFor:aSel];
+}
+
+-(BOOL) isClass
+{
+#ifdef __GNU_LIBOBJC__
+  return class_isMetaClass(object_getClass(self));
+#else
+  return object_is_class(self);
+#endif
+}
+
+-(BOOL) isInstance
+{
+#ifdef __GNU_LIBOBJC__
+  return ![self isClass];
+#else
+  return object_is_instance(self);
+#endif
 }
 
 -(BOOL) respondsTo:(SEL) aSel
 {
-  return !!(object_is_instance(self) ?
-	    class_get_instance_method(self->isa, aSel) :
-	    class_get_class_method(self->isa, aSel));
+  return !![self methodFor:aSel];
+}
+
+/* This is just here to appease gdb */
+-(BOOL) respondsToSelector:(SEL) aSel
+{
+  return [self respondsTo:aSel];
 }
 
 -(BOOL) isMemberOfClass:(Class) aClassObject
@@ -1115,23 +1137,31 @@ id CLDisposeInstance(id object)
 
 -(BOOL) isKindOfClass:(Class) aClassObject
 {
-  Class class;
+  Class aClass;
   
 
-  for (class = self->isa; class; class = class_get_super_class(class))
-    if (class == aClassObject)
+  aClass = object_getClass(self);
+  if (class_isMetaClass(aClass))
+    aClass = (Class) self;
+  for (; aClass; aClass = class_getSuperclass(aClass))
+    if (aClass == aClassObject)
       return YES;
   return NO;
 }
 
 -(Class) class
 {
-  return object_get_class(self);
+  Class aClass = object_getClass(self);
+
+
+  if (class_isMetaClass(aClass))
+    aClass = (Class) self;
+  return aClass;
 }
 
 -(Class) superClass
 {
-  return object_get_super_class(self);
+  return class_getSuperclass([self class]);
 }
 
 -(CLString *) className
@@ -1140,22 +1170,22 @@ id CLDisposeInstance(id object)
   CLString *aString;
   
 
-  if (!(aString = [classNameTable dataForKeyIdenticalTo:isa hash:(CLUInteger) isa])) {
+  if (!(aString = [classNameTable dataForKeyIdenticalTo:isa hash:(size_t) isa])) {
     if (!classNameTable)
       classNameTable = [[CLHashTable alloc] init];
-    aString = [[CLString alloc] initWithUTF8String:object_get_class_name(self)];
-    [classNameTable setData:aString forKey:isa hash:(CLUInteger) isa];
+    aString = [[CLString alloc] initWithUTF8String:object_getClassName(self)];
+    [classNameTable setData:aString forKey:isa hash:(size_t) isa];
   }
   
   return aString;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
-  return;
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   return;
 }
@@ -1342,14 +1372,6 @@ CLInvocation *CLCreateInvocation(id receiver, SEL sel, va_list ap)
   return anInvocation;
 }
 
-/* ARGH! NASTY NASTY BUG IN gcc and/or GNU ObjC runtime!!!!!!! On
-   __x86_64__ there's a problem with the va_start (__builtin_va_start)
-   after the call to objc_msg_lookup. I haven't yet figured out a
-   workaround other than to compile 32bit using the -m32 option. */
-#if __x86_64__
-#error Due to a bug in gcc you MUST compile 32 bit with -m32
-#endif
-
 void *CLForwardPointerMethod(id receiver, SEL sel, ...)
 {
   va_list ap;
@@ -1382,7 +1404,7 @@ unsigned long long CLForwardLongLongPointerMethod(id receiver, SEL sel, ...)
 
 static IMP CLFindForwardFunction(SEL sel)
 {
-  const char *t = sel->sel_types;
+  const char *t = ((struct objc_method_description *) sel)->types;
 
 
   if (t && (*t == _C_LNG_LNG || *t == _C_ULNG_LNG))
@@ -1391,82 +1413,16 @@ static IMP CLFindForwardFunction(SEL sel)
   return (IMP) CLForwardPointerMethod;
 }
 
-/* Objective-C API functions */
-
 void CLObjectSetInstanceVariable(id anObject, const char *name, void *data)
 {
-  struct objc_ivar_list *ivars;
-  int i;
-  void *p;
-  struct objc_class *aClass;
+  void *ivarPtr;
+  int type;
 
 
-  aClass = anObject->class_pointer;
-
-  while (aClass) {
-    ivars = aClass->ivars;
-
-    if (ivars) {
-      for (i = 0; i < ivars->ivar_count; i++) {
-	if (!strcmp(ivars->ivar_list[i].ivar_name, name)) {
-	  p = ((void *) anObject) + ivars->ivar_list[i].ivar_offset;
-	  *(id *) p = (id) data;
-	  return;
-	}
-      }
-    }
-    aClass = aClass->super_class;
-  }
+  if ((ivarPtr = [anObject pointerForIvar:name type:&type]))
+    *(id *) ivarPtr = (id) data;
 
   return;
-}
-
-struct objc_method_list *CLClassNextMethodList(Class aClass, void **iterator)
-{
-  if (!*iterator)
-    *iterator = aClass->methods;
-  else
-    *iterator = (*(struct objc_method_list **) iterator)->method_next;
-
-  return *iterator;
-}
-
-void CLShowIvars(Class klass)
-{
-  int i;
-  Ivar_t rtIvar;
-  struct objc_ivar_list* ivarList;
-
-
-  while (klass) {
-    ivarList = klass->ivars;
-    if (ivarList!= NULL && (ivarList->ivar_count>0)) {
-      printf ("  Instance Variabes:\n");
-      for ( i = 0; i < ivarList->ivar_count; ++i ) {
-	rtIvar = (ivarList->ivar_list + i);
-	printf ("    name: '%s'  encodedType: '%s'  offset: %d\n",
-		rtIvar->ivar_name, rtIvar->ivar_type, rtIvar->ivar_offset);
-      }
-    }
-
-    klass = klass->super_class;
-  }
-}
-
-void CLShowMethodGroups(Class klass)
-{
-  void *iterator = 0;     // Method list (category) iterator
-  struct objc_method_list* mlist;
-  Method currMethod;
-  int  j;
-  while ((mlist = CLClassNextMethodList(klass, &iterator))) {
-    printf ("  Methods:\n");
-    for ( j = 0; j < mlist->method_count; ++j ) {
-      currMethod = mlist->method_list[j];
-      printf ("    method: '%s'  encodedReturnTypeAndArguments: '%s'\n",
-	      sel_get_name(currMethod.method_name), sel_get_type(currMethod.method_name));
-    }
-  }
 }
 
 /* FIXME - just for finding memory leaks */
@@ -1481,6 +1437,10 @@ int *markers = NULL;
 static void *(*CLoldMallocHook)(size_t, const void *);
 static void *(*CLoldReallocHook)(void *ptr, size_t size, const void *caller);
 static void (*CLoldFreeHook)(void *ptr, const void *caller);
+
+/* FIXME - hooks are deprecated
+   http://stackoverflow.com/questions/17803456/an-alternative-for-the-deprecated-malloc-hook-functionality-of-glibc
+*/
 
 void *CLoldMalloc(size_t size)
 {
@@ -1528,7 +1488,7 @@ void CLsaveBlock(void *ptr, size_t size, char *file, int line)
   sizes[numblocks-1] = size;
   markers[numblocks-1] = marker;
   if (printleak && file && line)
-    fprintf(stdout, "0x%lx %s %i malloc %i\n", (unsigned long) ptr, file, line, size);
+    fprintf(stdout, "0x%lx %s %i malloc %i\n", (unsigned long) ptr, file, line, (int) size);
   return;
 }
 

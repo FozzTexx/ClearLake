@@ -25,6 +25,7 @@
 #import "CLOriginalFile.h"
 #import "CLBlock.h"
 #import "CLNumber.h"
+#import "CLField.h"
 
 #include <unistd.h>
 

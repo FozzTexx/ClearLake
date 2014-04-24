@@ -20,7 +20,7 @@
 #ifndef _CLRANGE_H
 #define _CLRANGE_H
 
-#import <ClearLake/CLObjCRuntime.h>
+#import <ClearLake/CLRuntime.h>
 
 typedef struct CLRange {
   CLUInteger location;

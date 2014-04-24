@@ -38,7 +38,7 @@
 #import "CLValue.h"
 #import "CLExpression.h"
 #import "CLNull.h"
-#import "CLObjCAPI.h"
+#import "CLImageRep.h"
 
 #include <stdlib.h>
 
@@ -72,7 +72,7 @@ void CLWriteURLForGet(CLStream *stream, id object,
       [CLUserAgent hasPrefix:@"Mediapartners-Google"])
     CLCookiesEnabled = YES;
   
-  stream2 = CLOpenMemory(NULL, 0, CL_WRITEONLY);
+  stream2 = [CLStream openMemoryForWriting];
 
   aURL = nil;
   if ([object respondsTo:@selector(baseURL)] && [object baseURL])
@@ -145,10 +145,11 @@ void CLWriteURLForGet(CLStream *stream, id object,
     }
   }
 
-  aData = CLGetData(stream2);
-  aString = [[CLString alloc] initWithData:aData encoding:CLUTF8StringEncoding];
-  CLPrintf(stream, @"%@", dumbBrowser ? aString : [aString entityEncodedString]);
-  CLCloseMemory(stream2, CL_FREEBUFFER);
+  aString = [[CLString alloc] initWithBytes:[stream2 bytes] length:[stream2 length]
+				   encoding:CLUTF8StringEncoding];
+  [stream writeString:dumbBrowser ? aString : [aString entityEncodedString]
+	usingEncoding:CLUTF8StringEncoding];
+  [stream2 close];
   [aString release];
 
 #if 0
@@ -363,20 +364,17 @@ void CLWriteURL(CLStream *stream, id object,
   CLString *aString;
   CLData *aData;
   CLStream *stream;
-  CLTypedStream *tstream;
 
 
   if ((aString = [CLQuery objectForCaseInsensitiveString:CL_URLDATA]) &&
       [aString length]) {
     aData = [aString decodeBase64];
-    stream = CLOpenMemory([aData bytes], [aData length], CL_READONLY);
-    tstream = CLOpenTypedStream(stream, CL_READONLY);
-    [self readURL:tstream];
-    CLReadTypes(tstream, "i", &writeContents);
+    stream = [CLStream openWithData:aData mode:CLReadOnly];
+    [self readURL:stream];
+    [stream readTypes:@"i", &writeContents];
     if (writeContents)
-      CLReadTypes(tstream, "@", &value);
-    CLCloseTypedStream(tstream);
-    CLCloseMemory(stream, CL_FREEBUFFER);
+      [stream readTypes:@"@", &value];
+    [stream close];
   }
 
   {
@@ -458,7 +456,6 @@ void CLWriteURL(CLStream *stream, id object,
 {
   CLStream *stream;
   CLStream *stream2;
-  CLTypedStream *tstream;
   CLString *aString, *aURL = nil;
   CLData *aData;
   BOOL found;
@@ -492,23 +489,22 @@ void CLWriteURL(CLStream *stream, id object,
 		      found:&found wasConstant:NULL];
   }
   else {
-    stream = CLOpenMemory(NULL, 0, CL_WRITEONLY);
-    stream2 = CLOpenMemory(NULL, 0, CL_WRITEONLY);
-    tstream = CLOpenTypedStream(stream2, CL_WRITEONLY);
-    [self writeURL:tstream];
-    CLWriteTypes(tstream, "i", &writeContents);
+    stream = [CLStream openMemoryForWriting];
+    stream2 = [CLStream openMemoryForWriting];
+    [self writeURL:stream2];
+    [stream2 writeTypes:@"i", &writeContents];
     if (writeContents)
-      CLWriteTypes(tstream, "@", &value);
-    CLCloseTypedStream(tstream);
-    aData = CLGetData(stream2);
+      [stream2 writeTypes:@"@", &value];
+    aData = [stream2 data];
     CLWriteURL(stream, self, aData, localQuery);
     [CLQuery removeObjectForKey:CL_URLSEL];
-    CLCloseMemory(stream2, CL_FREEBUFFER);
+    [stream2 close];
     if (anchor)
-      CLPrintf(stream, @"#%@", anchor);
-    aData = CLGetData(stream);
+      [stream writeFormat:@"#%@" usingEncoding:CLUTF8StringEncoding, anchor];
+    /* FIXME - we should be using nocopy to move the stream buffer into the string */
+    aData = [stream data];
     aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
-    CLCloseMemory(stream, CL_FREEBUFFER);
+    [stream close];
   }
 
   aURL = [[self class] rewriteURL:[[aURL description] entityDecodedString]];
@@ -516,20 +512,23 @@ void CLWriteURL(CLStream *stream, id object,
   return aURL;
 }
 
--(void) readURL:(CLTypedStream *) stream
+-(void) readURL:(CLStream *) stream
 {
   CLString *filename, *aString;
-  CLPage *aPage;
+  CLPage *aPage = nil;
   id anObject;
 
   
   if ([CLDelegate respondsTo:@selector(control:readPersistentData:)])
     [CLDelegate control:self readPersistentData:stream];
-    
-  target = CLReadObject(stream);
-  CLReadTypes(stream, "@@@", &filename, &aString, &anObject);
+
+  [stream readType:@"@" data:&target];
+  [stream readTypes:@"@@@", &filename, &aString, &anObject];
   [filename autorelease];
   [aString autorelease];
+
+  if ([target respondsTo:@selector(control:readPersistentData:)])
+    [target control:self readPersistentData:stream];
 
   if ([filename isAbsolutePath] &&
       ![filename hasPathPrefix:[CLEnvironment objectForKey:@"DOCUMENT_ROOT"]])
@@ -545,9 +544,11 @@ void CLWriteURL(CLStream *stream, id object,
   if ([self isKindOfClass:[CLForm class]])
     [((CLForm *) self) restoreObject:anObject];
 
-  aPage = [[CLPage alloc] initFromFile:filename owner:anObject];
-  [self setPage:aPage];
-  [aPage autorelease];
+  if (filename) {
+    aPage = [[CLPage alloc] initFromFile:filename owner:anObject];
+    [self setPage:aPage];
+    [aPage autorelease];
+  }
 
   if (aString) {
     if ((anObject = [aPage objectWithID:aString]) &&
@@ -558,7 +559,7 @@ void CLWriteURL(CLStream *stream, id object,
   return;
 }
 
--(void) writeURL:(CLTypedStream *) stream
+-(void) writeURL:(CLStream *) stream
 {
   CLString *filename, *aString;
   id anObject;
@@ -581,8 +582,8 @@ void CLWriteURL(CLStream *stream, id object,
     aString = [self objectValueForSpecialBinding:aString allowConstant:NO found:&found
 				     wasConstant:NULL];
   }
-  CLWriteObject(stream, target);
-  CLWriteTypes(stream, "@@@", &filename, &aString, &anObject);
+  [stream writeTypes:@"@", &target];
+  [stream writeTypes:@"@@@", &filename, &aString, &anObject];
   aString = [CLString stringWithUTF8String:sel_getName(action)];
   if ([aString length] && [aString characterAtIndex:[aString length]-1] == ':')
     aString = [aString substringToIndex:[aString length]-1];

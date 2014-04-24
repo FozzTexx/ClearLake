@@ -68,21 +68,21 @@
   return mDict;
 }
   
--(void) readURL:(CLTypedStream *) stream
+-(void) readURL:(CLStream *) stream
 {
   CLString *filename;
   id anObject;
   CLPage *aPage;
 
   
-  CLReadTypes(stream, "@@@@", &attributes, &value, &filename, &anObject);
+  [stream readTypes:@"@@@@", &attributes, &value, &filename, &anObject];
   aPage = [[CLPage alloc] initFromFile:filename owner:anObject];
   [self setPage:aPage];
   [aPage autorelease];
   return;
 }
 
--(void) writeURL:(CLTypedStream *) stream
+-(void) writeURL:(CLStream *) stream
 {
   CLString *filename;
   id anObject;
@@ -90,30 +90,27 @@
   
   filename = [page filename];
   anObject = [page owner];
-  CLWriteTypes(stream, "@@@@", &attributes, &value, &filename, &anObject);
+  [stream writeTypes:@"@@@@", &attributes, &value, &filename, &anObject];
   return;
 }
 
 -(CLString *) generateURL
 {
-  CLStream *stream;
-  CLStream *stream2;
-  CLTypedStream *tstream;
+  CLStream *stream, *stream2;
   CLString *aURL = nil;
   CLData *aData;
 
 
-  stream = CLOpenMemory(NULL, 0, CL_WRITEONLY);
-  stream2 = CLOpenMemory(NULL, 0, CL_WRITEONLY);
-  tstream = CLOpenTypedStream(stream2, CL_WRITEONLY);
-  [self writeURL:tstream];
-  CLCloseTypedStream(tstream);
-  aData = CLGetData(stream2);
+  stream = [CLStream openMemoryForWriting];
+  stream2 = [CLStream openMemoryForWriting];
+  [self writeURL:stream2];
+  aData = [stream2 data];
   CLWriteURL(stream, self, aData, nil);
-  CLCloseMemory(stream2, CL_FREEBUFFER);
-  aData = CLGetData(stream);
+  [stream2 close];
+  /* FIXME - we should be using nocopy to move the stream buffer into the string */
+  aData = [stream data];
   aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
-  CLCloseMemory(stream, CL_FREEBUFFER);
+  [stream close];
 
   aURL = [CLControl rewriteURL:[aURL entityDecodedString]];
 
@@ -140,17 +137,19 @@
       if ([anObject respondsTo:@selector(json)])
 	aValue = [anObject json];
       else if ([anObject isKindOfClass:[CLBlock class]]) {
-	stream2 = CLOpenMemory(NULL, 0, CL_WRITEONLY);
+	stream2 = [CLStream openMemoryForWriting];
 	[anObject updateBinding];
 	[anObject writeHTML:stream2];
-	aData = CLGetData(stream2);
+	/* FIXME - we should be using nocopy to move the stream buffer into the string */
+	aData = [stream2 data];
 	aValue = [[CLString stringWithData:aData encoding:CLUTF8StringEncoding] json];
-	CLCloseMemory(stream2, CL_FREEBUFFER);
+	[stream2 close];
       }
       else
 	aValue = [[anObject description] json];
-      
-      CLPrintf(stream, @"  var %@ = %@;\n", aString, aValue);
+
+      [stream writeFormat:@"  var %@ = %@;\n" usingEncoding:CLUTF8StringEncoding,
+	      aString, aValue];
     }
   }
   
@@ -191,23 +190,20 @@
   CLString *aString;
   CLData *aData;
   CLStream *stream;
-  CLTypedStream *tstream;
 
 
   if ((aString = [CLQuery objectForCaseInsensitiveString:CL_URLDATA]) &&
       [aString length]) {
     aData = [aString decodeBase64];
-    stream = CLOpenMemory([aData bytes], [aData length], CL_READONLY);
-    tstream = CLOpenTypedStream(stream, CL_READONLY);
-    [self readURL:tstream];
-    CLCloseTypedStream(tstream);
-    CLCloseMemory(stream, CL_FREEBUFFER);
+    stream = [CLStream openWithData:aData mode:CLReadOnly];
+    [self readURL:stream];
+    [stream close];
   }
 
-  stream = CLOpenMemory(NULL, 0, CL_WRITEONLY);
+  stream = [CLStream openMemoryForWriting];
   [self writeContents:stream];
-  aData = CLGetData(stream);
-  CLCloseMemory(stream, CL_FREEBUFFER);
+  aData = [stream data];
+  [stream close];
 
   printf("Content-Type: text/javascript\r\n");
   printf("Content-Length: %i\r\n", [aData length]);

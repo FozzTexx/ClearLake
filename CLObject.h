@@ -23,9 +23,10 @@
 #define DEBUG_LEAK	0
 #define DEBUG_RETAIN	0
 
-@class CLString, CLInvocation, CLData;
+@class CLString, CLInvocation, CLData, CLStream;
 
 #include <limits.h>
+#include <objc/objc.h>
 
 #define CL_URLDATA	@"CLurldata"
 #define CL_URLSEL	@"CLurlsel"
@@ -46,8 +47,9 @@ typedef unsigned int CLUInteger;
 
 enum {CLNotFound = CLUIntegerMax};
 
-#include <objc/typedstream.h>
-#define CLTypedStream	TypedStream
+typedef struct CLObjectReserved {
+  CLUInteger retainCount;
+} CLObjectReserved;
 
 @protocol CLObject
 -(id) retain;
@@ -80,8 +82,8 @@ enum {CLNotFound = CLUIntegerMax};
 @end
 
 @protocol CLArchiving
--(void) read:(CLTypedStream *) stream;
--(void) write:(CLTypedStream *) stream;
+-(id) read:(CLStream *) stream;
+-(void) write:(CLStream *) stream;
 @end
 
 @interface CLObject <CLObject, CLArchiving, CLCopying>
@@ -103,6 +105,7 @@ enum {CLNotFound = CLUIntegerMax};
 -(BOOL) isEqual:(id) anObject;
 -(BOOL) isKindOfClass:(Class) aClassObject;
 -(BOOL) isMemberOfClass:(Class) aClassObject;
+-(BOOL) isInstance;
 -(BOOL) respondsTo:(SEL) aSel;
 +(IMP) instanceMethodFor:(SEL) aSel;
 -(IMP) methodFor:(SEL) aSel;
@@ -113,7 +116,7 @@ enum {CLNotFound = CLUIntegerMax};
 -(void) doesNotRecognize:(SEL) aSel;
 -(void) error:(CLString *) aString, ...;
 
--(void *) pointerForIvar:(CLString *) anIvar type:(int *) aType;
+-(void *) pointerForIvar:(const char *) anIvar type:(int *) aType;
 -(id) objectForMethod:(CLString *) aMethod found:(BOOL *) found;
 -(id) objectForIvar:(CLString *) anIvar found:(BOOL *) found;
 -(CLString *) findFileForKey:(CLString *) aKey;

@@ -87,7 +87,7 @@
 
 - writeSelf:(CLStream *) stream
 {
-  CLWrite(stream, headers, strlen(headers));
+  [stream write:headers length:strlen(headers)];
   return self;
 }
 

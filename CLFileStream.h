@@ -17,4 +17,30 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#define CL_INLINE static __inline__ __attribute__((always_inline))
+#import <ClearLake/CLStream.h>
+
+@class CLString;
+
+@interface CLFileStream:CLStream <CLStream>
+{
+  FILE *file;
+  CLString *path;
+  int pid;
+}
+
++(CLFileStream *) openFileAtPath:(CLString *) aPath mode:(int) aMode;
++(CLFileStream *) streamWithDescriptor:(int) fd mode:(int) aMode
+				atPath:(CLString *) aPath processID:(int) aPid;
+
+-(id) initWithFile:(FILE *) aFile path:(CLString *) aString processID:(int) aPid;
+-(id) init;
+-(void) dealloc;
+
+-(CLString *) path;
+-(int) pid;
+-(void) close;
+-(void) closeAndRemove;
+-(int) closeAndWait;
+-(void) remove;
+
+@end

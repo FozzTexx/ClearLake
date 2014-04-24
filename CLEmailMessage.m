@@ -21,7 +21,6 @@
 #import "CLEmailHeader.h"
 #import "CLMutableString.h"
 #import "CLArray.h"
-#import "CLOpenFile.h"
 #import "CLDictionary.h"
 #import "CLStream.h"
 #import "CLManager.h"
@@ -87,8 +86,7 @@
 -(void) send
 {
   CLString *aString;
-  FILE *msg;
-  CLOpenFile *oFile;
+  CLStream *oFile;
   CLData *aData;
   CLString *options = sendmailOptions;
 
@@ -96,17 +94,16 @@
   if (!options)
     options = @"";
   
-  oFile = CLTemporaryFile(@"clmsg.XXXXXX");
-  msg = [oFile file];
+  oFile = [CLStream openTemporaryFile:@"clmsg.XXXXXX"];
   [header updateBindings:[body datasource]];
-  fprintf(msg, "%s", [[header description] UTF8String]);
+  CLPrintf(oFile, @"%@", [header description]);
   if (getenv("REMOTE_ADDR"))
-    fprintf(msg, "X-Remote-Addr: %s\n", getenv("REMOTE_ADDR"));
-  fprintf(msg, "\n");
+    CLPrintf(oFile, @"X-Remote-Addr: %s\n", getenv("REMOTE_ADDR"));
+  CLPrintf(oFile, @"\n");
   [body updateBindings];
   aData = [body htmlForBody];
-  fwrite([aData bytes], [aData length], 1, msg);
-  fclose(msg);
+  [oFile writeData:aData];
+  [oFile close];
   aString = [CLString stringWithFormat:@"(/usr/lib/sendmail -t %@ < %@ ; rm %@) &",
 		      options, [oFile path], [oFile path]];
   system([aString UTF8String]);
@@ -130,8 +127,7 @@ void CLSendEmailUsingTemplate(CLDictionary *aDict, CLString *aFilename,
   CLString *aString;
   CLArray *anArray;
   int i, j;
-  FILE *msg;
-  CLOpenFile *oFile;
+  CLStream *oFile;
 
 
   if (![aFilename isAbsolutePath])
@@ -149,14 +145,16 @@ void CLSendEmailUsingTemplate(CLDictionary *aDict, CLString *aFilename,
     [mString replaceOccurrencesOfString:aString withString:[aDict objectForKey:aString]];
   }
 
-  oFile = CLTemporaryFile(@"clmsg.XXXXXX");
-  msg = [oFile file];
-  fprintf(msg, "%s", [mString UTF8String]);
-  fclose(msg);
+  oFile = [CLStream openTemporaryFile:@"clmsg.XXXXXX"];
+  CLPrintf(oFile, @"%@", mString);
+  [oFile close];
   aString = [CLString stringWithFormat:@"/usr/lib/sendmail -t %@ < %@",
 		      sendmailOptions, [oFile path]];
   system([aString UTF8String]);
-  unlink([[oFile path] UTF8String]);
+  [oFile remove];
+#if DEBUG_RETAIN
+    id self = nil;
+#endif
   [mString release];
   
   return;

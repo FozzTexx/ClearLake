@@ -21,7 +21,7 @@
 #define _CLDECIMAL_H
 
 #import <ClearLake/CLObject.h>
-#import <ClearLake/CLObjCRuntime.h>
+#import <ClearLake/CLRuntime.h>
 
 @class CLString;
 

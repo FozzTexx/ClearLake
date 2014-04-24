@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 @implementation CLTimeZone
 
@@ -78,16 +79,17 @@
   return aCopy;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   [super read:stream];
-  CLReadTypes(stream, "@", &zone);
+  [stream readTypes:@"@", &zone];
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   [super write:stream];
-  CLWriteTypes(stream, "@", &zone);
+  [stream writeTypes:@"@", &zone];
 }
 
 -(void) set
@@ -125,6 +127,9 @@
   struct tm tm, *tp;
 
 
+  if (_isUTC)
+    return 0;
+  
   [self set];
   tl = time(NULL);
   tp = gmtime(&tl);
@@ -132,6 +137,9 @@
   tm.tm_isdst = -1;
   tg = mktime(&tm);
   [self unset];
+
+  if (!strcmp(tm.tm_zone, "UTC"))
+    _isUTC = YES;
   
   return tl - tg;
 }
@@ -143,6 +151,9 @@
   struct tm tm, *tp;
 
 
+  if (_isUTC)
+    return 0;
+  
   [self set];
   tl = [aDate timeIntervalSince1970];
   tp = gmtime(&tl);
@@ -150,6 +161,9 @@
   tm.tm_isdst = -1;
   tg = mktime(&tm);
   [self unset];
+  
+  if (!strcmp(tm.tm_zone, "UTC"))
+    _isUTC = YES;
   
   return tl - tg;
 }

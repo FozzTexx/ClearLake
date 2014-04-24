@@ -20,7 +20,6 @@
 #import "CLPage.h"
 #import "CLPageStack.h"
 #import "CLPageObject.h"
-#import "CLOpenFile.h"
 #import "CLAutoreleasePool.h"
 #import "CLElement.h"
 #import "CLControl.h"
@@ -47,7 +46,6 @@
 #import "CLPageTarget.h"
 #import "CLData.h"
 #import "CLCalendarDate.h"
-#import "CLObjCAPI.h"
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -55,6 +53,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <wctype.h>
+#include <string.h>
 
 #define BUFSIZE		256
 #define QUERY_DEBUG	@"CLdbg"
@@ -607,7 +606,7 @@ void CLSetDelegate(id anObject)
   
   for (i = [mArray count] - 1; i >= 0; i--) {
     anObject = [mArray objectAtIndex:i];
-    if ([anObject isMemberOfClass:[CLElement class]] &&
+    if ([anObject isKindOfClass:[CLElement class]] &&
 	![[((CLElement *) anObject) title] caseInsensitiveCompare:aTitle])
       break;
   }
@@ -637,7 +636,7 @@ void CLSetDelegate(id anObject)
   int l1 = 0, l2 = 0;
   int p1 = 0, p2 = 0;
   unichar *b1 = NULL, *b2 = NULL;
-  int inString, inElement, inComment, commentCount, inScript, allowComment;
+  int inString, inElement, inComment, inScript, allowComment, commentCount;
   CLMutableArray *objStack;
   CLMutableArray *mArray;
   id anObject;
@@ -1212,11 +1211,11 @@ void CLSetDelegate(id anObject)
 -(void) writeHTML:(CLStream *) stream withHeaders:(BOOL) showHeaders
 	   output:(CLData **) output
 {
-  int i, j, k;
+  int j, k;
   CLStream *stream2;
-  char *data;
   int gz = NO;
   CLAccount *anAccount = nil;
+  CLData *aData;
 
 
   [self checkForErrors];
@@ -1228,7 +1227,7 @@ void CLSetDelegate(id anObject)
   else
     [[self objectWithID:@"cl_loginControl"] setVisible:NO];
 
-  stream2 = CLOpenMemory(NULL, 0, CL_WRITEONLY);
+  stream2 = [CLStream openMemoryForWriting];
   CLWriteHTMLObject(stream2, preHeader);
   
   CLPrintf(stream2, @"<HTML>\n");
@@ -1301,55 +1300,43 @@ void CLSetDelegate(id anObject)
      know anymore that it has been gzipped! */
   gz = showHeaders && CLBrowserAcceptsGzip();
 
-  CLGetMemoryBuffer(stream2, &data, &i, &j);
+  aData = [stream2 data];
   if (output)
-    *output = [CLData dataWithBytes:data length:i];
+    *output = aData;
+
+  if (showHeaders) {
+    CLPrintf(stream, @"Status: %u %@\r\n", status, [self statusString]);
+    CLPrintf(stream, @"Content-Type: text/html; charset=UTF-8\r\n");
+    CLPrintf(stream, @"Content-Length: %u\r\n", [aData length]);
+    CLPrintf(stream, @"Cache-Control: must-revalidate\r\n");
+  }
 
   if (gz) {
-    CLData *aData;
+    CLData *gzData;
 
 
-    if (!CLDeflate(data, i, 9, &aData)) {
-      if (showHeaders) {
-	CLPrintf(stream, @"Status: %u %@\r\n", status, [self statusString]);
-	CLPrintf(stream, @"Content-Type: text/html; charset=UTF-8\r\n");
-	CLPrintf(stream, @"Content-Length: %u\r\n", [aData length]);
-	CLPrintf(stream, @"Cache-Control: must-revalidate\r\n");
-	//CLPrintf(stream, @"Cache-Control: no-store\r\n");
-	//CLPrintf(stream, @"Expires: -1\r\n");
+    if (!CLDeflate([aData bytes], [aData length], 9, &gzData)) {
+      if (showHeaders)
 	CLPrintf(stream, @"Content-Encoding: gzip\r\n");
-	for (i = 0, j = [CLCookies count]; i < j; i++)
-	  if (![[CLCookies objectAtIndex:i] isFromBrowser])
-	    CLPrintf(stream, @"Set-Cookie: %@\r\n",
-		     [[CLCookies objectAtIndex:i] cookieString]);
-	CLPrintf(stream, @"\r\n");
-      }
-
-      CLWrite(stream, [aData bytes], [aData length]);
+      aData = gzData;
     }
     else
       gz = 0;
   }
 
-  if (!gz) {
-    if (showHeaders) {
-      CLPrintf(stream, @"Status: %u %@\r\n", status, [self statusString]);
-      CLPrintf(stream, @"Content-Type: text/html; charset=UTF-8\r\n");
-      CLPrintf(stream, @"Content-Length: %i\r\n", i);
-      CLPrintf(stream, @"Cache-Control: must-revalidate\r\n");
-      //CLPrintf(stream, @"Cache-Control: no-store\r\n");
-      //CLPrintf(stream, @"Expires: -1\r\n");
-      for (j = 0, k = [CLCookies count]; j < k; j++)
-	if (![[CLCookies objectAtIndex:j] isFromBrowser])
-	  CLPrintf(stream, @"Set-Cookie: %@\r\n",
-		   [[CLCookies objectAtIndex:j] cookieString]);
-      CLPrintf(stream, @"\r\n");
-    }
-    
-    CLWrite(stream, data, i);
+  if (showHeaders) {
+    CLPrintf(stream, @"Content-Length: %i\r\n", [aData length]);
+    //CLPrintf(stream, @"Cache-Control: no-store\r\n");
+    //CLPrintf(stream, @"Expires: -1\r\n");
+    for (j = 0, k = [CLCookies count]; j < k; j++)
+      if (![[CLCookies objectAtIndex:j] isFromBrowser])
+	CLPrintf(stream, @"Set-Cookie: %@\r\n",
+		 [[CLCookies objectAtIndex:j] cookieString]);
+    CLPrintf(stream, @"\r\n");
   }
   
-  CLCloseMemory(stream2, CL_FREEBUFFER);
+  [stream writeData:aData];
+  [stream2 close];
   return;
 }
 
@@ -1415,8 +1402,8 @@ void CLSetDelegate(id anObject)
 -(void) display:(CLData **) output
 {
   CLStream *stream;
-  char *data;
-  int i, j;
+  const char *data;
+  int i;
   BOOL disp;
   
 
@@ -1462,11 +1449,12 @@ void CLSetDelegate(id anObject)
   }  
 #endif
     
-    stream = CLOpenMemory(NULL, 0, CL_WRITEONLY);
+    stream = [CLStream openMemoryForWriting];
     [self writeHTML:stream withHeaders:YES output:output];
-    CLGetMemoryBuffer(stream, &data, &i, &j);
+    data = [stream bytes];
+    i = [stream length];
     fwrite(data, 1, i, stdout);
-    CLCloseMemory(stream, CL_FREEBUFFER);
+    [stream close];
     fflush(stdout);
   }
 
@@ -1476,14 +1464,12 @@ void CLSetDelegate(id anObject)
 -(CLData *) htmlForBody
 {
   CLStream *stream;
-  CLData *aData;
 
 
-  stream = CLOpenMemory(NULL, 0, CL_WRITEONLY);
+  stream = [CLStream openMemoryForWriting];
   CLWriteHTMLObject(stream, body);
-  aData = CLGetData(stream);
-  CLCloseMemory(stream, CL_FREEBUFFER);
-  return aData;
+  [stream close];
+  return [stream data];
 }  
 
 -(CLDictionary *) bodyAttributes

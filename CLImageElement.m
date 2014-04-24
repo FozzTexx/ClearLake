@@ -22,7 +22,6 @@
 #import "CLNumber.h"
 #import "CLMutableDictionary.h"
 #import "CLManager.h"
-#import "CLOpenFile.h"
 #import "CLControl.h"
 #import "CLData.h"
 #import "CLMutableArray.h"
@@ -88,17 +87,17 @@
   return;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   [super read:stream];
-  CLReadTypes(stream, "@", &imageRep);
-  return;
+  [stream readTypes:@"@", &imageRep];
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   [super write:stream];
-  CLWriteTypes(stream, "@", &imageRep);
+  [stream writeTypes:@"@", &imageRep];
   return;
 }
 
@@ -112,44 +111,43 @@
   return aCopy;
 }
 
-- readURL:(CLTypedStream *) stream
+-(void) readURL:(CLStream *) stream
 {
   id anObject;
   CLString *effects;
 
   
-  CLReadTypes(stream, "@", &anObject);
+  [stream readTypes:@"@", &anObject];
   if ([anObject isKindOfClass:[CLString class]])
     imageRep = [[CLImageRep alloc] initFromFile:anObject];
   else {
     imageRep = anObject;
-    CLReadTypes(stream, "@", &effects);
+    [stream readTypes:@"@", &effects];
     if (effects)
       [attributes setObject:effects forCaseInsensitiveString:@"CL_EFFECTS"];
   }
   
-  return self;
+  return;
 }
 
-- writeURL:(CLTypedStream *) stream image:(CLImageRep *) aRep
+-(void) writeURL:(CLStream *) stream image:(CLImageRep *) aRep
 {
   CLString *aString;
 
 
   if ((aString = [aRep path]))
-    CLWriteTypes(stream, "@", &aString);
+    [stream writeTypes:@"@", &aString];
   else {
     aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"];
-    CLWriteTypes(stream, "@@", &imageRep, &aString);
+    [stream writeTypes:@"@@", &imageRep, &aString];
   }
   
-  return self;
+  return;
 }
 
 -(void) performAction
 {
   CLStream *stream;
-  CLTypedStream *tstream;
   CLString *aString;
   CLData *aData;
   CLImageRep *newRep;
@@ -158,11 +156,9 @@
   
   if ((aString = [CLQuery objectForKey:CL_URLDATA])) {
     aData = [aString decodeBase64];
-    stream = CLOpenMemory([aData bytes], [aData length], CL_READONLY);
-    tstream = CLOpenTypedStream(stream, CL_READONLY);
-    [self readURL:tstream];
-    CLCloseTypedStream(tstream);
-    CLCloseMemory(stream, CL_FREEBUFFER);
+    stream = [CLStream openWithData:aData mode:CLReadOnly];
+    [self readURL:stream];
+    [stream close];
 
     if (!imageRep) {
       printf("Status: 404 File Not Found\n");
@@ -198,7 +194,6 @@
   const char *p;
   CLString *aString = nil;
   CLStream *stream, *stream2;
-  CLTypedStream *tstream;
   CLData *aData;
 
   
@@ -215,17 +210,16 @@
       aString = [CLString stringWithString:CLAppPath];
     
     if (![path hasPathPrefix:aString]) {
-      stream = CLOpenMemory(NULL, 0, CL_WRITEONLY);
-      stream2 = CLOpenMemory(NULL, 0, CL_WRITEONLY);
-      tstream = CLOpenTypedStream(stream2, CL_WRITEONLY);
-      [self writeURL:tstream image:newRep];
-      CLCloseTypedStream(tstream);
-      aData = CLGetData(stream2);
+      stream = [CLStream openMemoryForWriting];
+      stream2 = [CLStream openMemoryForWriting];
+      [self writeURL:stream2 image:newRep];
+      aData = [stream2 data];
       CLWriteURL(stream, self, aData, nil);
-      CLCloseMemory(stream2, CL_FREEBUFFER);
-      aData = CLGetData(stream);
+      [stream2 close];
+      /* FIXME - we should be using nocopy to move the stream buffer into the string */
+      aData = [stream data];
       aString = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
-      CLCloseMemory(stream, CL_FREEBUFFER);
+      [stream close];
     }
     else {
       CLString *prefix, *filename;

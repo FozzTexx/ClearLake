@@ -23,6 +23,10 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <string.h>
+
+#define PATHSEP_CHAR	'/'
+#define PATHSEP_STRING	@"/"
 
 #define hexval(c) ({int _c = c; toupper(_c) - '0' - (_c > '9' ? 7 : 0);})
 
@@ -192,6 +196,42 @@
   }
 
   return replaced;
+}
+
+@end
+
+@implementation CLMutableString (CLStringPaths)
+
+-(void) appendPathComponent:(CLString *) aString
+{
+  CLUInteger i, j;
+
+
+  if (![self length]) {
+    [self setString:aString];
+    return;
+  }
+  
+  for (i = 0, j = [aString length]; i < j; i++)
+    if ([aString characterAtIndex:i] != PATHSEP_CHAR)
+      break;
+
+  for (j = [self length]; j; j--)
+    if ([self characterAtIndex:j-1] != PATHSEP_CHAR)
+      break;
+
+  [self setString:[CLString stringWithFormat:@"%@/%@", [self substringToIndex:j],
+			    [aString substringFromIndex:i]]];
+}
+
+-(void) appendPathExtension:(CLString *) ext
+{
+  if ([self length] && [self characterAtIndex:[self length] - 1] == PATHSEP_CHAR)
+    [self setString: [[self substringToIndex:[self length] - 1]
+		       stringByAppendingFormat:@".%@", ext]];
+  else
+    [self appendFormat:@".%@", ext];
+  return;
 }
 
 @end

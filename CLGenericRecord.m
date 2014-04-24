@@ -40,7 +40,6 @@
 #import "CLSybaseDatabase.h"
 #import "CLTimeZone.h"
 #import "CLCalendarDate.h"
-#import "CLObjCAPI.h"
 
 #include <stdlib.h>
 #include <wctype.h>
@@ -743,7 +742,7 @@ static id _model = nil;
   _changed = DONTCHANGE;
   
   aRange = [aString rangeOfString:@"."];
-  if (!aRange.length) {
+  if (aString && !aRange.length) {
     CLDictionary *model = [[self class] model];
 
 
@@ -923,7 +922,7 @@ static id _model = nil;
 
   for (i = 0, j = [_autoretain count]; i < j; i++) {
     aKey = [_autoretain objectAtIndex:i];
-    if ((var = [self pointerForIvar:aKey type:&aType])) {
+    if ((var = [self pointerForIvar:[aKey UTF8String] type:&aType])) {
       switch (aType) {
       case _C_ID:
 	[(*(id *) var) release];
@@ -955,7 +954,7 @@ static id _model = nil;
   return;
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   CLGenericRecord *anObject;
   CLDictionary *pk;
@@ -965,7 +964,7 @@ static id _model = nil;
 
 
   [super read:stream];
-  CLReadTypes(stream, "@@", &pk, &_table);
+  [stream readTypes:@"@@", &pk, &_table];
   _record = [[CLHashTable alloc] initWithSize:MAX_HASH];
   _recordDef = [[[self class] recordDefForTable:_table] retain];
   _loaded = nil;
@@ -991,20 +990,22 @@ static id _model = nil;
 #else
     fprintf(stderr, "Read second instance of %s:%s",  [_table UTF8String],
 	    [[[self primaryKey] description] UTF8String]);
+    [self release];
+    return anObject;
 #endif
   }
 
-  return;
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   id pk;
 
 
   [super write:stream];
   pk = [self primaryKey];
-  CLWriteTypes(stream, "@@", &pk, &_table);
+  [stream writeTypes:@"@@", &pk, &_table];
   return;
 }
 
@@ -1554,7 +1555,7 @@ static id _model = nil;
     return;
   }
 
-  if ((var = [self pointerForIvar:aField type:&aType])) {
+  if ((var = [self pointerForIvar:[aField UTF8String] type:&aType])) {
     switch (aType) {
     case _C_ID:
       {
@@ -1688,7 +1689,7 @@ static id _model = nil;
   fieldName = [[fieldName substringWithRange:CLMakeRange(3, [fieldName length]-4)]
 		lowerCamelCaseString];
   
-  if (!(var = [self pointerForIvar:fieldName type:&aType]))
+  if (!(var = [self pointerForIvar:[fieldName UTF8String] type:&aType]))
     return NO;
 
   p = [[anInvocation methodSignature] getArgumentTypeAtIndex:2];

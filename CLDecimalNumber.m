@@ -284,26 +284,31 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   return [self retain];
 }
 
--(void) read:(CLTypedStream *) stream
+-(id) read:(CLStream *) stream
 {
   CLString *aString;
+  CLDecimalMPZ *val;
 
-
+  
   [super read:stream];
-  CLReadTypes(stream, "@", &aString);
+  [stream readTypes:@"@", &aString];
+  if (!(val = calloc(1, sizeof(CLDecimalMPZ))))
+    [self error:@"Unable to allocate memory"];
+  dval = val;
+  mpz_init_set_ui(val->mantissa, 0);
   [self setValueFromString:aString];
-  [aString release];
-  return;
+  [aString autorelease];
+  return self;
 }
 
--(void) write:(CLTypedStream *) stream
+-(void) write:(CLStream *) stream
 {
   CLString *aString;
 
 
   [super write:stream];
   aString = [self description];
-  CLWriteTypes(stream, "@", &aString);
+  [stream writeTypes:@"@", &aString];
   return;
 }
 
