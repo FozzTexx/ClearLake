@@ -1611,6 +1611,13 @@ void CLSetDelegate(id anObject)
   return;
 }
 
+-(id) valueForExpression:(CLString *) aString
+{
+  if ([aString hasPrefix:@"#"])
+    aString = [aString substringFromIndex:1];
+  return [self objectValueForBinding:aString];
+}
+
 @end
 
 void CLRedirectBrowser(CLString *newURL, BOOL includeQuery, int status)

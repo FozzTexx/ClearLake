@@ -527,7 +527,7 @@
     newDate->when -= off2 - off1;
     off1 = [zone secondsFromGMTForDate:newDate];
     if (off1 != off2)
-      [self error:@"Can't figure out what date you're talking about"];
+      newDate->when -= off1 - off2;
   }
 
   return [newDate autorelease];

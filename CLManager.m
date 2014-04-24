@@ -1609,7 +1609,7 @@ void CLRun(CLString *mainObjectName)
 {
   int isValidURL = YES;
   CLString *aString;
-  const char *PATH_INFO, *PATH_TRANSLATED, *QUERY_STRING, *SCRIPT_NAME;
+  const char *PATH_INFO, *PATH_TRANSLATED, *QUERY_STRING, *SCRIPT_NAME, *REQUEST_URI;
   SEL mainAction;
 
 
@@ -1641,6 +1641,7 @@ void CLRun(CLString *mainObjectName)
   PATH_TRANSLATED = getenv("PATH_TRANSLATED");
   QUERY_STRING = getenv("QUERY_STRING");
   SCRIPT_NAME = getenv("SCRIPT_NAME");
+  REQUEST_URI = getenv("REQUEST_URI");
   
   if (!PATH_INFO || !PATH_TRANSLATED || !*(PATH_INFO)) {
     printf("Status: 302 Moved Temporarily\r\n");
@@ -1678,16 +1679,19 @@ void CLRun(CLString *mainObjectName)
   }
 #endif
 
-  if (CLDelegate && PATH_INFO && *PATH_INFO &&
+  if (!REQUEST_URI)
+    REQUEST_URI = PATH_INFO;
+  
+  if (CLDelegate && REQUEST_URI && *REQUEST_URI &&
       [CLDelegate respondsTo:@selector(delegateDecodeSimpleURL:)] &&
-      [CLDelegate delegateDecodeSimpleURL:[CLString stringWithUTF8String:PATH_INFO+1]])
+      [CLDelegate delegateDecodeSimpleURL:[CLString stringWithUTF8String:REQUEST_URI+1]])
     goto done;
   
-  if (PATH_INFO && *PATH_INFO && *(PATH_INFO+1)) {
+  if (REQUEST_URI && *REQUEST_URI && *(REQUEST_URI+1)) {
     CLArray *anArray;
 
 
-    aString = [CLString stringWithUTF8String:PATH_INFO+1];
+    aString = [CLString stringWithUTF8String:REQUEST_URI+1];
     anArray = [aString pathComponents];
     [CLQuery setObject:[anArray objectAtIndex:0] forKey:CL_URLSEL];
     if ([anArray count] > 1)
