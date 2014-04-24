@@ -561,7 +561,7 @@ static CLString *CLTryExtensions(CLString *aFilename, CLArray *extensions)
     aString = [aFilename pathExtension];
     if ([aString length]) {
       for (i = 0, j = [extensions count]; i < j; i++)
-	if (![aString isEqualToString:[extensions objectAtIndex:i]])
+	if (![aString caseInsensitiveCompare:[extensions objectAtIndex:i]])
 	  break;
       if (i < j)
 	aString = [aFilename stringByDeletingPathExtension];
