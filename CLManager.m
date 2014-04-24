@@ -1671,8 +1671,10 @@ void CLRun(CLString *mainObjectName)
   }
 #endif
 
-  if (!REQUEST_URI)
+  if (!REQUEST_URI || !*REQUEST_URI)
     REQUEST_URI = PATH_INFO;
+  else if (PATH_INFO && !strncmp(REQUEST_URI, SCRIPT_NAME, strlen(SCRIPT_NAME)))
+    REQUEST_URI += strlen(SCRIPT_NAME);
   
   if (CLDelegate && REQUEST_URI && *REQUEST_URI &&
       [CLDelegate respondsTo:@selector(delegateDecodeSimpleURL:)] &&
