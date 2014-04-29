@@ -168,17 +168,22 @@ static CLString *CLFileDirectory = nil;
   struct passwd *pw;
   const char *p;
   CLFileStream *oFile = nil;
-  char *tbuf;
+  char *tbuf, *tdir;
+  CLString *path;
 
 
-  p = [[CLString stringWithFormat:@"/tmp/%@", template] UTF8String];
+  if (!(tdir = getenv("TMPDIR")))
+    tdir ="/tmp";
+
+  path = [CLString stringWithUTF8String:tdir];
+  path = [path stringByAppendingPathComponent:template];
+  p = [path UTF8String];
   tbuf = strdup(p);
   fd = mkstemp(tbuf);
 
-  if (fd < 0 && (p = getenv("TMPDIR"))) {
+  if (fd < 0 && ![path hasPathPrefix:@"/tmp"]) {
     free(tbuf);
-    tbuf = strdup([[[CLString stringWithUTF8String:p]
-		     stringByAppendingPathComponent:template] UTF8String]);
+    tbuf = strdup([[@"/tmp" stringByAppendingPathComponent:template] UTF8String]);
     fd = mkstemp(tbuf);
   }
 
@@ -199,7 +204,7 @@ static CLString *CLFileDirectory = nil;
 
   if (fd >= 0)
     oFile = [CLFileStream streamWithDescriptor:fd mode:CLReadWrite
-					atPath:[CLString stringWithUTF8String:tbuf] processID:0];
+			  atPath:[CLString stringWithUTF8String:tbuf] processID:0];
   
   if (tbuf)
     free(tbuf);
