@@ -1671,6 +1671,8 @@ void CLRun(CLString *mainObjectName)
   }
 #endif
 
+  REQUEST_URI = [[[CLString stringWithUTF8String:REQUEST_URI] stringByReplacingPercentEscapes]
+		  UTF8String];
   if (!REQUEST_URI || !*REQUEST_URI)
     REQUEST_URI = PATH_INFO;
   else if (PATH_INFO && !strncmp(REQUEST_URI, SCRIPT_NAME, strlen(SCRIPT_NAME)))

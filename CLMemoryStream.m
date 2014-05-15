@@ -51,6 +51,9 @@
 
   buffer = buf;
   length = len;
+
+  if (!buf && mode == CLAppend)
+    mode = CLWriteOnly;
   
   switch (mode) {
   case CLReadOnly:
@@ -62,6 +65,17 @@
     if (!buf)
       freeBuffer = YES;
     file = open_memstream((char **) &buffer, &length);
+    break;
+
+  case CLAppend:
+    /* FIXME - fmemopen can open in append mode but will seek to the
+       first null byte and can't grow the buffer. open_memstream needs
+       to create its own buffer in order to add data. Could use
+       open_memstream and copy the contents of the passed buffer, but
+       if caller is expecting to write to same location, that isn't
+       quite correct. Probably best to let caller open new buffer and
+       add data themselves. */
+    [self error:@"Appending to memory is not supported"];
     break;
   }
 

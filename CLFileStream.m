@@ -40,8 +40,10 @@
     mode = "w";
   else if (aMode == CLReadWrite)
     mode = "w+";
+  else if (aMode == CLAppend)
+    mode = "a";
 
- /* FIXME - should there be a way to do "r+", "a", or "a+" ? */
+ /* FIXME - should there be a way to do "r+" or "a+" ? */
   
   if ((file = fopen([aPath UTF8String], mode)))
     return [[[self alloc] initWithFile:file path:aPath processID:0] autorelease];

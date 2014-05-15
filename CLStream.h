@@ -32,6 +32,7 @@
 #define CLReadOnly	1
 #define CLWriteOnly	2
 #define CLReadWrite	4
+#define CLAppend	8
 #define CLEOF		-1
 
 @protocol CLStream
