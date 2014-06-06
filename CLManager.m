@@ -57,6 +57,7 @@
 #include <ctype.h>
 #include <sys/time.h>
 #include <sys/sysinfo.h>
+#include <string.h>
 
 /* FIXME - sposed to be declared in stdio.h but it's not */
 extern char *cuserid(char *string);
@@ -1671,12 +1672,17 @@ void CLRun(CLString *mainObjectName)
   }
 #endif
 
+#if 1
+  /* FIXME - don't hardcode .cl extension workaround */
+  REQUEST_URI = PATH_INFO;
+#else
   REQUEST_URI = [[[CLString stringWithUTF8String:REQUEST_URI] stringByReplacingPercentEscapes]
 		  UTF8String];
   if (!REQUEST_URI || !*REQUEST_URI)
     REQUEST_URI = PATH_INFO;
   else if (PATH_INFO && !strncmp(REQUEST_URI, SCRIPT_NAME, strlen(SCRIPT_NAME)))
     REQUEST_URI += strlen(SCRIPT_NAME);
+#endif
   
   if (CLDelegate && REQUEST_URI && *REQUEST_URI &&
       [CLDelegate respondsTo:@selector(delegateDecodeSimpleURL:)] &&
