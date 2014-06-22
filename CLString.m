@@ -1093,30 +1093,31 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 
 -(CLString *) stringByReplacingPercentEscapes
 {
-  /* FIXME - don't convert to c string */
-  const char *cString = [self UTF8String];
-  unsigned char *p;
-  char *q;
+  unichar *str, *p, *q;
   id anObject;
-  
+  CLStringStorage *stor;
 
-  if (!(p = malloc(strlen(cString)+1)))
+  
+  stor = CLStorageForString(self);
+  str = stor->str;
+  if (!(p = calloc(len, sizeof(unichar))))
     [self error:@"Unable to allocate memory"];
-  for (q = (char *) p; *cString; p++, cString++) {
-    *p = *cString;
-    if (*cString == '+')
+  
+  for (q = p; str < stor->str + len; p++, str++) {
+    *p = *str;
+    if (*str == '+')
       *p = ' ';
-    else if (*cString == '%') {
-      *p = hexval(*(cString+1)) << 4 | hexval(*(cString+2));
-      cString += 2;
+    else if (*str == '%') {
+      *p = hexval(*(str+1)) << 4 | hexval(*(str+2));
+      str += 2;
     }
   }
-  *p = 0;
 
-  anObject = [CLString stringWithUTF8String:q];
-  free(q);
+  anObject = [[CLString alloc] initWithBytesNoCopy:(const char *) q
+					    length:(p - q) * sizeof(unichar)
+					  encoding:CLUnicodeStringEncoding];
   
-  return anObject;
+  return [anObject autorelease];
 }
 
 -(id) decodeObject:(unichar *) buf length:(CLUInteger) length pos:(CLUInteger *) pos

@@ -20,6 +20,8 @@
 #define _ISOC9X_SOURCE
 #define _XOPEN_SOURCE
 #define _BSD_SOURCE
+#define _ISOC99_SOURCE /* To get llabs */
+#include <stdlib.h>
 
 #import "CLCalendarDate.h"
 #import "CLString.h"
@@ -30,7 +32,6 @@
 #import "CLValue.h"
 
 #include <time.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define CLGregorianOffset	719163
