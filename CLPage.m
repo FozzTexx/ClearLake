@@ -249,10 +249,13 @@ void CLSetDelegate(id anObject)
 
     [CLPageObjects addObject:[CLPageObject objectForName:@"INPUT" result:CL_APPEND
 						   objectClass:[CLField class]]];
+#if 0
+    /* FIXME - Only ClearLake2 can support the BUTTON tag */
     [CLPageObjects addObject:[CLPageObject objectForName:@"BUTTON" result:CL_PUSH
 						   objectClass:[CLField class]]];
     [CLPageObjects addObject:[CLPageObject objectForName:@"/BUTTON" result:CL_POP
 						   objectClass:nil]];
+#endif
     [CLPageObjects addObject:[CLPageObject objectForName:@"TEXTAREA" result:CL_PUSH
 						   objectClass:[CLField class]]];
     [CLPageObjects addObject:[CLPageObject objectForName:@"/TEXTAREA" result:CL_POP
@@ -603,6 +606,9 @@ void CLSetDelegate(id anObject)
     mArray = [lastObject value];
   else if ([lastObject isKindOfClass:[CLArray class]])
     mArray = lastObject;
+
+  if (![mArray isKindOfClass:[CLArray class]])
+    mArray = nil;
   
   for (i = [mArray count] - 1; i >= 0; i--) {
     anObject = [mArray objectAtIndex:i];
