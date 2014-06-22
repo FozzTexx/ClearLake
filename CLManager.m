@@ -1673,7 +1673,9 @@ void CLRun(CLString *mainObjectName)
 #endif
 
 #if 1
-  /* FIXME - don't hardcode .cl extension workaround */
+  /* FIXME - too complicated trying to use REQUEST_URI. Will live with
+     Apache making some URLs strip the junk that spammers are tacking
+     on at the end: page.html+++++++monkeyjunk */
   REQUEST_URI = PATH_INFO;
 #else
   REQUEST_URI = [[[CLString stringWithUTF8String:REQUEST_URI] stringByReplacingPercentEscapes]
