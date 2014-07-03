@@ -291,9 +291,9 @@ typedef struct ContentInfo {
       if (*v == '\r') {
 	if (*(v+1) == '\n') {
 	  if (*(v+2) == '\n')
-	    memmove(v, v+2, strlen(v) - 2);
+	    memmove(v, v+2, strlen(v) - 1); /* get null byte at end */
 	  else
-	    memmove(v, v+1, strlen(v) - 1);
+	    memmove(v, v+1, strlen(v)); /* get null byte at end */
 	}
 	else
 	  *v = '\n';
