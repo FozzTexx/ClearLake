@@ -722,20 +722,25 @@
   return err;
 }
 
--(void) createUrlTitleFromString:(CLString *) aString
+-(CLString *) urlTitleFromString:(CLString *) aString mode:(int) urlMode
 {
   CLMutableString *mString;
   CLCharacterSet *aSet, *notSet;
   CLRange aRange, aRange2;
-  int counter;
-  CLArray *anArray;
-  CLString *aTable;
   CLData *aData;
 
 
-  if ([self hasFieldNamed:@"urlTitle"]) {
-    aData = [aString dataUsingEncoding:CLASCIIStringEncoding allowLossyConversion:YES];
-    mString = [CLMutableString stringWithData:aData encoding:CLASCIIStringEncoding];
+  aData = [aString dataUsingEncoding:CLASCIIStringEncoding allowLossyConversion:YES];
+  mString = [CLMutableString stringWithData:aData encoding:CLASCIIStringEncoding];
+  if (urlMode == CLSCDashMode) {
+    mString = [[[mString lowercaseString] mutableCopy] autorelease];
+    [mString replaceOccurrencesOfString:@" " withString:@"-"];
+    aSet = [CLCharacterSet characterSetWithCharactersInString:
+			     @"-0123456789"
+			   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			   "abcdefghijklmnopqrstuvwxyz"];
+  }
+  else {
     [mString replaceOccurrencesOfString:@" " withString:@"_"];
     aString = [mString upperCamelCaseString];
     mString = [[aString mutableCopy] autorelease];
@@ -743,44 +748,57 @@
 			     @"0123456789"
 			   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 			   "abcdefghijklmnopqrstuvwxyz"];
-    notSet = [aSet invertedSet];
+  }
 
-    aRange = [mString rangeOfCharacterFromSet:notSet];
-    while (aRange.length) {
-      aRange2.location = CLMaxRange(aRange);
+  notSet = [aSet invertedSet];
+  aRange = [mString rangeOfCharacterFromSet:notSet];
+  while (aRange.length) {
+    aRange2.location = CLMaxRange(aRange);
+    aRange2.length = [mString length] - aRange2.location;
+    aRange2 = [mString rangeOfCharacterFromSet:aSet options:0 range:aRange2];
+    if (aRange2.length)
+      aRange.length = aRange2.location - aRange.location;
+    [mString replaceCharactersInRange:aRange withString:@""];
+    if (aRange2.length) {
+      aRange2.location = aRange.location;
       aRange2.length = [mString length] - aRange2.location;
-      aRange2 = [mString rangeOfCharacterFromSet:aSet options:0 range:aRange2];
-      if (aRange2.length)
-	aRange.length = aRange2.location - aRange.location;
-      [mString replaceCharactersInRange:aRange withString:@""];
-      if (aRange2.length) {
-	aRange2.location = aRange.location;
-	aRange2.length = [mString length] - aRange2.location;
-	aRange = [mString rangeOfCharacterFromSet:notSet options:0 range:aRange2];
-      }
-      else
-	aRange.length = 0;
+      aRange = [mString rangeOfCharacterFromSet:notSet options:0 range:aRange2];
     }
+    else
+      aRange.length = 0;
+  }
 
-    if ([mString length] > MAX_URLLENGTH)
-      [mString deleteCharactersInRange:
-		 CLMakeRange(MAX_URLLENGTH, [mString length] - MAX_URLLENGTH)];
+  return mString;
+}
+  
+-(void) createUrlTitleFromString:(CLString *) aString
+{
+  CLString *titleString;
+  int counter;
+  CLArray *anArray;
+  CLString *aTable;
+
+
+  if ([self hasFieldNamed:@"urlTitle"]) {
+    titleString = [self urlTitleFromString:aString mode:CLSCCamelCaseMode];
+    if ([titleString length] > MAX_URLLENGTH)
+      titleString = [titleString substringToIndex:MAX_URLLENGTH];
   
     aTable = [CLGenericRecord tableForClass:[self class]];
     anArray = [CLGenericRecord loadTable:aTable qualifier:
-				 [CLString stringWithFormat:@"url_title = '%@'", mString]];
+				 [CLString stringWithFormat:@"url_title = '%@'", titleString]];
     counter = 1;
     while ([anArray count] && ([anArray count] > 1 ||
 			       ![[anArray objectAtIndex:0] isEqual:self])) {
       counter++;
       anArray = [CLGenericRecord loadTable:aTable qualifier:
 				   [CLString stringWithFormat:@"url_title = '%@%i'",
-					     mString, counter]];
+					     titleString, counter]];
     }
     if (counter > 1)
-      [mString appendFormat:@"%i", counter];
+      titleString = [titleString stringByAppendingFormat:@"%i", counter];
 
-    [self setUrlTitle:mString];
+    [self setUrlTitle:titleString];
   }
 
   return;

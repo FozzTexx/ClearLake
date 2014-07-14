@@ -19,6 +19,9 @@
 
 #import <ClearLake/CLGenericRecord.h>
 
+#define CLSCDashMode		1
+#define CLSCCamelCaseMode	2
+
 @class CLCalendarDate, CLCategory, CLWikiString;
 
 @interface CLStandardContent:CLGenericRecord
@@ -33,6 +36,7 @@
 -(BOOL) deleteFromDatabase;
 -(CLArray *) sortedImages;
 -(id) firstImage;
+-(CLString *) urlTitleFromString:(CLString *) aString mode:(int) urlMode;
 -(void) createUrlTitleFromString:(CLString *) aString;
 -(void) createUrlTitleFromTitle;
 
