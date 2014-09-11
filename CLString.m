@@ -985,14 +985,14 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 
   stor = CLStorageForString(self);
   mString = [[CLMutableString alloc] init];
-  
+
   for (p = stor->str, j = 0; j < len; p++, j++) {
     c = *p;
-    for (i = 0; CLEntities[i].c && i < 5; i++)
+    for (i = 0; CLEntities[i].c; i++)
       if (c == CLEntities[i].c)
 	break;
 
-    if (i < 5 && CLEntities[i].c)
+    if (c < 127 && CLEntities[i].c)
       [mString appendString:CLEntities[i].entity];
     else if (c >= 0x80)
       [mString appendFormat:@"&#%d;", c];
