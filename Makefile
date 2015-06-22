@@ -1,4 +1,4 @@
-CC=gcc44
+#CC=gcc44
 PRODUCT= libClearLake.a
 # If PRODUCT= line is missing, be sure to insert one
 # $(PRODUCT).c will be automatically compiled, so it

@@ -88,11 +88,12 @@
   CLString *aString;
   CLStream *oFile;
   CLData *aData;
-  CLString *options = sendmailOptions;
+  CLMutableString *options;
 
 
-  if (!options)
-    options = @"";
+  options = [[CLMutableString alloc] init];
+  if ([sendmailOptions length])
+    [options appendString:sendmailOptions];
   
   oFile = [CLStream openTemporaryFile:@"clmsg.XXXXXX"];
   [header updateBindings:[body datasource]];
@@ -104,9 +105,13 @@
   aData = [body htmlForBody];
   [oFile writeData:aData];
   [oFile close];
+  /* FIXME - pick out email address from string in case there is a name in there */
+  if ((aString = [header valueOfHeader:@"From"]))
+    [options appendFormat:@" -f%@", aString];
   aString = [CLString stringWithFormat:@"(/usr/lib/sendmail -t %@ < %@ ; rm %@) &",
 		      options, [oFile path], [oFile path]];
   system([aString UTF8String]);
+  [options release];
   
   return;
 }
