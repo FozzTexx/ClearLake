@@ -1615,7 +1615,7 @@ void CLRun(CLString *mainObjectName)
     sysinfo(&info);
     for (i = 0; i < 3; i++) {
       load = info.loads[i] / 65536.0;
-      if (load > 12)
+      if (load > 20)
 	break;
     }
 
