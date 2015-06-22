@@ -1623,7 +1623,7 @@ void CLRun(CLString *mainObjectName)
       printf("Status: 503\r\n");
       printf("Content-Type: text/plain\r\n");
       printf("\r\n");
-      printf("The rent is too high\r\n");
+      printf("The server is under heavy load right now\r\n");
       exit(1);
     }
   }
