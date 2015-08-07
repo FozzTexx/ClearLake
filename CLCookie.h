@@ -53,7 +53,7 @@
 
 @end
 
-extern CLMutableArray *CLCookies;
+extern CLMutableArray *CLCookies, *CLBrowserCookies;
 extern BOOL CLCookiesEnabled;
 
 extern void CLAddCookie(CLCookie *aCookie);

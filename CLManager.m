@@ -1610,16 +1610,17 @@ void CLRun(CLString *mainObjectName)
     struct sysinfo info;
     int i;
     double load;
+#define MAX_INFO 2
 
 
     sysinfo(&info);
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < MAX_INFO; i++) {
       load = info.loads[i] / 65536.0;
       if (load > 20)
 	break;
     }
 
-    if (i < 3) {
+    if (i < MAX_INFO) {
       printf("Status: 503\r\n");
       printf("Content-Type: text/plain\r\n");
       printf("\r\n");
