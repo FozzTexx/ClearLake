@@ -1,0 +1,59 @@
+Changes needed to be CL2.0-compliant:
+  Get rid of Header.m
+  Stop using piclib
+
+Resize images with ImageMagick:
+  scale down:
+  convert <input.file> -resize 123x -unsharp 0x0.75+0.75+0.008 <output.file>
+  scale up:
+  convert <input.file> -resize 123x  <output.file>
+
+Use http://site.icu-project.org/ for formatting!
+Remove c string legacy stuff from CLForm
+Make CLGenericRecord escape string by figuring out what database it uses
+Be consistent with naming methods "path" vs "filename"
+Make CLAccount validate its own password, not CLManager
+make set methods do autorelease not release - ??? Why?
+Change "with" to "from" where appropriate in method names
+Make objectValue... check if it's ok to access instance variables directly - Check how?
+Make page/control smarter about getting owner from filename
+make cl_block/cl_marker use value as template if binding is array
+make CLForm find fields under "fields" binding, similar to CLArray and "objects"
+fix CLForm's copyValuesFrom to deal with selects that have bindings that haven't updated yet
+Make magic look for ClassName/key and ClassName_key
+Make sure CLImageElement only sends image types that are compatible with the browser
+If there's a "get" method but no "set" method, don't blindly set instance variables
+There are 3 possible account types:
+      Local (/etc/passwd or LDAP), authenticated by the server CL is running on
+      External, such as a real database account or account on a foreign server
+      Virtual, users managed by a table in the database that CL is using
+
+In the old way of doing "page methods" sender was not always a
+control. In the new way I'm always expecting it is. This may or may
+not be the "right way."
+
+    Definitely the wrong way. Should probably make a global page variable.
+
+Make short URLs. Trim out as much state as possible. For magic to work, currently require:
+     - page filename (string)
+     - page owner class (string)
+     - page owner state or pk (binary blob)
+     - target class (string)
+     - target action (string)
+     - target state (binary blob)
+     - control class (string)
+
+     Session id can be moved to query string and only when cookies disabled.
+     Time archived is irrelevant.
+     There may be overlap between page filename, owner, and target. When things overlap
+     the URL should be as short as possible.
+
+     filename|owner_action=state/target=state/control
+
+Macros for javascript/CSS
+    Current workaround is to embed named span tags or hidden inputs
+    Cheat for JS to get info from parent <script> tag
+      var scripts = document.getElementsByTagName('script');
+      var player = scripts[scripts.length-1].getAttribute('player');
+
+Markdown library: http://fossil.instinctive.eu/libupskirt/index

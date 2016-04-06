@@ -1,0 +1,8 @@
+This is ClearLake, a web framework developed by Chris Osborn
+<fozztexx@fozztexx.com> and Rob Watts <rob@rawatts.com>. It is built
+upon the HTMLObjects framework originally created by Chris Osborn.
+
+Currently requires the piclib library.
+
+To compile:
+   run BUILD
