@@ -29,9 +29,9 @@ if make libpiclib.a ; then
 	ln -s `pwd`/libpiclib.a ~/Unix/${OSTYPE}/lib
     fi
     popd
-    if make libClearLake2.a ; then
-	if [ ! -e ~/Unix/${OSTYPE}/lib/libClearLake2.a ] ; then
-	    ln -s `pwd`/libClearLake2.a ~/Unix/${OSTYPE}/lib
+    if make libClearLake.a ; then
+	if [ ! -e ~/Unix/${OSTYPE}/lib/libClearLake.a ] ; then
+	    ln -s `pwd`/libClearLake.a ~/Unix/${OSTYPE}/lib
 	fi
     fi
 fi

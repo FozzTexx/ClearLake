@@ -1,8 +1,8 @@
-OTHER_TARGETS= buildObjc
-OTHER_GARBAGE= buildObjc
-MYSQL_LIBS= -L/usr/lib64/mysql -L/usr/lib/mysql -lmysqlclient
-SYBASE_LIBS=-lct
-OTHER_LIBS=-lClearLake2 -lobjc -lz -lcrypt -lcrypto -lffi \
-        -lpiclib -lm -ljpeg -lpng -lpthread -lgmp -lpcre -ltiff -lutil \
-	$(MYSQL_LIBS) $(SYBASE_LIBS)
+#OTHER_TARGETS= buildObjc
+#OTHER_GARBAGE= buildObjc
+#MYSQL_LIBS= -L/usr/lib64/mysql -L/usr/lib/mysql -lmysqlclient
+#SYBASE_LIBS=-lct
+#OTHER_LIBS=-lClearLake -lobjc -lz -lcrypt -lcrypto -lffi \
+#        -lpiclib -lm -ljpeg -lpng -lpthread -lgmp -lpcre -ltiff -lutil \
+#	$(MYSQL_LIBS) $(SYBASE_LIBS)
 
