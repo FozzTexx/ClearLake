@@ -37,12 +37,17 @@
 +(CLOriginalImage *) imageFromData:(CLData *) aData table:(CLString *) aTable;
 +(CLOriginalImage *) imageFromPath:(CLString *) aPath table:(CLString *) aTable
 			  hardlink:(BOOL) hardlink;
++(Class) imageClass;
 -(CLCachedImage *) cachedImageForEffects:(CLString *) aString;
 -(void) didDeleteFromDatabase;
 @end
 
 @interface CLOriginalImage (CLMagic)
 -(CLArray *) cachedImages;
+@end
+
+@protocol CLOriginalImageDelegate
+-(Class) originalImageClass;
 @end
 
 #endif /* _CLORIGINALIMAGE_H */

@@ -167,7 +167,7 @@ Class CLStandardContentClass, CLCategoryClass, CLStandardContentCategoryClass,
 
   return mString;
 }
-  
+
 -(void) dealloc
 {
   [body release];

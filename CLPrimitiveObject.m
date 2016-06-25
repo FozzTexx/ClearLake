@@ -31,6 +31,7 @@
 #import "CLMethodSignature.h"
 #import "CLAutoreleasePool.h"
 #import "CLConstantUnicodeString.h"
+#import "CLMutableDictionary.h"
 #if DEBUG_ALLOC
 #import "CLNumber.h" /* for allocAllow */
 #endif
@@ -76,6 +77,7 @@ CLMutableArray *allocAllow = nil;
 #endif
 
 static CLMutableArray *CLCleanupArray = nil;
+static CLMutableDictionary *CLPoseDict = nil;
 
 CL_INLINE void CLIncrementExtraRefCount(id anObject)
 {
@@ -164,17 +166,39 @@ id CLDisposeInstance(id object)
 
 +(id) alloc
 {
+  Class aClass;
+
+  
 #if DEBUG_ALLOC
   if ([allocAllow count] && ![[allocAllow lastObject] boolValue])
     [self error:@"No allocing!"];
 #endif
-  return class_create_instance(self);
+  if (!(aClass = [CLPoseDict objectForKey:self]))
+    aClass = self;
+  return class_create_instance(aClass);
 }
 #endif /* else __GNU_LIBOBJC__ */
 
 +(IMP) instanceMethodFor:(SEL) aSel
 {
   return method_getImplementation(class_getInstanceMethod(self, aSel));
+}
+
++(void) poseAsClass:(Class) aClassObject
+{
+#ifdef __GNU_LIBOBJC__
+  /* FIXME - what of some instance of aClassObject already exist? */
+  if (!CLPoseDict)
+    CLPoseDict = [[CLMutableDictionary alloc] init];
+  [CLPoseDict setObject:self forKey:aClassObject];
+#else
+  class_pose_as(self, aClassObject);
+#endif
+}
+
++(CLUInteger) hash
+{
+  return (CLUInteger) self;
 }
 
 -(id) init
@@ -302,10 +326,14 @@ id CLDisposeInstance(id object)
 -(Class) class
 {
   Class aClass = object_getClass(self);
+  Class poseClass;
 
 
   if (class_isMetaClass(aClass))
     aClass = (Class) self;
+  if (poseClass = [CLPoseDict objectForKey:aClass])
+    aClass = poseClass;
+  
   return aClass;
 }
 

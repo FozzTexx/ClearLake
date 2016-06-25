@@ -58,15 +58,6 @@ static IMP CLFindForwardFunction(SEL sel);
   return;
 }
 
-+(void) poseAsClass:(Class) aClassObject
-{
-#ifdef __GNU_LIBOBJC__
-  [self error:@"Pose-as got borked!"];
-#else
-  class_pose_as(self, aClassObject);
-#endif
-}
-
 -(void) dealloc
 {
   void *buf;

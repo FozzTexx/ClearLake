@@ -31,7 +31,7 @@ CLASSES= CLArray.m CLAutoreleasePool.m CLCharacterSet.m			\
 	 CLReleaseTracker.m CLRecordDefinition.m CLStream.m		\
 	 CLFileStream.m CLTCPStream.m CLPipeStream.m CLMemoryStream.m	\
 	 CLInfoMessage.m CLStackString.m CLJSONTarget.m CLCSVDecoder.m	\
-	 CLScanner.m
+	 CLScanner.m CLMarkdown.m
 MFILES= CLDecimal.m CLDecimalMPZ.m CLStringFunctions.m CLGetArgs.m CLRuntime.m
 CFILES= 
 FFILES=

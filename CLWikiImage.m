@@ -55,7 +55,7 @@
 
   
   if ((oid = [[self imageID] intValue]))
-    anImage = [CLDefaultContext loadObjectWithClass:CLOriginalImageClass objectID:oid];
+    anImage = [CLDefaultContext loadObjectWithClass:[CLOriginalImage imageClass] objectID:oid];
   return [anImage autorelease];
 }
 

@@ -679,8 +679,9 @@ typedef struct ContentInfo {
 
 	    aData = [CLData dataWithBytes:a length:s-q];
 	    aFile = [CLOriginalFile fileFromData:aData table:nil];
-	    if ([aFile isImage] && [CLEditingContext tableForClass:CLOriginalImageClass])
-	      aFile = [CLOriginalImage imageFromData:aData table:nil];
+	    if ([aFile isImage] && [CLEditingContext
+				     tableForClass:[CLOriginalImage imageClass]])
+	      aFile = [[CLOriginalImage imageClass] imageFromData:aData table:nil];
 
 	    /* Strip off full path that IE6 puts in */
 	    aString = [[aString componentsSeparatedByString:@"\\"] lastObject];

@@ -67,8 +67,6 @@ typedef struct {
 @end
 
 @interface CLObject:CLPrimitiveObject <CLArchiving>
-+(void) poseAsClass:(Class) aClassObject;
-
 -(CLUInteger) hash;
 -(BOOL) isEqual:(id) anObject;
 

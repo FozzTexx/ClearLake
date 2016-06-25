@@ -28,6 +28,8 @@
 #import "CLDatabase.h"
 #import "CLRelationship.h"
 #import "CLEditingContext.h"
+#import "CLManager.h"
+#import "CLStandardContent.h"
 
 #include <sys/stat.h>
 #include <unistd.h>
@@ -55,6 +57,13 @@
   return [self fileFromPath:aPath table:aTable hardlink:hardlink];
 }
 
++(Class) imageClass
+{
+  if ([CLDelegate respondsTo:@selector(originalImageClass)])
+    return [CLDelegate originalImageClass];
+  return CLOriginalImageClass;
+}
+  
 -(void) dealloc
 {
   [imageRep release];

@@ -32,7 +32,8 @@
   CLOriginalImage *anImage;
 
 
-  if ((anImage = [CLOriginalImage imageFromField:aField table:aTable])) {
+  if ((anImage = (CLOriginalImage *) [[CLOriginalImage imageClass]
+				       imageFromField:aField table:aTable])) {
     [CLDefaultContext saveChanges];
     pImage = [[self alloc] initFromDictionary:nil table:aTable];
     [pImage setObjectID:[anImage objectID]];
@@ -49,7 +50,8 @@
   CLOriginalImage *anImage;
 
 
-  if ((anImage = [CLOriginalImage imageFromFile:aFilename table:aTable])) {
+  if ((anImage = (CLOriginalImage *) [[CLOriginalImage imageClass]
+				       imageFromFile:aFilename table:aTable])) {
     [CLDefaultContext saveChanges];
     pImage = [[self alloc] initFromDictionary:nil table:aTable];
     [pImage setObjectID:[anImage objectID]];
