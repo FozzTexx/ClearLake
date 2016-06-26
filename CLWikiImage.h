@@ -28,4 +28,7 @@
 -(CLOriginalImage *) image;
 -(void) setImageID:(CLNumber *) aValue;
 -(BOOL) setImageFromField:(CLInput *) aField;
+-(int) position;
+-(void) setPosition:(int) aNumber;
+-(CLComparisonResult) comparePosition:(id) anImage;
 @end

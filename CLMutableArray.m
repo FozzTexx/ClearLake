@@ -23,6 +23,7 @@
 #import "CLSortDescriptor.h"
 #import "CLNull.h"
 #import "CLString.h"
+#import "CLFault.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -49,6 +50,9 @@ static int CLQsortCompareBySelector(const void *ptr1, const void *ptr2)
     return CLOrderedAscending;
   if (object1 && !object2)
     return CLOrderedDescending;
+  
+  if ([object1 isFault])
+    [object1 fault];
   
   if ((imp = [object1 methodFor:CLQsortComparator]))
     return ((CLComparisonResult (*) (id,SEL,id)) imp)(object1, CLQsortComparator, object2);

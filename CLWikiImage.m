@@ -93,4 +93,29 @@
   return @"image";
 }
 
+-(int) position
+{
+  return [[attributes objectForKey:@"position"] intValue];
+}
+
+-(void) setPosition:(int) aNumber
+{
+  [attributes setObject:[CLNumber numberWithInt:aNumber] forKey:@"position"];
+  return;
+}
+
+-(CLComparisonResult) comparePosition:(id) anImage
+{
+  int pos1, pos2;
+
+
+  pos1 = [self position];
+  pos2 = [anImage position];
+  if (pos1 < pos2)
+    return CLOrderedAscending;
+  if (pos1 > pos2)
+    return CLOrderedDescending;
+  return CLOrderedSame;
+}
+
 @end

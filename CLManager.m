@@ -667,7 +667,7 @@ static CLMutableDictionary *CLConfig = nil;
   mString = [CLMutableString stringWithFormat:@"select id, password, flags from %@ where",
 		      [recordDef databaseTable]];
   if (ignore) {
-    [mString appendFormat:@" flags not like '%%%c%%'", CLAccountFlagInternalUseOnly];
+    [mString appendFormat:@" (flags is null or flags not like '%%%c%%')", CLAccountFlagInternalUseOnly];
     if (!(mask & CLNameNotUnique) || !(mask & CLEmailNotUnique))
       [mString appendFormat:@" and ("];
   }
