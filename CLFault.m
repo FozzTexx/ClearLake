@@ -342,6 +342,20 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   return [self objectValueForBinding:aBinding found:&found];
 }
 
+-(IMP) methodFor:(SEL) aSel
+{
+  void *buf;
+  CLFaultData *data;
+  CLObjectReserved *reserved;
+
+
+  buf = self;
+  reserved = buf - sizeof(CLObjectReserved);
+  data = reserved->faultData;
+
+  return method_getImplementation(class_getInstanceMethod(data->original, aSel));
+}
+
 @end
 
 void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,

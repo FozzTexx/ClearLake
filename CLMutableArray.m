@@ -51,9 +51,6 @@ static int CLQsortCompareBySelector(const void *ptr1, const void *ptr2)
   if (object1 && !object2)
     return CLOrderedDescending;
   
-  if ([object1 isFault])
-    [object1 fault];
-  
   if ((imp = [object1 methodFor:CLQsortComparator]))
     return ((CLComparisonResult (*) (id,SEL,id)) imp)(object1, CLQsortComparator, object2);
 

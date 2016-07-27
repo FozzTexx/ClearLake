@@ -389,14 +389,6 @@ Class CLStandardContentClass, CLCategoryClass, CLStandardContentCategoryClass,
   [mArray addObjectsFromArray:[self images]];
   [mArray addObjectsFromArray:[[self body] images]];
   [mArray sortUsingSelector:@selector(comparePosition:)];
-
-  {
-    int i, j;
-
-
-    for (i = 0, j = [mArray count]; i < j; i++)
-      fprintf(stderr, "%i\n", [[mArray objectAtIndex:i] position]);
-  }
   
   return [mArray autorelease];
 }
