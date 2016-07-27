@@ -198,7 +198,7 @@ id CLDisposeInstance(id object)
 
 +(CLUInteger) hash
 {
-  return (CLUInteger) self;
+  return (size_t) self;
 }
 
 -(id) init
@@ -331,7 +331,7 @@ id CLDisposeInstance(id object)
 
   if (class_isMetaClass(aClass))
     aClass = (Class) self;
-  if (poseClass = [CLPoseDict objectForKey:aClass])
+  if ((poseClass = [CLPoseDict objectForKey:aClass]))
     aClass = poseClass;
   
   return aClass;
