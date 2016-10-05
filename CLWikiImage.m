@@ -32,16 +32,11 @@
 #import "CLStandardContent.h"
 #import "CLInput.h"
 #import "CLWikiString.h"
+#import "CLClassConstants.h"
 
 #include <unistd.h>
 
 @implementation CLWikiImage
-
-+(void) load
-{
-  CLWikiImageClass = [CLWikiImage class];
-  return;
-}
 
 -(CLNumber *) imageID
 {

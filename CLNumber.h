@@ -27,8 +27,6 @@
 
 @class CLString;
 
-extern Class CLNumberClass, CLDecimalNumberClass;
-
 @interface CLNumber:CLObject <CLCopying, CLPropertyList, CLArchiving>
 {
   union {

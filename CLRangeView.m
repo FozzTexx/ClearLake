@@ -25,16 +25,9 @@
 #import "CLMutableArray.h"
 #import "CLSortDescriptor.h"
 #import "CLPage.h"
+#import "CLClassConstants.h"
 
 @implementation CLRangeView
-
-#if 0
-+(void) load
-{
-  CLRangeViewClass = [CLRangeView class];
-  return;
-}
-#endif
 
 -(id) initFromElement:(CLElement *) anElement onPage:(CLPage *) aPage
 {

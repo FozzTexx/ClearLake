@@ -28,6 +28,7 @@
 #import "CLMutableArray.h"
 #import "CLStackString.h"
 #import "CLRelationship.h"
+#import "CLClassConstants.h"
 
 @implementation CLRecordDefinition
 

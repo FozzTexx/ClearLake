@@ -29,12 +29,6 @@
 
 @implementation CLChainedSelect
 
-+(void) load
-{
-  CLChainedSelectClass = [CLChainedSelect class];
-  return;
-}
-
 -(int) insertOptions:(CLArray *) anArray parent:(CLOption *) parentOpt
 		name:(CLString *) name other:(CLString *) otherValue
 {

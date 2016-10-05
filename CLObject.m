@@ -39,6 +39,7 @@
 #import "CLStackString.h"
 #import "CLRecordDefinition.h"
 #import "CLRuntime.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <wctype.h>
@@ -55,6 +56,12 @@ static IMP CLFindForwardFunction(SEL sel);
 +(void) load
 {
   __objc_msg_forward = CLFindForwardFunction;
+  return;
+}
+
++(void) initialize
+{
+  initClassConstants();
   return;
 }
 

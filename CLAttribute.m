@@ -29,12 +29,6 @@
 
 @implementation CLAttribute
 
-+(void) load
-{
-  CLAttributeClass = [CLAttribute class];
-  return;
-}
-
 +(CLAttribute *) attributeFromString:(CLString *) aString
 {
   return [[[CLAttribute alloc] initFromString:aString] autorelease];

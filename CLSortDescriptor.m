@@ -24,6 +24,7 @@
 #import "CLMutableArray.h"
 #import "CLNull.h"
 #import "CLRuntime.h"
+#import "CLClassConstants.h"
 
 @implementation CLSortDescriptor
 

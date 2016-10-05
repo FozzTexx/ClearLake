@@ -43,6 +43,7 @@
 #import "CLTimeZone.h"
 #import "CLDatetime.h"
 #import "CLSession.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 
@@ -56,20 +57,8 @@ static CLHashTable *_classDefs = NULL, *_tableDefs = NULL,
   *_classTable = NULL, *_tableClass = NULL;
 static int _modelInitializing = 0;
 
-Class CLEditingContextClass, CLGenericRecordClass, CLAttributeClass, CLRelationshipClass,
-  CLRecordDefinitionClass, CLFaultClass, CLArrayFaultClass, CLPlaceholderClass;
-
 @implementation CLEditingContext
 
-+(void) load
-{
-  CLEditingContextClass = [CLEditingContext class];
-  CLRecordDefinitionClass = [CLRecordDefinition class];
-  CLFaultClass = [CLFault class];
-  CLArrayFaultClass = [CLArrayFault class];
-  return;
-}
-  
 +(void) decodeSchema:(CLMutableDictionary *) aSchema databaseName:(CLString *) aDatabase
 {
   CLArray *keys;

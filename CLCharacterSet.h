@@ -25,8 +25,6 @@
 #import <ClearLake/CLObject.h>
 #import <ClearLake/CLString.h>
 
-extern Class CLCharacterSetClass, CLMutableCharacterSetClass;
-
 @interface CLCharacterSet:CLObject <CLCopying, CLMutableCopying>
 {
   id string;

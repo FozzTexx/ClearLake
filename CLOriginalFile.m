@@ -28,6 +28,7 @@
 #import "CLCharacterSet.h"
 #import "CLHashTable.h"
 #import "CLStandardContent.h"
+#import "CLClassConstants.h"
 
 #include <sys/stat.h>
 #include <unistd.h>

@@ -21,7 +21,5 @@
 
 #import <ClearLake/CLInput.h>
 
-extern Class CLTextAreaClass;
-
 @interface CLTextArea:CLInput
 @end

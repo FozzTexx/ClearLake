@@ -32,7 +32,8 @@ CLASSES= CLArray.m CLAutoreleasePool.m CLCharacterSet.m			\
 	 CLFileStream.m CLTCPStream.m CLPipeStream.m CLMemoryStream.m	\
 	 CLInfoMessage.m CLStackString.m CLJSONTarget.m CLCSVDecoder.m	\
 	 CLScanner.m
-MFILES= CLDecimal.m CLDecimalMPZ.m CLStringFunctions.m CLGetArgs.m CLRuntime.m
+MFILES= CLDecimal.m CLDecimalMPZ.m CLStringFunctions.m CLGetArgs.m	\
+	CLRuntime.m CLClassConstants.m
 CFILES= 
 FFILES=
 LIBFFI= -I$(shell echo /usr/lib/libffi*/include) \

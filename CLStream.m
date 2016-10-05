@@ -40,6 +40,7 @@
 #import "CLEditingContext.h"
 #import "CLStringFunctions.h"
 #import "CLStackString.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <stdarg.h>

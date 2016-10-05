@@ -32,11 +32,10 @@
 #import "CLRegularExpression.h"
 #import "CLArray.h"
 #import "CLValue.h"
+#import "CLClassConstants.h"
 
 #include <time.h>
 #include <string.h>
-
-Class CLDatetimeClass;
 
 #define CLGregorianOffset	719163
 
@@ -106,12 +105,6 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 }
 
 @implementation CLDatetime
-
-+(void) load
-{
-  CLDatetimeClass = [CLDatetime class];
-  return;
-}
 
 +(id) now
 {

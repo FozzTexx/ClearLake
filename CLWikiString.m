@@ -29,24 +29,17 @@
 #import "CLImageRep.h"
 #import "CLNull.h"
 #import "CLNumber.h"
+#import "CLClassConstants.h"
 
 #include <unistd.h>
 #include <stdlib.h>
 #include <wctype.h>
-
-Class CLWikiStringClass, CLWikiImageClass, CLWikiMediaClass, CLWikiLinkClass;
 
 @interface CLWikiString (CLPrivateMethods)
 -(CLMutableArray *) parseString:(CLString *) source;
 @end
 
 @implementation CLWikiString
-
-+(void) load
-{
-  CLWikiStringClass = [CLWikiString class];
-  return;
-}
 
 -(id) init
 {

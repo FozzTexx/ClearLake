@@ -26,12 +26,6 @@
 
 @implementation CLPlaceholder
 
-+(void) load
-{
-  CLPlaceholderClass = [CLPlaceholder class];
-  return;
-}
-
 +(CLPlaceholder *) placeholderFromString:(CLString *) aString
 {
   CLRange aRange;

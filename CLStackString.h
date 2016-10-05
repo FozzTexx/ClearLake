@@ -25,6 +25,7 @@
 #import <ClearLake/CLMutableString.h>
 #import <ClearLake/CLRuntime.h>
 #import <ClearLake/CLStringFunctions.h>
+#import <ClearLake/CLClassConstants.h>
 
 @interface CLMutableStackString:CLMutableString
 @end

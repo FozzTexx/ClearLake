@@ -21,15 +21,7 @@
 
 #import "CLTextArea.h"
 
-Class CLTextAreaClass;
-
 @implementation CLTextArea
-
-+(void) load
-{
-  CLTextAreaClass = [CLTextArea class];
-  return;
-}
 
 -(void) addObject:(id) anObject
 {

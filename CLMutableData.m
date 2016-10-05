@@ -21,6 +21,7 @@
 
 #import "CLMutableData.h"
 #import "CLString.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <string.h>

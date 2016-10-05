@@ -25,6 +25,7 @@
 #import "CLInvocation.h"
 #import "CLGenericRecord.h"
 #import "CLEditingContext.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 

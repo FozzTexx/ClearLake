@@ -27,6 +27,7 @@
 #import "CLMutableString.h"
 #import "CLStream.h"
 #import "CLHashTable.h"
+#import "CLClassConstants.h"
 
 #include <gmp.h>
 #include <math.h>
@@ -45,12 +46,6 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
 @end
 
 @implementation CLDecimalNumber
-
-+(void) load
-{
-  CLDecimalNumberClass = [CLDecimalNumber class];
-  return;
-}
 
 +(CLDecimalNumber *) decimalNumberWithMantissa:(unsigned long long) mantissa
 				      exponent:(short) exponent isNegative:(BOOL) flag

@@ -26,21 +26,14 @@
 #import "CLCharacterSet.h"
 #import "CLNull.h"
 #import "CLStackString.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <stdarg.h>
 #include <wctype.h>
 #include <string.h>
 
-Class CLArrayClass, CLMutableArrayClass;
-
 @implementation CLArray
-
-+(void) load
-{
-  CLArrayClass = [CLArray class];
-  return;
-}
 
 +(id) array
 {

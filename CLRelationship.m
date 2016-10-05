@@ -30,14 +30,9 @@
 #import "CLEditingContext.h"
 #import "CLRecordDefinition.h"
 #import "CLDatetime.h"
+#import "CLClassConstants.h"
 
 @implementation CLRelationship
-
-+(void) load
-{
-  CLRelationshipClass = [CLRelationship class];
-  return;
-}
 
 -(id) init
 {

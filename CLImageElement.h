@@ -27,8 +27,6 @@
 
 @class CLImageRep;
 
-extern Class CLImageElementClass;
-
 @interface CLImageElement:CLElement <CLCopying, CLArchiving>
 {
   id imageRep;

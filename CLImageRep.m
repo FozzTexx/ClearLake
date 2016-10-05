@@ -24,6 +24,7 @@
 #import "CLStream.h"
 #import "CLMutableData.h"
 #import "CLArray.h"
+#import "CLClassConstants.h"
 
 #include <dirent.h>
 #include <fcntl.h>

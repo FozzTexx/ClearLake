@@ -34,6 +34,7 @@
 #import "CLMutableString.h"
 #import "CLHashTable.h"
 #import "CLCharacterSet.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <iconv.h>

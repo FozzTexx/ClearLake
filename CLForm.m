@@ -40,6 +40,7 @@
 #import "CLRecordDefinition.h"
 #import "CLStandardContent.h"
 #import "CLDatetime.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <unistd.h>

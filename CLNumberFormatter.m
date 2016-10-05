@@ -23,6 +23,7 @@
 #import "CLCharacterSet.h"
 #import "CLMutableString.h"
 #import "CLDecimalNumber.h"
+#import "CLClassConstants.h"
 
 @implementation CLNumberFormatter
 

@@ -31,16 +31,11 @@
 #import "CLStandardContent.h"
 #import "CLInput.h"
 #import "CLWikiString.h"
+#import "CLClassConstants.h"
 
 #include <unistd.h>
 
 @implementation CLWikiMedia
-
-+(void) load
-{
-  CLWikiMediaClass = [CLWikiMedia class];
-  return;
-}
 
 -(CLNumber *) fileID
 {

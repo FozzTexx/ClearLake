@@ -37,8 +37,7 @@
 #import "CLDatetime.h"
 #import "CLNumberFormatter.h"
 #import "CLDateFormatter.h"
-
-Class CLInputClass;
+#import "CLClassConstants.h"
 
 static CLString *CLInputTypes[] = {
   @"UNDEFINED",
@@ -56,12 +55,6 @@ static CLString *CLInputTypes[] = {
 };
 
 @implementation CLInput
-
-+(void) load
-{
-  CLInputClass = [CLInput class];
-  return;
-}
 
 +(CLInput *) hiddenFieldNamed:(CLString *) aString withValue:(id) aValue
 {

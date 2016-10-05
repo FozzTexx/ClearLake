@@ -28,10 +28,6 @@
 @class CLMutableArray, CLDictionary, CLMutableDictionary, CLDatabase, CLRecordDefinition,
   CLMutableString, CLArray;
 
-extern Class CLEditingContextClass, CLGenericRecordClass, CLAttributeClass,
-  CLRelationshipClass, CLRecordDefinitionClass, CLFaultClass, CLArrayFaultClass,
-  CLPlaceholderClass;
-
 @interface CLEditingContext:CLObject
 {
   CLMutableArray *dirty, *inserted, *updated, *delete;

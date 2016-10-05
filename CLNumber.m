@@ -27,6 +27,7 @@
 #import "CLMutableString.h"
 #import "CLHashTable.h"
 #import "CLStream.h"
+#import "CLClassConstants.h"
 
 #include <math.h>
 
@@ -37,7 +38,6 @@ struct roman {
   {'M', 1000}, {'D', 500}, {'C', 100}, {'L', 50}, {'X', 10}, {'V', 5}, {'I', 1}, {0, 0}
 };
 static CLString *humanSizes[] = { @"B", @"kB", @"MB", @"GB", nil };
-Class CLNumberClass, CLDecimalNumberClass;
 
 CLNumber *CLTrueObject, *CLFalseObject;
 
@@ -45,7 +45,6 @@ CLNumber *CLTrueObject, *CLFalseObject;
 
 +(void) load
 {
-  CLNumberClass = [CLNumber class];
   CLTrueObject = [[CLNumber alloc] initWithUnsignedInt:YES];
   CLFalseObject = [[CLNumber alloc] initWithUnsignedInt:NO];
   return;

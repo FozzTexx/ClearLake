@@ -71,10 +71,6 @@ typedef enum {
   CLInvertedSearch = 256
 } CLStringCompareOptions;
 
-extern Class CLStringClass, CLUTF8StringClass, CLConstantStringClass,
-  CLConstantUnicodeStringClass, CLMutableStringClass, CLMutableStackStringClass,
-  CLImmutableStackStringClass;
-
 @interface CLString:CLObject <CLCopying, CLMutableCopying, CLArchiving, CLPropertyList>
 {
   void *data;

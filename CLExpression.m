@@ -25,6 +25,7 @@
 #import "CLMutableArray.h"
 #import "CLMutableString.h"
 #import "CLNumber.h"
+#import "CLClassConstants.h"
 
 #include <wctype.h>
 

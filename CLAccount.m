@@ -43,12 +43,6 @@
 
 @implementation CLAccount
 
-+(void) load
-{
-  CLAccountClass = [CLAccount class];
-  return;
-}
-
 +(CLString *) makeNameValid:(CLString *) aString
 {
   unichar *buf;

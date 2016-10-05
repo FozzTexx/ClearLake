@@ -29,9 +29,6 @@
 
 @class CLString, CLMutableDictionary, CLPage, CLDictionary, CLBlock, CLMutableArray;
 
-extern Class CLElementClass, CLBlockClass, CLOptionClass, CLScriptElementClass,
-  CLRangeViewClass, CLSplitterClass, CLPagerClass, CLChainedSelectClass;
-
 @interface CLElement:CLObject <CLCopying, CLArchiving>
 {
   CLString *title;

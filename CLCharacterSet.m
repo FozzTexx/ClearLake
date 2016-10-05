@@ -22,26 +22,18 @@
 #import "CLCharacterSet.h"
 #import "CLMutableString.h"
 #import "CLMutableCharacterSet.h"
+#import "CLClassConstants.h"
 
 static CLCharacterSet *CLWhitespaceSet = nil;
 static CLCharacterSet *CLControlSet = nil;
 static CLCharacterSet *CLAlphaNumUnderscoreSet = nil;
 static CLCharacterSet *CLAlphaNumSet = nil;
 
-Class CLCharacterSetClass, CLMutableCharacterSetClass;
-
 @interface CLCharacterSet (CLPrivateMethods)
 -(id) initFromString:(CLString *) aString;
 @end
 
 @implementation CLCharacterSet
-
-+(void) load
-{
-  CLCharacterSetClass = [CLCharacterSet class];
-  CLMutableCharacterSetClass = [CLMutableCharacterSet class];
-  return;
-}
 
 +(id) characterSetWithCharactersInString:(CLString *) aString
 {

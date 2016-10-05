@@ -28,8 +28,6 @@
 @class CLMutableArray, CLMutableDictionary, CLString,
   CLArray, CLDictionary, CLBlock, CLControl, CLInfoMessage;
 
-extern Class CLPageClass, CLPageTargetClass;
-
 @interface CLPage:CLObject <CLCopying>
 {
   CLMutableArray *body, *header, *preHeader;

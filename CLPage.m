@@ -56,6 +56,7 @@
 #import "CLRuntime.h"
 #import "CLEditingContext.h"
 #import "CLStackString.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -67,8 +68,6 @@
 
 #define BUFSIZE		256
 #define QUERY_DEBUG	@"CLdbg"
-
-Class CLPageClass, CLPageTargetClass;
 
 static CLArray *CLPageExtensions = nil;
 
@@ -182,15 +181,7 @@ void CLSetDelegate(id anObject)
 {
   [CLChainedSelect linkerIsBorked];
   [CLSplitter linkerIsBorked];
-  return;
-}
-
-+(void) load
-{
-  CLPageClass = [CLPage class];
-  CLPageTargetClass = [CLPageTarget class];
-  CLRangeViewClass = [CLRangeView class];
-  CLPagerClass = [CLPager class];
+  [CLPageTarget linkerIsBorked];
   return;
 }
 

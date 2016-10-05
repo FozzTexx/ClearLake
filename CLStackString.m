@@ -20,6 +20,7 @@
  */
 
 #import "CLStackString.h"
+#import "CLClassConstants.h"
 
 @implementation CLMutableStackString
 

@@ -26,12 +26,6 @@
 
 @implementation CLOption
 
-+(void) load
-{
-  CLOptionClass = [CLOption class];
-  return;
-}
-
 +(CLOption *) optionWithString:(CLString *) aString andValue:(id) aValue
 {
   return [self optionWithString:aString andValue:aValue selected:NO];

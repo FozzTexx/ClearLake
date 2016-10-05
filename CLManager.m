@@ -53,6 +53,7 @@
 #import "CLRecordDefinition.h"
 #import "CLRuntime.h"
 #import "CLInfoMessage.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <stdio.h>

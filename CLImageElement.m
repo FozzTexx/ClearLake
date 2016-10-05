@@ -30,18 +30,11 @@
 #import "CLImageRep.h"
 #import "CLPage.h"
 #import "CLFault.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 
-Class CLImageElementClass;
-
 @implementation CLImageElement
-
-+(void) load
-{
-  CLImageElementClass = [CLImageElement class];
-  return;
-}
 
 -(id) init
 {

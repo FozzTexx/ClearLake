@@ -39,6 +39,7 @@
 #import "CLFault.h"
 #import "CLDatetime.h"
 #import "CLStackString.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <wctype.h>
@@ -53,12 +54,6 @@
 @end
 
 @implementation CLGenericRecord
-
-+(void) load
-{
-  CLGenericRecordClass = [CLGenericRecord class];
-  return;
-}
 
 -(id) init
 {

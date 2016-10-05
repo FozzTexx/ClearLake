@@ -21,6 +21,7 @@
 
 #import "CLConstantString.h"
 #import "CLStringFunctions.h"
+#import "CLClassConstants.h"
 
 #include <string.h>
 

@@ -44,16 +44,8 @@
 
 /* FIXME - don't declare this both here and in CLString */
 static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-Class CLDataClass, CLMutableDataClass;
 
 @implementation CLData
-
-+(void) load
-{
-  CLDataClass = [CLData class];
-  CLMutableDataClass = [CLMutableData class];
-  return;
-}
 
 +(id) data
 {

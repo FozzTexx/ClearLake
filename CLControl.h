@@ -31,7 +31,6 @@
 @class CLMutableArray, CLString, CLMutableDictionary, CLArray, CLData, CLDictionary,
   CLDatetime;
 
-extern Class CLControlClass, CLFormClass;
 extern CLString *CLTargetFrame;
 
 @interface CLControl:CLBlock <CLCopying>

@@ -29,6 +29,7 @@
 #import "CLCharacterSet.h"
 #import "CLEditingContext.h"
 #import "CLStandardContent.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 
@@ -37,12 +38,6 @@
 static CLMutableArray *categories = nil;
 
 @implementation CLCategory
-
-+(void) load
-{
-  CLCategoryClass = [CLCategory class];
-  return;
-}
 
 +(CLCategory *) categoryWithID:(int) anID
 {

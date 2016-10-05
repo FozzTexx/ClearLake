@@ -27,14 +27,9 @@
 #import "CLManager.h"
 #import "CLData.h"
 #import "CLPage.h"
+#import "CLClassConstants.h"
 
 @implementation CLScriptElement
-
-+(void) load
-{
-  CLScriptElementClass = [CLScriptElement class];
-  return;
-}
 
 -(void) writeAttributes:(CLStream *) stream ignore:(CLMutableArray *) ignore
 {

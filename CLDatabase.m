@@ -32,6 +32,7 @@
 #import "CLCharacterSet.h"
 #import "CLDatetime.h"
 #import "CLStringFunctions.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -215,7 +216,7 @@
 
 -(CLUInteger) reserveIDs:(CLUInteger) count forTable:(CLString *) table
 {
-  CLUInteger rid = 0;
+  CLUInteger rid = 0, rid2 = 0;
   CLDictionary *results;
   CLArray *anArray;
   CLString *aString;
@@ -232,20 +233,23 @@
   if ([anArray count])
     rid = [[[anArray objectAtIndex:0] objectAtIndex:0] intValue];
 
+  aString = [CLString stringWithFormat:@"SELECT max(id)+%i FROM %@", count, table];
+  results = [self runQuery:aString];
+  anArray = [results objectForKey:@"rows"];
+  if ([anArray count]) {
+    aValue = [[anArray objectAtIndex:0] objectAtIndex:0];
+    if (aValue != CLNullObject)
+      rid2 = [aValue intValue];
+  }
+  if (rid2 > rid)
+    rid = rid2;
+  
   if (!rid) {
     /* FIXME - InnoDB is a MySQL thing */
     [self runQuery:@"CREATE TABLE IF NOT EXISTS cl_sequence_table ("
 	  "table_name varchar(32) not null, counter integer not null)"
 	  " engine = InnoDB"];
 
-    aString = [CLString stringWithFormat:@"SELECT max(id)+%i FROM %@", count, table];
-    results = [self runQuery:aString];
-    anArray = [results objectForKey:@"rows"];
-    if ([anArray count]) {
-      aValue = [[anArray objectAtIndex:0] objectAtIndex:0];
-      if (aValue != CLNullObject)
-	rid = [aValue intValue];
-    }
     if (!rid)
       rid = count;
     aString = [CLString stringWithFormat:

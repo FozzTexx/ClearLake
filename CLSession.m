@@ -44,8 +44,6 @@
 #include <signal.h>
 #include <unistd.h>
 
-Class CLSessionClass, CLAccountClass;
-
 @implementation CLSession
 
 +(void) linkerIsBorked
@@ -53,12 +51,6 @@ Class CLSessionClass, CLAccountClass;
   [CLAccount linkerIsBorked];
   [CLCreditCard linkerIsBorked];
   [CLPaymentGateway linkerIsBorked];
-  return;
-}
-
-+(void) load
-{
-  CLSessionClass = [CLSession class];
   return;
 }
 

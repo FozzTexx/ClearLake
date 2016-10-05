@@ -37,6 +37,7 @@
 #import "CLEditingContext.h"
 #import "CLRuntime.h"
 #import "CLNull.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <unistd.h>

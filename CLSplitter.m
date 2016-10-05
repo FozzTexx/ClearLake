@@ -22,14 +22,9 @@
 #import "CLSplitter.h"
 #import "CLMutableDictionary.h"
 #import "CLArray.h"
+#import "CLClassConstants.h"
 
 @implementation CLSplitter
-
-+(void) load
-{
-  CLSplitterClass = [CLSplitter class];
-  return;
-}
 
 -(id) initFromElement:(CLElement *) anElement onPage:(CLPage *) aPage
 {

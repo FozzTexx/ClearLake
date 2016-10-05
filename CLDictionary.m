@@ -26,20 +26,13 @@
 #import "CLHashTable.h"
 #import "CLStream.h"
 #import "CLNull.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <wctype.h>
 #include <stdarg.h>
 
-Class CLDictionaryClass, CLMutableDictionaryClass;
-
 @implementation CLDictionary
-
-+(void) load
-{
-  CLDictionaryClass = [CLDictionary class];
-  return;
-}
 
 +(id) dictionary
 {

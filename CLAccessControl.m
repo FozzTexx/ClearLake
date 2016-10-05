@@ -33,6 +33,7 @@
 #import "CLEditingContext.h"
 #import "CLArray.h"
 #import "CLRecordDefinition.h"
+#import "CLClassConstants.h"
 
 @implementation CLAccessControl
 

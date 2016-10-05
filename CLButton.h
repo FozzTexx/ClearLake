@@ -21,8 +21,6 @@
 
 #import <ClearLake/CLInput.h>
 
-extern Class CLButtonClass;
-
 @interface CLButton:CLInput
 {
   id content;

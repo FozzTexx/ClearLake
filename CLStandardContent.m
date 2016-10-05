@@ -46,6 +46,7 @@
 #import "CLInput.h"
 #import "CLFileType.h"
 #import "CLBlock.h"
+#import "CLClassConstants.h"
 
 #define FIELD_CAT		@"cl_sc"
 #define FIELD_CATDEPTH		FIELD_CAT @"_depth"
@@ -91,10 +92,6 @@
 
 #define MAX_URLLENGTH		20
 
-Class CLStandardContentClass, CLCategoryClass, CLStandardContentCategoryClass,
-  CLStandardContentFileClass, CLStandardContentImageClass, CLOriginalFileClass,
-  CLOriginalImageClass, CLCachedImageClass, CLFileTypeClass;
-
 @implementation CLStandardContent
 
 +(void) linkerIsBorked
@@ -103,19 +100,6 @@ Class CLStandardContentClass, CLCategoryClass, CLStandardContentCategoryClass,
 
 
   [image position];  
-  return;
-}
-
-+(void) load
-{
-  CLStandardContentClass = [CLStandardContent class];
-  CLStandardContentFileClass = [CLStandardContentFile class];
-  CLOriginalFileClass = [CLOriginalFile class];
-  CLOriginalImageClass = [CLOriginalImage class];
-  CLCachedImageClass = [CLCachedImage class];
-  CLStandardContentImageClass = [CLStandardContentImage class];
-  CLStandardContentCategoryClass = [CLStandardContentCategory class];
-  CLFileTypeClass = [CLFileType class];
   return;
 }
 

@@ -23,8 +23,6 @@
 
 @class CLDatetime, CLAccount, CLDecimalNumber;
 
-extern Class CLSessionClass, CLAccountClass;
-
 @interface CLSession:CLObject <CLArchiving>
 {
   int objectID;

@@ -36,6 +36,7 @@
 #import "CLCharacterSet.h"
 #import "CLExpression.h"
 #import "CLDatetime.h"
+#import "CLClassConstants.h"
 
 @implementation CLBlock
 

@@ -41,3 +41,7 @@
 @interface CLObject (CLPageTargetAccountMethods)
 -(BOOL) requiresActiveAccount;
 @end
+
+@interface CLPageTarget (LinkerIsBorked)
++(void) linkerIsBorked;
+@end

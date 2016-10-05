@@ -23,8 +23,6 @@
 
 @class CLArray, CLMutableArray;
 
-extern Class CLWikiStringClass, CLWikiImageClass, CLWikiMediaClass, CLWikiLinkClass;
-
 @interface CLWikiString:CLObject <CLCopying>
 {
   CLMutableArray *contents;

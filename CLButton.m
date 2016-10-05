@@ -31,16 +31,9 @@
 #import "CLDatetime.h"
 #import "CLCharacterSet.h"
 #import "CLMutableString.h"
-
-Class CLButtonClass;
+#import "CLClassConstants.h"
 
 @implementation CLButton
-
-+(void) load
-{
-  CLButtonClass = [CLButton class];
-  return;
-}
 
 -(void) addObject:(id) anObject
 {

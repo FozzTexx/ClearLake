@@ -39,6 +39,7 @@
 #import "CLPager.h"
 #import "CLChainedSelect.h"
 #import "CLStackString.h"
+#import "CLClassConstants.h"
 
 #include <wctype.h>
 #include <stdlib.h>
@@ -48,18 +49,8 @@
 
 @class CLField, CLImageElement, CLOption, CLScriptElement, CLRangeView, CLSplitter, CLPager,
   CLChainedSelect;
-Class CLElementClass, CLBlockClass, CLOptionClass, CLScriptElementClass,
-  CLRangeViewClass, CLSplitterClass, CLPagerClass, CLChainedSelectClass;
 
 @implementation CLElement
-
-+(void) load
-{
-  CLElementClass = [CLElement class];
-  CLBlockClass = [CLBlock class];
-  //  CLScriptElementClass = [CLScriptElement class];
-  return;
-}
 
 +(id) expandBinding:(id) aBinding using:(id) anElement success:(BOOL *) success
 {

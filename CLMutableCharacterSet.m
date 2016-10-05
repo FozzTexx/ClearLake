@@ -21,6 +21,7 @@
 
 #import "CLMutableCharacterSet.h"
 #import "CLMutableString.h"
+#import "CLClassConstants.h"
 
 @interface CLCharacterSet (CLPrivateMethods)
 -(id) initFromString:(CLString *) aString;

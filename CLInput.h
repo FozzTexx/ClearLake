@@ -28,8 +28,6 @@
 
 @class CLInfoMessage, CLForm;
 
-extern Class CLInputClass;
-
 typedef enum CLInputType {
   CLTextInputType =	1,
   CLRadioInputType,

@@ -25,8 +25,6 @@
 #import <ClearLake/CLObject.h>
 #import <ClearLake/CLRange.h>
 
-extern Class CLArrayClass, CLMutableArrayClass;
-
 @interface CLArray:CLObject <CLCopying, CLMutableCopying, CLPropertyList, CLArchiving>
 {
   id *dataPtr;

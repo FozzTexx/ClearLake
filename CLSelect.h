@@ -21,8 +21,6 @@
 
 #import <ClearLake/CLInput.h>
 
-extern Class CLSelectClass;
-
 @interface CLSelect:CLInput
 -(void) addOption:(CLString *) aString withValue:(id) aValue;
 -(void) removeAllOptions;

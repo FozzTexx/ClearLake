@@ -26,8 +26,6 @@
 
 @class CLString;
 
-extern Class CLDataClass, CLMutableDataClass;
-
 @interface CLData:CLObject <CLCopying, CLMutableCopying, CLArchiving>
 {
   unsigned char *data;

@@ -24,16 +24,9 @@
 #import "CLCharacterSet.h"
 #import "CLMutableArray.h"
 #import "CLOption.h"
-
-Class CLSelectClass;
+#import "CLClassConstants.h"
 
 @implementation CLSelect
-
-+(void) load
-{
-  CLSelectClass = [CLSelect class];
-  return;
-}
 
 -(id) initFromElement:(CLElement *) anElement onPage:(CLPage *) aPage
 {

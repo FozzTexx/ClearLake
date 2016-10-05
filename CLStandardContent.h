@@ -26,10 +26,6 @@
 
 @class CLDatetime, CLCategory, CLWikiString;
 
-extern Class CLStandardContentClass, CLCategoryClass, CLStandardContentCategoryClass,
-  CLStandardContentFileClass, CLStandardContentImageClass, CLOriginalFileClass,
-  CLOriginalImageClass, CLCachedImageClass, CLFileTypeClass;
-
 @interface CLStandardContent:CLGenericRecord
 {
   id body;

@@ -31,12 +31,6 @@
 
 @implementation CLWikiLink
 
-+(void) load
-{
-  CLWikiLinkClass = [CLWikiLink class];
-  return;
-}
-
 -(CLString *) href
 {
   CLString *aString = nil;

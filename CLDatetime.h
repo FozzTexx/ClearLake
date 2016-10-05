@@ -27,8 +27,6 @@ typedef double CLTimeInterval;
 
 @class CLString, CLTimeZone;
 
-extern Class CLDatetimeClass;
-
 @interface CLDatetime:CLObject <CLCopying, CLPropertyList, CLArchiving>
 {
   CLTimeInterval when;

@@ -23,6 +23,7 @@
 #import "CLSortDescriptor.h"
 #import "CLNull.h"
 #import "CLString.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -83,12 +84,6 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 }
 
 @implementation CLMutableArray
-
-+(void) load
-{
-  CLMutableArrayClass = [CLMutableArray class];
-  return;
-}
 
 -(void) grow
 {

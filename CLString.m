@@ -41,6 +41,7 @@
 #import "CLDatetime.h"
 #import "CLStackString.h"
 #import "CLCSVDecoder.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <wctype.h>
@@ -71,9 +72,6 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 				int *argtypes);
 #endif
 
-Class CLStringClass, CLUTF8StringClass, CLConstantStringClass, CLConstantUnicodeStringClass,
-  CLMutableStringClass, CLMutableStackStringClass, CLImmutableStackStringClass;
-
 @implementation CLString
 
 +(void) linkerIsBorked
@@ -84,14 +82,6 @@ Class CLStringClass, CLUTF8StringClass, CLConstantStringClass, CLConstantUnicode
 
 +(void) load
 {
-  CLStringClass = [CLString class];
-  CLUTF8StringClass = [CLUTF8String class];
-  CLConstantStringClass = [CLConstantString class];
-  CLConstantUnicodeStringClass = [CLConstantUnicodeString class];
-  CLMutableStringClass = [CLMutableString class];
-  CLMutableStackStringClass = [CLMutableStackString class];
-  CLImmutableStackStringClass = [CLImmutableStackString class];
-
 #if HAVE_REGISTERPRINTFSPECIFIER
   register_printf_specifier('@', CLPrintObject, CLPrintObjectArgInfo);
 #else
@@ -1275,38 +1265,40 @@ Class CLStringClass, CLUTF8StringClass, CLConstantStringClass, CLConstantUnicode
 
 -(id) decodeAttributes:(CLString *) aString
 {
-  unichar *p, *q;
+  unichar *p, *q, *strend;
   CLString *aKey;
   id aValue, anObject = nil;
   
   
-  CLCheckStringClass(self);
-  p = ((unistr *) self)->str;
-  while (p < (((unistr *) self)->str+len) && !iswalpha(*p))
+  CLCheckStringClass(aString);
+  p = ((unistr *) aString)->str;
+  strend = p + aString->len;
+  while (p < strend && !iswalpha(*p))
     p++;
 
-  while (p < (((unistr *) self)->str+len)) {
+  while (p < strend) {
     q = p;
-    while (q < (((unistr *) self)->str+len) && *q != '=' && *q != '>' && !iswspace(*q))
+    while (q < strend && *q != '=' && *q != '>'
+	   && !iswspace(*q))
       q++;
     aKey = [[CLString alloc] initWithCharacters:p length:q-p];
-    while (q < (((unistr *) self)->str+len) && iswspace(*q))
+    while (q < strend && iswspace(*q))
       q++;
     p = q+1;
-    if (q >= (((unistr *) self)->str+len) || *q != '=')
+    if (q >= strend || *q != '=')
       aValue = CLNullObject;
     else {
-      while (p < (((unistr *) self)->str+len) && iswspace(*p))
+      while (p < strend && iswspace(*p))
 	p++;
       q = p;
       if (*q == '"') {
 	q++;
 	p++;
-	while (q < (((unistr *) self)->str+len) && *q != '"')
+	while (q < strend && *q != '"')
 	  q++;
       }
       else {
-	while (q < (((unistr *) self)->str+len) && *q != '>' && !iswspace(*q))
+	while (q < strend && *q != '>' && !iswspace(*q))
 	  q++;
       }
       aValue = [[[[CLString alloc] initWithCharacters:p length:q-p]
@@ -1319,7 +1311,7 @@ Class CLStringClass, CLUTF8StringClass, CLConstantStringClass, CLConstantUnicode
     [aValue release];
 
     p = q;
-    while (*p && !iswalpha(*p))
+    while (p < strend && !iswalpha(*p))
       p++;
   }
 
@@ -2421,9 +2413,20 @@ static int CLPrintObject(FILE *stream, const struct printf_info *info,
   
 
   anObject = *((id *) (args[0]));
+
+  /* FIXME - look at info and type of object and format correctly */
   if (!(p = [[anObject description] UTF8String]))
     p = "(nil)";
-  len = fprintf(stream, "%s", p);
+
+  if (info->width) {
+    len = info->width;
+    if (info->left)
+      len = -len;
+    len = fprintf(stream, "%*s", len, p);
+  }
+  else
+    len = fprintf(stream, "%s", p);
+  
   return len;
 }
 

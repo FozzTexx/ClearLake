@@ -27,20 +27,13 @@
 #import "CLManager.h"
 #import "CLPage.h"
 #import "CLMutableArray.h"
+#import "CLClassConstants.h"
 
 #define QUERY_START	@"start"
 #define STRING_PREV	@"prev"
 #define STRING_NEXT	@"next"
 
 @implementation CLPager
-
-#if 0
-+(void) load
-{
-  CLPagerClass = [CLPager class];
-  return;
-}
-#endif
 
 -(id) initFromElement:(CLElement *) anElement onPage:(CLPage *) aPage
 {

@@ -23,16 +23,11 @@
 #import "CLString.h"
 #import "CLArray.h"
 #import "CLHashTable.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 
 @implementation CLMutableDictionary
-
-+(void) load
-{
-  CLMutableDictionaryClass = [CLMutableDictionary class];
-  return;
-}
 
 -(void) setObject:(id) anObject forKey:(id) aKey
 {

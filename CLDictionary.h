@@ -27,8 +27,6 @@
 
 @class CLString, CLArray;
 
-extern Class CLDictionaryClass, CLMutableDictionaryClass;
-
 @interface CLDictionary:CLObject <CLCopying, CLMutableCopying, CLPropertyList, CLArchiving>
 {
   CLHashTable *table;

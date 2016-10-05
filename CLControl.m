@@ -45,12 +45,11 @@
 #import "CLRuntime.h"
 #import "CLStackString.h"
 #import "CLJSONTarget.h"
+#import "CLClassConstants.h"
 
 #include <stdlib.h>
 
 #define QUERY_SESSIONID	@"CLsid"
-
-Class CLControlClass, CLFormClass;
 
 void CLWriteURLForGet(CLStream *stream, id object,
 		      CLData *aData, CLDictionary *localQuery,
@@ -191,13 +190,6 @@ void CLWriteURL(CLStream *stream, id object,
 }
 
 @implementation CLControl
-
-+(void) load
-{
-  CLControlClass = [CLControl class];
-  CLFormClass = [CLForm class];
-  return;
-}
 
 +(CLString *) rewriteURL:(CLString *) aURL
 {
