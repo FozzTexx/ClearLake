@@ -31,6 +31,10 @@
 
 #define QUERY_TIME 0
 
+#if QUERY_TIME
+#include <sys/time.h>
+#endif
+
 int mysqlCount = 0;
 
 @implementation CLMySQLDatabase
@@ -91,6 +95,7 @@ int mysqlCount = 0;
 #if QUERY_TIME
   struct timeval start, end;
   static int total_queries = 0;
+  static double elapsed, total_time = 0.0;
 #endif
   
 
@@ -100,9 +105,7 @@ int mysqlCount = 0;
   
   pool = [[CLAutoreleasePool alloc] init];
   aData = [aQuery dataUsingEncoding:[self encoding]];
-#if 0
-  fprintf(stderr, "%s\n", buf);
-#endif
+
   if (!(err = mysql_real_query(conn, [aData bytes], [aData length])) &&
       (res = mysql_store_result(conn))) {
     nf = mysql_num_fields(res);
@@ -179,7 +182,9 @@ int mysqlCount = 0;
   i *= 1000000;
   i += end.tv_usec - start.tv_usec;
   total_queries++;
-  fprintf(stderr, "%i %.4f %i records %s\n", total_queries, i / 1000000.0,
+  elapsed = i / 1000000.0;
+  total_time += elapsed;
+  fprintf(stderr, "%i %.4f + %.4f %i records %s\n", total_queries, total_time, elapsed,
 	  [[mDict objectForKey:@"rows"] count], [aQuery UTF8String]);
 #endif
   

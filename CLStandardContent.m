@@ -151,7 +151,7 @@
 
   return mString;
 }
-  
+
 -(void) dealloc
 {
   [body release];
@@ -363,18 +363,24 @@
   return nil;
 }
 
+/* Returns all images in gallery and body, hidden or not */
 -(CLArray *) sortedImages
 {
-  return [[self images] sortedArrayUsingSelector:@selector(comparePosition:)];
-}
+  CLMutableArray *mArray;
 
+
+  mArray = [[CLMutableArray alloc] init];
+  [mArray addObjectsFromArray:[self images]];
+  [mArray addObjectsFromArray:[[self body] images]];
+  [mArray sortUsingSelector:@selector(comparePosition:)];
+  
+  return [mArray autorelease];
+}
+  
 -(id) firstImage
 {
   CLArray *anArray = [self sortedImages];
 
-
-  if (![anArray count])
-    anArray = [[self body] images];
 
   if ([anArray count])
     return [anArray objectAtIndex:0];

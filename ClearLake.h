@@ -100,5 +100,6 @@
 #import <ClearLake/CLInfoMessage.h>
 #import <ClearLake/CLCSVDecoder.h>
 #import <ClearLake/CLScanner.h>
+#import <ClearLake/CLMarkdown.h>
 
 #endif /* _CLEARLAKE_H */

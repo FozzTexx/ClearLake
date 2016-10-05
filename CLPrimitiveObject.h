@@ -72,6 +72,7 @@ typedef struct CLObjectReserved {
 
 +(id) alloc;
 +(IMP) instanceMethodFor:(SEL) aSel;
++(void) poseAsClass:(Class) aClassObject;
 
 -(id) init;
 -(void) dealloc;

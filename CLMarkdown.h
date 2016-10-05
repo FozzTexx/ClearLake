@@ -1,6 +1,5 @@
-/* Copyright 2008-2016 by
+/* Copyright 2016 by
  *   Chris Osborn <fozztexx@fozztexx.com>
- *   Rob Watts <rob@rawatts.com>
  *
  * This file is part of ClearLake.
  *
@@ -19,16 +18,29 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#import <ClearLake/CLWikiObject.h>
+#ifndef _CLMARKDOWN_H
+#define _CLMARKDOWN_H
 
-@class CLOriginalImage, CLInput, CLNumber;
+#import <ClearLake/CLObject.h>
 
-@interface CLWikiImage:CLWikiObject
--(CLNumber *) imageID;
--(CLOriginalImage *) image;
--(void) setImageID:(CLNumber *) aValue;
--(BOOL) setImageFromField:(CLInput *) aField;
--(int) position;
--(void) setPosition:(int) aNumber;
--(CLComparisonResult) comparePosition:(id) anImage;
+@class CLDictionary;
+
+@interface CLMarkdown:CLObject
+{
+  CLString *mdstr;
+  CLDictionary *linkAttributes;
+}
+
++(id) markdownFromString:(CLString *) aString;
++(id) markdownFromString:(CLString *) aString linkAttributes:(CLDictionary *) laDict;
+
+-(id) init;
+-(id) initFromString:(CLString *) aString linkAttributes:(CLDictionary *) laDict;
+-(void) dealloc;
+
+-(CLString *) html;
+-(CLDictionary *) linkAttributes;
+
 @end
+
+#endif /* _CLMARKDOWN_H */

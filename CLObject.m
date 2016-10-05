@@ -59,6 +59,7 @@ static IMP CLFindForwardFunction(SEL sel);
   return;
 }
 
+<<<<<<< HEAD
 +(void) initialize
 {
   initClassConstants();
@@ -74,6 +75,8 @@ static IMP CLFindForwardFunction(SEL sel);
 #endif
 }
 
+=======
+>>>>>>> 6c2e0963811c1a9e92e3683a7eae6b776159b84b
 -(void) dealloc
 {
   void *buf;

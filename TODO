@@ -55,5 +55,3 @@ Macros for javascript/CSS
     Cheat for JS to get info from parent <script> tag
       var scripts = document.getElementsByTagName('script');
       var player = scripts[scripts.length-1].getAttribute('player');
-
-Markdown library: http://fossil.instinctive.eu/libupskirt/index

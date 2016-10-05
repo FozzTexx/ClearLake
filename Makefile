@@ -31,9 +31,14 @@ CLASSES= CLArray.m CLAutoreleasePool.m CLCharacterSet.m			\
 	 CLReleaseTracker.m CLRecordDefinition.m CLStream.m		\
 	 CLFileStream.m CLTCPStream.m CLPipeStream.m CLMemoryStream.m	\
 	 CLInfoMessage.m CLStackString.m CLJSONTarget.m CLCSVDecoder.m	\
+<<<<<<< HEAD
 	 CLScanner.m
 MFILES= CLDecimal.m CLDecimalMPZ.m CLStringFunctions.m CLGetArgs.m	\
 	CLRuntime.m CLClassConstants.m
+=======
+	 CLScanner.m CLMarkdown.m
+MFILES= CLDecimal.m CLDecimalMPZ.m CLStringFunctions.m CLGetArgs.m CLRuntime.m
+>>>>>>> 6c2e0963811c1a9e92e3683a7eae6b776159b84b
 CFILES= 
 FFILES=
 LIBFFI= -I$(shell echo /usr/lib/libffi*/include) \

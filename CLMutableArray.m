@@ -23,7 +23,11 @@
 #import "CLSortDescriptor.h"
 #import "CLNull.h"
 #import "CLString.h"
+<<<<<<< HEAD
 #import "CLClassConstants.h"
+=======
+#import "CLFault.h"
+>>>>>>> 6c2e0963811c1a9e92e3683a7eae6b776159b84b
 
 #include <stdlib.h>
 #include <string.h>
