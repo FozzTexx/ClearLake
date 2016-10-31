@@ -30,6 +30,7 @@
 #import "CLEditingContext.h"
 #import "CLManager.h"
 #import "CLStandardContent.h"
+#import "CLClassConstants.h"
 
 #include <sys/stat.h>
 #include <unistd.h>
