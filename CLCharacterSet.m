@@ -21,6 +21,9 @@
 #import "CLMutableString.h"
 #import "CLMutableCharacterSet.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 static CLCharacterSet *CLWhitespaceSet = nil;
 static CLCharacterSet *CLControlSet = nil;
 static CLCharacterSet *CLAlphaNumUnderscoreSet = nil;
@@ -102,14 +105,16 @@ static CLCharacterSet *CLAlphaNumSet = nil;
 -(id) initFromString:(CLString *) aString
 {
   [super init];
-  string = [aString copy];
+  len = [aString length];
+  buffer = malloc(sizeof(unichar) * len);
+  [aString getCharacters:buffer range:CLMakeRange(0, len)];
   inverted = NO;
   return self;
 }
 
 -(void) dealloc
 {
-  [string release];
+  free(buffer);
   [super dealloc];
   return;
 }
@@ -121,12 +126,13 @@ static CLCharacterSet *CLAlphaNumSet = nil;
 
 -(id) mutableCopy
 {
-  CLMutableCharacterSet *aCopy = [[CLMutableCharacterSet alloc] init];
+  CLCharacterSet *aCopy = (CLCharacterSet *) [[CLMutableCharacterSet alloc] init];
 
 
-  [aCopy addCharactersInString:string];
-  if (inverted)
-    [aCopy invert];
+  aCopy->buffer = malloc(len * sizeof(unichar));
+  aCopy->len = len;
+  memmove(aCopy->buffer, buffer, len * sizeof(unichar));
+  aCopy->inverted = inverted;
   return aCopy;
 }
 
@@ -143,11 +149,11 @@ static CLCharacterSet *CLAlphaNumSet = nil;
 
 -(BOOL) characterIsMember:(unichar) aCharacter
 {
-  int i, j;
+  int i;
 
 
-  for (i = 0, j = [string length]; i < j; i++)
-    if ([string characterAtIndex:i] == aCharacter)
+  for (i = 0; i < len; i++)
+    if (buffer[i] == aCharacter)
       return !inverted;
 
   return inverted;

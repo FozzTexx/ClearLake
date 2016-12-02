@@ -25,7 +25,8 @@
 
 @interface CLCharacterSet:CLObject <CLCopying, CLMutableCopying>
 {
-  id string;
+  unichar *buffer;
+  CLUInteger len;
   BOOL inverted;
 }
 

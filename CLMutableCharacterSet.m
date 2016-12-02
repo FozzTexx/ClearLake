@@ -20,22 +20,14 @@
 #import "CLMutableCharacterSet.h"
 #import "CLMutableString.h"
 
+#include <stdlib.h>
+
 @interface CLCharacterSet (CLPrivateMethods)
 -(id) initFromString:(CLString *) aString;
 @end
 
 @implementation CLMutableCharacterSet
 
--(id) initFromString:(CLString *) aString
-{
-  [super initFromString:aString];
-  [string release];
-  string = [[CLMutableString alloc] init];
-  if (aString)
-    [string setString:aString];
-  return self;
-}
-  
 -(id) copy
 {
   return [self mutableCopy];
@@ -43,7 +35,14 @@
 
 -(void) addCharactersInString:(CLString *) aString
 {
-  [string appendString:aString];
+  CLMutableString *mString;
+
+
+  mString = [CLMutableString stringWithCharacters:buffer length:len];
+  [mString appendString:aString];
+  len = [mString length];
+  buffer = realloc(buffer, len * sizeof(unichar));
+  [mString getCharacters:buffer range:CLMakeRange(0, len)];
   return;
 }
 
@@ -61,7 +60,11 @@
 
 -(void) formUnionWithCharacterSet:(CLCharacterSet *) otherSet
 {
-  [self addCharactersInString:otherSet->string];
+  CLString *aString;
+
+
+  aString = [CLString stringWithCharacters:buffer length:len];
+  [self addCharactersInString:aString];
   return;
 }
 
