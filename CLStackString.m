@@ -93,6 +93,13 @@
 
 @implementation CLImmutableStackString
 
++(void) load
+{
+  while (!CLImmutableStackStringClass)
+    CLInitClassConstants();
+  return;
+}
+
 #if DEBUG_RETAIN
 #undef copy
 -(id) copy:(const char *) file :(int) line :(id) retainer

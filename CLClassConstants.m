@@ -104,7 +104,7 @@ Class CLTextAreaClass;
 Class CLWikiStringClass, CLWikiImageClass, CLWikiMediaClass, CLWikiLinkClass;
 
 /* Linker is wacky, these have to be in a certain order */
-void initClassConstants()
+int CLInitClassConstants()
 {
   static int doingInit = NO;
   static int initStage = 0;
@@ -183,12 +183,12 @@ void initClassConstants()
       break;
 
     default:
-      return;
+      return 1;
     }
 
     initStage++;
     doingInit = NO;
   }
 
-  return;
+  return 0;
 }

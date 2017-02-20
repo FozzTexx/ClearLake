@@ -51,6 +51,6 @@ extern Class CLCachedImageClass, CLCategoryClass, CLConstantUnicodeStringClass,
 extern Class CLImmutableStackStringClass;
 #endif
 
-extern void initClassConstants();
+extern int CLInitClassConstants();
 
 #endif /* _CLCLASSCONSTANTS_H */

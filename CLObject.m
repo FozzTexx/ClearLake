@@ -61,7 +61,7 @@ static IMP CLFindForwardFunction(SEL sel);
 
 +(void) initialize
 {
-  initClassConstants();
+  CLInitClassConstants();
   return;
 }
 
