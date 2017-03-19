@@ -168,20 +168,23 @@ CLMethodInfo *CLGetMethods(Class aClass, unsigned int *count)
 
   totalMethods = 0;
   info = NULL;
-  while ((mlist = CLClassNextMethodList(aClass, &iterator))) {
-    totalMethods += mlist->method_count;
-    info = realloc(info, totalMethods * sizeof(CLMethodInfo));
-    for (i = 0; i < mlist->method_count; i++) {
-      aMethod = mlist->method_list[i];
-      mInfo = &info[i + totalMethods - mlist->method_count];
-      mInfo->selector = aMethod.method_name;
-      mInfo->name = sel_getName(mInfo->selector);
-      mInfo->imp = aMethod.method_imp;
-      mInfo->methodTypes = aMethod.method_types;
-      mInfo->returnType = *(mInfo->methodTypes);
-      mInfo->numArguments = method_getNumberOfArguments(&aMethod) - 2;
+  while (aClass) {
+    if (mlist = CLClassNextMethodList(aClass, &iterator)) {
+      totalMethods += mlist->method_count;
+      info = realloc(info, totalMethods * sizeof(CLMethodInfo));
+      for (i = 0; i < mlist->method_count; i++) {
+	aMethod = mlist->method_list[i];
+	mInfo = &info[i + totalMethods - mlist->method_count];
+	mInfo->selector = aMethod.method_name;
+	mInfo->name = sel_getName(mInfo->selector);
+	mInfo->imp = aMethod.method_imp;
+	mInfo->methodTypes = aMethod.method_types;
+	mInfo->returnType = *(mInfo->methodTypes);
+	mInfo->numArguments = method_getNumberOfArguments(&aMethod) - 2;
+      }
     }
-    aClass = [aClass superClass];
+    else
+      aClass = [aClass superClass];
   }
   
   *count = totalMethods;
