@@ -120,9 +120,7 @@ void initClassConstants()
       CLAttributeClass = [CLAttribute class];
       CLBlockClass = [CLBlock class];
       CLButtonClass = [CLButton class];
-      CLChainedSelectClass = [CLChainedSelect class];
       CLCharacterSetClass = [CLCharacterSet class];
-      CLConstantStringClass = [CLConstantString class];
       CLControlClass = [CLControl class];
       CLDataClass = [CLData class];
       CLDatetimeClass = [CLDatetime class];
@@ -137,21 +135,12 @@ void initClassConstants()
       CLMutableCharacterSetClass = [CLMutableCharacterSet class];
       CLMutableDataClass = [CLMutableData class];
       CLMutableDictionaryClass = [CLMutableDictionary class];
-      CLMutableStringClass = [CLMutableString class];
       CLNumberClass = [CLNumber class];
       CLOptionClass = [CLOption class];
       CLPageClass = [CLPage class];
       CLPageTargetClass = [CLPageTarget class];
-      CLPagerClass = [CLPager class];
-      CLPlaceholderClass = [CLPlaceholder class];
-      CLRangeViewClass = [CLRangeView class];
-      CLRangeViewClass = [CLRangeView class];
-      CLRelationshipClass = [CLRelationship class];
-      CLSelectClass = [CLSelect class];
       CLSessionClass = [CLSession class];
-      CLStringClass = [CLString class];
       CLTextAreaClass = [CLTextArea class];
-      CLUTF8StringClass = [CLUTF8String class];
       break;
 
     case 1:
@@ -168,14 +157,24 @@ void initClassConstants()
       CLArrayFaultClass = [CLArrayFault class];
       CLCachedImageClass = [CLCachedImage class];
       CLCategoryClass = [CLCategory class];
+      CLChainedSelectClass = [CLChainedSelect class];
+      CLConstantStringClass = [CLConstantString class];
       CLConstantUnicodeStringClass = [CLConstantUnicodeString class];
       CLImmutableStackStringClass = [CLImmutableStackString class];
       CLMutableStackStringClass = [CLMutableStackString class];
+      CLMutableStringClass = [CLMutableString class];
       CLOriginalFileClass = [CLOriginalFile class];
       CLOriginalImageClass = [CLOriginalImage class];
+      CLPagerClass = [CLPager class];
+      CLPlaceholderClass = [CLPlaceholder class];
+      CLRangeViewClass = [CLRangeView class];
+      CLRelationshipClass = [CLRelationship class];
       CLScriptElementClass = [CLScriptElement class];
+      CLSelectClass = [CLSelect class];
       CLStandardContentClass = [CLStandardContent class];
       CLStandardContentFileClass = [CLStandardContentFile class];
+      CLStringClass = [CLString class];
+      CLUTF8StringClass = [CLUTF8String class];
       CLWikiImageClass = [CLWikiImage class];
       CLWikiLinkClass = [CLWikiLink class];
       CLWikiMediaClass = [CLWikiMedia class];
