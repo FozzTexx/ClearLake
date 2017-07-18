@@ -34,6 +34,8 @@
 				 stdin:(int) sin stdout:(int) sout stderr:(int) serr;
 
 -(id) initWithCommand:(CLString *) aCommand mode:(int) aMode;
+-(id) initWithExecutable:(CLString *) aCommand arguments:(CLArray *) args
+		   stdin:(int) sin stdout:(int) sout stderr:(int) serr;
 -(id) init;
 -(void) dealloc;
 

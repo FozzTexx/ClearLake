@@ -20,10 +20,12 @@
  */
 
 #import "CLPipeStream.h"
+#import "CLArray.h"
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <string.h>
 
 @implementation CLPipeStream
 
@@ -92,12 +94,39 @@
 }
 
 -(id) initWithExecutable:(CLString *) aCommand arguments:(CLArray *) args
-				 stdin:(int) sin stdout:(int) sout stderr:(int) serr
+		   stdin:(int) sin stdout:(int) sout stderr:(int) serr
 {
-  [super init];
+  int tty, fd, maxf;
+  char **strargs;
+  int i, j;
 
+
+  [super init];
   
-  execvp();
+  pid = fork();
+  if (pid > 0) {
+    rfd = sout;
+    wfd = sin;
+  }
+  else if (pid == 0) { /* child */
+    dup2(sin, 0);
+    dup2(sout, 1);
+    dup2(serr, 2);
+
+    maxf = getdtablesize();
+    for (fd = 3; fd < maxf; fd++)
+      close(fd);
+
+    if ((tty = open("/dev/tty", O_RDWR)) >= 0) {
+      ioctl(tty, TIOCNOTTY, 0);
+      close(tty);
+    }
+
+    strargs = calloc([args count] + 1, sizeof(char *));
+    for (i = 0, j = [args count]; i < j; i++)
+      strargs[i] = strdup([[[args objectAtIndex:i] description] UTF8String]);
+    execvp([aCommand UTF8String], strargs);
+  }
 
   return self;
 }
