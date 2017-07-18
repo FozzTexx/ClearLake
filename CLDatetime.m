@@ -106,7 +106,7 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 
 @implementation CLDatetime
 
-+(id) now
++(CLDatetime *) now
 {
   CLDatetime *aDate;
 
@@ -669,6 +669,7 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
   const char *p;
   CLInteger offset;
   CLRange aRange;
+  CLStream *pStream;
 
 
   if (!aZone)
@@ -676,18 +677,30 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
   
   tm = [self breakTime:aZone];
 
-  offset = [aZone secondsFromGMTForDate:self] / 60;
-  if (!offset)
-    aString = @"Z";
-  else
-    aString = [CLString stringWithFormat:@"%c%02i%02i",
-			offset < 0 ? '-' : '+',
-			abs(offset) / 60, abs(offset) % 60];
-
   /* FIXME - parse the string correctly, %%z will end up getting mangled */
   aRange = [aFormat rangeOfString:@"%z"];
-  if (aRange.length)
+  if (aRange.length) {
+    offset = [aZone secondsFromGMTForDate:self] / 60;
+    if (!offset)
+      aString = @"Z";
+    else
+      aString = [CLString stringWithFormat:@"%c%02i%02i",
+			 offset < 0 ? '-' : '+',
+			  abs(offset) / 60, abs(offset) % 60];
     aFormat = [aFormat stringByReplacingOccurrencesOfString:@"%z" withString:aString];
+  }
+
+  aRange = [aFormat rangeOfString:@"%Z"];
+  if (aRange.length) {
+    aString = [aZone zone];
+    if (![aString length]) {
+      pStream = [CLStream openPipe:@"date +%Z" mode:CLReadOnly];
+      aString = [pStream readStringUsingEncoding:CLUTF8StringEncoding];
+      [pStream closeAndWait];
+      aString = [aString stringByTrimmingWhitespaceAndNewlines];
+    }
+    aFormat = [aFormat stringByReplacingOccurrencesOfString:@"%Z" withString:aString];
+  }
   
   p = [aFormat UTF8String];
   tsize = 40;

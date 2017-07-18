@@ -34,7 +34,7 @@ typedef double CLTimeInterval;
   CLTimeZone *zone;
 }
 
-+(id) now;
++(CLDatetime *) now;
 +(id) dateWithString:(CLString *) description;
 +(id) dateWithString:(CLString *) description format:(CLString *) format;
 +(id) dateWithString:(CLString *) description format:(CLString *) format

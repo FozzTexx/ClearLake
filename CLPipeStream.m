@@ -32,6 +32,13 @@
   return [[[self alloc] initWithCommand:aCommand mode:aMode] autorelease];
 }
 
++(CLPipeStream *) streamWithExecutable:(CLString *) aCommand arguments:(CLArray *) args
+				 stdin:(int) sin stdout:(int) sout stderr:(int) serr
+{
+  return [[[self alloc] initWithExecutable:aCommand arguments:args
+				     stdin:sin stdout:sout stderr:serr] autorelease];
+}
+
 -(id) init
 {
   return [self initWithCommand:nil mode:CLReadWrite];
@@ -80,6 +87,17 @@
     
     execl("/bin/sh", "/bin/sh", "-c", [aCommand UTF8String], NULL);
   }
+
+  return self;
+}
+
+-(id) initWithExecutable:(CLString *) aCommand arguments:(CLArray *) args
+				 stdin:(int) sin stdout:(int) sout stderr:(int) serr
+{
+  [super init];
+
+  
+  execvp();
 
   return self;
 }

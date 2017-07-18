@@ -30,6 +30,8 @@
 }
 
 +(CLPipeStream *) streamWithCommand:(CLString *) aCommand mode:(int) aMode;
++(CLPipeStream *) streamWithExecutable:(CLString *) aCommand arguments:(CLArray *) args
+				 stdin:(int) sin stdout:(int) sout stderr:(int) serr;
 
 -(id) initWithCommand:(CLString *) aCommand mode:(int) aMode;
 -(id) init;
