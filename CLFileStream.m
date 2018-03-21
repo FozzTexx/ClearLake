@@ -27,76 +27,59 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <fcntl.h>
 
 @implementation CLFileStream
 
 +(CLFileStream *) openFileAtPath:(CLString *) aPath mode:(int) aMode
 {
-  FILE *file;
-  char *mode;
+  int fd;
+  int mode;
 
 
   if (aMode == CLReadOnly)
-    mode = "r";
+    mode = O_RDONLY;
   else if (aMode == CLWriteOnly)
-    mode = "w";
+    mode = O_WRONLY;
   else if (aMode == CLReadWrite)
-    mode = "w+";
+    mode = O_RDWR;
 
- /* FIXME - should there be a way to do "r+", "a", or "a+" ? */
-  
-  if ((file = fopen([aPath UTF8String], mode)))
-    return [[[self alloc] initWithFile:file path:aPath processID:0] autorelease];
+  if ((fd = open([aPath UTF8String], mode)))
+    return [[[self alloc] initWithDescriptor:fd path:aPath processID:0] autorelease];
   return nil;
 }
 
 +(CLFileStream *) streamWithDescriptor:(int) fd mode:(int) aMode
 				atPath:(CLString *) aPath processID:(int) aPid
 {
-  FILE *file;
-  char *mode;
-
-
-  if (aMode == CLReadOnly)
-    mode = "r";
-  else if (aMode == CLWriteOnly)
-    mode = "w";
-  else if (aMode == CLReadWrite)
-    mode = "w+";
-
- /* FIXME - should there be a way to do "r+", "a", or "a+" ? */
-  
-  if ((file = fdopen(fd, mode)))
-    return [[[self alloc] initWithFile:file path:aPath processID:aPid] autorelease];
-  return nil;
+  return [[[self alloc] initWithDescriptor:fd path:aPath processID:aPid] autorelease];
 }
 
 -(id) init
 {
-  return [self initWithFile:NULL path:nil processID:0];
+  return [self initWithDescriptor:-1 path:nil processID:0];
 }
 
--(id) initWithFile:(FILE *) aFile path:(CLString *) aString processID:(int) aPid
+-(id) initWithDescriptor:(int) aDesc path:(CLString *) aString processID:(int) aPid
 {
   [super init];
-  file = aFile;
+  fd = aDesc;
   path = [aString copy];
   pid = aPid;
   return self;
 }
 
+-(id) initWithFile:(FILE *) aFile path:(CLString *) aString processID:(int) aPid
+{
+  return [self initWithDescriptor:fileno(aFile) path:aString processID:aPid];
+}
+
 -(void) dealloc
 {
-  if (file)
-    fclose(file);
+  [self close];
   [path release];
   [super dealloc];
   return;
-}
-
--(FILE *) file
-{
-  return file;
 }
 
 -(CLString *) path
@@ -114,7 +97,6 @@
   unsigned char buf[4];
   int len;
 
-
   len = [self read:buf length:1];
   if (len <= 0)
     return CLEOF;
@@ -125,7 +107,6 @@
 {
   unsigned char buf[4];
 
-
   buf[0] = c;
   [self write:buf length:1];
   return;
@@ -133,19 +114,19 @@
 
 -(int) read:(void *) buffer length:(int) len
 {
-  return fread(buffer, 1, len, file);
+  return read(fd, buffer, len);
 }
 
 -(int) write:(const void *) buffer length:(int) len
 {
-  return fwrite(buffer, 1, len, file);
+  return write(fd, buffer, len);
 }
 
 -(void) close
 {
-  if (file)
-    fclose(file);
-  file = NULL;
+  if (fd >= 0)
+    close(fd);
+  fd = -1;
   return;
 }
 
@@ -174,6 +155,11 @@
 {
   unlink([path UTF8String]);
   return;
+}
+
+-(int) fileno
+{
+  return fd;
 }
 
 @end

@@ -42,6 +42,7 @@
 -(int) read:(void *) buffer length:(int) len;
 -(int) write:(const void *) buffer length:(int) len;
 -(void) close;
+-(int) fileno;
 @end
 
 @interface CLStream:CLObject
@@ -56,6 +57,7 @@
 @end
 
 @interface CLStream (CLStreamObjects)
+-(BOOL) readCharacter:(unichar *) c usingEncoding:(CLStringEncoding) enc;
 -(CLData *) readDataOfLength:(int) len;
 -(void) writeData:(CLData *) aData;
 -(CLString *) readStringUsingEncoding:(CLStringEncoding) enc;

@@ -328,7 +328,8 @@
       }
     }
 
-    [aValue removeObjectsInRange:CLMakeRange(k, i-k)];
+    if (nf)
+      [aValue removeObjectsInRange:CLMakeRange(k, i-k)];
     [aValue insertObject:anObject atIndex:k];
     return YES;
   }
@@ -351,6 +352,25 @@
 
 -(void) updateBinding
 {
+  return;
+}
+
+-(void) setStart:(CLArray *) anArray
+{
+  int i, j;
+  id anObject;
+
+  
+  for (i = 0, j = [anArray count]; i < j; i++) {
+    anObject = [anArray objectAtIndex:i];
+    if ([anObject isKindOfClass:CLControlClass])
+      [[anObject localQuery] setObject:[CLNumber numberWithInt:[datasource range].location]
+				forKey:QUERY_START];
+    else if ([anObject respondsTo:@selector(content)] &&
+	     [(anObject = [anObject content]) isKindOfClass:CLArrayClass])
+      [self setStart:anObject];
+  }
+
   return;
 }
 
@@ -420,6 +440,7 @@
 
   [self setDatasource:self for:aValue];
   [self setTargetFor:aValue];
+  [self setStart:content];
   
   if (![self replaceTemplates:aValue with:mArray])
     [aValue addObject:mArray];

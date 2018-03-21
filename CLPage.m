@@ -337,6 +337,7 @@ void CLSetDelegate(id anObject)
 					objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/TH" result:CL_POP
 					objectClass:nil]];
+
     [self addPageObject:[CLPageObject objectForName:@"UL" result:CL_PUSH
 					objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/UL" result:CL_POP
@@ -345,7 +346,6 @@ void CLSetDelegate(id anObject)
 					objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/OL" result:CL_POP
 					objectClass:nil]];
-
     [self addPageObject:[CLPageObject objectForName:@"LI" result:CL_PUSHDIFF
 					objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/LI" result:CL_POP
@@ -947,9 +947,6 @@ void CLSetDelegate(id anObject)
 
 -(void) dealloc
 {
-  CLAutoreleasePool *pool = [[CLAutoreleasePool alloc] init];
-
-  
   [owner release];
 
   [body release];
@@ -960,7 +957,6 @@ void CLSetDelegate(id anObject)
   [usedFiles release];
   [filename release];
   [messages release];
-  [pool release];
 
   [super dealloc];
   return;

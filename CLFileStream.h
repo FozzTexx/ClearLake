@@ -25,7 +25,7 @@
 
 @interface CLFileStream:CLStream <CLStream>
 {
-  FILE *file;
+  int fd;
   CLString *path;
   int pid;
 }
@@ -34,6 +34,7 @@
 +(CLFileStream *) streamWithDescriptor:(int) fd mode:(int) aMode
 				atPath:(CLString *) aPath processID:(int) aPid;
 
+-(id) initWithDescriptor:(int) aDesc path:(CLString *) aString processID:(int) aPid;
 -(id) initWithFile:(FILE *) aFile path:(CLString *) aString processID:(int) aPid;
 -(id) init;
 -(void) dealloc;

@@ -785,15 +785,18 @@ typedef struct ContentInfo {
   if (aRange.length) {
     aString = [aBinding substringToIndex:aRange.location];
     anObject2 = [anObject objectValueForBinding:aString];
-    [self validateValue:aValue object:anObject2
-	  forBinding:[aBinding substringFromIndex:CLMaxRange(aRange)] error:errString
-	  field:aField];
+    valid = [self validateValue:aValue object:anObject2
+		     forBinding:[aBinding substringFromIndex:CLMaxRange(aRange)]
+			  error:errString field:aField];
   }
   else {
     if (*aValue) {
       aType = [self databaseTypeOfBinding:aBinding forObject:anObject];
-      if ((format = [[aField attributes] objectForCaseInsensitiveString:@"CL_FORMAT"]))
+      if ((format = [[aField attributes] objectForCaseInsensitiveString:@"CL_FORMAT"])) {
 	format = [self expandBinding:format success:&success];
+	if ([format isKindOfClass:[CLArray class]])
+	  format = [format componentsJoinedByString:@" "];
+      }
       switch (aType) {
       case CLDatetimeAttributeType:
 	if (!format)

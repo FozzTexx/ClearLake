@@ -1291,18 +1291,22 @@
     [self removeObject:aCat fromBothSidesOfRelationship:@"categories"];
   }
 
-  anArray = [self files];
-  for (i = [anArray count] - 1; i >= 0; i--) {
-    anObject = [anArray objectAtIndex:i];
-    if ([anObject willDelete])
-      [self removeObject:anObject fromBothSidesOfRelationship:@"files"];
+  if ([self hasFieldNamed:@"files"]) {
+    anArray = [self files];
+    for (i = [anArray count] - 1; i >= 0; i--) {
+      anObject = [anArray objectAtIndex:i];
+      if ([anObject willDelete])
+	[self removeObject:anObject fromBothSidesOfRelationship:@"files"];
+    }
   }
-  
-  anArray = [self images];
-  for (i = [anArray count] - 1; i >= 0; i--) {
-    anObject = [anArray objectAtIndex:i];
-    if ([anObject willDelete])
-      [self removeObject:anObject fromBothSidesOfRelationship:@"images"];
+
+  if ([self hasFieldNamed:@"images"]) {
+    anArray = [self images];
+    for (i = [anArray count] - 1; i >= 0; i--) {
+      anObject = [anArray objectAtIndex:i];
+      if ([anObject willDelete])
+	[self removeObject:anObject fromBothSidesOfRelationship:@"images"];
+    }
   }
   
   [super willSaveToDatabase];

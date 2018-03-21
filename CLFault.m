@@ -61,10 +61,10 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   reserved = buf - sizeof(CLObjectReserved);
   data = reserved->faultData;
   self->isa = data->original;
+  [self dealloc];
   [data->info.faultData.primaryKey release];
   [data->info.faultData.recordDef release];
   free(data);
-  [self dealloc];
 
   /* Just here to make the compiler warning go away */
   if (0)
@@ -357,6 +357,15 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   return method_getImplementation(class_getInstanceMethod(data->original, aSel));
 }
 
+-(BOOL) shouldDeferRelease
+{
+#if 0
+  [self fault];
+  return [self shouldDeferRelease];
+#endif
+  return NO;
+}
+
 @end
 
 void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
@@ -418,10 +427,12 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
      setPrimitiveValue will do a retain if it's an object, which is
      probably wrong. */
   if ([aValue retainCount] == 1) {
+#if 0
     if (isatty(2))
       fprintf(stderr, "Leaking! %s.%s\n", [[anObject className] UTF8String],
 	      [aKey UTF8String]);
   //[anObject error:@"Why did we just load this then?"];
+#endif
   }
   else
     [aValue release];

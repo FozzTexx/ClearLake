@@ -535,7 +535,11 @@ id CLDisposeInstance(id object)
     if ([CLAutoreleasePool hasObject:self])
       [self error:@"Double release!"];
 #endif
-    [self dealloc];
+    if (CLDeferPool && [self respondsTo:@selector(shouldDeferRelease)] &&
+	[self shouldDeferRelease])
+      [CLDeferPool addObject:self];
+    else
+      [self dealloc];
   }
   return;
 }

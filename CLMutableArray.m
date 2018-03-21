@@ -30,8 +30,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-static id *CLQsortDescriptors;
-static CLUInteger CLQsortLen;
+static CLMutableArray *CLQsortStack = nil;
 static SEL CLQsortComparator;
 
 static int CLQsortCompareBySelector(const void *ptr1, const void *ptr2)
@@ -63,6 +62,8 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   int i;
   CLComparisonResult res = 0;
   id object1, object2;
+  unsigned int len;
+  CLArray *descriptors;
 
 
   object1 = *(id *) ptr1;
@@ -77,8 +78,11 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   if (object1 && !object2)
     return CLOrderedDescending;
 
-  for (i = 0; i < CLQsortLen; i++)
-    if ((res = [CLQsortDescriptors[i] compareObject:object1 toObject:object2]))
+  descriptors = [CLQsortStack lastObject];
+  len = [descriptors count];
+  
+  for (i = 0; i < len; i++)
+    if ((res = [[descriptors objectAtIndex:i] compareObject:object1 toObject:object2]))
       break;
 
   return res;
@@ -240,11 +244,14 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   if (numElements < 2)
     return;
   
-  CLQsortLen = [sortDescriptors count];
-  if (!(CLQsortDescriptors = alloca(sizeof(id) * CLQsortLen)))
-    [self error:@"Unable to allocate memory"];
-  [sortDescriptors getObjects:CLQsortDescriptors];
+  if (!CLQsortStack) {
+    CLQsortStack = [[CLMutableArray alloc] init];
+    CLAddToCleanup(CLQsortStack);
+  }
+
+  [CLQsortStack addObject:sortDescriptors];
   qsort(dataPtr, numElements, sizeof(id), CLQsortCompareByDescriptors);
+  [CLQsortStack removeLastObject];
 
   return;
 }

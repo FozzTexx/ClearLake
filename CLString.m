@@ -673,6 +673,9 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 
 -(BOOL) hasPathPrefix:(CLString *) prefix
 {
+  if (!prefix)
+    return NO;
+  
   CLCheckStringClass(self);
   CLCheckStringClass(prefix);
   if ([self hasPrefix:prefix] &&

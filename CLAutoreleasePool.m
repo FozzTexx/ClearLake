@@ -25,6 +25,7 @@
 
 static CLMutableArray *activePools = nil;
 static CLAutoreleasePool *lastPool = nil;
+CLMutableArray *CLDeferPool = nil;
 
 @implementation CLAutoreleasePool
 
@@ -64,12 +65,24 @@ static CLAutoreleasePool *lastPool = nil;
 #define release		release:__FILE__ :__LINE__ :self
 #endif
 {
+  int i;
+  id anObject;
+  BOOL defer;
+
+
   [activePools removeObject:self];
   if (![activePools count]) {
     [activePools release];
     activePools = nil;
   }
   lastPool = [activePools lastObject];
+
+  /* Trying to prevent auto-loaded objects from getting released if
+     something in a higher pool still needs them */
+  defer = !CLDeferPool;
+  if (defer)
+    CLDeferPool = [[CLMutableArray alloc] init];
+  
 #if DEBUG_RETAIN
 #undef release
 #endif
@@ -77,6 +90,23 @@ static CLAutoreleasePool *lastPool = nil;
 #if DEBUG_RETAIN
 #define release		release:__FILE__ :__LINE__ :self
 #endif
+
+  if (defer) {
+    /* Everything has been autoreleased except for the deferred
+       stuff. Check again if it can't be released and if not push it
+       up into the next highest pool */
+    for (i = 0; i < CLDeferPool->numElements; i++) {
+      anObject = CLDeferPool->dataPtr[i];
+      if ([anObject shouldDeferRelease]) {
+	[anObject retain];
+	[anObject autorelease];
+      }
+    }
+  
+    [CLDeferPool release];
+    CLDeferPool = nil;
+  }
+  
   return;
 }
   

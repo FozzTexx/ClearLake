@@ -1481,6 +1481,45 @@
   return;
 }
 
+-(BOOL) shouldDeferRelease
+{
+  int i, j;
+  CLDictionary *aDict;
+  CLArray *anArray;
+  CLString *aKey;
+  CLRelationship *aRelationship;
+  id anObject;
+
+
+  aDict = [_recordDef relationships];
+  anArray = [aDict allKeys];
+  for (i = 0, j = [anArray count]; i < j; i++) {
+    aKey = [anArray objectAtIndex:i];
+    aRelationship = [aDict objectForKey:aKey];
+    if ([aRelationship toMany]) {
+      int idx, len;
+      CLArray *objects;
+
+
+      objects = [self objectValueForBinding:aKey];
+      for (idx = 0, len = [objects count]; idx < len; idx++) {
+	anObject = [objects objectAtIndex:idx];
+	if ([anObject retainCount] > 1)
+	  return YES;
+      }
+    }
+    else if ([aRelationship isOwner]) {
+      anObject = [self objectValueForBinding:aKey];
+      if ([anObject retainCount] > 1 &&
+	  [self relationshipDependsOnUs:aRelationship record:anObject]) {
+	return YES;
+      }
+    }
+  }
+  
+  return NO;
+}
+
 @end
 
 @implementation CLObject (CLFlags)

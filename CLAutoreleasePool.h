@@ -24,11 +24,17 @@
 
 #import <ClearLake/CLMutableArray.h>
 
+extern CLMutableArray *CLDeferPool;
+
 @interface CLAutoreleasePool:CLMutableArray
 +(void) addObject:(id) anObject;
 +(BOOL) hasObject:(id) anObject;
 
 -(id) init;
+@end
+
+@interface CLPrimitiveObject (CLAutoreleasePool)
+-(BOOL) shouldDeferRelease;
 @end
 
 #endif /* _CLAUTORELEASEPOOL_H */

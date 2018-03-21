@@ -122,6 +122,36 @@ static CLString *CLFileDirectory = nil;
 
 @implementation CLStream (CLStreamObjects)
 
+-(BOOL) readCharacter:(unichar *) c usingEncoding:(CLStringEncoding) enc
+{
+  CLMutableData *mData;
+  CLString *aString;
+  BOOL success = NO;
+  int byte;
+
+  
+  mData = [[CLMutableData alloc] init];
+  
+  for (;;) {
+    byte = [self readByte];
+    if (byte == CLEOF)
+      break;
+
+    [mData appendByte:byte];    
+    aString = [CLString stringWithData:mData encoding:enc];
+
+    /* Don't process partial multi-byte characters */
+    if ([aString length]) {
+      *c = [aString characterAtIndex:0];
+      success = YES;
+      break;
+    }
+  }
+
+  [mData release];
+  return success;
+}
+
 -(CLData *) readDataOfLength:(int) len
 {
   void *buf;
@@ -291,7 +321,8 @@ static CLString *CLFileDirectory = nil;
 
   if (fd >= 0)
     oFile = [CLFileStream streamWithDescriptor:fd mode:CLReadWrite
-					atPath:[CLString stringWithUTF8String:tbuf] processID:0];
+					atPath:[CLString stringWithUTF8String:tbuf]
+				     processID:0];
   
   if (tbuf)
     free(tbuf);
@@ -321,17 +352,22 @@ static CLString *CLFileDirectory = nil;
   char pty[MAXPATHLEN+1];
   int master;
   CLFileStream *oFile = nil;
-  FILE *file;
 
 
   pid = forkpty(&master, pty, termp, winp);
   if (pid > 0) {
-    if ((file = fdopen(master, "r+")))
-      oFile = [[CLFileStream alloc] initWithFile:file path:[CLString stringWithUTF8String:pty]
-				       processID:pid];
+    oFile = [[CLFileStream alloc] initWithDescriptor:master
+						path:[CLString stringWithUTF8String:pty]
+					   processID:pid];
   }
-  else if (pid == 0) /* child */
+  else if (pid == 0) { /* child */
+    dup2(master, 0);
+    dup2(master, 1);
+    dup2(master, 2);
+    close(master);
+    
     execl("/bin/sh", "/bin/sh", "-c", [aCommand UTF8String], NULL);
+  }
 
   return [oFile autorelease];
 }
