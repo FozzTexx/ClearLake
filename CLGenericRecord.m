@@ -1304,7 +1304,8 @@
     if ((pk = [CLEditingContext constructPrimaryKey:anObject
 					  recordDef:recordDef fromDatabase:NO
 				       asDictionary:NO]))
-      newObject = [CLDefaultContext loadObjectWithClass:[recordDef recordClass] primaryKey:pk];
+      newObject = [[self editingContext]
+		    loadObjectWithClass:[recordDef recordClass] primaryKey:pk];
     else {
       newObject = [[[recordDef recordClass] alloc]
 		    initFromDictionary:anObject table:[recordDef table]];

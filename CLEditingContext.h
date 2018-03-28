@@ -58,6 +58,7 @@
 -(id) registerInstance:(id) anObject;
 -(id) registerInstance:(id) anObject inTable:(CLString *) table withPrimaryKey:(id) primaryKey;
 -(void) unregisterInstance:(id) anObject;
+-(BOOL) instanceIsRegistered:(id) anObject;
 -(id) recordForPrimaryKey:(id) primaryKey inTable:(CLString *) table;
 -(BOOL) recordHasChanges:(id) aRecord;
 

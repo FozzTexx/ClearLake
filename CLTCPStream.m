@@ -177,4 +177,9 @@
   return NO;
 }
 
+-(int) fileno
+{
+  return sock;
+}
+
 @end

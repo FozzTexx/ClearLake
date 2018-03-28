@@ -84,6 +84,9 @@ CLMethodInfo *CLGetMethods(Class aClass, unsigned int *count)
   Method *methods, aMethod;
   unsigned int i;
   CLMethodInfo *info, *mInfo;
+#if DEBUG_LEAK
+  id self = nil;
+#endif
   
 
   totalMethods = 0;
@@ -116,6 +119,9 @@ void *CLGetIvars(Class aClass, unsigned int *count)
   Ivar *ivars, anIvar;
   const char *enc;
   unsigned int i;
+#if DEBUG_LEAK
+  id self = nil;
+#endif
 
 
   totalIvars = 0;

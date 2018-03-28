@@ -214,4 +214,10 @@
   return pid;
 }
 
+/* FIXME - there are two descriptors */
+-(int) fileno
+{
+  return rfd;
+}
+
 @end

@@ -47,6 +47,8 @@
 void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 			     CLDictionary *keyData);
 
+@class Message;
+
 @implementation CLFault
 
 /* We have our own dealloc to prevent faulting and loading from the database */
@@ -449,6 +451,11 @@ id CLNewFault(id info, CLRecordDefinition *recordDef)
     id self = nil;
 #endif
   anObject = [[[recordDef recordClass] alloc] init];
+#if 0
+  if ([anObject isKindOfClass:[Message class]])
+    fprintf(stderr, "NewFault Message %lx %i\n", (unsigned long) anObject,
+	    [[info objectForKey:@"id"] intValue]);
+#endif
   CLBecomeFault(anObject, info, recordDef);
   return anObject;
 }

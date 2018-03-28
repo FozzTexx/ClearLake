@@ -810,6 +810,13 @@ static int _modelInitializing = 0;
   return;
 }
 
+-(BOOL) instanceIsRegistered:(id) anObject
+{
+  if (CLHashTableDataForIdenticalKey(primaryKeys, anObject, (size_t) anObject))
+    return YES;
+  return NO;
+}
+
 -(id) recordForPrimaryKey:(id) primaryKey inTable:(CLString *) table
 {
   CLHashTable *insTable;

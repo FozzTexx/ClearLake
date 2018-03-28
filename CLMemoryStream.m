@@ -153,4 +153,9 @@
   return [CLData dataWithBytes:buffer length:length];
 }
 
+-(int) fileno
+{
+  return -1;
+}
+
 @end

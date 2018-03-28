@@ -38,6 +38,7 @@
 
 #if DEBUG_LEAK || DEBUG_RETAIN || DEBUG_RELEASE
 #import "CLReleaseTracker.h"
+#import "CLClassConstants.h"
 Class CLReleaseTrackerClass;
 #endif
 

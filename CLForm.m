@@ -795,7 +795,7 @@ typedef struct ContentInfo {
       if ((format = [[aField attributes] objectForCaseInsensitiveString:@"CL_FORMAT"])) {
 	format = [self expandBinding:format success:&success];
 	if ([format isKindOfClass:[CLArray class]])
-	  format = [format componentsJoinedByString:@" "];
+	  format = [((CLArray *) format) componentsJoinedByString:@" "];
       }
       switch (aType) {
       case CLDatetimeAttributeType:

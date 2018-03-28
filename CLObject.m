@@ -40,6 +40,8 @@
 #import "CLRecordDefinition.h"
 #import "CLRuntime.h"
 #import "CLClassConstants.h"
+#import "CLRelationship.h"
+#import "CLDictionary.h"
 
 #include <stdlib.h>
 #include <wctype.h>
@@ -749,8 +751,32 @@ static IMP CLFindForwardFunction(SEL sel);
       break;
       
     case CLFieldBinding:
+      anObject = [((CLGenericRecord *) self) objectForCachedBinding:cachedBinding];
+      *found = YES;
+      break;
+      
     case CLRelationshipBinding:
       anObject = [((CLGenericRecord *) self) objectForCachedBinding:cachedBinding];
+      if (anObject && ![anObject isKindOfClass:[CLArray class]]
+	  && ![[self editingContext] instanceIsRegistered:anObject]) {
+	CLArray *anArray;
+	CLRelationship *aRel;
+	CLString *qual;
+
+
+	aRel = [[[((CLGenericRecord *) self) recordDef] relationships] objectForKey:aString];
+	qual = [aRel constructQualifier:self];
+	anArray = [[self editingContext]
+		    loadTableWithRecordDefinition:
+		      [CLEditingContext recordDefinitionForTable:[aRel theirTable]]
+			     qualifier:qual];
+	/* Leaving it to auto release hoping that shouldDeferRelease will do its magic */
+	if ([anArray count])
+	  anObject = [anArray objectAtIndex:0];
+	else
+	  anObject = nil;
+	[self setObjectValue:anObject forBinding:aString];
+      }
       *found = YES;
       break;
       
@@ -776,6 +802,7 @@ static IMP CLFindForwardFunction(SEL sel);
   case _C_ID:
     /* FIXME - retain?? */
     *(id *) var = anObject;
+    [anObject retain];
     break;
   case _C_CHR:
   case _C_SHT:

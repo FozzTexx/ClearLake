@@ -724,10 +724,14 @@ static CLMutableDictionary *CLConfig = nil;
     if (aString == CLNullObject)
       aString = nil;
 
-    if (aString && aPass)
-      cryptPass = [CLString stringWithUTF8String:
-			      crypt([[aPass lowercaseString] UTF8String],
-				    [aString UTF8String])];
+    if (aString && aPass) {
+      const char *p;
+
+
+      p = crypt([[aPass lowercaseString] UTF8String], [aString UTF8String]);
+      if (p)
+	cryptPass = [CLString stringWithUTF8String:p];
+    }
       
     if ((!aString && !aPass) ||
 	(aString && aPass && [aString isEqualToString:cryptPass])) {

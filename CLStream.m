@@ -366,7 +366,8 @@ static CLString *CLFileDirectory = nil;
     dup2(master, 2);
     close(master);
     
-    execl("/bin/sh", "/bin/sh", "-c", [aCommand UTF8String], NULL);
+    execl("/bin/sh", "/bin/sh", "-c",
+	  [[@"exec " stringByAppendingString:aCommand] UTF8String], NULL);
   }
 
   return [oFile autorelease];
