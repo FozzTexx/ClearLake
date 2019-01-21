@@ -340,6 +340,25 @@
   return NO;
 }
 
+-(void) addExtraQuery:(CLDictionary *) extraQuery to:(id) anObject
+{
+  int i, j;
+
+
+  if ([anObject isKindOfClass:CLArrayClass])
+    for (i = 0, j = [anObject count]; i < j; i++)
+      [self addExtraQuery:extraQuery to:[anObject objectAtIndex:i]];
+
+  if ([anObject isKindOfClass:CLControlClass])
+    [[anObject localQuery] addEntriesFromDictionary:extraQuery];
+
+  if ([anObject respondsTo:@selector(content)] &&
+      [(anObject = [anObject content]) isKindOfClass:CLArrayClass])
+    [self addExtraQuery:extraQuery to:anObject];
+
+  return;
+}
+
 -(void) updateBindingFor:(id) anObject
 {
   if ([anObject isKindOfClass:CLControlClass])
@@ -423,6 +442,9 @@
   
   if (![self replaceTemplates:aValue with:mArray])
     [aValue addObject:mArray];
+
+  if (extraQuery)
+    [self addExtraQuery:extraQuery to:aValue];
 
   [self updateBindingFor:aValue];
   CLWriteHTMLObject(stream, aValue);
