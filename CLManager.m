@@ -1364,7 +1364,6 @@ static CLMutableDictionary *CLConfig = nil;
 
   if (!(mask & CLEmailNotUnique) && email && ![self unusedEmail:email]) {
     [mDict setObject:@"That email address already has an account."
-	   " Please use the Lost password function to retrieve your password."
 	   forKey:FIELD_EMAIL];
     err++;
   }

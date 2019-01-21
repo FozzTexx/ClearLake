@@ -34,17 +34,17 @@
 +(CLFileStream *) openFileAtPath:(CLString *) aPath mode:(int) aMode
 {
   int fd;
-  int mode;
+  int flags;
 
 
   if (aMode == CLReadOnly)
-    mode = O_RDONLY;
+    flags = O_RDONLY;
   else if (aMode == CLWriteOnly)
-    mode = O_WRONLY;
+    flags = O_WRONLY | O_TRUNC | O_CREAT;
   else if (aMode == CLReadWrite)
-    mode = O_RDWR;
+    flags = O_RDWR | O_CREAT;
 
-  if ((fd = open([aPath UTF8String], mode)))
+  if ((fd = open([aPath UTF8String], flags, 0666)))
     return [[[self alloc] initWithDescriptor:fd path:aPath processID:0] autorelease];
   return nil;
 }
@@ -97,7 +97,8 @@
   unsigned char buf[4];
   int len;
 
-  len = [self read:buf length:1];
+
+  len = read(fd, buf, 1);
   if (len <= 0)
     return CLEOF;
   return buf[0];
@@ -107,6 +108,7 @@
 {
   unsigned char buf[4];
 
+
   buf[0] = c;
   [self write:buf length:1];
   return;
@@ -114,7 +116,11 @@
 
 -(int) read:(void *) buffer length:(int) len
 {
-  return read(fd, buffer, len);
+  int rlen;
+
+  
+  rlen = read(fd, buffer, len);
+  return rlen;
 }
 
 -(int) write:(const void *) buffer length:(int) len
@@ -160,6 +166,12 @@
 -(int) fileno
 {
   return fd;
+}
+
+-(void) drain
+{
+  tcdrain(fd);
+  return;
 }
 
 @end

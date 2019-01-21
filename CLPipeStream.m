@@ -53,11 +53,14 @@
 
 
   [super init];
+
+  rfd = wfd = pid = -1;
   
   pipe(wp);
   pipe(rp);
 
   pid = fork();
+  
   if (pid > 0) {
     close(wp[0]);
     close(rp[1]);

@@ -478,6 +478,12 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 }
 
 -(CLRange) rangeOfCharacterNotFromSet:(CLCharacterSet *) aSet
+{
+  CLCheckStringClass(self);
+  return [self rangeOfCharacterNotFromSet:aSet options:0 range:CLMakeRange(0, len)];
+}
+
+-(CLRange) rangeOfCharacterNotFromSet:(CLCharacterSet *) aSet
 			   options:(CLStringCompareOptions) mask range:(CLRange) aRange
 {
   CLRange res = CLMakeRange(CLNotFound, 0);

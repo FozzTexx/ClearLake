@@ -29,7 +29,7 @@
 #include <pty.h>
 #include <stdio.h>
 
-@class CLData, CLArray;
+@class CLData, CLArray, CLDictionary;
 
 #define CLReadOnly	1
 #define CLWriteOnly	2
@@ -59,7 +59,7 @@
 @interface CLStream (CLStreamObjects)
 -(BOOL) readCharacter:(unichar *) c usingEncoding:(CLStringEncoding) enc;
 -(CLData *) readDataOfLength:(int) len;
--(void) writeData:(CLData *) aData;
+-(int) writeData:(CLData *) aData;
 -(CLString *) readStringUsingEncoding:(CLStringEncoding) enc;
 -(void) writeString:(CLString *) aString usingEncoding:(CLStringEncoding) enc;
 -(void) writeFormat:(CLString *) aFormat usingEncoding:(CLStringEncoding) enc, ...;
@@ -75,7 +75,7 @@
 +(CLStream *) openMemoryForWriting;
 +(CLStream *) openPipe:(CLString *) aCommand mode:(int) mode;
 +(CLStream *) openPty:(CLString *) aCommand termios:(struct termios *) termp
-	   windowSize:(struct winsize *) winp;
+	   windowSize:(struct winsize *) winp environment:(CLDictionary *) environ;
 +(CLStream *) openDescriptor:(int) fd mode:(int) mode;
 @end
 
@@ -98,6 +98,7 @@
 -(void) closeAndRemove;
 -(int) closeAndWait;
 -(void) remove;
+-(void) drain;
 @end
 
 @interface CLStream (CLPipeStreams)

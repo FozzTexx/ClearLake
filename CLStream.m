@@ -41,6 +41,7 @@
 #import "CLStringFunctions.h"
 #import "CLStackString.h"
 #import "CLClassConstants.h"
+#import "CLDictionary.h"
 
 #include <stdlib.h>
 #include <stdarg.h>
@@ -167,10 +168,9 @@ static CLString *CLFileDirectory = nil;
   return nil;
 }
  
--(void) writeData:(CLData *) aData
+-(int) writeData:(CLData *) aData
 {
-  [self write:[aData bytes] length:[aData length]];
-  return;
+  return [self write:[aData bytes] length:[aData length]];
 }
 
 -(CLString *) readStringUsingEncoding:(CLStringEncoding) enc
@@ -346,12 +346,16 @@ static CLString *CLFileDirectory = nil;
 }
 
 +(CLStream *) openPty:(CLString *) aCommand termios:(struct termios *) termp
-	   windowSize:(struct winsize *) winp
+	   windowSize:(struct winsize *) winp environment:(CLDictionary *) newEnv
 {
   pid_t pid;
   char pty[MAXPATHLEN+1];
-  int master;
+  int master = -1;
   CLFileStream *oFile = nil;
+  const char **env;
+  CLArray *anArray;
+  int i, j;
+  id aKey;
 
 
   pid = forkpty(&master, pty, termp, winp);
@@ -361,13 +365,19 @@ static CLString *CLFileDirectory = nil;
 					   processID:pid];
   }
   else if (pid == 0) { /* child */
-    dup2(master, 0);
-    dup2(master, 1);
-    dup2(master, 2);
-    close(master);
-    
-    execl("/bin/sh", "/bin/sh", "-c",
-	  [[@"exec " stringByAppendingString:aCommand] UTF8String], NULL);
+    if (newEnv) {
+      env = calloc([newEnv count] + 1, sizeof(char *));
+      anArray = [newEnv allKeys];
+      for (i = 0, j = [anArray count]; i < j; i++) {
+	aKey = [anArray objectAtIndex:i];
+	env[i] = [[CLString stringWithFormat:@"%@=%@", [aKey description],
+		      [[newEnv objectForKey:aKey] description]] UTF8String];
+      }
+    }
+    else
+      env = NULL;
+    execle("/bin/sh", "/bin/sh", "-c",
+	   [[@"exec " stringByAppendingString:aCommand] UTF8String], NULL, env);
   }
 
   return [oFile autorelease];

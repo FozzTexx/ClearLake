@@ -766,16 +766,18 @@ static IMP CLFindForwardFunction(SEL sel);
 
 	aRel = [[[((CLGenericRecord *) self) recordDef] relationships] objectForKey:aString];
 	qual = [aRel constructQualifier:self];
-	anArray = [[self editingContext]
-		    loadTableWithRecordDefinition:
-		      [CLEditingContext recordDefinitionForTable:[aRel theirTable]]
-			     qualifier:qual];
-	/* Leaving it to auto release hoping that shouldDeferRelease will do its magic */
-	if ([anArray count])
-	  anObject = [anArray objectAtIndex:0];
-	else
-	  anObject = nil;
-	[self setObjectValue:anObject forBinding:aString];
+	if (qual) {
+	  anArray = [[self editingContext]
+		      loadTableWithRecordDefinition:
+			[CLEditingContext recordDefinitionForTable:[aRel theirTable]]
+					  qualifier:qual];
+	  /* Leaving it to auto release hoping that shouldDeferRelease will do its magic */
+	  if ([anArray count])
+	    anObject = [anArray objectAtIndex:0];
+	  else
+	    anObject = nil;
+	  [self setObjectValue:anObject forBinding:aString];
+	}
       }
       *found = YES;
       break;

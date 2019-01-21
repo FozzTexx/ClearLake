@@ -56,6 +56,9 @@ typedef enum {
   CLUTF32LittleEndianStringEncoding,
   CLKOI8StringEncoding,
   CLEBCDICStringEncoding,
+  CLPETSCIIUpperStringEncoding,
+  CLPETSCIILowerStringEncoding,
+  CPCP437StringEncoding,
   CLProprietaryStringEncoding
 } CLStringEncoding;
 
@@ -134,6 +137,7 @@ typedef enum {
 -(CLRange) rangeOfCharacterFromSet:(CLCharacterSet *) aSet;
 -(CLRange) rangeOfCharacterFromSet:(CLCharacterSet *) aSet
 			   options:(CLStringCompareOptions) mask range:(CLRange) aRange;
+-(CLRange) rangeOfCharacterNotFromSet:(CLCharacterSet *) aSet;
 -(CLRange) rangeOfCharacterNotFromSet:(CLCharacterSet *) aSet
 			      options:(CLStringCompareOptions) mask range:(CLRange) aRange;
 -(BOOL) isEqual:(id) anObject;

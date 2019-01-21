@@ -250,6 +250,9 @@
   }
 
   /* FIXME - return immutable dictionary */
+  if (!mDict)
+    [self error:@"Failed to contruct key"];
+  
   return [mDict autorelease];
 }
 

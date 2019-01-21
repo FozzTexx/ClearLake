@@ -274,6 +274,12 @@ const char *CLStringEncodingForIconv(CLStringEncoding encoding)
     return "KOI8";
   case CLEBCDICStringEncoding:
     return "EBCDIC-US";
+  case CLPETSCIIUpperStringEncoding:
+    return "PETSCII-U";
+  case CLPETSCIILowerStringEncoding:
+    return "PETSCII-L";
+  case CPCP437StringEncoding:
+    return "CP437";
   default:
     return NULL;
   }

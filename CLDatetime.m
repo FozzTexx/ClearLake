@@ -21,7 +21,7 @@
 
 #define _ISOC9X_SOURCE
 #define _XOPEN_SOURCE
-#define _BSD_SOURCE
+#define _DEFAULT_SOURCE
 #define _ISOC99_SOURCE /* To get llabs */
 #include <stdlib.h>
 

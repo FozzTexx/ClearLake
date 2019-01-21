@@ -45,5 +45,6 @@
 -(void) closeAndRemove;
 -(int) closeAndWait;
 -(void) remove;
+-(void) drain;
 
 @end

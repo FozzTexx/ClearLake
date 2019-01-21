@@ -203,14 +203,28 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
 -(void) removeObjectsInArray:(CLArray *) anArray
 {
-  CLUInteger i;
+  CLUInteger i, pos;
+  CLArray *longer, *shorter;
 
 
-  for (i = 0; i < numElements; i++)
-    if ([anArray containsObject:dataPtr[i]]) {
-      [self removeObjectsInRange:CLMakeRange(i, 1)];
-      i--;
+  longer = anArray;
+  shorter = self;
+  if (anArray->numElements < numElements) {
+    shorter = anArray;
+    longer = self;
+  }
+  
+  for (i = 0; i < shorter->numElements; i++) {
+    pos = [longer indexOfObject:shorter->dataPtr[i]];
+    if (pos != CLNotFound) {
+      if (longer == self)
+	[self removeObjectsInRange:CLMakeRange(pos, 1)];
+      else {
+	[self removeObjectsInRange:CLMakeRange(i, 1)];
+	i--;
+      }
     }
+  }
 
   return;
 }
