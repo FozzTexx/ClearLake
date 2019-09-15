@@ -40,6 +40,7 @@
 #include <crypt.h>
 #include <unistd.h>
 #include <string.h>
+#include <ctype.h>
 
 @implementation CLAccount
 
@@ -55,7 +56,7 @@
   buf = calloc(len, sizeof(unichar));
   [aString getCharacters:buf];
   for (i = 0; i < len; i++) {
-    if (buf[i] < ' ' || buf[i] > '~' || strchr("@?&/+#", buf[i])) {
+    if (buf[i] < ' ' || buf[i] > '~' || (!isalnum(buf[i]) && !strchr("-._", buf[i]))) {
       memmove(&buf[i], &buf[i+1], (len - i - 1) * sizeof(unichar));
       len--;
       i--;

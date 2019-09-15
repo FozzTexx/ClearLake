@@ -224,44 +224,49 @@
 -(CLMutableArray *) parseString:(CLString *) source
 {
   CLMutableArray *results = [[CLMutableArray alloc] init];
-  CLArray *closings = [source componentsSeparatedByString:@"]]"];
-  int i, len;
-  CLString *segment = nil;
-  CLArray *openings = nil;
-  CLString *str, *str1;
+  CLRange aRange, beginRange, endRange;
+  CLUInteger len;
+  CLString *str;
+  id object;
 
-	
-  if ([closings count] > 0) {
-    len = [closings count];
-    for (i = 0; i < len; ++i) {
-      segment = [closings objectAtIndex:i];
-      openings = [segment componentsSeparatedByString:@"[["];
-      // there will only be one or two elements
-      // if one then string looks like [[...]] or abcde
-      // if two then string looks like abcde [[...]]
-      switch ([openings count]) {
-      case 1:
-	str = [openings objectAtIndex:0];
-	if ([str length]) {
-	  if ([str hasPrefix:@"[["])
-	    [results addObject:[self createObjectFromString:str]];
-	  else
-	    [results addObject:str];
-	}
-	break;
-      case 2:
-	str = [openings objectAtIndex:0];
-	str1 = [openings objectAtIndex:1];
-	if ([str length])
-	  [results addObject:str];
-	[results addObject:[self createObjectFromString:str1]];
-	break;
-      }
+
+  len = [source length];
+  aRange.location = 0;
+  aRange.length = len;
+  while (aRange.length) {
+    beginRange = [source rangeOfString:@"[[" options:0 range:aRange];
+    if (!beginRange.length)
+      break;
+    
+    endRange.location = CLMaxRange(beginRange);
+    endRange.length = len - endRange.location;
+    endRange = [source rangeOfString:@"]]" options:0 range:endRange];
+    if (!endRange.length)
+      break;
+
+    if (beginRange.location) {
+      aRange.length = beginRange.location - aRange.location;
+      [results addObject:[source substringWithRange:aRange]];
     }
+    
+    aRange.location = CLMaxRange(beginRange);
+    aRange.length = endRange.location - aRange.location;
+    str = [source substringWithRange:aRange];
+    object = [self createObjectFromString:str];
+    if (!object) {
+      aRange.location = beginRange.location;
+      aRange.length = CLMaxRange(endRange) - aRange.location;
+      object = [source substringWithRange:aRange];
+    }
+    [results addObject:object];
+
+    aRange.location = CLMaxRange(endRange);
+    aRange.length = len - aRange.location;
   }
-  else if (source)
-    [results addObject:source];
-	
+
+  if (aRange.length)
+    [results addObject:[source substringWithRange:aRange]];
+    
   return [results autorelease];
 }
 
