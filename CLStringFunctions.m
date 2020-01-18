@@ -386,8 +386,14 @@ int CLStringConvertEncoding(const char *source, CLUInteger slen, CLStringEncodin
     while ((iconv(cd, &ibuf, &ilen, &obuf, &olen)) == (size_t) -1) {
       if (errno == EILSEQ) {
 	err++;
-	ibuf++;
-	ilen--;
+	if (sEncoding == CLUnicodeStringEncoding) {
+	  ibuf += 4;
+	  ilen -= 4;
+	}
+	else {
+	  ibuf++;
+	  ilen--;
+	}
       }
       else if (errno == E2BIG) {
 	olen = obuf - bbuf;

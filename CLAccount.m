@@ -35,12 +35,29 @@
 #import "CLNumber.h"
 #import "CLDatetime.h"
 #import "CLDecimalNumber.h"
+#import "CLForm.h"
+#import "CLInput.h"
+#import "CLPage.h"
+#import "CLRecordDefinition.h"
 
 #include <stdlib.h>
 #include <crypt.h>
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+
+/* Password reset */
+#define FIELD_PASSWORD          @"cl_password"
+#define FIELD_VERPASS           @"cl_verpass"
+
+#define PAGE_RESET              @"resetPassword"
+#define PAGE_RESETEXP           @"resetExpired"
+
+#define PAGE_CONFIRMACCT	@"accountConfirmThanks"
+#define PAGE_CONFIRMEXP		@"accountConfirmExpired"
+
+#define TOKEN_LEN       32
+static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
 
 @implementation CLAccount
 
@@ -349,6 +366,234 @@
 -(CLString *) propertyList
 {
   return [CLString stringWithFormat:@"{objectID = %i}", objectID];
+}
+
+@end
+
+@implementation CLAccount (PasswordRecovery)
+
++(CLAccount *) accountWithEmail:(CLString *) anEmail
+{
+  CLString *query;
+  CLRecordDefinition *recordDef;
+  CLArray *rows;
+
+
+  recordDef = [CLEditingContext recordDefinitionForClass:self];
+  query = [CLString stringWithFormat:@"email = '%@'",
+		    [[recordDef database] defangString:anEmail escape:NULL]];
+  rows = [CLDefaultContext loadTableWithClass:self qualifier:query];
+  if ([rows count])
+    return [rows objectAtIndex:0];
+
+  return nil;
+}
+
++(CLAccount *) accountForTokenString:(CLString *) aString
+{
+  unichar *buf = NULL;
+  int buflen;
+  unsigned int seed;
+  int tkn;
+  int i;
+  unsigned int setlen = strlen(tokenset);
+
+
+  if ([aString length] < TOKEN_LEN)
+    return nil;
+
+  aString = [aString lowercaseString];
+
+  buflen = [aString length];
+  buf = malloc(buflen * sizeof(unichar));
+  [aString getCharacters:buf];
+  for (i = 0; i < buflen; i++)
+    buf[i] = strchr(tokenset, buf[i]) - tokenset;
+  seed = buf[0] + buf[1] * setlen;
+  srandom(seed);
+  for (i = 2; i < TOKEN_LEN; i++)
+    buf[i] = (random() % setlen) ^ buf[i];
+  for (i = TOKEN_LEN - 1, tkn = 0; i >= 2; i--) {
+    tkn *= setlen;
+    tkn += buf[i];
+  }
+  free(buf);
+
+  return [CLDefaultContext loadExistingObjectWithClass:[self class] objectID:tkn];
+}
+
+-(void) reset:(id) sender
+{
+  CLString *pass, *verPass;
+  int err = 0;
+
+
+  if ([sender isKindOfClass:[CLForm class]]) {
+    pass = [sender valueOfFieldNamed:FIELD_PASSWORD];
+    verPass = [sender valueOfFieldNamed:FIELD_VERPASS];
+    if (!pass) {
+      [[sender fieldNamed:FIELD_PASSWORD] setErrorString:@"You must enter a password"];
+      err++;
+    }
+    else if (![pass isEqualToString:verPass]) {
+      [[sender fieldNamed:FIELD_PASSWORD] setErrorString:@"Entered passwords don't match"];
+      err++;
+    }
+
+    if (!err) {
+      [self setPassword:[CLString stringWithUTF8String:
+					 crypt([[pass lowercaseString] UTF8String],
+					       [[CLManager randomSalt] UTF8String])]];
+      [self setResetToken:0];
+      [self setResetExpires:nil];
+      [self removeFlag:CLAccountFlagUnconfirmed];
+      [self removeFlag:CLAccountFlagInternalUseOnly];
+
+      /* FIXME - should we automatically log them in? */
+      [[CLManager activeSession] setAccount:self];
+      [CLDefaultContext saveChanges];
+      CLRedirectBrowserToPage(@"index", NO);
+    }
+  }
+  
+  return;
+}
+
+-(void) resetPassword:(id) sender
+{
+  [[CLManager manager] logout:nil];
+  if ([resetExpires compare:[CLDatetime now]] <= 0)
+    CLRedirectBrowserToPage(PAGE_RESETEXP, NO);
+  else
+    [self replacePage:sender filename:PAGE_RESET];
+
+  return;
+}
+
+-(CLString *) resetPasswordURL
+{
+  return [self urlForMethod:@selector(resetPassword:)];
+}
+
+-(void) sendResetPasswordEmail
+{
+  int token = 0;
+  CLEmailMessage *anEmail;
+
+
+  while (!token)
+    token = random() % CLIntegerMax;
+  [self setResetToken:token];
+  [self setResetExpires:[[CLDatetime now] dateByAddingYears:0 months:0 days:0
+							   hours:8 minutes:0 seconds:0]];
+  [CLDefaultContext saveChanges];
+
+  anEmail = [[CLEmailMessage alloc] initFromFile:@"cl_reset-msg" owner:self];
+  [anEmail send];
+  [anEmail release];
+
+  return;
+}
+
+-(CLString *) encodeToken
+{
+  unsigned char *tkn;
+  unsigned int seed;
+  int i;
+  long int setlen = strlen(tokenset);
+  unsigned char nv;
+  int tid;
+
+
+  tid = [self objectID];
+  tkn = malloc(TOKEN_LEN + 1);
+  memset(tkn, 0, TOKEN_LEN + 1);
+  seed = random() % (setlen * setlen);
+  tkn[0] = seed % setlen;
+  tkn[1] = (seed / setlen) % setlen;
+  srandom(seed);
+  for (i = 2; i < TOKEN_LEN; i++)
+    tkn[i] = random() % setlen;
+  for (i = 2; tid; i++, tid /= setlen) {
+    nv = tid % setlen;
+    tkn[i] ^= nv;
+  }
+  for (i = 0; i < TOKEN_LEN; i++)
+    tkn[i] = tokenset[(int) tkn[i]];
+  
+  return [CLString stringWithUTF8String:(char *) tkn];
+}
+
+-(int) resetToken
+{
+  return resetToken;
+}
+
+-(CLDatetime *) resetExpires
+{
+  return resetExpires;
+}
+
+-(void) setResetToken:(int) aValue
+{
+  if (aValue != resetToken) {
+    [self willChange];
+    resetToken = aValue;
+  }
+  return;
+}
+
+-(void) setResetExpires:(CLDatetime *) aDate
+{
+  if (![aDate isEqual:resetExpires]) {
+    [self willChange];
+    [resetExpires release];
+    resetExpires = [aDate retain];
+  }
+  return;
+}
+
+-(void) confirmAccount:(id) sender
+{
+  [[CLManager manager] logout:nil];
+  if ([resetExpires compare:[CLDatetime now]] <= 0)
+    CLRedirectBrowserToPage(PAGE_CONFIRMEXP, NO);
+  else {
+    [self setResetToken:0];
+    [self setResetExpires:nil];
+    [self removeFlag:CLAccountFlagUnconfirmed];
+    [self removeFlag:CLAccountFlagInternalUseOnly];
+    [[CLManager activeSession] setAccount:self];
+    [CLDefaultContext saveChanges];
+    [self replacePage:sender filename:PAGE_CONFIRMACCT];
+  }
+
+  return;
+}
+
+-(CLString *) confirmAccountURL
+{
+  return [self urlForMethod:@selector(confirmAccount:)];
+}
+
+-(void) sendConfirmationEmail
+{
+  int token = 0;
+  CLEmailMessage *anEmail;
+
+
+  while (!token)
+    token = random() % CLIntegerMax;
+  [self setResetToken:token];
+  [self setResetExpires:[[CLDatetime now] dateByAddingYears:0 months:0 days:0
+							   hours:8 minutes:0 seconds:0]];
+  [CLDefaultContext saveChanges];
+
+  anEmail = [[CLEmailMessage alloc] initFromFile:@"cl_confirm-msg" owner:self];
+  [anEmail send];
+  [anEmail release];
+
+  return;
 }
 
 @end

@@ -39,6 +39,9 @@ typedef enum {
   CLString *name, *email, *password, *flags, *ipAddress;
   CLDatetime *created, *lastSeen;
 
+  int resetToken;
+  CLDatetime *resetExpires;
+  
   CLString *_plainPass, *_verPass;
   BOOL sawPlain, sawVer;
 }
@@ -74,6 +77,21 @@ typedef enum {
 
 -(void) sendEmail:(CLDictionary *) aDict usingTemplate:(CLString *) aFilename;
 
+@end
+
+@interface CLAccount (PasswordRecovery)
++(CLAccount *) accountWithEmail:(CLString *) anEmail;
++(CLAccount *) accountForTokenString:(CLString *) aString;
+
+-(void) resetPassword:(id) sender;
+-(CLString *) resetPasswordURL;
+-(void) sendResetPasswordEmail;
+-(CLString *) encodeToken;
+-(int) resetToken;
+-(CLDatetime *) resetExpires;
+-(void) setResetToken:(int) aValue;
+-(void) setResetExpires:(CLDatetime *) aDate;
+-(void) sendConfirmationEmail;
 @end
 
 @interface CLAccount (CLMagic)
