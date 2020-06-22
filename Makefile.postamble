@@ -1,2 +1,2 @@
-buildObjc: $(OFILE_DIR) buildObjc.o $(OBJS) $(PRODUCT)
-	$(CC) $(ALL_CFLAGS) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS) $(PRODUCT)
+# buildObjc: $(OFILE_DIR) buildObjc.o $(OBJS) $(PRODUCT)
+# 	$(CC) $(ALL_CFLAGS) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS) $(PRODUCT)
