@@ -1,4 +1,4 @@
-OTHER_TARGETS= buildObjc
+#OTHER_TARGETS= buildObjc
 OTHER_GARBAGE= buildObjc
 MYSQL_LIBS= -L/usr/lib64/mysql -L/usr/lib/mysql -lmysqlclient
 SYBASE_LIBS=-lct
