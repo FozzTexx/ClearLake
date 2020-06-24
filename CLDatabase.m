@@ -298,7 +298,7 @@
     attr = [attributes objectAtIndex:i];
     if (i || rid)
       [mString appendString:@", "];
-    [mString appendString:[attr column]];
+    [mString appendFormat:@"%@.%@", table, [attr column]];
   }
   [mString appendString:@") values ("];
   if (rid)

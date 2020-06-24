@@ -624,7 +624,7 @@ static int _modelInitializing = 0;
     if (i)
       [mString appendString:@", "];
     [attr addObject:anAttr];
-    [mString appendString:[anAttr column]];
+    [mString appendFormat:@"%@.%@", [recordDef databaseTable], [anAttr column]];
   }
 
   [mString appendFormat:@" from %@", [recordDef databaseTable]];

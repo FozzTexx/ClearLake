@@ -225,4 +225,26 @@ int mysqlCount = 0;
   return;
 }
 
+-(void) setEncoding:(CLStringEncoding) aValue
+{
+  char *enc = NULL;
+  
+  [super setEncoding];
+
+  switch (encoding) {
+  case CLLatin1StringEncoding:
+    enc = "latin1";
+    break;
+  case CLUTF8StringEncoding:
+  default:
+    enc = "utf8";
+    break;
+  }
+
+  if (enc)
+    mysql_set_character_set(conn, enc);
+
+  return;
+}
+  
 @end
