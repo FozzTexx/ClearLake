@@ -229,10 +229,10 @@ int mysqlCount = 0;
 {
   char *enc = NULL;
   
-  [super setEncoding];
+  [super setEncoding:aValue];
 
   switch (encoding) {
-  case CLLatin1StringEncoding:
+  case CLISOLatin1StringEncoding:
     enc = "latin1";
     break;
   case CLUTF8StringEncoding:
