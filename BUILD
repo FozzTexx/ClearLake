@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ -z "$OSTYPE" ] ; then
+    export OSTYPE=$(/bin/uname)
+fi
+if [ -z "$ARCH" ] ; then
+    export ARCH=$(arch)
+fi
+
 # Fedora
 if [ -e /usr/bin/yum ] ; then
     sudo yum -y install make gcc-objc libpng-devel libjpeg-devel libtiff-devel \
@@ -34,7 +41,7 @@ pushd ../piclib
 if make libpiclib.a ; then
     LIBPICLIB=${OSTYPE}-${ARCH}_bin/libpiclib.a
     if [ ! -e ${LIBPICLIB} ] ; then
-	echo piclib build failed
+	echo Build of ${LIBPICLIB} build failed
 	exit 1
     fi
     mkdir -p ~/Unix/${OSTYPE}/lib
