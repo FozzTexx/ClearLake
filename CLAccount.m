@@ -126,7 +126,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   }
   else
     CLBecomeFault(self, [CLDecimalNumber numberWithInt:objectID],
-		  [CLEditingContext recordDefinitionForClass:[self class]]);
+		  [CLEditingContext recordDefinitionForClass:[self class]], NO);
   return self;
 }
 

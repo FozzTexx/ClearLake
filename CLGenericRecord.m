@@ -234,7 +234,7 @@
       self = anObject;
     }
     else  
-      CLBecomeFault(self, pk, _recordDef);
+      CLBecomeFault(self, pk, _recordDef, NO);
   }
   
   return self;

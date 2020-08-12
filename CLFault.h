@@ -32,6 +32,7 @@ typedef struct CLFaultData {
     struct {
       CLDictionary *primaryKey;
       CLRecordDefinition *recordDef;
+      BOOL fromDB;
     } faultData;
     struct {
       CLString *qualifier;
@@ -53,7 +54,7 @@ typedef struct CLFaultData {
 -(void) didFault;
 @end
 
-extern id CLNewFault(id info, CLRecordDefinition *recordDef);
-extern void CLBecomeFault(id anObject, id info, CLRecordDefinition *recordDef);
+extern id CLNewFault(id info, CLRecordDefinition *recordDef, BOOL fromDB);
+extern void CLBecomeFault(id anObject, id info, CLRecordDefinition *recordDef, BOOL fromDB);
 
 #endif /* _CLFAULT_H */

@@ -1233,7 +1233,7 @@ static int _modelInitializing = 0;
   pool = [[CLAutoreleasePool alloc] init];
   if (!(anObject = [self loadExistingObjectWithClass:aClass primaryKey:pk])) {
     table = [CLEditingContext tableForClass:aClass];
-    anObject = CLNewFault(pk, [CLEditingContext recordDefinitionForClass:aClass]);
+    anObject = CLNewFault(pk, [CLEditingContext recordDefinitionForClass:aClass], NO);
     [self registerInstance:anObject inTable:table withPrimaryKey:pk];
   }
   [anObject retain];
@@ -1301,7 +1301,7 @@ static int _modelInitializing = 0;
     pk = [CLEditingContext constructPrimaryKey:aDict recordDef:recordDef
 				  fromDatabase:YES asDictionary:NO];
     if (!(anObject = [self recordForPrimaryKey:pk inTable:[recordDef table]])) {
-      anObject = CLNewFault(aDict, recordDef);
+      anObject = CLNewFault(aDict, recordDef, YES);
       [self registerInstance:anObject inTable:[recordDef table] withPrimaryKey:pk];
     }
     else

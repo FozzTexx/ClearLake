@@ -246,7 +246,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
       [CLEditingContext createSelect:&mString andAttributes:&attr
 		 forRecordDefinition:data->info.faultData.recordDef];
       aString = [CLEditingContext qualifierForObject:data->info.faultData.primaryKey
-					      fromDatabase:NO
+					      fromDatabase:data->info.faultData.fromDB
 				    recordDefinition:data->info.faultData.recordDef];
       [mString appendFormat:@" where %@", aString];
       rows = [[data->info.faultData.recordDef database] read:attr qualifier:mString
@@ -457,7 +457,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   return;
 }
 
-id CLNewFault(id info, CLRecordDefinition *recordDef)
+id CLNewFault(id info, CLRecordDefinition *recordDef, BOOL fromDB)
 {
   id anObject;
 
@@ -471,11 +471,11 @@ id CLNewFault(id info, CLRecordDefinition *recordDef)
     fprintf(stderr, "NewFault Message %lx %i\n", (unsigned long) anObject,
 	    [[info objectForKey:@"id"] intValue]);
 #endif
-  CLBecomeFault(anObject, info, recordDef);
+  CLBecomeFault(anObject, info, recordDef, fromDB);
   return anObject;
 }
 
-void CLBecomeFault(id anObject, id info, CLRecordDefinition *recordDef)
+void CLBecomeFault(id anObject, id info, CLRecordDefinition *recordDef, BOOL fromDB)
 {
   void *buf;
   CLObjectReserved *reserved;
@@ -492,6 +492,7 @@ void CLBecomeFault(id anObject, id info, CLRecordDefinition *recordDef)
   data->original = newFault->original;
   data->info.faultData.primaryKey = [info retain];
   data->info.faultData.recordDef = [recordDef retain];
+  data->info.faultData.fromDB = fromDB;
   newFault->original = CLFaultClass;
 
 #if 0
