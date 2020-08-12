@@ -246,7 +246,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
       [CLEditingContext createSelect:&mString andAttributes:&attr
 		 forRecordDefinition:data->info.faultData.recordDef];
       aString = [CLEditingContext qualifierForObject:data->info.faultData.primaryKey
-					      fromDatabase:YES
+					      fromDatabase:NO
 				    recordDefinition:data->info.faultData.recordDef];
       [mString appendFormat:@" where %@", aString];
       rows = [[data->info.faultData.recordDef database] read:attr qualifier:mString
@@ -256,9 +256,24 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
       [mString release];
       [attr release];
 
-      [data->info.faultData.primaryKey release];
-      /* FIXME - what if there were no rows returned? */
-      data->info.faultData.primaryKey = [[rows objectAtIndex:0] retain];
+      if ([rows count]) {
+	[data->info.faultData.primaryKey release];
+	data->info.faultData.primaryKey = [[rows objectAtIndex:0] retain];
+      }
+      else {
+	CLMutableDictionary *mDict;
+
+
+	mDict = [[CLMutableDictionary alloc] init];
+	anArray = [data->info.faultData.recordDef primaryKeys];
+	for (i = 0, j = [anArray count]; i < j; i++) {
+	  anAttr = [anArray objectAtIndex:i];
+	  [mDict setObject:[data->info.faultData.primaryKey objectForKey:[anAttr key]]
+		    forKey:[anAttr column]];
+	}
+	[data->info.faultData.primaryKey release];
+	data->info.faultData.primaryKey = mDict;
+      }
     }
   }
 

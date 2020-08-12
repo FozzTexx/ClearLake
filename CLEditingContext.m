@@ -987,7 +987,7 @@ static int _modelInitializing = 0;
     [db insertDictionary:mDict withAttributes:saveFields into:[recordDef databaseTable]
 		  withID:0 errors:&errors];
     if (errors)
-      [self error:@"Shouldn't be errors! %@", errors];
+      [self error:@"Shouldn't be errors! %@\nTable: %@", errors, [recordDef databaseTable]];
     if ((anObject = [self registerInstance:aRecord]) && anObject != aRecord) {
       CLString *errString = [CLString stringWithFormat:@"Saved second instance of %@:%@",
 				      [recordDef table], [[self primaryKeyForRecord:aRecord]
