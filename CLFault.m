@@ -260,7 +260,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 	[data->info.faultData.primaryKey release];
 	data->info.faultData.primaryKey = [[rows objectAtIndex:0] retain];
       }
-      else {
+      else if (data->info.faultData.fromDB) {
 	CLMutableDictionary *mDict;
 
 
