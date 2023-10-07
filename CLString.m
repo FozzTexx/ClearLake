@@ -915,10 +915,10 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   for (p = ustr->str; p < ustr->str + ustr->len; p++) {
     c = *p;
     for (i = 0; CLEntities[i].c; i++)
-      if (c == CLEntities[i].c)
+      if (CLEntities[i].c >= c)
 	break;
 
-    if (CLEntities[i].c)
+    if (c == CLEntities[i].c)
       break;
   }
 

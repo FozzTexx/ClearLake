@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -82,7 +82,7 @@
     if (!(buf = alloca((len * 2) * sizeof(unichar))))
       [self error:@"Unable to allocate memory"];
     [aString getCharacters:buf];
-  
+
     for (i = 0; i < len; i++) {
       c = buf[i];
       if (esc && (c == '[' || c == ']' || c == '%' || c == '_' || c == '^')) {
@@ -110,7 +110,7 @@
   CLString *user, *host, *database, *password, *interface;
   CLDatabase *aDatabase = nil;
 
-  
+
   user = [aDict objectForKey:@"user"];
   password = [aDict objectForKey:@"password"];
   host = [aDict objectForKey:@"host"];
@@ -148,7 +148,7 @@
 
   if (errors)
     *errors = [results objectForKey:@"errors"];
-  
+
   rows = [results objectForKey:@"rows"];
   if ([rows count]) {
     mArray = [[CLMutableArray alloc] init];
@@ -180,7 +180,7 @@
 	      else
 		anObject = @"";
 	    }
-	      
+
 	    [aDict setObject:anObject forKey:[attr column]];
 	    break;
 
@@ -210,7 +210,7 @@
       [aDict release];
     }
   }
-  
+
   return [mArray autorelease];
 }
 
@@ -243,7 +243,7 @@
   }
   if (rid2 > rid)
     rid = rid2;
-  
+
   if (!rid) {
     /* FIXME - InnoDB is a MySQL thing */
     [self runQuery:@"CREATE TABLE IF NOT EXISTS cl_sequence_table ("
@@ -328,7 +328,7 @@
 	  [mString appendFormat:@"'%@'", [self defangString:[anObject description]
 					       escape:NULL]];
 	break;
-	  
+
       case CLIntAttributeType:
       case CLMoneyAttributeType:
       case CLNumericAttributeType:
@@ -342,11 +342,15 @@
   [mString appendString:@")"];
 
   results = [self runQuery:mString];
+
+  if (errors) {
+    *errors = nil;
+    if (results)
+      *errors = [CLArray arrayWithObjects:mString, [results objectForKey:@"errors"], nil];
+  }
+
   [mString release];
-  
-  if (errors)
-    *errors = [results objectForKey:@"errors"];
-  
+
   return;
 }
 
@@ -389,7 +393,7 @@
 	  [mString appendFormat:@"'%@'", [self defangString:[anObject description]
 					       escape:NULL]];
 	break;
-	  
+
       case CLIntAttributeType:
       case CLMoneyAttributeType:
       case CLNumericAttributeType:
@@ -401,11 +405,13 @@
   [mString appendFormat:@" where %@", rowID];
 
   results = [self runQuery:mString];
+  if (errors) {
+    *errors = nil;
+    if (results)
+      *errors = [CLArray arrayWithObjects:mString, [results objectForKey:@"errors"], nil];
+  }
   [mString release];
 
-  if (errors)
-    *errors = [results objectForKey:@"errors"];
-  
   return YES;
 }
 
@@ -418,10 +424,13 @@
 
   aString = [[CLString alloc] initWithFormat:@"delete from %@ where %@", aTable, qualifier];
   results = [self runQuery:aString];
+  if (errors) {
+    *errors = nil;
+    if (results)
+      *errors = [CLArray arrayWithObjects:aString, [results objectForKey:@"errors"], nil];
+  }
   [aString release];
-  if (errors)
-    *errors = [results objectForKey:@"errors"];
-  
+
   return YES;
 }
 

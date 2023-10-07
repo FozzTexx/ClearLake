@@ -1562,6 +1562,7 @@ void CLInit()
   CLQuery = [[CLMutableDictionary alloc] init];
   CLAddToCleanup(CLQuery);
 
+#if 0
   CLWebName = nil;
   if (SCRIPT_FILENAME) {
     CLAppName = [SCRIPT_FILENAME lastPathComponent];
@@ -1587,6 +1588,11 @@ void CLInit()
       CLWebName = SCRIPT_NAME;
     CLAppName = [CLWebName lastPathComponent];
   }
+#else
+  CLWebName = SCRIPT_NAME;
+  if (SCRIPT_FILENAME)
+    CLAppName = [SCRIPT_FILENAME lastPathComponent];
+#endif
 
   if ([CLAppName hasSuffix:@".cgi"])
     CLAppName = [CLAppName stringByDeletingPathExtension];

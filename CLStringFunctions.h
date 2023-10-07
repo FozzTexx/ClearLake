@@ -52,8 +52,6 @@ typedef struct {
 
 extern CLStringStorage *CLStorageForString(CLString *aString);
 
-extern BOOL CLCheckStringClass(id anObject);
-
 /* Functions to hide CLStringStorage from objects */
 extern void *CLStringAllocateBuffer(void *old, CLUInteger length, char *utf8, id self);
 extern char *CLStringFreeBuffer(void *old);
@@ -83,5 +81,17 @@ extern void CLUnistrReplaceCharacters(unistr *dest, CLRange aRange,
 				      unichar *src, CLUInteger slen);
 extern void CLUnistrReplace(unistr *dest, CLRange aRange, unistr *src);
 extern unistr *CLStringToUnistr(CLString *aString);
+
+#import "CLClassConstants.h"
+#define CLCheckStringClass(anObject) ({ \
+      unistr *ustr = (unistr *) anObject;				\
+      if (ustr->_reserved == CLUTF8StringClass || ustr->_reserved == CLConstantStringClass) \
+	[((id) anObject) swizzle];					\
+      ustr->_reserved == CLStringClass				\
+	|| ustr->_reserved == CLMutableStringClass			\
+	|| ustr->_reserved == CLConstantUnicodeStringClass		\
+	|| ustr->_reserved == CLImmutableStackStringClass		\
+	|| ustr->_reserved == CLMutableStackStringClass;		\
+    })
 
 #endif /* _CLSTRINGFUNCTIONS_H */

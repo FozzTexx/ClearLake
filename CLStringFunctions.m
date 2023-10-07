@@ -29,39 +29,17 @@
 #include <wchar.h>
 
 #import "CLStringFunctions.h"
-#import "CLConstantUnicodeString.h"
 #import "CLUTF8String.h"
+#import "CLConstantUnicodeString.h"
 #import "CLMutableString.h"
 #import "CLHashTable.h"
 #import "CLCharacterSet.h"
-#import "CLClassConstants.h"
 
 #include <stdlib.h>
 #include <iconv.h>
 #include <errno.h>
 #include <wctype.h>
 #include <string.h>
-
-BOOL CLCheckStringClass(id anObject)
-{
-  unistr *ustr = (unistr *) anObject;
-  
-
-  if (ustr->_reserved == CLUTF8StringClass ||
-      ustr->_reserved == CLConstantStringClass)
-    [anObject swizzle];
-
-  if (ustr->_reserved == CLStringClass ||
-      ustr->_reserved == CLMutableStringClass ||
-      ustr->_reserved == CLConstantUnicodeStringClass)
-    return YES;
-
-  if (ustr->_reserved == CLImmutableStackStringClass ||
-      ustr->_reserved == CLMutableStackStringClass)
-    return YES;
-  
-  return NO;
-}
 
 CLStringStorage *CLStorageForString(CLString *aString)
 {

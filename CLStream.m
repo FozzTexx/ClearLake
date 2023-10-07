@@ -293,7 +293,7 @@ static CLString *CLFileDirectory = nil;
   char *tbuf;
 
 
-  p = [[CLString stringWithFormat:@"/tmp/%@", template] UTF8String];
+  p = [[CLString stringWithFormat:@"/run/shm/%@", template] UTF8String];
   tbuf = strdup(p);
   fd = mkstemp(tbuf);
 
