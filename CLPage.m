@@ -1242,8 +1242,12 @@ void CLSetDelegate(id anObject)
 	[((CLMutableString *) &baseURL) appendPathComponent:(CLString *) &baseDir];
     }
     else {
+#if 0
       baseURL = CLCopyStackString(CLServerURL, [CLWebPath length] + 2);
       [((CLMutableString *) &baseURL) appendString:CLWebPath];
+#else
+      baseURL = CLWebPath;
+#endif
     }
     [((CLMutableString *) &baseURL) appendPathComponent:@"/"];
     [stream2 writeFormat:@"<BASE HREF=\"%@\">\n" usingEncoding:CLUTF8StringEncoding,
