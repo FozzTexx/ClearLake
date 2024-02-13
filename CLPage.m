@@ -1246,7 +1246,7 @@ void CLSetDelegate(id anObject)
       baseURL = CLCopyStackString(CLServerURL, [CLWebPath length] + 2);
       [((CLMutableString *) &baseURL) appendString:CLWebPath];
 #else
-      baseURL = CLCopyStackString(CLWebPath, 0);
+      baseURL = CLCopyStackString(CLWebPath, 2);
 #endif
     }
     [((CLMutableString *) &baseURL) appendPathComponent:@"/"];
