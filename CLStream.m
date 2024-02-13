@@ -297,10 +297,22 @@ static CLString *CLFileDirectory = nil;
   tbuf = strdup(p);
   fd = mkstemp(tbuf);
 
+  if (fd < 0) {
+    p = [[CLString stringWithFormat:@"/dev/shm/%@", template] UTF8String];
+    tbuf = strdup(p);
+    fd = mkstemp(tbuf);
+  }
+
   if (fd < 0 && (p = getenv("TMPDIR"))) {
     free(tbuf);
     tbuf = strdup([[[CLString stringWithUTF8String:p]
 		     stringByAppendingPathComponent:template] UTF8String]);
+    fd = mkstemp(tbuf);
+  }
+
+  if (fd < 0) {
+    p = [[CLString stringWithFormat:@"/tmp/%@", template] UTF8String];
+    tbuf = strdup(p);
     fd = mkstemp(tbuf);
   }
 
