@@ -1257,7 +1257,7 @@ void CLSetDelegate(id anObject)
     
     baseURL = CLWebPath;
     if ([filename hasPathPrefix:documentRoot]) {
-      baseURL = CLServerURL;
+      baseURL = @"/"
       baseDir = [filename stringByDeletingLastPathComponent];
       baseDir = [baseDir stringByDeletingPathPrefix:documentRoot];
       baseDir = [@"/" stringByAppendingPathComponent:baseDir];
