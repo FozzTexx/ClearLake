@@ -110,7 +110,7 @@
     aRep = [self imageRep];
     aRep2 = [aRep imageRepFromEffects:aString];
     format = [aRep bestFormat];
-    aRep = aRep2;
+    cImage = aRep2;
 
     if ((aData = [aRep representationUsingFormat:format]) && (oid = CLStoreImage(aData))) {
       cImage = [[CLCachedImage alloc] init];
