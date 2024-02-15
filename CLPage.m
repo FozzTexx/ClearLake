@@ -1255,7 +1255,7 @@ void CLSetDelegate(id anObject)
 
     documentRoot = [CLString stringWithUTF8String:getenv("DOCUMENT_ROOT")];
     
-    baseURL = [CLServerURL stringByAppendingString:CLWebPath];
+    baseURL = CLWebPath;
     if ([filename hasPathPrefix:documentRoot]) {
       baseURL = CLServerURL;
       baseDir = [filename stringByDeletingLastPathComponent];
