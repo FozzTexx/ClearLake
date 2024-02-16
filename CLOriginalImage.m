@@ -108,9 +108,8 @@
 
   if (!(cImage = [self cachedImageForEffects:aString])) {
     aRep = [self imageRep];
-    aRep2 = [aRep imageRepFromEffects:aString];
+    cImage = [aRep imageRepFromEffects:aString];
     format = [aRep bestFormat];
-    cImage = aRep2;
 
     if ((aData = [cImage representationUsingFormat:format]) && (oid = CLStoreImage(aData))) {
       cImage = [[CLCachedImage alloc] init];
