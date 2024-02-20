@@ -26,11 +26,17 @@
 
 extern CLMutableArray *CLDeferPool;
 
-@interface CLAutoreleasePool:CLMutableArray
+@interface CLAutoreleasePool:CLObject
+{
+  CLMutableArray *pool;
+}
+
 +(void) addObject:(id) anObject;
 +(BOOL) hasObject:(id) anObject;
 
 -(id) init;
+-(void) dealloc;
+
 @end
 
 @interface CLPrimitiveObject (CLAutoreleasePool)

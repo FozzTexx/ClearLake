@@ -25,19 +25,29 @@
 #import <ClearLake/CLArray.h>
 #import <ClearLake/CLRange.h>
 
+@protocol CLMutableArrayPrimitive
+-(void) insertObject:(id) anObject atIndex:(CLUInteger) index;
+-(void) removeObjectsInRange:(CLRange) aRange;
+-(void) immutable;
+@end
+
 @interface CLMutableArray:CLArray <CLCopying>
 -(void) addObject:(id) anObject;
--(void) addObjects:(id) firstObj, ...;
--(void) insertObject:(id) anObject atIndex:(CLUInteger) index;
--(void) removeObject:(id) anObject;
--(void) removeObjectAtIndex:(CLUInteger) index;
--(void) removeLastObject;
 -(void) removeAllObjects;
+@end
+
+@interface CLMutableArray (CLMutableArrayModifying) <CLMutableArrayPrimitive>
+-(void) addObjects:(id) firstObj, ...;
 -(void) addObjectsFromArray:(CLArray *) otherArray;
+-(void) removeObject:(id) anObject;
+-(void) removeLastObject;
+-(void) removeObjectAtIndex:(CLUInteger) index;
 -(void) removeObjectsInArray:(CLArray *) anArray;
--(void) removeObjectsInRange:(CLRange) aRange;
--(void) sortUsingDescriptors:(CLArray *) sortDescriptors;
 -(void) sortUsingSelector:(SEL) comparator;
+-(void) sortUsingDescriptors:(CLArray *) sortDescriptors;
+@end
+
+@interface CLInternalMutableArray:CLMutableArray <CLMutableArrayPrimitive>
 @end
 
 #endif /* _CLMUTABLEARRAY_H */

@@ -22,30 +22,33 @@
 #ifndef _CLARRAY_H
 #define _CLARRAY_H
 
+#include <stdarg.h>
+
 #import <ClearLake/CLObject.h>
 #import <ClearLake/CLRange.h>
 
-@interface CLArray:CLObject <CLCopying, CLMutableCopying, CLPropertyList, CLArchiving>
-{
+#define CLARRAY_BLOCKSIZE	256
+
+typedef struct {
   id *dataPtr;
   CLUInteger numElements, maxElements;
+} CLArrayStorage;
+
+@protocol CLArrayPrimitive
+-(id) initWithObjects:(const id *) objects count:(CLUInteger) count;
+-(CLUInteger) count;
+-(id) objectAtIndex:(CLUInteger) index;
+@end
+
+@interface CLArray:CLObject <CLCopying, CLMutableCopying, CLPropertyList>
+{
+  void *arrayData;
 }
 
 +(id) array;
 +(id) arrayWithObjects:(id) firstObj, ...;
 +(id) arrayWithObjects:(const id *) objects count:(CLUInteger) count;
   
--(id) init;
--(id) initWithObjects:(id) firstObj, ...;
--(id) initWithObjects:(const id *) objects count:(CLUInteger) count;
--(id) initWithArray:(CLArray *) anArray;
--(id) initWithArray:(CLArray *) anArray copyItems:(BOOL) flag;
--(void) dealloc;
-
--(CLUInteger) count;
--(id) lastObject;
--(id) objectAtIndex:(CLUInteger) index;
--(void) getObjects:(id *) objects;
 -(CLUInteger) indexOfObject:(id) anObject;
 -(CLUInteger) indexOfObjectIdenticalTo:(id) anObject;
 -(CLArray *) sortedArrayUsingSelector:(SEL) comparator;
@@ -57,7 +60,6 @@
 -(CLString *) componentsJoinedAsCSVUsingString:(CLString *) separator;
 -(CLArray *) arrayByAddingObjectsFromArray:(CLArray *) otherArray;
 -(CLArray *) arrayByAddingObject:(id) anObject;
--(CLArray *) subarrayWithRange:(CLRange) range;
   
 -(BOOL) containsMultipleObjects;
 
@@ -65,6 +67,25 @@
 -(CLString *) json;
 -(CLString *) description;
 
+@end
+
+@interface CLArray (CLArrayAccess) <CLArrayPrimitive>
+-(void) getObjects:(id *) objects;
+-(id) lastObject;
+-(CLArray *) subarrayWithRange:(CLRange) range;
+@end
+
+@interface CLArray (CLArrayCreation)
+-(id) initWithArray:(CLArray *) anArray;
+-(id) initWithArray:(CLArray *) anArray copyItems:(BOOL) copyFlag;
+-(id) initWithObject:(id) firstObj andArguments:(va_list) argList;
+-(id) initWithObjects:(id) firstObj, ...;
+@end
+
+@interface CLArray (CLArrayArchiving) <CLArchiving>
+@end
+
+@interface CLInternalArray:CLArray
 @end
 
 #endif /* _CLARRAY_H */

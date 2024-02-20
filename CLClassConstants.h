@@ -26,7 +26,8 @@ extern Class CLImageElementClass;
 extern Class CLDatetimeClass;
 extern Class CLControlClass, CLFormClass;
 extern Class CLSessionClass, CLAccountClass;
-extern Class CLArrayClass, CLMutableArrayClass;
+extern Class CLArrayClass, CLMutableArrayClass, CLInternalArrayClass,
+  CLInternalMutableArrayClass;
 extern Class CLButtonClass;
 extern Class CLCharacterSetClass, CLMutableCharacterSetClass;
 extern Class CLDataClass, CLMutableDataClass;
