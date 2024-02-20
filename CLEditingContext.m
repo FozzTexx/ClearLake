@@ -55,7 +55,15 @@ static id _model = nil;
 /* For CLRecordDefinition category */
 static CLHashTable *_classDefs = NULL, *_tableDefs = NULL,
   *_classTable = NULL, *_tableClass = NULL;
-static int _modelInitializing = 0;
+
+enum {
+  MODEL_UNINIT = 0,
+  MODEL_INITIALIZING,
+  MODEL_ABORTED,
+  MODEL_INITCOMPLETE,
+};
+
+static int _modelInitState = MODEL_UNINIT;
 
 @implementation CLEditingContext
 
@@ -319,15 +327,14 @@ static int _modelInitializing = 0;
   CLArray *anArray;
   int i, j;
   CLString *aString;
-  CLAutoreleasePool *pool;
 
   
-  if (_model)
+  if (_model || _modelInitState > MODEL_INITIALIZING)
     return _model;
 
-  if (_modelInitializing)
+  if (_modelInitState)
     [self error:@"Can't get model while getting model!"];
-  _modelInitializing = 1;
+  _modelInitState = MODEL_INITIALIZING;
 
   /* For CLRecordDefinition category */
   _classDefs = CLHashTableAlloc(CLHashTableDefaultSize);
@@ -339,16 +346,14 @@ static int _modelInitializing = 0;
       (aString = [CLString stringWithContentsOfFile:
 			     [[CLManager configurationDirectory]
 			       stringByAppendingPathComponent:aString]
-					   encoding:CLASCIIStringEncoding])) {
-    pool = [[CLAutoreleasePool alloc] init];
+			   encoding:CLASCIIStringEncoding]))
     _model = [[aString decodePropertyList] mutableCopy];
-    [pool release];
-  }
   else {
-    if (![CLManager configOption:@"Database"])
+    if (![CLManager configOption:@"Database"]) {
+      _modelInitState = MODEL_ABORTED;
       return nil;
+    }
 
-    pool = [[CLAutoreleasePool alloc] init];
     _model = [[CLMutableDictionary alloc] init];    
     mDict = [[CLMutableDictionary alloc] init];
     mDict2 = [[CLMutableDictionary alloc] init];
@@ -368,7 +373,7 @@ static int _modelInitializing = 0;
 	(aString = [CLString stringWithContentsOfFile:
 			       [[CLManager configurationDirectory]
 				 stringByAppendingPathComponent:aString]
-					     encoding:CLASCIIStringEncoding]))
+			     encoding:CLASCIIStringEncoding]))
       mDict3 = [[aString decodePropertyList] mutableCopy];
     else
       mDict3 = [[CLMutableDictionary alloc] init];
@@ -383,10 +388,7 @@ static int _modelInitializing = 0;
     [mDict3 release];
     [mDict2 release];
     [mDict release];
-    [pool release];
   }
-
-  pool = [[CLAutoreleasePool alloc] init];
 
   anArray = [_model allKeys];
   for (i = 0, j = [anArray count]; i < j; i++) {
@@ -402,8 +404,7 @@ static int _modelInitializing = 0;
 			     objectForKey:@"schema"] databaseName:aString];
   }
 
-  [pool release];
-
+  _modelInitState = MODEL_INITCOMPLETE;
   return _model;
 }
 
@@ -452,7 +453,6 @@ static int _modelInitializing = 0;
       [db setDateFormat:format];
     
     [mDict setObject:db forKey:@"database"];
-    [db release];
   }
 
   return db;
@@ -481,7 +481,7 @@ static int _modelInitializing = 0;
   if (!_sessionClass) {
     if ([CLDelegate respondsTo:@selector(sessionClass)])
       _sessionClass = [CLDelegate sessionClass];
-    else if (_model || !_modelInitializing) {
+    else if (_model || !_modelInitState) {
       CLArray *anArray;
       int i, j;
       CLRecordDefinition *recordDef;
@@ -691,13 +691,6 @@ static int _modelInitializing = 0;
   }
 
   return oid;
-}
-
-+(void) closeDatabases
-{
-  [_model release];
-  _model = nil;
-  return;
 }
 
 -(id) init

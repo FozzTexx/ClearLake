@@ -84,7 +84,7 @@ Class CLDatetimeClass;
 Class CLControlClass, CLFormClass;
 Class CLSessionClass, CLAccountClass;
 Class CLSelectClass;
-Class CLArrayClass, CLMutableArrayClass;
+Class CLArrayClass, CLMutableArrayClass, CLInternalArrayClass, CLInternalMutableArrayClass;
 Class CLButtonClass;
 Class CLCharacterSetClass, CLMutableCharacterSetClass;
 Class CLDataClass, CLMutableDataClass;
@@ -141,6 +141,8 @@ int CLInitClassConstants()
       CLPageTargetClass = [CLPageTarget class];
       CLSessionClass = [CLSession class];
       CLTextAreaClass = [CLTextArea class];
+      CLInternalArrayClass = [CLInternalArray class];
+      CLInternalMutableArrayClass = [CLInternalMutableArray class];
       break;
 
     case 1:

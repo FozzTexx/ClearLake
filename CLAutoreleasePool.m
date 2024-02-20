@@ -31,7 +31,7 @@ CLMutableArray *CLDeferPool = nil;
 
 +(void) addObject:(id) anObject
 {
-  [lastPool addObject:anObject];
+  [lastPool->pool addObject:anObject];
   return;
 }
 
@@ -41,7 +41,8 @@ CLMutableArray *CLDeferPool = nil;
 
 
   for (i = [activePools count]; i; i--)
-    if ([[activePools objectAtIndex:i-1] indexOfObjectIdenticalTo:anObject] != CLNotFound)
+    if ([((CLAutoreleasePool *) [activePools objectAtIndex:i-1])->pool
+	    indexOfObjectIdenticalTo:anObject] != CLNotFound)
       return YES;
 
   return NO;
@@ -50,6 +51,7 @@ CLMutableArray *CLDeferPool = nil;
 -(id) init
 {
   [super init];
+  pool = [[CLMutableArray alloc] init];
   if (!activePools)
     activePools = [[CLMutableArray alloc] init];
   [activePools addObject:self];
@@ -65,7 +67,7 @@ CLMutableArray *CLDeferPool = nil;
 #define release		release:__FILE__ :__LINE__ :self
 #endif
 {
-  int i;
+  CLUInteger idx, count;
   id anObject;
   BOOL defer;
 
@@ -95,8 +97,8 @@ CLMutableArray *CLDeferPool = nil;
     /* Everything has been autoreleased except for the deferred
        stuff. Check again if it can't be released and if not push it
        up into the next highest pool */
-    for (i = 0; i < CLDeferPool->numElements; i++) {
-      anObject = CLDeferPool->dataPtr[i];
+    for (idx = 0, count = [CLDeferPool count]; idx < count; idx++) {
+      anObject = [CLDeferPool objectAtIndex:idx];
       if ([anObject shouldDeferRelease]) {
 	[anObject retain];
 	[anObject autorelease];
@@ -120,6 +122,13 @@ CLMutableArray *CLDeferPool = nil;
 {
   [self error:@"Can't autorelease CLAutoreleasePool"];
   return self;
+}
+
+-(void) dealloc
+{
+  [pool release];
+  [super dealloc];
+  return;
 }
 
 @end

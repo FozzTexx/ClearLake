@@ -27,9 +27,9 @@
 #import "CLNull.h"
 #import "CLStackString.h"
 #import "CLClassConstants.h"
+#import "CLValue.h"
 
 #include <stdlib.h>
-#include <stdarg.h>
 #include <wctype.h>
 #include <string.h>
 
@@ -37,148 +37,29 @@
 
 +(id) array
 {
-  return [[[self alloc] init] autorelease];
+  return [[[CLInternalArray alloc] init] autorelease];
 }
 
 +(id) arrayWithObjects:(id) firstObj, ...
 {
-  int i;
-  id *buf;
   va_list ap;
   id anObject;
 
-  
-  va_start(ap, firstObj);
-  for (i = 1; va_arg(ap, id); i++)
-    ;
-  va_end(ap);
-  if (!(buf = alloca(sizeof(id) * i)))
-    [self error:@"Unable to allocate memory"];
-  buf[0] = firstObj;
-  va_start(ap, firstObj);
-  for (i = 1; (anObject = va_arg(ap, id)); i++)
-    buf[i] = anObject;
-  va_end(ap);
 
-  anObject = [[[self alloc] initWithObjects:buf count:i] autorelease];
+  va_start(ap, firstObj);
+  anObject = [[[CLInternalArray alloc] initWithObject:firstObj andArguments:ap] autorelease];
+  va_end(ap);
   return anObject;
 }
 
 +(id) arrayWithObjects:(const id *) objects count:(CLUInteger) count
 {
-  return [[[self alloc] initWithObjects:objects count:count] autorelease];
+  return [[[CLInternalArray alloc] initWithObjects:objects count:count] autorelease];
 }
   
 -(id) init
 {
-  [super init];
-  maxElements = 256;
-  if (!(dataPtr = malloc(maxElements * sizeof(id))))
-    [self error:@"Unable to alloc dataPtr"];
-  numElements = 0;
-  return self;
-}
-
--(id) initWithObjects:(id) firstObj, ...
-{
-  va_list ap;
-  int i;
-  id anObject;
-
-  
-  [self init];
-  va_start(ap, firstObj);
-  for (i = 1; va_arg(ap, id); i++)
-    ;
-  va_end(ap);
-
-  numElements = maxElements = i;
-  maxElements = ((maxElements + 255) / 256) * 256;
-  if (!(dataPtr = realloc(dataPtr, sizeof(id) * maxElements)))
-    [self error:@"Unable to alloc dataPtr"];
-  dataPtr[0] = [firstObj retain];
-  va_start(ap, firstObj);
-  for (i = 1; (anObject = va_arg(ap, id)); i++)
-    dataPtr[i] = [anObject retain];
-  va_end(ap);
-  return self;
-}
-
--(id) initWithObjects:(const id *) objects count:(unsigned) count
-{
-  [self init];
-  numElements = count;
-  if (numElements > maxElements) {
-    maxElements = ((numElements + 255) / 256) * 256;
-    if (!maxElements)
-      maxElements = 256;
-    if (!(dataPtr = realloc(dataPtr, sizeof(id) * maxElements)))
-      [self error:@"Unable to alloc dataPtr"];
-  }
-  memcpy(dataPtr, objects, sizeof(id) * count);
-  for (; count; objects++, count--)
-    [*objects retain];
-  return self;
-}
-
--(id) initWithArray:(CLArray *) anArray
-{
-  return [self initWithArray:anArray copyItems:NO];
-}
-
--(id) initWithArray:(CLArray *) anArray copyItems:(BOOL) flag
-{
-  int i;
-
-  
-  [self init];
-  numElements = maxElements = anArray->numElements;
-  maxElements = ((maxElements + 255) / 256) * 256;
-  if (!maxElements)
-    maxElements = 256;
-  if (!(dataPtr = realloc(dataPtr, sizeof(id) * maxElements)))
-    [self error:@"Unable to alloc dataPtr"];
-  for (i = 0; i < numElements; i++) {
-    if (flag)
-      dataPtr[i] = [anArray->dataPtr[i] copy];
-    else
-      dataPtr[i] = [anArray->dataPtr[i] retain];
-  }
-      
-  return self;
-}
-
--(void) dealloc
-{
-  CLUInteger i;
-
-
-#if 0
-  {
-    static int depth = 0, j;
-
-
-    depth++;
-    for (i = 0; i < numElements; i++) {
-      for (j = 1; j < depth; j++)
-	fprintf(stderr, "  ");
-      fprintf(stderr, "%i %u 0x%lx", 
-	      (unsigned) i, (unsigned) numElements, (unsigned long) self);
-      fprintf(stderr, " <%s: 0x%lx>",
-	      [[dataPtr[i] class] name], (unsigned long) dataPtr[i]);
-      [dataPtr[i] release];
-      fprintf(stderr, "\n");
-    }
-    depth--;
-  }
-#else
-  for (i = 0; i < numElements; i++)
-    [dataPtr[i] release];
-#endif
-  if (dataPtr)
-    free(dataPtr);
-  [super dealloc];
-  return;
+  return [self initWithObjects:NULL count:0];
 }
 
 -(id) mutableCopy
@@ -186,64 +67,10 @@
   return [[CLMutableArray alloc] initWithArray:self];
 }
 
--(id) read:(CLStream *) stream
-{
-  int i;
-
-  
-  [super read:stream];
-  [stream readTypes:@"I", &numElements];
-  maxElements = numElements + 1;
-  maxElements = ((maxElements + 255) / 256) * 256;
-  if (!(dataPtr = malloc(sizeof(id) * maxElements)))
-    [self error:@"Unable to alloc dataPtr"];
-  for (i = 0; i < numElements; i++)
-    [stream readTypes:@"@", &dataPtr[i]];
-  return self;
-}
-
--(void) write:(CLStream *) stream
-{
-  int i;
-
-  
-  [super write:stream];
-  [stream writeTypes:@"I", &numElements];
-  for (i = 0; i < numElements; i++)
-    [stream writeTypes:@"@", &dataPtr[i]];
-  return;
-}
-
--(CLUInteger) count
-{
-  return numElements;
-}
-
--(id) lastObject
-{
-  if (!numElements)
-    return nil;
-  return dataPtr[numElements-1];
-}
-
--(id) objectAtIndex:(CLUInteger) index
-{
-  if (index >= numElements)
-    [self error:@"index beyond length"];
-  return (id) dataPtr[index];
-}
-
--(void) getObjects:(id *) objects
-{
-  if (numElements)
-    memcpy(objects, dataPtr, sizeof(id) * numElements);
-  return;
-}
-
 -(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
 {
   CLMutableArray *mArray = nil;
-  int i;
+  CLUInteger idx, count;
   CLRange aRange;
   CLString *aString;
   id anObject;
@@ -272,43 +99,42 @@
   stackStr.str += CLMaxRange(aRange);
   stackStr.len -= CLMaxRange(aRange);
   aString = (CLString *) &stackStr;
-  for (i = 0; i < numElements; i++) {
+  for (idx = 0, count = [self count]; idx < count; idx++) {
     if (!mArray) {
       mArray = [[CLMutableArray alloc] init];
     }
-    if ((anObject = [dataPtr[i] objectValueForBinding:aString]))
+    if ((anObject = [[self objectAtIndex:idx] objectValueForBinding:aString]))
       [mArray addObject:anObject];
   }
 
-  if (mArray)
-    ((CLArray *) mArray)->isa = CLArrayClass;
+  [mArray immutable];
   return [mArray autorelease];
 }
 
 -(CLUInteger) indexOfObject:(id) anObject
 {
-  CLUInteger i;
+  CLUInteger idx, count;
 
 
-  i = [self indexOfObjectIdenticalTo:anObject];
-  if (i != CLNotFound)
-    return i;
+  idx = [self indexOfObjectIdenticalTo:anObject];
+  if (idx != CLNotFound)
+    return idx;
   
-  for (i = 0; i < numElements; i++)
-    if ([dataPtr[i] isEqual:anObject])
-      return i;
+  for (idx = 0, count = [self count]; idx < count; idx++)
+    if ([[self objectAtIndex:idx] isEqual:anObject])
+      return idx;
 
   return CLNotFound;
 }
 
 -(CLUInteger) indexOfObjectIdenticalTo:(id) anObject
 {
-  CLUInteger i;
+  CLUInteger idx, count;
 
 
-  for (i = 0; i < numElements; i++)
-    if (dataPtr[i] == anObject)
-      return i;
+  for (idx = 0, count = [self count]; idx < count; idx++)
+    if ([self objectAtIndex:idx] == anObject)
+      return idx;
 
   return CLNotFound;
 }
@@ -320,7 +146,7 @@
 
   mArray = [self mutableCopy];
   [mArray sortUsingSelector:comparator];
-  ((CLArray *) mArray)->isa = CLArrayClass;
+  [mArray immutable];
   return [mArray autorelease];
 }
 
@@ -331,7 +157,7 @@
 
   mArray = [self mutableCopy];
   [mArray sortUsingDescriptors:sortDescriptors];
-  ((CLArray *) mArray)->isa = CLArrayClass;
+  [mArray immutable];
   return [mArray autorelease];
 }
 
@@ -348,14 +174,14 @@
 -(CLString *) componentsJoinedByString:(CLString *) separator
 {
   CLMutableString *mString;
-  int i;
+  CLUInteger idx, count;
 
 
   mString = [[CLMutableString alloc] init];
-  for (i = 0; i < numElements; i++) {
-    if (i)
+  for (idx = 0, count = [self count]; idx < count; idx++) {
+    if (idx)
       [mString appendString:separator];
-    [mString appendString:[dataPtr[i] description]];
+    [mString appendString:[[self objectAtIndex:idx] description]];
   }
 
   return [mString autorelease];
@@ -369,20 +195,20 @@
 -(CLString *) componentsJoinedAsCSVUsingString:(CLString *) separator
 {
   CLMutableString *mString;
-  int i;
+  CLUInteger idx, count;
   CLCharacterSet *notAlnumSet = [[CLCharacterSet alphaNumericCharacterSet] invertedSet];
   CLString *aString;
   CLRange aRange;
   
 
   mString = [[CLMutableString alloc] init];
-  for (i = 0; i < numElements; i++) {
-    if (i)
+  for (idx = 0, count = [self count]; idx < count; idx++) {
+    if (idx)
       [mString appendString:separator];
 
     /* FIXME - should we really special case nulls? */
-    if (dataPtr[i] != CLNullObject) {
-      aString = [dataPtr[i] description];
+    if ([self objectAtIndex:idx] != CLNullObject) {
+      aString = [[self objectAtIndex:idx] description];
       aRange = [aString rangeOfCharacterFromSet:notAlnumSet];
       if (aRange.length) {
 	aString = [aString stringByReplacingOccurrencesOfString:@"\""
@@ -400,14 +226,14 @@
 {
   CLArray *anArray;
   id *data;
-  int len;
+  CLUInteger len;
 
 
-  len = numElements + [otherArray count];
+  len = [self count] + [otherArray count];
   if (!(data = alloca(sizeof(id) * len)))
     [self error:@"Unable to allocate memory"];
   [self getObjects:data];
-  [otherArray getObjects:&data[numElements]];
+  [otherArray getObjects:&data[[self count]]];
   anArray = [[self class] arrayWithObjects:data count:len];
   return anArray;
 }
@@ -416,46 +242,36 @@
 {
   CLArray *anArray;
   id *data;
-  int len;
+  CLUInteger len;
 
 
-  len = numElements + 1;
+  len = [self count] + 1;
   if (!(data = alloca(sizeof(id) * len)))
     [self error:@"Unable to allocate memory"];
   [self getObjects:data];
-  data[numElements] = anObject;
+  data[len - 1] = anObject;
   anArray = [[self class] arrayWithObjects:data count:len];
   return anArray;
 }
 
--(CLArray *) subarrayWithRange:(CLRange) range
-{
-  if (range.location >= numElements || CLMaxRange(range) > numElements) {
-    /* FIXME - raise an exception */
-    return nil;
-  }
-
-  return [[self class] arrayWithObjects:&dataPtr[range.location] count:range.length];
-}
-
 -(BOOL) containsMultipleObjects
 {
-  if (numElements < 2)
+  if ([self count] < 2)
     return NO;
   return YES;
 }
 
 -(CLString *) propertyList
 {
-  int i;
+  CLUInteger idx, count;
   CLMutableString *mString;
 
 
   mString = [[CLMutableString alloc] initWithString:@"("];
-  for (i = 0; i < numElements; i++) {
-    if (i)
+  for (idx = 0, count = [self count]; idx < count; idx++) {
+    if (idx)
       [mString appendString:@", "];
-    [mString appendString:CLPropertyListString(dataPtr[i])];
+    [mString appendString:CLPropertyListString([self objectAtIndex:idx])];
   }
   [mString appendString:@")"];
 
@@ -464,15 +280,15 @@
 
 -(CLString *) json
 {
-  int i;
+  CLUInteger idx, count;
   CLMutableString *mString;
 
 
   mString = [[CLMutableString alloc] initWithString:@"["];
-  for (i = 0; i < numElements; i++) {
-    if (i)
+  for (idx = 0, count = [self count]; idx < count; idx++) {
+    if (idx)
       [mString appendString:@", "];
-    [mString appendString:CLJSONString(dataPtr[i])];
+    [mString appendString:CLJSONString([self objectAtIndex:idx])];
   }
   [mString appendString:@"]"];
 
@@ -486,7 +302,7 @@
 
 -(BOOL) isEqual:(id) anObject
 {
-  int i;
+  CLUInteger idx, count;
 
 
   if (self == anObject)
@@ -495,11 +311,11 @@
   if (![anObject isKindOfClass:CLArrayClass])
     return NO;
 
-  if (numElements != [anObject count])
+  if ([self count] != [anObject count])
     return NO;
   
-  for (i = 0; i < numElements; i++)
-    if (![dataPtr[i] isEqual:[anObject objectAtIndex:i]])
+  for (idx = 0, count = [self count]; idx < count; idx++)
+    if (![[self objectAtIndex:idx] isEqual:[anObject objectAtIndex:idx]])
       return NO;
 
   return YES;
@@ -518,5 +334,242 @@
   return [self retain];
 }
 #endif
+
+@end
+
+@implementation CLArray (CLArrayCreation)
+
+-(id) initWithArray:(CLArray *) anArray
+{
+  return [self initWithArray:anArray copyItems:NO];
+}
+
+-(id) initWithArray:(CLArray *) anArray copyItems:(BOOL) copyFlag
+{
+  CLUInteger idx, count;
+  id anObject, *buf;
+
+
+  count = [anArray count];
+  if (!(buf = alloca(sizeof(id) * count)))
+    [self error:@"Unable to allocate memory"];
+  
+  for (idx = 0; idx < count; idx++) {
+    anObject = [anArray objectAtIndex:idx];
+    if (copyFlag)
+      anObject = [anObject copy];
+    buf[idx] = anObject;
+  }
+
+  [self initWithObjects:buf count:count];
+
+  if (copyFlag) {
+    for (idx = 0; idx < count; idx++)
+      [buf[idx] release];
+  }
+
+  return self;
+}
+
+-(id) initWithObject:(id) firstObj andArguments:(va_list) argList
+{
+  CLUInteger idx, count;
+  va_list argCopy;
+  id anObject, *buf;
+
+
+  va_copy(argCopy, argList);
+  for (count = 1; va_arg(argList, id); count++)
+    ;
+
+  if (!(buf = alloca(sizeof(id) * count)))
+    [self error:@"Unable to allocate memory"];
+
+  buf[0] = [firstObj retain];
+  for (idx = 1; (anObject = va_arg(argCopy, id)); idx++)
+    buf[idx] = [anObject retain];
+  va_end(argCopy);
+
+  [self initWithObjects:buf count:count];
+
+  return self;
+}
+
+-(id) initWithObjects:(id) firstObj, ...
+{
+  va_list ap;
+
+
+  va_start(ap, firstObj);
+  [self initWithObject:firstObj andArguments:ap];
+  va_end(ap);
+  return self;
+}
+
+@end
+
+@implementation CLArray (CLArrayAccess)
+
+-(id) initWithObjects:(const id *) objects count:(unsigned) count
+{
+  CLArrayStorage *storage;
+
+
+  [super init];
+  arrayData = storage = malloc(sizeof(*storage));
+  storage->numElements = storage->maxElements = count;
+  if (!(storage->dataPtr = malloc(sizeof(id) * count)))
+    [self error:@"Unable to allocate memory"];
+  memcpy(storage->dataPtr, objects, sizeof(id) * count);
+  for (; count; objects++, count--)
+    [*objects retain];
+  return self;
+}
+
+-(CLUInteger) count
+{
+  return ((CLArrayStorage *) arrayData)->numElements;
+}
+
+-(id) objectAtIndex:(CLUInteger) index
+{
+  CLArrayStorage *storage = arrayData;
+
+
+  if (index >= storage->numElements)
+    [self error:@"index beyond length"];
+  return (id) storage->dataPtr[index];
+}
+
+-(id) lastObject
+{
+  CLUInteger count = [self count];
+
+
+  if (!count)
+    return nil;
+  return [self objectAtIndex:count - 1];
+}
+
+-(void) getObjects:(id *) objects
+{
+  CLUInteger idx, count;
+
+
+  for (idx = 0, count = [self count]; idx < count; idx++)
+    objects[idx] = [self objectAtIndex:idx];
+  return;
+}
+
+-(CLArray *) subarrayWithRange:(CLRange) range
+{
+  CLUInteger idx;
+  id *buf;
+
+
+  if (CLMaxRange(range) > [self count]) {
+    /* FIXME - raise an exception */
+    return nil;
+  }
+
+  if (!(buf = alloca(sizeof(id) * range.length)))
+    [self error:@"Unable to allocate memory"];
+  for (idx = 0; idx < range.length; idx++)
+    buf[idx] = [self objectAtIndex:idx + range.location];
+
+  return [[self class] arrayWithObjects:buf count:range.length];
+}
+
+@end
+
+@implementation CLInternalArray
+
+-(void) dealloc
+{
+  CLUInteger i;
+  CLArrayStorage *storage = arrayData;
+
+
+#if 0
+  {
+    static int depth = 0, j;
+
+
+    depth++;
+    for (i = 0; i < storage->numElements; i++) {
+      for (j = 1; j < depth; j++)
+	fprintf(stderr, "  ");
+      fprintf(stderr, "%i %u 0x%lx", 
+	      (unsigned) i, (unsigned) storage->numElements, (unsigned long) self);
+      fprintf(stderr, " <%s: 0x%lx>",
+	      [[storage->dataPtr[i] class] name], (unsigned long) storage->dataPtr[i]);
+      [storage->dataPtr[i] release];
+      fprintf(stderr, "\n");
+    }
+    depth--;
+  }
+#else
+  for (i = 0; i < storage->numElements; i++)
+    [storage->dataPtr[i] release];
+#endif
+  if (storage->dataPtr)
+    free(storage->dataPtr);
+  [super dealloc];
+  return;
+}
+
+-(id) read:(CLStream *) stream
+{
+  CLArrayStorage *storage = arrayData;
+  CLUInteger idx;
+
+  
+  [super read:stream];
+  [stream readTypes:@"I", &storage->numElements];
+  storage->maxElements = storage->numElements + 1;
+  storage->maxElements = ((storage->maxElements + (CLARRAY_BLOCKSIZE - 1))
+			  / CLARRAY_BLOCKSIZE) * CLARRAY_BLOCKSIZE;
+  if (!(storage->dataPtr = malloc(sizeof(id) * storage->maxElements)))
+    [self error:@"Unable to alloc dataPtr"];
+  for (idx = 0; idx < storage->numElements; idx++)
+    [stream readTypes:@"@", &storage->dataPtr[idx]];
+  return self;
+}
+
+-(void) write:(CLStream *) stream
+{
+  CLArrayStorage *storage = arrayData;
+  CLUInteger idx;
+
+  
+  [super write:stream];
+  [stream writeTypes:@"I", &storage->numElements];
+  for (idx = 0; idx < storage->numElements; idx++)
+    [stream writeTypes:@"@", &storage->dataPtr[idx]];
+  return;
+}
+
+-(void) getObjects:(id *) objects
+{
+  CLArrayStorage *storage = arrayData;
+
+
+  if (storage->numElements)
+    memcpy(objects, storage->dataPtr, sizeof(id) * storage->numElements);
+  return;
+}
+
+-(CLArray *) subarrayWithRange:(CLRange) range
+{
+  CLArrayStorage *storage = arrayData;
+
+
+  if (range.location >= storage->numElements || CLMaxRange(range) > storage->numElements) {
+    /* FIXME - raise an exception */
+    return nil;
+  }
+
+  return [[self class] arrayWithObjects:&storage->dataPtr[range.location] count:range.length];
+}
 
 @end

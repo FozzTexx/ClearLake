@@ -1,3 +1,6 @@
 linux-*
 Makefile.dependencies
 *.orig
+CLChainedSelect.jh
+*.rej
+*~

@@ -287,7 +287,8 @@ static CLMutableDictionary *CLConfig = nil;
 {
   if (!CLConfig) {
     CLConfig = [self readConfigurationFile:[self configurationFile]];
-    CLAddToCleanup(CLConfig);
+    if (CLConfig)
+      CLAddToCleanup(CLConfig);
   }
 
   return [CLConfig objectForKey:anOption];    
@@ -1504,9 +1505,6 @@ void CLInit()
   const char *p, *q;
   char *r, *s, *t, *w;
   int i, j;
-  CLString *aString;
-  CLArray *anArray;
-  CLMutableArray *mArray;
   CLAutoreleasePool *pool;
   CLRange aRange;
   id anObject;
@@ -1563,30 +1561,37 @@ void CLInit()
   CLAddToCleanup(CLQuery);
 
 #if 0
-  CLWebName = nil;
-  if (SCRIPT_FILENAME) {
-    CLAppName = [SCRIPT_FILENAME lastPathComponent];
-    mArray = [[SCRIPT_FILENAME pathComponents] mutableCopy];
-    anArray = [DOCUMENT_ROOT pathComponents];
-    j = [mArray count];
-    if (j > [anArray count])
-      j = [anArray count];
-    for (i = 0; i < j; i++)
-      if (![[mArray objectAtIndex:i] isEqualToString:[anArray objectAtIndex:i]])
-	break;
-    if (i < [mArray count]) {
-      [mArray removeObjectsInRange:CLMakeRange(i, [mArray count] - i)];
-      aString = [CLString pathWithComponents:mArray];
-      CLWebName = [SCRIPT_FILENAME substringFromIndex:[aString length]];
-    }
-  }
+  {
+    CLString *aString;
+    CLArray *anArray;
+    CLMutableArray *mArray;
+    
 
-  if ((!CLWebName || [CLWebName hasSuffix:SCRIPT_NAME]) && [SCRIPT_NAME length]) {
-    if ([SCRIPT_NAME hasSuffix:PATH_INFO])
-      CLWebName = [SCRIPT_NAME substringToIndex:[SCRIPT_NAME length] - [PATH_INFO length]];
-    else
-      CLWebName = SCRIPT_NAME;
-    CLAppName = [CLWebName lastPathComponent];
+    CLWebName = nil;
+    if (SCRIPT_FILENAME) {
+      CLAppName = [SCRIPT_FILENAME lastPathComponent];
+      mArray = [[SCRIPT_FILENAME pathComponents] mutableCopy];
+      anArray = [DOCUMENT_ROOT pathComponents];
+      j = [mArray count];
+      if (j > [anArray count])
+	j = [anArray count];
+      for (i = 0; i < j; i++)
+	if (![[mArray objectAtIndex:i] isEqualToString:[anArray objectAtIndex:i]])
+	  break;
+      if (i < [mArray count]) {
+	[mArray removeObjectsInRange:CLMakeRange(i, [mArray count] - i)];
+	aString = [CLString pathWithComponents:mArray];
+	CLWebName = [SCRIPT_FILENAME substringFromIndex:[aString length]];
+      }
+    }
+
+    if ((!CLWebName || [CLWebName hasSuffix:SCRIPT_NAME]) && [SCRIPT_NAME length]) {
+      if ([SCRIPT_NAME hasSuffix:PATH_INFO])
+	CLWebName = [SCRIPT_NAME substringToIndex:[SCRIPT_NAME length] - [PATH_INFO length]];
+      else
+	CLWebName = SCRIPT_NAME;
+      CLAppName = [CLWebName lastPathComponent];
+    }
   }
 #else
   CLWebName = SCRIPT_NAME;

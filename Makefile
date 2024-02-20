@@ -39,7 +39,7 @@ FFILES=
 LIBFFI= -I$(shell echo /usr/lib/libffi*/include) \
 	-I$(shell echo /usr/lib64/libffi*/include) \
 	-I$(shell echo /usr/local/lib/libffi*/include)
-CFLAGS= -g -Wall -Wno-import -I$(HOME)/Unix/$(OSTYPE)/include $(LIBFFI)
+CFLAGS= -g -fPIC -Wall -Wno-import -I$(HOME)/Unix/$(OSTYPE)/include $(LIBFFI)
 OCFLAGS=-fconstant-string-class=CLConstantString
 MAKEFILEDIR=/usr/local/Makefiles
 MAKEFILE=lib.make

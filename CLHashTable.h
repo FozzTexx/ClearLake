@@ -116,7 +116,7 @@ CL_INLINE void CLHashTableLinkBucket(CLHashTable *ht, CLBucket *aBucket, CLUInte
   return;
 }
 
-CL_INLINE void CLHashTableUnlinkBucket(CLHashTable *ht, CLBucket *aBucket, CLUInteger val)
+CL_INLINE void CLHashTableUnlinkBucket(CLHashTable *ht, CLBucket *aBucket, CLInteger val)
 {
   if (aBucket->pv >= 0)
     ht->table[aBucket->pv]->nv = aBucket->nv;
