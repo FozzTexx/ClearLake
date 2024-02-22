@@ -3,7 +3,21 @@
 #import "CLStreamBridge.h"
 #import <ClearLake/CLPage.h>
 
-int CLPageBridge_init(CLBridgeObject *self, PyObject *args, PyObject *kwds)
+@implementation CLPage (CLPythonExtensions)
+
+-(PyObject *) pythonObject
+{
+  CLObjectLink *obj;
+
+
+  obj = (CLObjectLink *) CLPageBridgeType.tp_new(&CLPageBridgeType, PyTuple_New(0), NULL);
+  obj->bridgeObject = self;
+  return (PyObject *) obj;
+}
+
+@end
+
+int CLPageBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"path", "owner", NULL};
   CLString *path = nil;
@@ -11,8 +25,8 @@ int CLPageBridge_init(CLBridgeObject *self, PyObject *args, PyObject *kwds)
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&", kwlist,
-				   CLObjectBridgeConvert, &path,
-				   CLObjectBridgeConvert, &owner))
+				   CLPythonConvert, &path,
+				   CLPythonConvert, &owner))
     return -1;
 
   self->bridgeObject = [[CLPage alloc] initFromFile:path owner:owner];
@@ -20,46 +34,53 @@ int CLPageBridge_init(CLBridgeObject *self, PyObject *args, PyObject *kwds)
   return 0;
 }
 
-void CLPageBridge_dealloc(CLBridgeObject *self)
+void CLPageBridge_dealloc(CLObjectLink *self)
 {
   [self->bridgeObject release];
   return;
 }
 
-PyObject *CLPageBridge_display(CLBridgeObject *self, PyObject *Py_UNUSED(ignored))
+PyObject *CLPageBridge_display(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
 {
   [self->bridgeObject display];
-  Py_INCREF(Py_None);
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
-PyObject *CLPageBridge_updateBindings(CLBridgeObject *self, PyObject *Py_UNUSED(ignored))
+PyObject *CLPageBridge_updateBindings(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
 {
   [self->bridgeObject updateBindings];
-  Py_INCREF(Py_None);
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
-PyObject *CLPageBridge_status(CLBridgeObject *self, PyObject *Py_UNUSED(ignored))
+PyObject *CLPageBridge_status(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
 {
   return PyLong_FromLong([self->bridgeObject status]);
 }
 
-PyObject *CLPageBridge_writeHTML(CLBridgeObject *self, PyObject *args, PyObject *kwds)
+PyObject *CLPageBridge_owner(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
 {
-  static char *kwlist[] = {"stream", "withHeaders", NULL};
-  CLStream *stream = nil;
-  int withHeaders = 1;
+  return [[self->bridgeObject owner] pythonObject];
+}
+
+static int CLPageBridge_setOwner(CLObjectLink *self, PyObject *value, void *closure)
+{
+  [self->bridgeObject setOwner:[CLObjectBridge objectWithPythonObject:value]];
+  return 0;
+}
+
+PyObject *CLPageBridge_writeHTML(CLObjectLink *self, PyObject *args, PyObject *kwds)
+{
+  static char *kwlist[] = {"htmlStream", "headerStream", NULL};
+  CLStream *htmlStream = nil, *headerStream = nil;
 
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|p", kwlist,
-				   CLPythonStreamConvert, &stream,
-				   &withHeaders))
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&", kwlist,
+				   CLPythonConvertStream, &htmlStream,
+				   CLPythonConvertStream, &headerStream))
     return NULL;
 
-  [self->bridgeObject writeHTML:stream withHeaders:withHeaders];
-  Py_INCREF(Py_None);
-  return Py_None;
+  [self->bridgeObject writeHTML:htmlStream headers:headerStream];
+  Py_RETURN_NONE;
 }
 
 PyMethodDef CLPageBridge_methods[] = {
@@ -80,6 +101,8 @@ PyMethodDef CLPageBridge_methods[] = {
 
 static PyGetSetDef CLPageBridge_getsetters[] = {
   {"status", (getter) CLPageBridge_status, NULL, "HTTP status of the page", NULL},
+  {"owner", (getter) CLPageBridge_owner, CLPageBridge_setOwner,
+   "get the page owner", "set the page owner"},
   {NULL},
 };
 
@@ -87,7 +110,7 @@ PyTypeObject CLPageBridgeType = {
   .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
   .tp_name = "ClearLake.CLPage",
   .tp_doc = PyDoc_STR("ClearLake object representing a web page"),
-  .tp_basicsize = sizeof(CLBridgeObject),
+  .tp_basicsize = sizeof(CLObjectLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
   .tp_new = PyType_GenericNew,

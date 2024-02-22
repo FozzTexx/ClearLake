@@ -21,7 +21,7 @@
 
 /* FIXME - Bleh - and now we are dependent on OpenSSL. Use a public
    domain implementation */
-#include <openssl/md5.h>
+#include <openssl/evp.h>
 #include <openssl/hmac.h>
 
 #import "CLData.h"
@@ -358,10 +358,22 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 -(CLData *) md5
 {
   unsigned char *mdbuf;
-
+  unsigned int mdlen;
+  EVP_MD_CTX *mdctx;
+  const EVP_MD *md;
   
-  mdbuf = MD5(data, len, NULL);
-  return [CLData dataWithBytes:mdbuf length:MD5_DIGEST_LENGTH];
+
+  md = EVP_md5();
+  mdlen = EVP_MD_size(md);
+
+  mdctx = EVP_MD_CTX_new();
+  EVP_DigestInit_ex(mdctx, md, NULL);
+  EVP_DigestUpdate(mdctx, data, len);
+  mdbuf = malloc(mdlen);
+  EVP_DigestFinal_ex(mdctx, mdbuf, &mdlen);
+  EVP_MD_CTX_free(mdctx);
+
+  return [CLData dataWithBytes:mdbuf length:mdlen];
 }
 
 -(CLData *) hmacSHA1WithKey:(CLData *) aKey

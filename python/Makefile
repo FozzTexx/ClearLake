@@ -4,8 +4,10 @@ ABI_TAG=$(shell python3 -c "import sysconfig; print(sysconfig.get_config_var('SO
 
 MODULE_LIB=build/lib.$(PLATFORM)-$(PYTHON_VERSION)/ClearLake.$(ABI_TAG).so
 
-CLASSES_M=CLObjectBridge.m CLPageBridge.m CLStreamBridge.m		\
-	  CLStringBridge.m CLOptionBridge.m CLMutableArrayBridge.m
+CLASSES_M=CLObjectBridge.m CLPageBridge.m CLStreamBridge.m	\
+	  CLStringBridge.m CLOptionBridge.m CLArrayBridge.m	\
+	  CLMutableArrayBridge.m CLMutableDictionaryBridge.m	\
+	  CLNumberBridge.m CLDataBridge.m CLFormBridge.m
 CLASSES_H=$(CLASSES_M:.m=.h)
 
 $(MODULE_LIB): CLPythonModule.m $(CLASSES_M) $(CLASSES_H) setup.py pyproject.toml

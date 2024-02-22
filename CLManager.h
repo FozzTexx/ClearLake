@@ -121,4 +121,6 @@ extern CLPage *CLMainPage;
 
 extern void CLInit();
 extern void CLRun(CLString *mainObjectName);
+extern CLUInteger CLHandleRequest(CLString *mainObjectName, CLStream *htmlStream,
+				  CLStream *headerStream, CLStream *inputStream);
 extern void CLInitializeQuery(CLString *aString);

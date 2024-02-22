@@ -50,6 +50,8 @@
 
 #define hexval(c) ({int _c = c; toupper(_c) - '0' - (_c > '9' ? 7 : 0);})
 
+CLStream *CLFormInputStream = nil;
+
 /* FIXME - legacy C string based stuff */
 #import "Header.h"
 #include <ctype.h>
@@ -737,7 +739,9 @@ typedef struct ContentInfo {
   length = atoi(p);
   if (!(body = malloc(length)))
     [self error:@"Unable to allocate memory"];
-  fread(body, length, 1, stdin);
+  if (!CLFormInputStream)
+    CLFormInputStream = [[CLStream openDescriptor:0 mode:CLReadOnly] retain];
+  [CLFormInputStream read:body length:length];
   [self handleMultipart:body length:length content:&info];
   free(body);
   
@@ -1049,7 +1053,9 @@ typedef struct ContentInfo {
     i = atoi(p);
     if (!(q = malloc(i+1)))
       [self error:@"Unable to allocate memory"];
-    fread(q, i, 1, stdin);
+    if (!CLFormInputStream)
+      CLFormInputStream = [[CLStream openDescriptor:0 mode:CLReadOnly] retain];
+    [CLFormInputStream read:q length:i];
     q[i] = 0;
     [self setQuery:q];
     free(q);

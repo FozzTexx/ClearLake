@@ -514,6 +514,7 @@
 #endif
   if (storage->dataPtr)
     free(storage->dataPtr);
+  free(storage);
   [super dealloc];
   return;
 }

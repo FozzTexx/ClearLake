@@ -6,8 +6,8 @@
 
 #import "CLObjectBridge.h"
 
-extern int CLOptionBridge_init(CLBridgeObject *self, PyObject *args, PyObject *kwds);
-extern void CLOptionBridge_dealloc(CLBridgeObject *self);
+extern int CLOptionBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds);
+extern void CLOptionBridge_dealloc(CLObjectLink *self);
 extern PyTypeObject CLOptionBridgeType;
 
 #endif /* CLOPTIONBRIDGE_H */

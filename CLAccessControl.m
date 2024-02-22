@@ -142,7 +142,7 @@
       localClass = [[recordDef class] className];
     }
 
-    if (([target isKindOfClass:objc_lookUpClass([aClass UTF8String])] ||
+    if (([target isKindOfClass:CLClassFromString(aClass)] ||
 	 ([target isKindOfClass:CLGenericRecordClass] &&
 	  ([aClass isEqualToString:localClass] || [aClass isEqualToString:localTable]))) &&
 	([aMethod isEqualToString:@"*:"] || [action isEqualToString:aMethod]))

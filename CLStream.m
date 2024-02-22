@@ -471,29 +471,32 @@ static CLString *CLFileDirectory = nil;
     /* FIXME - if this object is already unarchived, don't create a duplicate */
     {
       id anObject = nil;
-      char *className;
+      CLString *className;
+      char *buf;
       int len;
       size_t objHash;
 
 
       [self readType:@"i" data:&len];
       if (len) {
-	className = calloc(1, len + 1);
-	[self read:className length:len];
+	buf = calloc(1, len + 1);
+	[self read:buf length:len];
+	className = [[CLUTF8String alloc] initWithBytesNoCopy:buf length:len
+						     encoding:CLUTF8StringEncoding];
 	objHash = [self readInteger];
 
 	if (!streamObjects)
 	  streamObjects = CLHashTableAlloc(100);
 	if (!(anObject = CLHashTableDataForIdenticalKey(streamObjects,
 							(id) objHash, objHash))) {
-	  anObject = [objc_lookUpClass(className) alloc];
+	  anObject = [CLClassFromString(className) alloc];
 	  if ([anObject respondsTo:@selector(read:)])
 	    anObject = [anObject read:self];
-	  free(className);
 	  CLHashTableSetData(streamObjects, anObject, (id) objHash, objHash);
 	}
 	else
 	  [anObject retain];
+	[className release];
       }
 
       *(id *) data = anObject;

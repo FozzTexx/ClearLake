@@ -85,7 +85,7 @@ static int _modelInitState = MODEL_UNINIT;
 
     if (!(aString = [aDict objectForKey:@"class"]))
       aString = [aTable upperCamelCaseString];
-    if (!(aClass = objc_lookUpClass([aString UTF8String]))) {
+    if (!(aClass = CLClassFromString(aString))) {
       if ([aDict objectForKey:@"class"])
 	[self error:@"Unable to find class \"%@\"", aString];
       aClass = CLGenericRecordClass;
