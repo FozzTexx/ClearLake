@@ -2,7 +2,7 @@
 #import "CLObjectBridge.h"
 #import <ClearLake/CLOption.h>
 
-int CLOptionBridge_init(CLBridgeObject *self, PyObject *args, PyObject *kwds)
+int CLOptionBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"string", "value", "selected", NULL};
   CLString *string = nil;
@@ -11,8 +11,8 @@ int CLOptionBridge_init(CLBridgeObject *self, PyObject *args, PyObject *kwds)
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&|p", kwlist,
-				   CLObjectBridgeConvert, &string,
-				   CLObjectBridgeConvert, &value,
+				   CLPythonConvert, &string,
+				   CLPythonConvert, &value,
 				   &selected))
     return -1;
 
@@ -22,7 +22,7 @@ int CLOptionBridge_init(CLBridgeObject *self, PyObject *args, PyObject *kwds)
   return 0;
 }
 
-void CLOptionBridge_dealloc(CLBridgeObject *self)
+void CLOptionBridge_dealloc(CLObjectLink *self)
 {
   [self->bridgeObject release];
   return;
@@ -31,8 +31,8 @@ void CLOptionBridge_dealloc(CLBridgeObject *self)
 PyTypeObject CLOptionBridgeType = {
   .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
   .tp_name = "ClearLake.CLOption",
-  .tp_doc = PyDoc_STR("ClearLake object representing a web page"),
-  .tp_basicsize = sizeof(CLBridgeObject),
+  .tp_doc = PyDoc_STR("ClearLake object representing a select option"),
+  .tp_basicsize = sizeof(CLObjectLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
   .tp_new = PyType_GenericNew,

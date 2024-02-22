@@ -27,11 +27,15 @@
 
 @class CLString, CLArray;
 
-@interface CLDictionary:CLObject <CLCopying, CLMutableCopying, CLPropertyList, CLArchiving>
-{
+typedef struct {
   CLHashTable *table;
   CLUInteger _hash;
   CLArray *_keys, *_values;
+} CLDictionaryStorage;
+
+@interface CLDictionary:CLObject <CLCopying, CLMutableCopying, CLPropertyList, CLArchiving>
+{
+  void *dictionaryData;
 }
 
 +(id) dictionary;

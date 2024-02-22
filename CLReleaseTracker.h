@@ -22,6 +22,7 @@
 #ifndef _CLRELEASETRACKER_H
 #define _CLRELEASETRACKER_H
 
+__attribute__((objc_root_class))
 @interface CLReleaseTracker
 {
   Class isa;

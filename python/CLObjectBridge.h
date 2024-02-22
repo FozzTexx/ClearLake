@@ -6,7 +6,7 @@
 
 #import <ClearLake/CLObject.h>
 
-@interface CLObjectBridge:CLObject
+@interface CLObjectBridge:CLObject <CLArchiving>
 {
   PyObject *pythonObject;
 }
@@ -19,11 +19,11 @@
 
 @end
 
-extern int CLObjectBridgeConvert(PyObject *anObj, void *address);
+extern int CLPythonConvert(PyObject *anObj, void *address);
 
 typedef struct {
     PyObject_HEAD
     id bridgeObject;
-} CLBridgeObject;
+} CLObjectLink;
 
 #endif /* CLOBJECTBRIDGE_H */

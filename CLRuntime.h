@@ -25,9 +25,39 @@
 #import <objc/objc.h>
 
 #ifdef __GNU_LIBOBJC__
+
 #import <objc/runtime.h>
 #import <objc/message.h>
-#else
+
+#if __GNU_LIBOBJC__ > 20100911
+/* FIXME - there's a bug in class_copyIvarList that if a class has no
+   ivars of its own, it tries to dereference a NULL pointer. Helpfully
+   instead of fixing the problem, they removed the class declaration
+   so that I can't test to see if there are any ivars declared */
+
+typedef struct {
+  void *class_pointer;
+  struct objc_class *super_class;
+  const char *name;
+  long version;
+  unsigned long info;
+  long instance_size;
+  #ifdef _WIN64
+  long pad;
+  #endif
+  struct objc_ivar_list *ivars;
+  struct objc_method_list *methods;
+  struct sarray *dtable;
+  struct objc_class *subclass_list;
+  struct objc_class *sibling_class;
+  struct objc_protocol_list *protocols;
+  void *gc_object_type;
+} CLClassDef;
+
+#endif /* __GNU_LIBOBJC__ > 20100911 */
+
+#else /* !__GNU_LIBOBJC__ */
+
 #import <objc/objc-api.h>
 #import <objc/encoding.h>
 
@@ -38,12 +68,14 @@
 #define class_isMetaClass		class_is_meta_class
 #define method_getImplementation	method_get_imp
 #define method_getTypeEncoding		method_get_type_encoding
-#define objc_lookUpClass		objc_lookup_class
+//#define objc_lookUpClass		objc_lookup_class
 #define object_getClass			object_get_class
 #define object_getClassName		object_get_class_name
 #define sel_getName			sel_get_name
 #define sel_getUid			sel_get_uid
 #define method_getNumberOfArguments	method_get_number_of_arguments
+
+#define CLClassDef (struct objc_class)
 
 #endif /* __GNU_LIBOBJC__ */
 
@@ -52,6 +84,7 @@
 @class CLString;
 
 extern CLString *CLSelGetName(SEL selector);
+extern Class (*CLClassFromString)(CLString *);
 
 typedef struct {
   const char *name;

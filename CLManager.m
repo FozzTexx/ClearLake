@@ -1510,7 +1510,6 @@ void CLInit()
   id anObject;
   static int didInit = 0;
   char **env;
-  CLString *PATH_INFO = nil, *QUERY_STRING = nil;
   CLString *DOCUMENT_ROOT = nil, *SCRIPT_NAME = nil, *SCRIPT_FILENAME = nil;
   
 
@@ -1546,10 +1545,6 @@ void CLInit()
   }
   
   /* FIXME - use CLEnvironment */ 
-  if ((p = getenv("PATH_INFO")))
-    PATH_INFO = [CLString stringWithUTF8String:p];
-  if ((p = getenv("QUERY_STRING")))
-    QUERY_STRING = [CLString stringWithUTF8String:p];
   if ((p = getenv("DOCUMENT_ROOT")))
     DOCUMENT_ROOT = [CLString stringWithUTF8String:p];
   if ((p = getenv("SCRIPT_NAME")))
@@ -1628,8 +1623,6 @@ void CLInit()
     CLAddToCleanup(CLAppPath);
   if (CLWebPath)
     CLAddToCleanup(CLWebPath);
-
-  CLInitializeQuery(QUERY_STRING);
 
   if ((p = getenv("HTTP_COOKIE"))) {
     CLString *key, *val;
@@ -1724,6 +1717,8 @@ void CLRun(CLString *mainObjectName)
   PATH_TRANSLATED = getenv("PATH_TRANSLATED");
   QUERY_STRING = getenv("QUERY_STRING");
   SCRIPT_NAME = getenv("SCRIPT_NAME");
+
+  CLInitializeQuery([CLString stringWithUTF8String:QUERY_STRING]);
   
   if (!PATH_INFO || !PATH_TRANSLATED || !*(PATH_INFO)) {
     printf("Status: 302 Moved Temporarily\r\n");
@@ -1734,7 +1729,7 @@ void CLRun(CLString *mainObjectName)
     printf("Content-Type: text/html; charset=UTF-8\r\n");
     printf("\r\n");
     printf("This is somewhere else.\n");
-    exit(0);
+    return;
   }
 
 #if 0
@@ -1785,10 +1780,10 @@ void CLRun(CLString *mainObjectName)
     id self = nil;
 #endif
   if (isValidURL && (aString = [CLQuery objectForKey:CL_URLCLASS]) &&
-      (CLMainObject = [[objc_lookUpClass([aString UTF8String]) alloc] init]))
+      (CLMainObject = [[CLClassFromString(aString) alloc] init]))
     mainAction = @selector(performAction);
   else {
-    CLMainObject = [[objc_lookUpClass([mainObjectName UTF8String]) alloc] init];
+    CLMainObject = [[CLClassFromString(mainObjectName) alloc] init];
     if ([CLMainObject respondsTo:@selector(showPage:)])
       mainAction = @selector(showPage:);
     else {
@@ -1804,9 +1799,30 @@ void CLRun(CLString *mainObjectName)
   [[CLEditingContext sessionClass] deleteExpiredSessions];
   [CLEditingContext closeDatabases];
 
-  exit(0);
-
   return;
+}
+
+CLUInteger CLHandleRequest(CLString *mainObjectName, CLStream *htmlStream,
+			   CLStream *headerStream, CLStream *inputStream)
+{
+  CLStream *old1, *old2, *old3;
+
+
+  old1 = CLPageDisplayHTML;
+  old2 = CLPageDisplayHeaders;
+  old3 = CLFormInputStream;
+  CLPageDisplayHTML = htmlStream;
+  CLPageDisplayHeaders = headerStream;
+  if (inputStream)
+    CLFormInputStream = inputStream;
+
+  CLRun(mainObjectName);
+
+  CLPageDisplayHTML = old1;
+  CLPageDisplayHeaders = old2;
+  CLFormInputStream = old3;
+  
+  return CLPageDisplayStatus;
 }
 
 void CLInitializeQuery(CLString *aString)

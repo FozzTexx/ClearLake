@@ -71,6 +71,9 @@
 
 static CLArray *CLPageExtensions = nil;
 
+CLStream *CLPageDisplayHTML = nil, *CLPageDisplayHeaders = nil;
+CLUInteger CLPageDisplayStatus;
+
 typedef struct CLStatus {
   CLUInteger status;
   CLString *string;
@@ -1026,6 +1029,14 @@ void CLSetDelegate(id anObject)
   return owner;
 }
 
+-(void) setOwner:(id) anObject
+{
+  [anObject retain];
+  [owner release];
+  owner = anObject;
+  return;
+}
+  
 -(id) datasource
 {
   if (!datasource)
@@ -1052,7 +1063,7 @@ void CLSetDelegate(id anObject)
   else if ([aString hasPrefix:@"#"])
     anObject = [self objectWithID:[aString substringFromIndex:1]];
   else if (iswupper([aString characterAtIndex:0])) {
-    if (!(anObject = [[[objc_lookUpClass([aString UTF8String]) alloc] init] autorelease])) {
+    if (!(anObject = [[[CLClassFromString(aString) alloc] init] autorelease])) {
 #if 0
       /* See if there's any database tables that might match */
       if ((anObject = [CLDefaultContext tableForClassName:aString]))
@@ -1199,6 +1210,24 @@ void CLSetDelegate(id anObject)
 -(void) writeHTML:(CLStream *) stream withHeaders:(BOOL) showHeaders
 	   output:(CLData **) output
 {
+  CLStream *headerStream = nil;
+
+
+  if (showHeaders)
+    headerStream = stream;
+  [self writeHTML:stream headers:headerStream output:output];
+  return;
+}
+
+-(void) writeHTML:(CLStream *) htmlStream headers:(CLStream *) headerStream
+{
+  [self writeHTML:htmlStream  headers:headerStream output:NULL];
+  return;
+}
+
+-(void) writeHTML:(CLStream *) htmlStream headers:(CLStream *) headerStream
+	   output:(CLData **) output
+{
   int j, k;
   CLStream *stream2;
   CLData *aData;
@@ -1287,17 +1316,16 @@ void CLSetDelegate(id anObject)
 
   /* Gotta write the headers to do gzip. Without the headers, we won't
      know anymore that it has been gzipped! */
-  gz = showHeaders && CLBrowserAcceptsGzip();
+  gz = headerStream && CLBrowserAcceptsGzip();
 
   aData = [stream2 data];
   if (output)
     *output = aData;
 
-  if (showHeaders) {
-    CLPrintf(stream, @"Status: %u %@\r\n", status, [self statusString]);
-    CLPrintf(stream, @"Content-Type: text/html; charset=UTF-8\r\n");
-    CLPrintf(stream, @"Content-Length: %u\r\n", [aData length]);
-    CLPrintf(stream, @"Cache-Control: must-revalidate\r\n");
+  if (headerStream) {
+    CLPrintf(headerStream, @"Status: %u %@\r\n", status, [self statusString]);
+    CLPrintf(headerStream, @"Content-Type: text/html; charset=UTF-8\r\n");
+    CLPrintf(headerStream, @"Cache-Control: must-revalidate\r\n");
   }
   
   if (gz) {
@@ -1305,26 +1333,26 @@ void CLSetDelegate(id anObject)
 
 
     if (!CLDeflate([aData bytes], [aData length], 9, &gzData)) {
-      if (showHeaders)
-	CLPrintf(stream, @"Content-Encoding: gzip\r\n");
+      if (headerStream)
+	CLPrintf(headerStream, @"Content-Encoding: gzip\r\n");
       aData = gzData;
     }
     else
       gz = 0;
   }
 
-  if (showHeaders) {
-    CLPrintf(stream, @"Content-Length: %i\r\n", [aData length]);
-    //CLPrintf(stream, @"Cache-Control: no-store\r\n");
-    //CLPrintf(stream, @"Expires: -1\r\n");
+  if (headerStream) {
+    CLPrintf(headerStream, @"Content-Length: %u\r\n", [aData length]);
+    //CLPrintf(headerStream, @"Cache-Control: no-store\r\n");
+    //CLPrintf(headerStream, @"Expires: -1\r\n");
     for (j = 0, k = [CLCookies count]; j < k; j++)
       if (![[CLCookies objectAtIndex:j] isFromBrowser])
-	CLPrintf(stream, @"Set-Cookie: %@\r\n",
+	CLPrintf(headerStream, @"Set-Cookie: %@\r\n",
 		 [[CLCookies objectAtIndex:j] cookieString]);
-    CLPrintf(stream, @"\r\n");
+    CLPrintf(headerStream, @"\r\n");
   }
     
-  [stream writeData:aData];
+  [htmlStream writeData:aData];
   [stream2 close];
   return;
 }
@@ -1390,9 +1418,7 @@ void CLSetDelegate(id anObject)
 
 -(void) display:(CLData **) output
 {
-  CLStream *stream;
-  const void *data;
-  int i;
+  CLStream *htmlStream, *headerStream;
   BOOL disp;
   
 
@@ -1438,13 +1464,15 @@ void CLSetDelegate(id anObject)
     }  
 #endif
 
-    stream = [CLStream openMemoryForWriting];
-    [self writeHTML:stream withHeaders:YES output:output];
-    data = [stream bytes];
-    i = [stream length];
-    fwrite(data, 1, i, stdout);
-    [stream close];
-    fflush(stdout);
+    htmlStream = CLPageDisplayHTML;
+    headerStream = CLPageDisplayHeaders;
+    if (!htmlStream)
+      htmlStream = [CLStream openDescriptor:1 mode:CLWriteOnly];
+    if (!headerStream)
+      headerStream = htmlStream;
+
+    [self writeHTML:htmlStream headers:headerStream output:output];
+    CLPageDisplayStatus = [self status];
   }
 
 #if 0

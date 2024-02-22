@@ -63,6 +63,7 @@
 -(CLArray *) header;
 -(CLArray *) preHeader;
 -(id) owner;
+-(void) setOwner:(id) anObject;
 -(id) datasource;
 -(id) datasourceForBinding:(CLString *) aBinding;
 -(void) updateBindings;
@@ -76,6 +77,9 @@
 -(void) writeHTML:(CLStream *) stream;
 -(void) writeHTML:(CLStream *) stream withHeaders:(BOOL) showHeaders;
 -(void) writeHTML:(CLStream *) stream withHeaders:(BOOL) showHeaders
+	   output:(CLData **) output;
+-(void) writeHTML:(CLStream *) htmlStream headers:(CLStream *) headerStream;
+-(void) writeHTML:(CLStream *) htmlStream headers:(CLStream *) headerStream
 	   output:(CLData **) output;
 -(void) display;
 -(void) display:(CLData **) output;
@@ -110,3 +114,6 @@ extern void CLSetDelegate(id anObject);
 
 extern void CLRedirectBrowser(CLString *newURL, BOOL includeQuery, int status);
 extern void CLRedirectBrowserToPage(CLString *aFilename, BOOL includeQuery);
+
+extern CLStream *CLPageDisplayHTML, *CLPageDisplayHeaders;
+extern CLUInteger CLPageDisplayStatus;

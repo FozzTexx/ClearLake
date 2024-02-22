@@ -1,17 +1,17 @@
-#ifndef CLPYTHONSTREAM_H
-#define CLPYTHONSTREAM_H
+#ifndef CLSTREAMBRIDGE_H
+#define CLSTREAMBRIDGE_H
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
 #import <ClearLake/CLStream.h>
 
-@interface CLPythonStream:CLStream <CLStream>
+@interface CLStreamBridge:CLStream <CLStream>
 {
   PyObject *pythonStream;
 }
 
--(id) initWithPythonStream:(PyObject *) stream;
+-(id) initWithStreamBridge:(PyObject *) stream;
 -(void) dealloc;
 
 -(int) readByte;
@@ -23,6 +23,6 @@
 
 @end
 
-extern int CLPythonStreamConvert(PyObject *anObj, void *address);
+extern int CLPythonConvertStream(PyObject *anObj, void *address);
 
-#endif /* CLPYTHONSTREAM_H */
+#endif /* CLSTREAMBRIDGE_H */

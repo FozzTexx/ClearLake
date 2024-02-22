@@ -1,6 +1,6 @@
 #import "CLStreamBridge.h"
 
-@implementation CLPythonStream
+@implementation CLStreamBridge
 
 -(id) initWithPythonStream:(PyObject *) aStream
 {
@@ -39,7 +39,17 @@
 
 -(int) read:(void *) buffer length:(int) len
 {
-  return 0;
+  PyObject *result;
+  Py_ssize_t length;
+  char *pyBuf;
+
+
+  result = PyObject_CallMethod(pythonStream, "read", "I", len);
+  PyBytes_AsStringAndSize(result, &pyBuf, &length);
+  memcpy(buffer, pyBuf, length);
+  Py_DECREF(result);
+
+  return length;
 }
 
 -(int) write:(const void *) buffer length:(int) len
@@ -70,8 +80,8 @@
 
 @end
 
-int CLPythonStreamConvert(PyObject *anObj, void *address)
+int CLPythonConvertStream(PyObject *anObj, void *address)
 {
-  *(id *) address = [[[CLPythonStream alloc] initWithPythonStream:anObj] autorelease];
+  *(id *) address = [[[CLStreamBridge alloc] initWithPythonStream:anObj] autorelease];
   return 1;
 }

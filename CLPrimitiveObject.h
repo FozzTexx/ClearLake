@@ -64,7 +64,7 @@ typedef struct CLObjectReserved {
 #endif
 @end
 
-
+__attribute__((objc_root_class))
 @interface CLPrimitiveObject <CLCopying>
 {
   Class isa;

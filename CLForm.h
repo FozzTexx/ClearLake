@@ -65,3 +65,5 @@
 @interface CLForm (LinkerIsBorked)
 +(void) linkerIsBorked;
 @end
+
+extern CLStream *CLFormInputStream;

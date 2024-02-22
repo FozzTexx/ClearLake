@@ -488,8 +488,8 @@
 				 range:CLMakeRange(0, [aBinding length])];
       if (!aRange.length)
 	aRange.location = [aBinding length];
-      anObject = [[[objc_lookUpClass([[aBinding substringToIndex:aRange.location] UTF8String])
-				    alloc] init] autorelease];
+      anObject = [[[CLClassFromString([aBinding substringToIndex:aRange.location])
+				     alloc] init] autorelease];
       aBinding = [aBinding substringFromIndex:CLMaxRange(aRange)];      
     }
     else

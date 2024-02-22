@@ -31,6 +31,7 @@
 
 -(void) setObject:(id) anObject forKey:(id) aKey
 {
+  CLDictionaryStorage *storage = dictionaryData;
   id oldObject, oldObject2;
   
 
@@ -38,19 +39,21 @@
     [self error:@"Can't set nil objects!"];
 
   [anObject retain];
-  if ((oldObject = CLHashTableKeyForKey(table, aKey, [aKey hash], @selector(isEqual:)))) {
-    oldObject2 = CLHashTableRemoveDataForKey(table, aKey, [aKey hash], @selector(isEqual:));
+  if ((oldObject = CLHashTableKeyForKey(storage->table, aKey, [aKey hash],
+					@selector(isEqual:)))) {
+    oldObject2 = CLHashTableRemoveDataForKey(storage->table, aKey, [aKey hash],
+					     @selector(isEqual:));
     [oldObject release];
     [oldObject2 release];
   }
   aKey = [aKey copy];
-  CLHashTableSetData(table, anObject, aKey, [aKey hash]);
+  CLHashTableSetData(storage->table, anObject, aKey, [aKey hash]);
 
-  _hash = 0;
-  [_keys release];
-  _keys = nil;
-  [_values release];
-  _values = nil;
+  storage->_hash = 0;
+  [storage->_keys release];
+  storage->_keys = nil;
+  [storage->_values release];
+  storage->_values = nil;
   return;
 }
   
@@ -77,21 +80,22 @@
 
 -(void) removeObjectForCaseInsensitiveString:(CLString *) aKey
 {
+  CLDictionaryStorage *storage = dictionaryData;
   id oldKey, oldObject;
 
 
-  if ((oldKey = CLHashTableKeyForKey(table, aKey, [aKey hash],
+  if ((oldKey = CLHashTableKeyForKey(storage->table, aKey, [aKey hash],
 				     @selector(isEqualToCaseInsensitiveString:)))) {
-    oldObject = CLHashTableRemoveDataForKey(table, oldKey, [oldKey hash],
+    oldObject = CLHashTableRemoveDataForKey(storage->table, oldKey, [oldKey hash],
 					    @selector(isEqualToCaseInsensitiveString:));
     [oldKey release];
     [oldObject release];
 
-    _hash = 0;
-    [_keys release];
-    _keys = nil;
-    [_values release];
-    _values = nil;
+    storage->_hash = 0;
+    [storage->_keys release];
+    storage->_keys = nil;
+    [storage->_values release];
+    storage->_values = nil;
   }
 
   return;
@@ -99,19 +103,22 @@
 
 -(void) removeObjectForKey:(id) aKey
 {
+  CLDictionaryStorage *storage = dictionaryData;
   id oldKey, oldObject;
 
 
-  if ((oldKey = CLHashTableKeyForKey(table, aKey, [aKey hash], @selector(isEqual:)))) {
-    oldObject = CLHashTableRemoveDataForKey(table, oldKey, [oldKey hash], @selector(isEqual:));
+  if ((oldKey = CLHashTableKeyForKey(storage->table, aKey, [aKey hash],
+				     @selector(isEqual:)))) {
+    oldObject = CLHashTableRemoveDataForKey(storage->table, oldKey, [oldKey hash],
+					    @selector(isEqual:));
     [oldKey release];
     [oldObject release];
 
-    _hash = 0;
-    [_keys release];
-    _keys = nil;
-    [_values release];
-    _values = nil;
+    storage->_hash = 0;
+    [storage->_keys release];
+    storage->_keys = nil;
+    [storage->_values release];
+    storage->_values = nil;
   }
 
   return;
@@ -135,27 +142,28 @@
 
 -(void) removeAllObjects
 {
-  CLUInteger i;
+  CLDictionaryStorage *storage = dictionaryData;
+  CLUInteger idx;
   id *keys;
   id oldObject;
   
 
-  if (table->count) {
-    if (!(keys = alloca(sizeof(id) * table->count)))
+  if (storage->table->count) {
+    if (!(keys = alloca(sizeof(id) * storage->table->count)))
       [self error:@"Unable to allocate memory"];
-    CLHashTableGetKeys(table, keys);
-    for (i = 0; i < table->count; i++) {
-      oldObject = CLHashTableRemoveDataForKey(table, keys[i], [keys[i] hash],
+    CLHashTableGetKeys(storage->table, keys);
+    for (idx = 0; idx < storage->table->count; idx++) {
+      oldObject = CLHashTableRemoveDataForKey(storage->table, keys[idx], [keys[idx] hash],
 					      @selector(isEqual:));
-      [keys[i] release];
+      [keys[idx] release];
       [oldObject release];
     }
   
-    _hash = 0;
-    [_keys release];
-    _keys = nil;
-    [_values release];
-    _values = nil;
+    storage->_hash = 0;
+    [storage->_keys release];
+    storage->_keys = nil;
+    [storage->_values release];
+    storage->_values = nil;
   }
 
   return;
