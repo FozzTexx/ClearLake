@@ -9,6 +9,7 @@
 #import "CLOptionBridge.h"
 #import "CLArrayBridge.h"
 #import "CLStreamBridge.h"
+#import "CLControlBridge.h"
 
 #import <ClearLake/CLAutoreleasePool.h>
 #import <ClearLake/CLDictionary.h>
@@ -37,8 +38,6 @@ Class CLClassFromString_python(CLString *aString)
       hack = malloc(sizeof(CLClassDef));
       memcpy(hack, [CLObjectBridge class], sizeof(CLClassDef));
       hack->name = strdup([aString UTF8String]);
-      printf("Is there a python class? %s\n", [aString UTF8String]);
-      printf("Now there is!\n");
       aClass = (Class) hack;
     }
   }
@@ -157,6 +156,8 @@ PyMODINIT_FUNC PyInit_ClearLake(void)
     return NULL;
   if (PyType_Ready(&CLOptionBridgeType) < 0)
     return NULL;
+  if (PyType_Ready(&CLControlBridgeType) < 0)
+    return NULL;
 
   m = PyModule_Create(&ClearLake_module);
   if (m == NULL)
@@ -171,6 +172,10 @@ PyMODINIT_FUNC PyInit_ClearLake(void)
     return NULL;
   }
   if (PyModule_AddObjectRef(m, "CLOption", (PyObject *) &CLOptionBridgeType) < 0) {
+    Py_DECREF(m);
+    return NULL;
+  }
+  if (PyModule_AddObjectRef(m, "CLControl", (PyObject *) &CLControlBridgeType) < 0) {
     Py_DECREF(m);
     return NULL;
   }

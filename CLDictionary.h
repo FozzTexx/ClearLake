@@ -41,14 +41,10 @@ typedef struct {
 +(id) dictionary;
 +(id) dictionaryWithObjectsAndKeys:(id) firstObject, ...;
 
--(id) init;
 -(id) initWithSize:(CLUInteger) size;
 -(id) initFromDictionary:(CLDictionary *) aDict;
--(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count;
 -(id) initWithObjectsAndKeys:(id) firstObject, ...;
--(void) dealloc;
 
--(id) objectForKey:(id) aKey;
 -(id) objectForCaseInsensitiveString:(CLString *) aString;
 -(CLArray *) allKeys;
 -(CLArray *) allKeysForObject:(id) anObject;
@@ -58,5 +54,23 @@ typedef struct {
 -(CLString *) encodeXML;
 			
 @end
+
+@protocol CLDictionarySubclass
+-(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count;
+-(CLUInteger) count;
+-(id) objectForKey:(id) aKey;
+-(CLArray *) allKeys;
+-(CLArray *) allValues;
+-(id) objectForCaseInsensitiveString:(CLString *) aKey;
+@end
+
+@interface CLDictionary (CLSubclassMethods) <CLDictionarySubclass>
+@end
+
+@interface CLInternalDictionary:CLDictionary
+@end
+
+extern void *CLInternalDictionaryInitStorage(CLUInteger size);
+extern void CLInternalDictionaryDeallocStorage(CLDictionaryStorage *storage);
 
 #endif /* _CLDICTIONARY_H */

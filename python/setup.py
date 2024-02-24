@@ -19,6 +19,7 @@ setup(ext_modules=[
       "CLStreamBridge.m",
       "CLStringBridge.m",
       "CLFormBridge.m",
+      "CLControlBridge.m"
     ],
     extra_compile_args=[
       "-fconstant-string-class=CLConstantString",

@@ -84,11 +84,13 @@ Class CLDatetimeClass;
 Class CLControlClass, CLFormClass;
 Class CLSessionClass, CLAccountClass;
 Class CLSelectClass;
-Class CLArrayClass, CLMutableArrayClass, CLInternalArrayClass, CLInternalMutableArrayClass;
+Class CLArrayClass, CLMutableArrayClass,
+  CLInternalArrayClass, CLInternalMutableArrayClass;
 Class CLButtonClass;
 Class CLCharacterSetClass, CLMutableCharacterSetClass;
 Class CLDataClass, CLMutableDataClass;
-Class CLDictionaryClass, CLMutableDictionaryClass;
+Class CLDictionaryClass, CLMutableDictionaryClass,
+  CLInternalDictionaryClass, CLInternalMutableDictionaryClass;
 Class CLEditingContextClass, CLGenericRecordClass, CLAttributeClass, CLRelationshipClass,
   CLRecordDefinitionClass, CLFaultClass, CLArrayFaultClass, CLPlaceholderClass;
 Class CLElementClass, CLBlockClass, CLOptionClass, CLScriptElementClass,
@@ -143,6 +145,8 @@ int CLInitClassConstants()
       CLTextAreaClass = [CLTextArea class];
       CLInternalArrayClass = [CLInternalArray class];
       CLInternalMutableArrayClass = [CLInternalMutableArray class];
+      CLInternalDictionaryClass = [CLInternalDictionary class];
+      CLInternalMutableDictionaryClass = [CLInternalMutableDictionary class];
       break;
 
     case 1:

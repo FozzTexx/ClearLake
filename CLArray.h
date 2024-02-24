@@ -34,12 +34,6 @@ typedef struct {
   CLUInteger numElements, maxElements;
 } CLArrayStorage;
 
-@protocol CLArrayPrimitive
--(id) initWithObjects:(const id *) objects count:(CLUInteger) count;
--(CLUInteger) count;
--(id) objectAtIndex:(CLUInteger) index;
-@end
-
 @interface CLArray:CLObject <CLCopying, CLMutableCopying, CLPropertyList>
 {
   void *arrayData;
@@ -69,7 +63,16 @@ typedef struct {
 
 @end
 
-@interface CLArray (CLArrayAccess) <CLArrayPrimitive>
+@protocol CLArraySubclass
+-(id) initWithObjects:(const id *) objects count:(unsigned) count;
+-(CLUInteger) count;
+-(id) objectAtIndex:(CLUInteger) index;
+@end
+
+@interface CLArray (CLSubclassMethods) <CLArraySubclass>
+@end
+
+@interface CLArray (CLArrayAccess)
 -(void) getObjects:(id *) objects;
 -(id) lastObject;
 -(CLArray *) subarrayWithRange:(CLRange) range;
@@ -87,5 +90,8 @@ typedef struct {
 
 @interface CLInternalArray:CLArray
 @end
+
+extern void *CLInternalArrayInitStorage(const id *objects, unsigned count);
+extern void CLInternalArrayDeallocStorage(CLArrayStorage *storage);
 
 #endif /* _CLARRAY_H */

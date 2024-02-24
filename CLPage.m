@@ -1520,14 +1520,14 @@ void CLSetDelegate(id anObject)
 
 -(id) objectWithID:(CLString *) idString fromArray:(CLArray *) anArray
 {
-  int i, j;
+  CLUInteger idx, count;
   id anObject;
   CLString *aString;
   BOOL success;
 
 
-  for (i = 0, j = [anArray count]; i < j; i++) {
-    anObject = [anArray objectAtIndex:i];
+  for (idx = 0, count = [anArray count]; idx < count; idx++) {
+    anObject = [anArray objectAtIndex:idx];
     if ([anObject respondsTo:@selector(attributes)]) {
       if ([[[anObject attributes] objectForCaseInsensitiveString:@"ID"]
 	    isEqualToString:idString])

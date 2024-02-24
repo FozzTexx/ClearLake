@@ -77,7 +77,7 @@
 
 -(void) selectOptionWithValue:(id) aValue
 {
-  int i, j;
+  CLUInteger idx, count;
   CLOption *anOption;
   id optionValue;
 
@@ -85,13 +85,18 @@
   if (!aValue)
     return;
 
-  aValue = [aValue description];
-  for (i = 0, j = [value count]; i < j; i++) {
-    anOption = [value objectAtIndex:i];
-    if (!(optionValue = [anOption value]))
-      optionValue = [anOption string];
-    optionValue = [optionValue description];
-    [anOption setSelected:[optionValue isEqual:aValue]];
+  count = [value count];
+  if (!count)
+    _deferSelected = [aValue retain];
+  else {
+    aValue = [aValue description];
+    for (idx = 0; idx < count; idx++) {
+      anOption = [value objectAtIndex:idx];
+      if (!(optionValue = [anOption value]))
+	optionValue = [anOption string];
+      optionValue = [optionValue description];
+      [anOption setSelected:[optionValue isEqual:aValue]];
+    }
   }
 
   return;
@@ -163,7 +168,12 @@
 					  found:&found wasConstant:NULL];
     [self selectOptionWithValue:aValue];
   }
-  
+  else if (_deferSelected)
+    [self selectOptionWithValue:_deferSelected];
+
+  [_deferSelected release];
+  _deferSelected = nil;
+
   CLPrintf(stream, @"<SELECT");
   [self writeAttributes:stream ignore:nil];
   CLPrintf(stream, @">");

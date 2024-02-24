@@ -5,10 +5,12 @@
 #include <Python.h>
 
 #import "CLObjectBridge.h"
+#import <ClearLake/CLPage.h>
 
-extern int CLPageBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds);
-extern void CLPageBridge_dealloc(CLObjectLink *self);
-extern PyObject *CLPageBridge_display(CLObjectLink *self, PyObject *Py_UNUSED(ignored));
+@interface CLPage (CLPythonExtensions)
+-(PyObject *) pythonObject;
+@end
+
 extern PyTypeObject CLPageBridgeType;
 
 #endif /* CLPAGEBRIDGETHON_H */
