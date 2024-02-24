@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -29,7 +29,7 @@
 
 @protocol CLDatabaseMethods
 -(id) initWithDatabase:(CLString *) aDatabase user:(CLString *) user
-	      password:(CLString *) password host:(CLString *) aHost;
+              password:(CLString *) password host:(CLString *) aHost;
 -(id) runQuery:(CLString *) aQuery;
 
 -(void) beginTransaction;
@@ -49,20 +49,20 @@
 
 -(CLString *) defangString:(CLString *) aString escape:(int *) escape;
 -(CLArray *) read:(CLArray *) attributes qualifier:(CLString *) qualifier
-	   errors:(id *) errors;
+           errors:(id *) errors;
 -(CLUInteger) reserveIDs:(CLUInteger) count forTable:(CLString *) table;
 -(int) nextIDForTable:(CLString *) table;
 -(int) insertDictionary:(CLDictionary *) aDict
-	 withAttributes:(CLArray *) attributes into:(CLString *) table
-		 errors:(id *) errors;
+         withAttributes:(CLArray *) attributes into:(CLString *) table
+                 errors:(id *) errors;
 -(void) insertDictionary:(CLDictionary *) aDict
-	  withAttributes:(CLArray *) attributes into:(CLString *) table withID:(int) rid
-		  errors:(id *) errors;
+          withAttributes:(CLArray *) attributes into:(CLString *) table withID:(int) rid
+                  errors:(id *) errors;
 -(BOOL) updateTable:(CLString *) table withDictionary:(CLDictionary *) aDict
       andAttributes:(CLArray *) attributes forRow:(CLString *) rowID
-	     errors:(id *) errors;
+             errors:(id *) errors;
 -(BOOL) deleteRowsFromTable:(CLString *) aTable qualifier:(CLString *) qualifier
-		     errors:(id *) errors;
+                     errors:(id *) errors;
 -(CLStringEncoding) encoding;
 -(void) setEncoding:(CLStringEncoding) aValue;
 -(CLTimeZone *) timeZone;

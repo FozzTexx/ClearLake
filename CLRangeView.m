@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -34,7 +34,7 @@
   CLString *aString;
   BOOL success;
 
-  
+
   [super initFromElement:anElement onPage:aPage];
 
   if ((aString = [attributes objectForCaseInsensitiveString:@"CL_MAXITEMS"])) {
@@ -44,10 +44,10 @@
   else
     maxItems = 10;
   [self setRange:CLMakeRange([[self expandBinding:
-				      [attributes objectForCaseInsensitiveString:@"CL_START"]
-					  success:&success]
-			       intValue], maxItems)];
-  
+                                      [attributes objectForCaseInsensitiveString:@"CL_START"]
+                                          success:&success]
+                               intValue], maxItems)];
+
   return self;
 }
 
@@ -63,7 +63,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -72,7 +72,7 @@
   aCopy->maxItems = maxItems;
   return aCopy;
 }
-      
+
 -(CLRange) range
 {
   return range;
@@ -123,30 +123,30 @@
 
   if (!anObject)
     aValue = [self objectValueForSpecialBinding:aString allowConstant:NO
-					  found:&found wasConstant:NULL];
+                                          found:&found wasConstant:NULL];
   else
     aValue = [anObject objectValueForBinding:aString];
-  
+
   if (![aValue isKindOfClass:CLArrayClass]) {
     if (aRange.length)
       aValue = [self findArray:[aBinding substringFromIndex:CLMaxRange(aRange)]
-					 source:aValue];
+                                         source:aValue];
   }
   else {
     aRange = [aBinding rangeOfString:@"." options:0
-		       range:CLMakeRange(CLMaxRange(aRange),
-					 [aBinding length] - CLMaxRange(aRange))];
+                       range:CLMakeRange(CLMaxRange(aRange),
+                                         [aBinding length] - CLMaxRange(aRange))];
     [attributes setObject:[aBinding substringFromIndex:CLMaxRange(aRange)]
-		forCaseInsensitiveString:@"CL_ARRAYVALUE"];
+                forCaseInsensitiveString:@"CL_ARRAYVALUE"];
   }
 
   if ((aString = [attributes objectForCaseInsensitiveString:@"CL_SORT"])) {
     aString = [self expandBinding:aString success:&found];
     if (found)
       aValue = [aValue sortedArrayUsingDescriptors:
-			 [CLSortDescriptor sortDescriptorsFromString:aString]];
+                         [CLSortDescriptor sortDescriptorsFromString:aString]];
   }
-  
+
   return aValue;
 }
 
@@ -167,14 +167,14 @@
 
     if (range.location >= count)
       range.location = ((count + maxItems - 2) / maxItems) * maxItems - maxItems;
-    
+
     for (i = range.location; i < count && i < CLMaxRange(range); i++) {
       aValue = [anArray objectAtIndex:i];
       if (aBinding)
-	aValue = [aValue objectValueForBinding:aBinding];
+        aValue = [aValue objectValueForBinding:aBinding];
       [self updateBindingFor:aValue];
       if (aValue)
-	[self addObject:aValue];
+        [self addObject:aValue];
     }
   }
 

@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -42,7 +42,7 @@ CLMutableArray *CLDeferPool = nil;
 
   for (i = [activePools count]; i; i--)
     if ([((CLAutoreleasePool *) [activePools objectAtIndex:i-1])->pool
-	    indexOfObjectIdenticalTo:anObject] != CLNotFound)
+            indexOfObjectIdenticalTo:anObject] != CLNotFound)
       return YES;
 
   return NO;
@@ -64,7 +64,7 @@ CLMutableArray *CLDeferPool = nil;
 #endif
 -(void) release
 #if DEBUG_RETAIN
-#define release		release:__FILE__ :__LINE__ :self
+#define release         release:__FILE__ :__LINE__ :self
 #endif
 {
   CLUInteger idx, count;
@@ -84,13 +84,13 @@ CLMutableArray *CLDeferPool = nil;
   defer = !CLDeferPool;
   if (defer)
     CLDeferPool = [[CLMutableArray alloc] init];
-  
+
 #if DEBUG_RETAIN
 #undef release
 #endif
   [super release];
 #if DEBUG_RETAIN
-#define release		release:__FILE__ :__LINE__ :self
+#define release         release:__FILE__ :__LINE__ :self
 #endif
 
   if (defer) {
@@ -100,24 +100,24 @@ CLMutableArray *CLDeferPool = nil;
     for (idx = 0, count = [CLDeferPool count]; idx < count; idx++) {
       anObject = [CLDeferPool objectAtIndex:idx];
       if ([anObject shouldDeferRelease]) {
-	[anObject retain];
-	[anObject autorelease];
+        [anObject retain];
+        [anObject autorelease];
       }
     }
-  
+
     [CLDeferPool release];
     CLDeferPool = nil;
   }
-  
+
   return;
 }
-  
+
 #if DEBUG_RETAIN
 #undef autorelease
 #endif
 -(id) autorelease
 #if DEBUG_RETAIN
-#define autorelease	autorelease:__FILE__ :__LINE__ :self
+#define autorelease     autorelease:__FILE__ :__LINE__ :self
 #endif
 {
   [self error:@"Can't autorelease CLAutoreleasePool"];

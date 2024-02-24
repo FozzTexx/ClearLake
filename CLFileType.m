@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -38,15 +38,15 @@ static CLMutableArray *_allTypes;
   int i, j;
   CLFileType *aType;
 
-  
+
   if (!_allTypes) {
     _allTypes = [[CLMutableArray alloc] init];
     anArray = [[self editingContext] loadTableWithClass:[self class] qualifier:nil];
     for (i = 0, j = [anArray count]; i < j; i++) {
       aType = [anArray objectAtIndex:i];
       [_allTypes addObject:[CLOption optionWithString:[aType title]
-				     andValue:[CLNumber numberWithInt:[aType objectID]]]];
-    }    
+                                     andValue:[CLNumber numberWithInt:[aType objectID]]]];
+    }
   }
 
   return _allTypes;

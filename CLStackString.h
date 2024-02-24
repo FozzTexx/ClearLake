@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -46,7 +46,7 @@ CL_INLINE unistr CLNewStackString(CLUInteger len)
   stor->utf8 = NULL;
   stor->hash = 0;
   stor->hashSet = 0;
-  ustr.str = ((void *) stor) + sizeof(CLStringStorage);  
+  ustr.str = ((void *) stor) + sizeof(CLStringStorage);
   return ustr;
 }
 

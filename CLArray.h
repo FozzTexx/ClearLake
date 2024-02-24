@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -27,7 +27,7 @@
 #import <ClearLake/CLObject.h>
 #import <ClearLake/CLRange.h>
 
-#define CLARRAY_BLOCKSIZE	256
+#define CLARRAY_BLOCKSIZE       256
 
 typedef struct {
   id *dataPtr;
@@ -42,7 +42,7 @@ typedef struct {
 +(id) array;
 +(id) arrayWithObjects:(id) firstObj, ...;
 +(id) arrayWithObjects:(const id *) objects count:(CLUInteger) count;
-  
+
 -(CLUInteger) indexOfObject:(id) anObject;
 -(CLUInteger) indexOfObjectIdenticalTo:(id) anObject;
 -(CLArray *) sortedArrayUsingSelector:(SEL) comparator;
@@ -54,7 +54,7 @@ typedef struct {
 -(CLString *) componentsJoinedAsCSVUsingString:(CLString *) separator;
 -(CLArray *) arrayByAddingObjectsFromArray:(CLArray *) otherArray;
 -(CLArray *) arrayByAddingObject:(id) anObject;
-  
+
 -(BOOL) containsMultipleObjects;
 
 -(CLString *) propertyList;

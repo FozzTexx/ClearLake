@@ -40,7 +40,7 @@
 #include <math.h>
 #include <string.h>
 
-#define IMAGE_DIR	@"imagedb"
+#define IMAGE_DIR       @"imagedb"
 
 @implementation CLImageRep
 
@@ -107,7 +107,7 @@
   id anObject;
   CLImageRep *aRep;
 
-  
+
   [super read:stream];
   [stream readTypes:@"@", &anObject];
   if ([anObject isKindOfClass:CLStringClass]) {
@@ -122,7 +122,7 @@
     rep = [aRep piclibCopy];
     [aRep release];
   }
-    
+
   return self;
 }
 
@@ -130,7 +130,7 @@
 {
   CLData *aData;
 
-  
+
   [super write:stream];
   if (path)
     [stream writeTypes:@"@", &path];
@@ -138,7 +138,7 @@
     aData = [self representationUsingFormat:@"png"];
     [stream writeTypes:@"@", &aData];
   }
-  
+
   return;
 }
 
@@ -153,7 +153,7 @@
     return CLMakeSize(aRep->width, aRep->height);
   else if (path && !(err = getImageInfo([path UTF8String], &info)))
     return CLMakeSize(info.width, info.height);
-    
+
   return CLMakeSize(0, 0);
 }
 
@@ -210,8 +210,8 @@
   if (!rep)
     return;
   cropImage(aRect.origin.x, aRect.origin.y,
-	    aRect.origin.x + aRect.size.width - 1,
-	    aRect.origin.y + aRect.size.height - 1, rep);
+            aRect.origin.x + aRect.size.width - 1,
+            aRect.origin.y + aRect.size.height - 1, rep);
   [self clearPath];
   return;
 }
@@ -238,29 +238,29 @@
     while (aRange.length) {
       c = [direction characterAtIndex:aRange.location];
       if (c == 'r')
-	xdir = 1;
+        xdir = 1;
       if (c == 'l')
-	xdir = -1;
+        xdir = -1;
       if (c == 'b')
-	ydir = 1;
+        ydir = 1;
       if (c == 't')
-	ydir = -1;
+        ydir = -1;
 
       aRange.location = CLMaxRange(aRange);
       aRange.length = [direction length] - aRange.location;
       if (aRange.length) {
-	aRange = [direction rangeOfString:@"+" options:0 range:aRange];
-	if (aRange.length) {
-	  aRange.location = CLMaxRange(aRange);
-	  if (aRange.location < [direction length])
-	    aRange.length = 1;
-	  else
-	    aRange.length = 0;
-	}
+        aRange = [direction rangeOfString:@"+" options:0 range:aRange];
+        if (aRange.length) {
+          aRange.location = CLMaxRange(aRange);
+          if (aRange.location < [direction length])
+            aRange.length = 1;
+          else
+            aRange.length = 0;
+        }
       }
     }
   }
-  
+
   nSize = cSize = [self size];
   if (!mSize.height && mSize.width) {
     nSize.width = mSize.width;
@@ -285,19 +285,19 @@
     aRect.origin.x = (cSize.width - nSize.width) / 2;
     if (xdir) {
       if (xdir > 0)
-	aRect.origin.x = cSize.width - nSize.width;
+        aRect.origin.x = cSize.width - nSize.width;
       else if (xdir < 0)
-	aRect.origin.x = 0;
+        aRect.origin.x = 0;
     }
 
     aRect.origin.y = (cSize.height - nSize.height) / 2;
     if (ydir) {
       if (ydir > 0)
-	aRect.origin.y = cSize.height - nSize.height;
+        aRect.origin.y = cSize.height - nSize.height;
       else if (ydir < 0)
-	aRect.origin.y = 0;
+        aRect.origin.y = 0;
     }
-    
+
     aRect.size = nSize;
     [self cropImage:aRect];
   }
@@ -313,7 +313,7 @@
   int col = 0, scol, dcol;
   BOOL needFree = NO;
   image newPic;
-  
+
 
   dest = [self loadImage];
   src = [aRep loadImage];
@@ -335,32 +335,32 @@
     for (x = 0; x < aRect.size.width; x++) {
       as = ad = 1.0;
       if (src->photoInterp & ALPHAMASK)
-	as = getval(x + aRect.origin.x, y + aRect.origin.y, scol, src) / 255.0;
+        as = getval(x + aRect.origin.x, y + aRect.origin.y, scol, src) / 255.0;
       if (dest->photoInterp & ALPHAMASK)
-	ad = getval(x + aPoint.x, y + aPoint.y, dcol, dest) / 255.0;
+        ad = getval(x + aPoint.x, y + aPoint.y, dcol, dest) / 255.0;
 
       if (scol == dcol) {
-	for (col = 0; col < scol; col++) {
-	  vs = getval(x + aRect.origin.x, y + aRect.origin.y, col, src) / 255.0;
-	  vd = getval(x + aPoint.x, y + aPoint.y, col, dest) / 255.;
+        for (col = 0; col < scol; col++) {
+          vs = getval(x + aRect.origin.x, y + aRect.origin.y, col, src) / 255.0;
+          vd = getval(x + aPoint.x, y + aPoint.y, col, dest) / 255.;
 
-	  vd = vs * as + vd * ad * (1.0 - as);
-	  putval(x + aPoint.x, y + aPoint.y, vd * 255, col, dest);
-	}
+          vd = vs * as + vd * ad * (1.0 - as);
+          putval(x + aPoint.x, y + aPoint.y, vd * 255, col, dest);
+        }
       }
       else if (scol < dcol) {
-	vs = getval(x + aRect.origin.x, y + aRect.origin.y, col, src) / 255.0;
-	vd = getval(x + aPoint.x, y + aPoint.y, col, dest) / 255.0;
+        vs = getval(x + aRect.origin.x, y + aRect.origin.y, col, src) / 255.0;
+        vd = getval(x + aPoint.x, y + aPoint.y, col, dest) / 255.0;
 
-	vd = vs * as + vd * ad * (1.0 - as);
-	for (col = 0; col < dcol; col++)
-	  putval(x + aPoint.x, y + aPoint.y, vd * 255, col, dest);
+        vd = vs * as + vd * ad * (1.0 - as);
+        for (col = 0; col < dcol; col++)
+          putval(x + aPoint.x, y + aPoint.y, vd * 255, col, dest);
       }
 
       if (dest->photoInterp & ALPHAMASK) {
-	ad = as + ad * (1.0 - as);
-	putval(x + aPoint.x, y + aPoint.y, ad * 255, dcol, dest);
-      }	
+        ad = as + ad * (1.0 - as);
+        putval(x + aPoint.x, y + aPoint.y, ad * 255, dcol, dest);
+      }
     }
   }
 
@@ -405,16 +405,16 @@
     [self loadImage];
     if (!save_pic(tpath, [saveFormat UTF8String], rep)) {
       if ([format isEqualToString:@"eps"]) {
-	cmd = [CLString stringWithFormat:@"/usr/bin/convert %@ eps:-", [oFile path]];
-	oFile = [CLStream openPipe:cmd mode:CLReadOnly];
-	mData = [CLMutableData data];
-	while ((len = [oFile read:buf length:sizeof(buf)]))
-	  [mData appendBytes:buf length:len];
-	[oFile closeAndWait];
-	aData = mData;
+        cmd = [CLString stringWithFormat:@"/usr/bin/convert %@ eps:-", [oFile path]];
+        oFile = [CLStream openPipe:cmd mode:CLReadOnly];
+        mData = [CLMutableData data];
+        while ((len = [oFile read:buf length:sizeof(buf)]))
+          [mData appendBytes:buf length:len];
+        [oFile closeAndWait];
+        aData = mData;
       }
       else
-	aData = [CLData dataWithContentsOfFile:[oFile path]];
+        aData = [CLData dataWithContentsOfFile:[oFile path]];
     }
 
     unlink(tpath);
@@ -451,37 +451,37 @@
       blend = [aString boolValue];
 
     if ([effect isEqualToString:@"maxsize"] &&
-	((mSize.width && cSize.width > mSize.width) ||
-	 (mSize.height && cSize.height > mSize.height))) {
+        ((mSize.width && cSize.width > mSize.width) ||
+         (mSize.height && cSize.height > mSize.height))) {
       if (!mSize.height && mSize.width) {
-	nSize.width = mSize.width;
-	nSize.height = cSize.height * (mSize.width / cSize.width);
+        nSize.width = mSize.width;
+        nSize.height = cSize.height * (mSize.width / cSize.width);
       }
       else if (mSize.height) {
-	nSize.height = mSize.height;
-	nSize.width = cSize.width * (mSize.height / cSize.height);
-	if (mSize.width && nSize.width > mSize.width) {
-	  nSize.width = mSize.width;
-	  nSize.height = cSize.height * (mSize.width / cSize.width);
-	}
+        nSize.height = mSize.height;
+        nSize.width = cSize.width * (mSize.height / cSize.height);
+        if (mSize.width && nSize.width > mSize.width) {
+          nSize.width = mSize.width;
+          nSize.height = cSize.height * (mSize.width / cSize.width);
+        }
       }
 
       [self scaleImage:nSize blend:blend];
     }
     else if ([effect isEqualToString:@"minsize"] &&
-	((mSize.width && cSize.width < mSize.width) ||
-	 (mSize.height && cSize.height < mSize.height))) {
+        ((mSize.width && cSize.width < mSize.width) ||
+         (mSize.height && cSize.height < mSize.height))) {
       if (!mSize.height && mSize.width) {
-	nSize.width = mSize.width;
-	nSize.height = cSize.height * (mSize.width / cSize.width);
+        nSize.width = mSize.width;
+        nSize.height = cSize.height * (mSize.width / cSize.width);
       }
       else if (mSize.height) {
-	nSize.height = mSize.height;
-	nSize.width = cSize.width * (mSize.height / cSize.height);
-	if (mSize.width && nSize.width < mSize.width) {
-	  nSize.width = mSize.width;
-	  nSize.height = cSize.height * (mSize.width / cSize.width);
-	}
+        nSize.height = mSize.height;
+        nSize.width = cSize.width * (mSize.height / cSize.height);
+        if (mSize.width && nSize.width < mSize.width) {
+          nSize.width = mSize.width;
+          nSize.height = cSize.height * (mSize.width / cSize.width);
+        }
       }
 
       [self scaleImage:nSize blend:blend];
@@ -516,13 +516,13 @@
 
 
     aRect = CLMakeRect([[args objectAtIndex:0] intValue], [[args objectAtIndex:1] intValue],
-		       [[args objectAtIndex:2] intValue], [[args objectAtIndex:3] intValue]);
+                       [[args objectAtIndex:2] intValue], [[args objectAtIndex:3] intValue]);
     [self cropImage:aRect];
   }
   else if ([effect isEqualToString:@"autocrop"]) {
     int margin = 40;
 
-    
+
     if ([args count])
       margin = [[args objectAtIndex:0] intValue];
     [self autocropImage:margin];
@@ -566,7 +566,7 @@
       path = @"Image";
     [path autorelease];
     path = [[[path stringByDeletingPathExtension] stringByAppendingPathExtension:format]
-	     retain];
+             retain];
   }
 
   return;
@@ -581,7 +581,7 @@
 
   if (![self loadImage])
     return nil;
-  
+
   newRep = [self copy];
   anArray = [effects componentsSeparatedByString:@";"];
   for (i = 0, j = [anArray count]; i < j; i++)
@@ -604,7 +604,7 @@
     format = @"png";
   if ([format isEqualToString:@"jpeg"])
     format = @"jpg";
-  
+
   return format;
 }
 
@@ -637,7 +637,7 @@
 
 
   aCopy = [super copy:file :line: retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
   aCopy->path = [path copy];
   if ((anImage = [self loadImage])) {
     if (!(aCopy->rep = malloc(sizeof(image))))
@@ -676,18 +676,18 @@ CLString *CLPathForImageID(int image_id)
 
 
   aPath = [CLString stringWithFormat:@"%s/%@/%i/%i",
-		    getenv("DOCUMENT_ROOT"), IMAGE_DIR,
-		    image_id % 10, (image_id / 10) % 10];
+                    getenv("DOCUMENT_ROOT"), IMAGE_DIR,
+                    image_id % 10, (image_id / 10) % 10];
   sprintf(buf, "%i", image_id);
 
   if ((dir = opendir([aPath UTF8String]))) {
     i = strlen(buf);
     for (dp = readdir(dir); dp; dp = readdir(dir))
       if (dp->d_name[0] != '.' && strlen(dp->d_name) > i && dp->d_name[i] == '.' &&
-	  !strncmp(buf, dp->d_name, i)) {
-	aPath = [aPath stringByAppendingPathComponent:
-			 [CLString stringWithUTF8String:dp->d_name]];
-	break;
+          !strncmp(buf, dp->d_name, i)) {
+        aPath = [aPath stringByAppendingPathComponent:
+                         [CLString stringWithUTF8String:dp->d_name]];
+        break;
       }
     closedir(dir);
 
@@ -699,7 +699,7 @@ CLString *CLPathForImageID(int image_id)
 
   if (!aPath)
     aPath = CLPathForFileID(image_id);
-  
+
   return aPath;
 }
 

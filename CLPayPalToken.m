@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -51,31 +51,31 @@
 
   recordDef = [CLEditingContext recordDefinitionForClass:self];
   db = [recordDef database];
-  
+
   aDate = [CLDatetime now];
   query = [CLString stringWithFormat:@"delete from %@ where expires < '%@'",
-		    [recordDef databaseTable],
-		    [aDate descriptionWithFormat:[db dateFormat] timeZone:[db timeZone]]];
+                    [recordDef databaseTable],
+                    [aDate descriptionWithFormat:[db dateFormat] timeZone:[db timeZone]]];
   [db runQuery:query];
 
   query = [CLString stringWithFormat:@"select id from %@ limit 1", [recordDef databaseTable]];
   rows = [db read:CLAttributes(@"id:i", nil) qualifier:query errors:NULL];
   if ([rows count]) {
     aToken = [CLDefaultContext loadObjectWithClass:[CLPayPalToken class]
-					primaryKey:[rows objectAtIndex:0]];
+                                        primaryKey:[rows objectAtIndex:0]];
   }
   else {
     query = [CLString stringWithFormat:
-		       @"curl -s %@"
-			  " -H 'Accept: application/json'"
-		 " -H 'Accept-Language: en_US'"
-			      " -u '%@:%@'"
-		      " -d 'grant_type=client_credentials'",
-		      [[credentials objectForKey:CLGatewayURL]
-			stringByAppendingPathComponent:@"v1/oauth2/token"],
-		      [credentials objectForKey:CLGatewayUser],
-		      [credentials objectForKey:CLGatewayPassword]];
-    
+                       @"curl -s %@"
+                          " -H 'Accept: application/json'"
+                 " -H 'Accept-Language: en_US'"
+                              " -u '%@:%@'"
+                      " -d 'grant_type=client_credentials'",
+                      [[credentials objectForKey:CLGatewayURL]
+                        stringByAppendingPathComponent:@"v1/oauth2/token"],
+                      [credentials objectForKey:CLGatewayUser],
+                      [credentials objectForKey:CLGatewayPassword]];
+
     pStream = [CLStream openPipe:query mode:CLReadOnly];
     mData = [CLMutableData data];
     while ((aData = [pStream readDataOfLength:1024]) && [aData length])
@@ -90,8 +90,8 @@
       [aToken setTokenType:[aDict objectForKey:@"token_type"]];
       [aToken setAppID:[aDict objectForKey:@"app_id"]];
       [aToken setExpires:[[CLDatetime now]
-			   dateByAddingYears:0 months:0 days:0 hours:0 minutes:0
-				     seconds:[[aDict objectForKey:@"expires_in"] intValue]]];
+                           dateByAddingYears:0 months:0 days:0 hours:0 minutes:0
+                                     seconds:[[aDict objectForKey:@"expires_in"] intValue]]];
 
       [CLDefaultContext addObject:aToken];
       [CLDefaultContext saveChanges];

@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -48,7 +48,7 @@
 
   if (ustr->len && ustr->str[ustr->len-1] == '"')
     ustr->len--;
-  
+
   return;
 }
 
@@ -70,7 +70,7 @@
   record = [[CLMutableArray alloc] init];
   return self;
 }
-  
+
 -(void) dealloc
 {
   [csvString release];
@@ -84,7 +84,7 @@
 {
   CLMutableString *mString;
 
-  
+
   mString = [[CLMutableString alloc] initWithCharacters:str length:len];
   if (len && str[0] == '"')
     [mString dequoteCSV];
@@ -92,7 +92,7 @@
   [mString release];
   return;
 }
-  
+
 -(CLArray *) decodeNextRow
 {
   CLUInteger i, j;
@@ -108,26 +108,26 @@
   for (i = j = position; i < csvStr->len; i++) {
     if (csvStr->str[i] == '"') {
       if (inString && i+1 < csvStr->len && csvStr->str[i+1] == '"')
-	i++;
+        i++;
       else
-	inString = !inString;
+        inString = !inString;
     }
-    
+
     if (!inString) {
       if ([fieldSep characterIsMember:csvStr->str[i]]) {
-	[self addFieldWithCharacters:&csvStr->str[j] length:i-j];
-	j = i+1;
-	foundField = YES;
+        [self addFieldWithCharacters:&csvStr->str[j] length:i-j];
+        j = i+1;
+        foundField = YES;
       }
       else if (csvStr->str[i] == '\r' || csvStr->str[i] == '\n') {
-	if (csvStr->str[i] != '\n' || !i || csvStr->str[i-1] != '\r') {
-	  [self addFieldWithCharacters:&csvStr->str[j] length:i-j];
-	  foundField = YES;
-	}
-	while (csvStr->str[i] == '\n' || csvStr->str[i] == '\r')
-	  i++;
-	j = i;
-	break;
+        if (csvStr->str[i] != '\n' || !i || csvStr->str[i-1] != '\r') {
+          [self addFieldWithCharacters:&csvStr->str[j] length:i-j];
+          foundField = YES;
+        }
+        while (csvStr->str[i] == '\n' || csvStr->str[i] == '\r')
+          i++;
+        j = i;
+        break;
       }
     }
   }
@@ -146,7 +146,7 @@
 
   if (!foundField)
     return nil;
-  
+
   return record;
 }
 

@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -79,14 +79,14 @@
   sessionContext = [[CLEditingContext alloc] init];
   recordDef = [CLEditingContext recordDefinitionForClass:[self class]];
   query = [CLString stringWithFormat:@"%@ > %u",
-		    [recordDef columnNameForKey:@"browserHash"], CLUInteger32Max];
+                    [recordDef columnNameForKey:@"browserHash"], CLUInteger32Max];
   anArray = [sessionContext loadTableWithClass:[self class] qualifier:query];
 
   for (i = 0, j = [anArray count]; i < j; i++) {
     aSession = [anArray objectAtIndex:i];
     hash = [aSession browserHash];
     hash = [hash decimalNumberBySubtracting:
-		   [CLDecimalNumber numberWithUnsignedInt:CLUInteger32Max]];
+                   [CLDecimalNumber numberWithUnsignedInt:CLUInteger32Max]];
     pid = [hash unsignedIntValue];
     if (!kill(pid, 0))
       break;
@@ -103,20 +103,20 @@
   aSession = [[[CLEditingContext sessionClass] alloc] init];
   hash = [CLDecimalNumber numberWithUnsignedInt:getpid()];
   hash = [hash decimalNumberByAdding:
-		 [CLDecimalNumber numberWithUnsignedInt:CLUInteger32Max]];
+                 [CLDecimalNumber numberWithUnsignedInt:CLUInteger32Max]];
   [aSession setBrowserHash:hash];
   [aSession setLastSeen:[CLDatetime now]];
   [sessionContext saveChanges];
   [aSession release];
-  
+
   aDate = [[CLDatetime now]
-	    dateByAddingYears:0 months:0 days:0 hours:0 minutes:0 seconds:-sessionExpire];
+            dateByAddingYears:0 months:0 days:0 hours:0 minutes:0 seconds:-sessionExpire];
   /* FIXME - get column names from record def */
   query = [CLString stringWithFormat:@"%@ < '%@' and %@ <= %u",
-		    [recordDef columnNameForKey:@"lastSeen"],
-		    [aDate descriptionWithFormat:@"%Y-%m-%d %H:%M:%S"
-					timeZone:[[recordDef database] timeZone]],
-		    [recordDef columnNameForKey:@"browserHash"], CLUInteger32Max];
+                    [recordDef columnNameForKey:@"lastSeen"],
+                    [aDate descriptionWithFormat:@"%Y-%m-%d %H:%M:%S"
+                                        timeZone:[[recordDef database] timeZone]],
+                    [recordDef columnNameForKey:@"browserHash"], CLUInteger32Max];
   anArray = [sessionContext loadTableWithClass:[self class] qualifier:query];
 
   for (i = 0, j = [anArray count]; i < j; i++)
@@ -124,7 +124,7 @@
 
   [sessionContext saveChanges];
   [sessionContext release];
-  
+
   return;
 }
 
@@ -140,12 +140,12 @@
 {
   id anObject;
 
-  
+
   [super read:stream];
   [stream readTypes:@"i", &objectID];
   if ((anObject = [CLDefaultContext registerInstance:self inTable:[CLEditingContext
-								    tableForClass:[self class]]
-				      withPrimaryKey:[CLNumber numberWithInt:objectID]]) &&
+                                                                    tableForClass:[self class]]
+                                      withPrimaryKey:[CLNumber numberWithInt:objectID]]) &&
       anObject != self) {
     [anObject retain];
     [self release];
@@ -153,7 +153,7 @@
   }
   else
     CLBecomeFault(self, [CLDecimalNumber numberWithInt:objectID],
-		  [CLEditingContext recordDefinitionForClass:[self class]], NO);
+                  [CLEditingContext recordDefinitionForClass:[self class]], NO);
   return self;
 }
 
@@ -247,5 +247,5 @@
   objectID = aValue;
   return;
 }
-    
+
 @end

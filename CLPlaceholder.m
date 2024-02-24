@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -31,7 +31,7 @@
   CLRange aRange;
   CLUInteger aTag = 0;
 
-  
+
   if ([aString length] > 2 && [aString characterAtIndex:0] == '<' &&
       [aString characterAtIndex:[aString length] - 1] == '>') {
     aRange = [aString rangeOfString:@":" options:0 range:CLMakeRange(0, [aString length])];
@@ -78,7 +78,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -86,7 +86,7 @@
   aCopy->tag = tag;
   return aCopy;
 }
-  
+
 -(CLString *) string
 {
   return string;
@@ -131,7 +131,7 @@
 {
   CLUInteger hash = 0, h;
 
-  
+
   h = [string hash];
   hash = CLHashBytes(&h, sizeof(h), hash);
   h = tag;

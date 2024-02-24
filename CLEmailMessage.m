@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -46,7 +46,7 @@
   CLString *aString;
   CLArray *dirs = nil;
 
-  
+
   [super init];
   header = nil;
   body = nil;
@@ -58,11 +58,11 @@
   if (aFilename &&
       (aString = CLFullPathForFile(aFilename, [CLArray arrayWithObjects:@"hdr", nil], dirs))) {
     header = [[CLEmailHeader alloc]
-	       initFromString:
-		 [CLString stringWithContentsOfFile:aString encoding:CLUTF8StringEncoding]];
+               initFromString:
+                 [CLString stringWithContentsOfFile:aString encoding:CLUTF8StringEncoding]];
     body = [[CLPage pageFromFile:aFilename owner:anOwner] retain];
   }
-  
+
   return self;
 }
 
@@ -87,7 +87,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -106,7 +106,7 @@
 
   if (!options)
     options = @"";
-  
+
   oFile = [CLStream openTemporaryFile:@"clmsg.XXXXXX"];
   [header updateBindings:[body datasource]];
   CLPrintf(oFile, @"%@", [header description]);
@@ -118,9 +118,9 @@
   [oFile writeData:aData];
   [oFile close];
   aString = [CLString stringWithFormat:@"(/usr/lib/sendmail -t %@ < %@ ; rm %@) &",
-		      options, [oFile path], [oFile path]];
+                      options, [oFile path], [oFile path]];
   system([aString UTF8String]);
-  
+
   return;
 }
 
@@ -144,7 +144,7 @@
 @end
 
 void CLSendEmailUsingTemplate(CLDictionary *aDict, CLString *aFilename,
-			      CLString *sendmailOptions)
+                              CLString *sendmailOptions)
 {
   CLMutableString *mString;
   CLString *aString;
@@ -158,9 +158,9 @@ void CLSendEmailUsingTemplate(CLDictionary *aDict, CLString *aFilename,
 
   if (!sendmailOptions)
     sendmailOptions = @"";
-  
+
   mString = [[CLString stringWithContentsOfFile:aFilename encoding:CLUTF8StringEncoding]
-	      mutableCopy];
+              mutableCopy];
 
   anArray = [aDict allKeys];
   for (i = 0, j = [anArray count]; i < j; i++) {
@@ -172,14 +172,14 @@ void CLSendEmailUsingTemplate(CLDictionary *aDict, CLString *aFilename,
   CLPrintf(oFile, @"%@", mString);
   [oFile close];
   aString = [CLString stringWithFormat:@"/usr/lib/sendmail -t %@ < %@",
-		      sendmailOptions, [oFile path]];
+                      sendmailOptions, [oFile path]];
   system([aString UTF8String]);
   [oFile remove];
 #if DEBUG_RETAIN
     id self = nil;
 #endif
   [mString release];
-  
+
   return;
 }
 

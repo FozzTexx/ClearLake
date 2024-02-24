@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -34,7 +34,7 @@
 
   if (![aFormat length])
     return nil;
-  
+
   aFormatter = [[[self alloc] init] autorelease];
   [aFormatter setFormat:aFormat];
   return aFormatter;
@@ -72,7 +72,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -112,26 +112,26 @@
       aFormat = [format substringFromIndex:CLMaxRange(aRange)];
       aRange = [aFormat rangeOfString:@";"];
       if (aRange.length)
-	aFormat = [aFormat substringFromIndex:CLMaxRange(aRange)];
+        aFormat = [aFormat substringFromIndex:CLMaxRange(aRange)];
     }
     else {
       CLRange aRange2;
-      
-      
+
+
       aFormat = [format substringToIndex:aRange.location];
       aRange2.location = CLMaxRange(aRange);
       aRange2.length = [format length] - aRange2.location;
       aRange2 = [format rangeOfString:@";" options:0 range:aRange2];
       if (aRange2.length) {
-	aRange.location = CLMaxRange(aRange);
-	aRange.length = aRange2.location - aRange.location;
-	aFormat = [format substringWithRange:aRange];
+        aRange.location = CLMaxRange(aRange);
+        aRange.length = aRange2.location - aRange.location;
+        aFormat = [format substringWithRange:aRange];
       }
     }
   }
   else
     aFormat = format;
-  
+
   numSet = [CLCharacterSet characterSetWithCharactersInString:@"0123456789@#.,Ee"];
   notNumSet = [numSet invertedSet];
 
@@ -156,8 +156,8 @@
     rightMaxDigits = rightMinDigits = [numString length] - CLMaxRange(aRange);
     end = aRange.location;
     aRange = [numString rangeOfString:@"#" options:0
-			range:CLMakeRange(CLMaxRange(aRange),
-					  [numString length] - CLMaxRange(aRange))];
+                        range:CLMakeRange(CLMaxRange(aRange),
+                                          [numString length] - CLMaxRange(aRange))];
     if (aRange.length)
       rightMinDigits = rightMaxDigits - ([numString length] - aRange.location);
   }
@@ -173,11 +173,11 @@
 
     for (i = leftMinDigits = 0, j = [leftString length]; i < j; i++)
       if ([leftString characterAtIndex:i] == '0')
-	leftMinDigits++;
+        leftMinDigits++;
   }
-  
+
   aRange = [numString rangeOfString:@"," options:CLBackwardsSearch
-		      range:CLMakeRange(0, [numString length])];
+                      range:CLMakeRange(0, [numString length])];
   if (aRange.length)
     grouping = end - CLMaxRange(aRange);
 
@@ -189,13 +189,13 @@
 
   /* Per mille - UTF8 encoding of \u2030 */
   aRange = [prefix rangeOfString:@"\xE2\x80\xB0" options:0
-		   range:CLMakeRange(0, [prefix length])];
+                   range:CLMakeRange(0, [prefix length])];
   if (!aRange.length)
     aRange = [suffix rangeOfString:@"\xE2\x80\xB0" options:0
-		     range:CLMakeRange(0, [suffix length])];
+                     range:CLMakeRange(0, [suffix length])];
   if (aRange.length)
     multiplier = 1000;
-  
+
   return aNumber;
 }
 
@@ -207,15 +207,15 @@
   CLMutableString *mString;
   unsigned int i, j;
 
-  
+
   if (![anObject isKindOfClass:CLDecimalNumberClass])
     anObject = [CLDecimalNumber numberWithDouble:[anObject doubleValue]];
 
   anObject = [self parseFormat:anObject];
-  
+
   if (multiplier > 1)
     anObject = [anObject decimalNumberByMultiplyingBy:
-			   [CLDecimalNumber numberWithInt:multiplier]];
+                           [CLDecimalNumber numberWithInt:multiplier]];
   anObject = [anObject decimalNumberByRounding:CLRoundPlain scale:rightMaxDigits];
   numString = [anObject description];
   aRange = [numString rangeOfString:@"." options:0 range:CLMakeRange(0, [numString length])];

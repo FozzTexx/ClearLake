@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -49,8 +49,8 @@
 #include <features.h>
 #include <string.h>
 
-#define PATHSEP_CHAR	'/'
-#define PATHSEP_STRING	@"/"
+#define PATHSEP_CHAR    '/'
+#define PATHSEP_STRING  @"/"
 
 #define hexval(c) ({int _c = c; toupper(_c) - '0' - (_c > '9' ? 7 : 0);})
 
@@ -63,13 +63,13 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 #endif
 
 static int CLPrintObject(FILE *stream, const struct printf_info *info,
-			const void *const *args);
+                        const void *const *args);
 #if HAVE_REGISTERPRINTFSPECIFIER
 static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
-				int *argtypes, int *size);
+                                int *argtypes, int *size);
 #else
 static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
-				int *argtypes);
+                                int *argtypes);
 #endif
 
 @implementation CLString
@@ -91,7 +91,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 }
 
 -(id) initWithBytes:(const char *) bytes length:(CLUInteger) length
-	   encoding:(CLStringEncoding) encoding
+           encoding:(CLStringEncoding) encoding
 {
   char *buf = NULL;
   CLUInteger blen;
@@ -113,13 +113,13 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 
     if (length) {
       if (encoding != CLUnicodeStringEncoding) {
-	CLStringConvertEncoding(bytes, length, encoding,
-				&buf, &blen, CLUnicodeStringEncoding, NO);
-	bytes = buf;
-	len = blen / sizeof(unichar);
+        CLStringConvertEncoding(bytes, length, encoding,
+                                &buf, &blen, CLUnicodeStringEncoding, NO);
+        bytes = buf;
+        len = blen / sizeof(unichar);
       }
       else
-	len = (length + sizeof(unichar) - 1) / sizeof(unichar);
+        len = (length + sizeof(unichar) - 1) / sizeof(unichar);
     }
 
     data = CLStringAllocateBuffer(NULL, len, NULL, self);
@@ -128,12 +128,12 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
     if (buf)
       free(buf);
   }
-  
+
   return self;
 }
 
 -(id) initWithBytesNoCopy:(char *) bytes length:(CLUInteger) length
-		 encoding:(CLStringEncoding) encoding
+                 encoding:(CLStringEncoding) encoding
 {
   if (bytes && length) {
     if (isa == CLStringClass && encoding == CLUTF8StringEncoding) {
@@ -147,7 +147,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 
       [super init];
       if (!(data = stor = calloc(1, sizeof(CLStringStorage))))
-	[self error:@"Unable to allocate memory"];
+        [self error:@"Unable to allocate memory"];
       stor->str = (unichar *) bytes;
       stor->maxLen = len = (length + sizeof(unichar) - 1) / sizeof(unichar);
     }
@@ -162,7 +162,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
     if (bytes)
       free(bytes);
   }
-  
+
   return self;
 }
 
@@ -170,7 +170,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 {
   char *utf8;
 
-  
+
   if ((utf8 = CLStringFreeBuffer(data)))
     free(utf8);
   [super dealloc];
@@ -183,8 +183,8 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 -(id) copy:(const char *) file :(int) line :(id) retainer
 {
   return [self retain:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
-#define retain		retain:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
+#define retain          retain:__FILE__ :__LINE__ :self
 }
 #else
 -(id) copy
@@ -207,7 +207,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   [stream readTypes:@"*", &p];
   return [self initWithBytesNoCopy:p length:strlen(p) encoding:CLUTF8StringEncoding];
 }
-  
+
 -(void) write:(CLStream *) stream
 {
   const char *p = [self UTF8String];
@@ -225,7 +225,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 }
 
 -(unichar) characterAtIndex:(CLUInteger) index
-{  
+{
   if (index >= len)
     [self error:@"index exceeds length"];
   return ((unistr *) self)->str[index];
@@ -257,7 +257,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   CLMutableString *mString;
   CLString *aString;
 
-  
+
   mString = [self mutableCopy];
   [mString replaceOccurrencesOfString:@"\\" withString:@"\\\\"];
   [mString replaceOccurrencesOfString:@"/" withString:@"\\/"];
@@ -303,23 +303,23 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 }
 
 +(id) stringWithBytes:(const char *) bytes length:(CLUInteger) length
-	     encoding:(CLStringEncoding) encoding
+             encoding:(CLStringEncoding) encoding
 {
   return [[[self alloc] initWithBytes:bytes length:length encoding:encoding] autorelease];
 }
 
 +(id) stringWithBytesNoCopy:(const char *) bytes length:(CLUInteger) length
-	     encoding:(CLStringEncoding) encoding
+             encoding:(CLStringEncoding) encoding
 {
   return [[[self alloc] initWithBytesNoCopy:bytes length:length encoding:encoding]
-	   autorelease];
+           autorelease];
 }
 
 +(id) stringWithData:(CLData *) aData encoding:(CLStringEncoding) encoding
 {
   return [[[self alloc] initWithData:aData encoding:encoding] autorelease];
 }
-    
+
 +(id) stringWithContentsOfFile:(CLString *) path encoding:(CLStringEncoding) enc
 {
   return [[[self alloc] initWithContentsOfFile:path encoding:enc] autorelease];
@@ -338,7 +338,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 -(id) initWithCharacters:(const unichar *) characters length:(CLUInteger) length
 {
   return [self initWithBytes:(char *) characters length:length * sizeof(unichar)
-	       encoding:CLUnicodeStringEncoding];
+               encoding:CLUnicodeStringEncoding];
 }
 
 -(id) initWithString:(CLString *) aString
@@ -347,7 +347,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
     [self initWithBytes:aString->data length:aString->len encoding:CLUTF8StringEncoding];
   else
     [self initWithBytes:aString->data length:aString->len*sizeof(unichar)
-	       encoding:CLUnicodeStringEncoding];
+               encoding:CLUnicodeStringEncoding];
   return self;
 }
 
@@ -397,7 +397,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 }
 
 -(CLComparisonResult) compare:(CLString *) aString options:(CLStringCompareOptions) mask
-			range:(CLRange) range
+                        range:(CLRange) range
 {
   return CLStringCompare(self, aString, mask, range);
 }
@@ -415,7 +415,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   if (prefix->len > len)
     return NO;
   return ![self compare:prefix options:0
-		range:CLMakeRange(0, prefix->len)];
+                range:CLMakeRange(0, prefix->len)];
 }
 
 -(BOOL) hasSuffix:(CLString *) suffix
@@ -428,7 +428,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   if (suffix->len > len)
     return NO;
   return ![self compare:suffix options:0
-		range:CLMakeRange(len - suffix->len, suffix->len)];
+                range:CLMakeRange(len - suffix->len, suffix->len)];
 }
 
 -(CLRange) rangeOfString:(CLString *) aString
@@ -444,13 +444,13 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 }
 
 -(CLRange) rangeOfString:(CLString *) aString options:(CLStringCompareOptions) mask
-		   range:(CLRange) range
+                   range:(CLRange) range
 {
   return CLStringRangeOfString(self, aString, mask, range);
 }
 
 -(CLRange) rangeOfCharacter:(unichar) aChar options:(CLStringCompareOptions) mask
-		   range:(CLRange) range
+                   range:(CLRange) range
 {
   unistr ustr;
 
@@ -468,10 +468,10 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 }
 
 -(CLRange) rangeOfCharacterFromSet:(CLCharacterSet *) aSet
-			   options:(CLStringCompareOptions) mask range:(CLRange) aRange
+                           options:(CLStringCompareOptions) mask range:(CLRange) aRange
 {
   CLRange res = CLMakeRange(CLNotFound, 0);
-  
+
 
   CLStringFindCharacterFromSet(self, aSet, mask, aRange, &res);
   return res;
@@ -484,10 +484,10 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 }
 
 -(CLRange) rangeOfCharacterNotFromSet:(CLCharacterSet *) aSet
-			   options:(CLStringCompareOptions) mask range:(CLRange) aRange
+                           options:(CLStringCompareOptions) mask range:(CLRange) aRange
 {
   CLRange res = CLMakeRange(CLNotFound, 0);
-  
+
 
   CLStringFindCharacterFromSet(self, aSet, mask | CLInvertedSearch, aRange, &res);
   return res;
@@ -519,7 +519,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
     return NO;
   CLCheckStringClass(self);
   return !CLStringCompare(self, aString, CLCaseInsensitiveSearch,
-			  CLMakeRange(0, len));
+                          CLMakeRange(0, len));
 }
 
 -(CLRange) rangeOfTag:(CLString *) aTag inRange:(CLRange) aRange
@@ -543,7 +543,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   CLCheckStringClass(self);
   CLCheckStringClass(cDataString);
   CLCheckStringClass(cDataEndString);
-  
+
   tagRange.location = 0;
   tagRange.length = 0;
   tlen = aTag->len;
@@ -554,33 +554,33 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
       inString = inCdata = NO;
       k = i;
       for (; i < j; i++) {
-	if (cdataFlag && i == k && j - i > cDataString->len &&
-	    !wcsncmp(&ustr->str[i], cDataString->data, cDataString->len)) {
-	  inCdata = YES;
-	  i += cDataString->len - 1;
-	}
-	else if (inCdata && j - i >= cDataEndString->len &&
-		 !wcsncmp(&ustr->str[i], cDataEndString->data, cDataEndString->len)) {
-	  inCdata = NO;
-	  i += cDataEndString->len - 2;
-	}
-	else if (!inCdata && ustr->str[i] == '"')
-	  inString = !inString;
-	else if (!inString && !inCdata && ustr->str[i] == '>')
-	  break;
+        if (cdataFlag && i == k && j - i > cDataString->len &&
+            !wcsncmp(&ustr->str[i], cDataString->data, cDataString->len)) {
+          inCdata = YES;
+          i += cDataString->len - 1;
+        }
+        else if (inCdata && j - i >= cDataEndString->len &&
+                 !wcsncmp(&ustr->str[i], cDataEndString->data, cDataEndString->len)) {
+          inCdata = NO;
+          i += cDataEndString->len - 2;
+        }
+        else if (!inCdata && ustr->str[i] == '"')
+          inString = !inString;
+        else if (!inString && !inCdata && ustr->str[i] == '>')
+          break;
       }
       if (ustr->str[i] == '>') {
-	tagRange.location = k;
-	k++;
-	while (iswspace(ustr->str[k]))
-	  k++;
-	if (k + tlen < j &&
-	    (iswspace(ustr->str[k+tlen]) || ustr->str[k+tlen] == '>') &&
-	    !CLStringCompare(self, aTag, CLCaseInsensitiveSearch,
-			     CLMakeRange(k, tlen))) {
-	  tagRange.length = i - tagRange.location + 1;
-	  break;
-	}
+        tagRange.location = k;
+        k++;
+        while (iswspace(ustr->str[k]))
+          k++;
+        if (k + tlen < j &&
+            (iswspace(ustr->str[k+tlen]) || ustr->str[k+tlen] == '>') &&
+            !CLStringCompare(self, aTag, CLCaseInsensitiveSearch,
+                             CLMakeRange(k, tlen))) {
+          tagRange.length = i - tagRange.location + 1;
+          break;
+        }
       }
     }
   }
@@ -589,16 +589,16 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 }
 
 -(BOOL) getRangeOfBlock:(CLString *) startTag end:(CLString *) endTag
-	     outerRange:(CLRange *) outerRange innerRange:(CLRange *) innerRange
-		inRange:(CLRange) aRange
+             outerRange:(CLRange *) outerRange innerRange:(CLRange *) innerRange
+                inRange:(CLRange) aRange
 {
   return [self getRangeOfBlock:startTag end:endTag outerRange:outerRange
-	       innerRange:innerRange inRange:aRange allowCDATA:NO];
+               innerRange:innerRange inRange:aRange allowCDATA:NO];
 }
 
 -(BOOL) getRangeOfBlock:(CLString *) startTag end:(CLString *) endTag
-	     outerRange:(CLRange *) outerRange innerRange:(CLRange *) innerRange
-		inRange:(CLRange) aRange allowCDATA:(BOOL) cdataFlag
+             outerRange:(CLRange *) outerRange innerRange:(CLRange *) innerRange
+                inRange:(CLRange) aRange allowCDATA:(BOOL) cdataFlag
 {
   CLRange aRange2, aRange3, aRange4;
   int nest;
@@ -616,21 +616,21 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
       aRange3 = aRange2;
       aRange2 = [self rangeOfTag:endTag inRange:aRange2 allowCDATA:cdataFlag];
       if (!aRange2.length)
-	break;
+        break;
       nest--;
 
       for (;;) {
-	aRange4 = [self rangeOfTag:startTag inRange:aRange3 allowCDATA:cdataFlag];
-	if (!aRange4.length || aRange4.location >= aRange2.location)
-	  break;
-	nest++;
-	aRange3.location = CLMaxRange(aRange4);
-	aRange3.length = aRange2.location - aRange3.location;
+        aRange4 = [self rangeOfTag:startTag inRange:aRange3 allowCDATA:cdataFlag];
+        if (!aRange4.length || aRange4.location >= aRange2.location)
+          break;
+        nest++;
+        aRange3.location = CLMaxRange(aRange4);
+        aRange3.length = aRange2.location - aRange3.location;
       }
 
       if (nest) {
-	aRange2.location += aRange2.length;
-	aRange2.length = length - aRange2.location;
+        aRange2.location += aRange2.length;
+        aRange2.length = length - aRange2.location;
       }
     }
 
@@ -642,7 +642,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
       found = YES;
     }
   }
-  
+
   return found;
 }
 
@@ -666,7 +666,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
       [mString appendString:PATHSEP_STRING];
     [mString appendString:aString];
   }
-  
+
   ((CLString *) mString)->isa = CLStringClass;
   return [mString autorelease];
 }
@@ -681,12 +681,12 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 {
   if (!prefix)
     return NO;
-  
+
   CLCheckStringClass(self);
   CLCheckStringClass(prefix);
   if ([self hasPrefix:prefix] &&
       (len == prefix->len || (len > prefix->len &&
-			      [self characterAtIndex:prefix->len] == PATHSEP_CHAR)))
+                              [self characterAtIndex:prefix->len] == PATHSEP_CHAR)))
     return YES;
   return NO;
 }
@@ -725,7 +725,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 
   CLCheckStringClass(self);
   sRange = [self rangeOfString:PATHSEP_STRING options:CLBackwardsSearch
-		 range:CLMakeRange(0, len)];
+                 range:CLMakeRange(0, len)];
   if (!sRange.length)
     return @"";
 
@@ -755,14 +755,14 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
     return [mString autorelease];
   }
 
-  return self;  
+  return self;
 }
 
 -(CLString *) stringByDeletingPathPrefix:(CLString *) aPrefix
 {
   CLMutableString *mString;
 
-  
+
   if (![self hasPathPrefix:aPrefix])
     return self;
 
@@ -783,7 +783,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
     [mArray removeObjectAtIndex:0];
     [mArray insertObject:PATHSEP_STRING atIndex:0];
   }
-  
+
   /* FIXME - return immutable array */
   return mArray;
 }
@@ -795,7 +795,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 
   CLCheckStringClass(self);
   pRange = [self rangeOfString:@"." options:CLBackwardsSearch
-		 range:CLMakeRange(0, len)];
+                 range:CLMakeRange(0, len)];
   if (pRange.length)
     return [self substringFromIndex:pRange.location + 1];
 
@@ -809,20 +809,20 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 
   CLCheckStringClass(self);
   sRange = [self rangeOfString:PATHSEP_STRING options:CLBackwardsSearch
-		 range:CLMakeRange(0, len)];
+                 range:CLMakeRange(0, len)];
   if (!sRange.length)
     return [[self copy] autorelease];
 
   sRange2 = [self rangeOfString:PATHSEP_STRING options:CLBackwardsSearch
-		  range:CLMakeRange(0, sRange.location)];
+                  range:CLMakeRange(0, sRange.location)];
   if (sRange.location == len - 1) {
     if (sRange.location == 0)
       return [[self copy] autorelease];
     if (!sRange2.length)
       return [self substringToIndex:sRange.location];
     return [self substringWithRange:
-		   CLMakeRange(sRange2.location+1,
-			       sRange.location - sRange2.location - 1)];
+                   CLMakeRange(sRange2.location+1,
+                               sRange.location - sRange2.location - 1)];
   }
 
   return [self substringFromIndex:sRange.location+1];
@@ -845,36 +845,36 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   CLCheckStringClass(self);
   if (!(p = malloc(l = len)))
     [self error:@"Unable to allocate memory"];
-  
+
   for (i = j = 0, q = ((unistr *) self)->str; l; q++, l--) {
     c = *q;
     if (c != '=') {
       c = strchr(base64, c) - base64;
       if (c < 0)
-	continue;
+        continue;
     }
-    else {	/* padding */
+    else {      /* padding */
       switch (i) {
       case 2:
-	k = buf[0] & 0x3f;
-	k <<= 6;
-	k |= buf[1] & 0x3f;
-	k <<= 6;
-	p[j] = (k >> 10) & 0xff;
-	j += 1;
-	break;
+        k = buf[0] & 0x3f;
+        k <<= 6;
+        k |= buf[1] & 0x3f;
+        k <<= 6;
+        p[j] = (k >> 10) & 0xff;
+        j += 1;
+        break;
 
       case 3:
-	k = buf[0] & 0x3f;
-	k <<= 6;
-	k |= buf[1] & 0x3f;
-	k <<= 6;
-	k |= buf[2] & 0x3f;
-	k <<= 6;
-	p[j] = (k >> 16) & 0xff;
-	p[j+1] = (k >> 8) & 0xff;
-	j += 2;
-	break;
+        k = buf[0] & 0x3f;
+        k <<= 6;
+        k |= buf[1] & 0x3f;
+        k <<= 6;
+        k |= buf[2] & 0x3f;
+        k <<= 6;
+        p[j] = (k >> 16) & 0xff;
+        p[j+1] = (k >> 8) & 0xff;
+        j += 2;
+        break;
       }
       break;
     }
@@ -898,7 +898,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   }
 
   aData = [CLData dataWithBytesNoCopy:p length:j];
-  
+
   return aData;
 }
 
@@ -916,7 +916,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
     c = *p;
     for (i = 0; CLEntities[i].c; i++)
       if (CLEntities[i].c >= c)
-	break;
+        break;
 
     if (c == CLEntities[i].c)
       break;
@@ -945,7 +945,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
     c = *p;
     for (i = 0; CLEntities[i].c; i++)
       if (c == CLEntities[i].c)
-	break;
+        break;
 
     if (i < 5 && CLEntities[i].c)
       break;
@@ -985,7 +985,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 {
   CLMutableString *mString;
 
-  
+
   mString = [self mutableCopy];
   [mString addPercentEscapesWithPlus:flag];
   ((CLString *) mString)->isa = CLStringClass;
@@ -996,7 +996,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 {
   CLMutableString *mString;
 
-  
+
   mString = [self mutableCopy];
   [mString replacePercentEscapes];
   ((CLString *) mString)->isa = CLStringClass;
@@ -1009,7 +1009,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   id anObject = nil, anObject2, anObject3;
   BOOL inString, sawEscape;
   int inComment;
-  
+
 
   start = *pos;
   inComment = 0;
@@ -1038,113 +1038,113 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
       anObject = [[[CLMutableDictionary alloc] init] autorelease];
       i++;
       while ((anObject2 = [self decodeObject:buf length:length pos:&i])) {
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	if (buf[i] != '=')
-	  break;
-	i++;
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	if ((anObject3 = [self decodeObject:buf length:length pos:&i]))
-	  [anObject setObject:anObject3 forKey:anObject2];
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	if (i < length && buf[i] == ';')
-	  i++;
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	if (i < length && buf[i] == '}')
-	  break;
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        if (buf[i] != '=')
+          break;
+        i++;
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        if ((anObject3 = [self decodeObject:buf length:length pos:&i]))
+          [anObject setObject:anObject3 forKey:anObject2];
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        if (i < length && buf[i] == ';')
+          i++;
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        if (i < length && buf[i] == '}')
+          break;
       }
       if (buf[i] == '}')
-	i++;
+        i++;
       break;
 
     case '(':
       anObject = [CLMutableArray array];
       i++;
       while ((anObject2 = [self decodeObject:buf length:length pos:&i])) {
-	[anObject addObject:anObject2];
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	if (i < length && buf[i] == ',')
-	  i++;
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	if (i < length && buf[i] == ')')
-	  break;
+        [anObject addObject:anObject2];
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        if (i < length && buf[i] == ',')
+          i++;
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        if (i < length && buf[i] == ')')
+          break;
       }
       if (buf[i] == ')')
-	i++;
+        i++;
       break;
 
     case '<':
       inString = NO;
       start = i;
       for (; i < length && (inString || (!iswspace(buf[i]) &&
-				      buf[i] != ';' && buf[i] != '=' && buf[i] != ',' &&
-				      buf[i] != ')' && buf[i] != '}'));
-	   i++)	
-	if ((buf[i] == '<' && !inString) || (buf[i] == '>' && inString))
-	  inString = !inString;
+                                      buf[i] != ';' && buf[i] != '=' && buf[i] != ',' &&
+                                      buf[i] != ')' && buf[i] != '}'));
+           i++)
+        if ((buf[i] == '<' && !inString) || (buf[i] == '>' && inString))
+          inString = !inString;
       if (buf[start+1] == '*') {
-	switch (buf[start+2]) {
-	case 'i':
-	  anObject = [CLNumber numberWithLongLong:
-				 [[CLString stringWithCharacters:&buf[start+3]
-					    length:i-start-4] longLongValue]];
-	  break;
+        switch (buf[start+2]) {
+        case 'i':
+          anObject = [CLNumber numberWithLongLong:
+                                 [[CLString stringWithCharacters:&buf[start+3]
+                                            length:i-start-4] longLongValue]];
+          break;
 
-	case 'u':
-	  anObject = [CLNumber numberWithUnsignedLongLong:
-				 [[CLString stringWithCharacters:&buf[start+3]
-					    length:i-start-4] unsignedLongLongValue]];
-	  break;
+        case 'u':
+          anObject = [CLNumber numberWithUnsignedLongLong:
+                                 [[CLString stringWithCharacters:&buf[start+3]
+                                            length:i-start-4] unsignedLongLongValue]];
+          break;
 
-	case 'd':
-	  anObject = [CLNumber numberWithDouble:
-				 [[CLString stringWithCharacters:&buf[start+3]
-					    length:i-start-4] doubleValue]];
-	  break;
+        case 'd':
+          anObject = [CLNumber numberWithDouble:
+                                 [[CLString stringWithCharacters:&buf[start+3]
+                                            length:i-start-4] doubleValue]];
+          break;
 
-	case 'n':
-	  anObject = [CLDecimalNumber decimalNumberWithString:
-					[CLString stringWithCharacters:&buf[start+3]
-						  length:i-start-4]];
-	  break;
+        case 'n':
+          anObject = [CLDecimalNumber decimalNumberWithString:
+                                        [CLString stringWithCharacters:&buf[start+3]
+                                                  length:i-start-4]];
+          break;
 
-	case 'D':
-	  anObject = [CLDatetime dateWithString:
-				       [CLString stringWithCharacters:&buf[start+3]
-						 length:i-start-4]];
-	  break;
-	}
+        case 'D':
+          anObject = [CLDatetime dateWithString:
+                                       [CLString stringWithCharacters:&buf[start+3]
+                                                 length:i-start-4]];
+          break;
+        }
       }
       else
-	anObject = [CLPlaceholder placeholderFromString:
-				    [CLString stringWithCharacters:&buf[start]
-					      length:i-start]];
+        anObject = [CLPlaceholder placeholderFromString:
+                                    [CLString stringWithCharacters:&buf[start]
+                                              length:i-start]];
       break;
-      
+
     default:
       inString = sawEscape = NO;
       start = i;
       for (; i < length && (inString || (!iswspace(buf[i]) &&
-				      buf[i] != ';' && buf[i] != '=' &&
-				      buf[i] != ',' && buf[i] != '}' &&
-				      buf[i] != ')'));
-	   i++)	{
-	if (buf[i] == '"' && !sawEscape)
-	  inString = !inString;
-	if (!sawEscape && buf[i] == '\\')
-	  sawEscape = YES;
-	else
-	  sawEscape = NO;
+                                      buf[i] != ';' && buf[i] != '=' &&
+                                      buf[i] != ',' && buf[i] != '}' &&
+                                      buf[i] != ')'));
+           i++) {
+        if (buf[i] == '"' && !sawEscape)
+          inString = !inString;
+        if (!sawEscape && buf[i] == '\\')
+          sawEscape = YES;
+        else
+          sawEscape = NO;
       }
       if (buf[start] == '"')
-	anObject = [CLString stringWithCharacters:&buf[start+1] length:i-start-2];
+        anObject = [CLString stringWithCharacters:&buf[start+1] length:i-start-2];
       else if (i-start)
-	anObject = [CLString stringWithCharacters:&buf[start] length:i-start];
+        anObject = [CLString stringWithCharacters:&buf[start] length:i-start];
       anObject = [anObject reversePropertyListString];
       break;
     }
@@ -1158,7 +1158,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   CLUInteger i;
   id anObject;
 
-  
+
   CLCheckStringClass(self);
   i = 0;
   anObject = [self decodeObject:((unistr *) self)->str length:len pos:&i];
@@ -1170,7 +1170,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   CLUInteger i, start;
   id anObject = nil, anObject2, anObject3;
   BOOL inString;
-  
+
 
   start = *pos;
   for (i = start; i < length && iswspace(buf[i]); i++)
@@ -1182,76 +1182,76 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
       anObject = [[[CLMutableDictionary alloc] init] autorelease];
       i++;
       while ((anObject2 = [self decodeJSON:buf length:length pos:&i])) {
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	if (buf[i] != ':')
-	  break;
-	i++;
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	anObject3 = [self decodeJSON:buf length:length pos:&i];
-	[anObject setObject:anObject3 forKey:anObject2];
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	if (i < length && buf[i] == ',')
-	  i++;
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	if (i < length && buf[i] == '}')
-	  break;
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        if (buf[i] != ':')
+          break;
+        i++;
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        anObject3 = [self decodeJSON:buf length:length pos:&i];
+        [anObject setObject:anObject3 forKey:anObject2];
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        if (i < length && buf[i] == ',')
+          i++;
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        if (i < length && buf[i] == '}')
+          break;
       }
       if (buf[i] == '}')
-	i++;
+        i++;
       break;
 
     case '[':
       anObject = [CLMutableArray array];
       i++;
       while ((anObject2 = [self decodeJSON:buf length:length pos:&i])) {
-	[anObject addObject:anObject2];
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	if (i < length && buf[i] == ',')
-	  i++;
-	for (; i < length && iswspace(buf[i]); i++)
-	  ;
-	if (i < length && buf[i] == ']')
-	  break;
+        [anObject addObject:anObject2];
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        if (i < length && buf[i] == ',')
+          i++;
+        for (; i < length && iswspace(buf[i]); i++)
+          ;
+        if (i < length && buf[i] == ']')
+          break;
       }
       if (buf[i] == ']')
-	i++;
+        i++;
       break;
 
     default:
       inString = NO;
       start = i;
       for (; i < length && (inString || (!iswspace(buf[i]) &&
-					 buf[i] != ':' &&
-					 buf[i] != ',' && buf[i] != '}' &&
-					 buf[i] != ']'));
-	   i++)	{
-	if (buf[i] == '\\') {
-	  i++;
-	  continue;
-	}
-	if (buf[i] == '"')
-	  inString = !inString;
+                                         buf[i] != ':' &&
+                                         buf[i] != ',' && buf[i] != '}' &&
+                                         buf[i] != ']'));
+           i++) {
+        if (buf[i] == '\\') {
+          i++;
+          continue;
+        }
+        if (buf[i] == '"')
+          inString = !inString;
       }
       if (buf[start] == '"')
-	anObject = [[CLString stringWithCharacters:&buf[start+1] length:i-start-2]
-		     reversePropertyListString];
+        anObject = [[CLString stringWithCharacters:&buf[start+1] length:i-start-2]
+                     reversePropertyListString];
       else if (i-start) {
-	anObject = [CLString stringWithCharacters:&buf[start] length:i-start];
-	if ([anObject isEqualToString:@"true"])
-	  anObject = CLTrueObject;
-	else if ([anObject isEqualToString:@"false"])
-	  anObject = CLFalseObject;
-	else if ([anObject isEqualToString:@"null"])
-	  anObject = CLNullObject;
-	else if (i-start && (iswdigit(buf[start]) || buf[start] == '-'))
-	  anObject = [CLDecimalNumber decimalNumberWithString:anObject];
-	else
-	  anObject = [anObject reversePropertyListString];
+        anObject = [CLString stringWithCharacters:&buf[start] length:i-start];
+        if ([anObject isEqualToString:@"true"])
+          anObject = CLTrueObject;
+        else if ([anObject isEqualToString:@"false"])
+          anObject = CLFalseObject;
+        else if ([anObject isEqualToString:@"null"])
+          anObject = CLNullObject;
+        else if (i-start && (iswdigit(buf[start]) || buf[start] == '-'))
+          anObject = [CLDecimalNumber decimalNumberWithString:anObject];
+        else
+          anObject = [anObject reversePropertyListString];
       }
       break;
     }
@@ -1265,7 +1265,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   CLUInteger i;
   id anObject;
 
-  
+
   CLCheckStringClass(self);
   i = 0;
   anObject = [self decodeJSON:((unistr *) self)->str length:len pos:&i];
@@ -1277,8 +1277,8 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   unichar *p, *q, *strend;
   CLString *aKey;
   id aValue, anObject = nil;
-  
-  
+
+
   CLCheckStringClass(aString);
   p = ((unistr *) aString)->str;
   strend = p + aString->len;
@@ -1288,7 +1288,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   while (p < strend) {
     q = p;
     while (q < strend && *q != '=' && *q != '>'
-	   && !iswspace(*q))
+           && !iswspace(*q))
       q++;
     aKey = [[CLString alloc] initWithCharacters:p length:q-p];
     while (q < strend && iswspace(*q))
@@ -1298,20 +1298,20 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
       aValue = CLNullObject;
     else {
       while (p < strend && iswspace(*p))
-	p++;
+        p++;
       q = p;
       if (*q == '"') {
-	q++;
-	p++;
-	while (q < strend && *q != '"')
-	  q++;
+        q++;
+        p++;
+        while (q < strend && *q != '"')
+          q++;
       }
       else {
-	while (q < strend && *q != '>' && !iswspace(*q))
-	  q++;
+        while (q < strend && *q != '>' && !iswspace(*q))
+          q++;
       }
       aValue = [[[[CLString alloc] initWithCharacters:p length:q-p]
-		  entityDecodedString] retain];
+                  entityDecodedString] retain];
     }
     if (!anObject)
       anObject = [[CLMutableDictionary alloc] init];
@@ -1355,106 +1355,106 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
       start = i;
       i++;
       for (k = i; k < len && iswspace(((unistr *) self)->str[k]); k++)
-	;
+        ;
       for (i = k; i < len; i++) {
-	if (i == k && len - i > cDataString->len &&
-	    !wcsncmp(&((unistr *) self)->str[i], cDataString->data, cDataString->len)) {
-	  inCdata = YES;
-	  i += cDataString->len - 1;
-	}
-	else if (inCdata && len - i >= cDataEndString->len &&
-		 !wcsncmp(&((unistr *) self)->str[i], cDataEndString->data, cDataEndString->len)) {
-	  inCdata = NO;
-	  i += cDataEndString->len - 2;
-	}
-	else if (!inCdata && ((unistr *) self)->str[i] == '"')
-	  inString = !inString;
-	else if (!inString && !inCdata && ((unistr *) self)->str[i] == '>')
-	  break;
+        if (i == k && len - i > cDataString->len &&
+            !wcsncmp(&((unistr *) self)->str[i], cDataString->data, cDataString->len)) {
+          inCdata = YES;
+          i += cDataString->len - 1;
+        }
+        else if (inCdata && len - i >= cDataEndString->len &&
+                 !wcsncmp(&((unistr *) self)->str[i], cDataEndString->data, cDataEndString->len)) {
+          inCdata = NO;
+          i += cDataEndString->len - 2;
+        }
+        else if (!inCdata && ((unistr *) self)->str[i] == '"')
+          inString = !inString;
+        else if (!inString && !inCdata && ((unistr *) self)->str[i] == '>')
+          break;
       }
 
       if (i < len && ((unistr *) self)->str[i] == '>') {
-	for (j = k; j < i && !iswspace(((unistr *) self)->str[j]) &&
-	       ((unistr *) self)->str[j] != '>' && ((unistr *) self)->str[j] != '/'; j++)
-	  ;
-	aKey = [CLString stringWithCharacters:&((unistr *) self)->str[k] length:j-k];
-	if ([aKey hasPrefix:cDataString]) {
-	  iRange.location = k + cDataString->len;
-	  iRange.length = (i - 2) - iRange.location;
-	  curObject = [[[self substringWithRange:iRange] entityDecodedString] retain];
-	  if (anObject) {
-	    if ([anObject isKindOfClass:CLMutableStringClass]) 
-	      [anObject appendString:curObject];
-	    else if ([anObject isKindOfClass:CLStringClass]) {
-	      aValue = [[anObject stringByAppendingString:curObject] retain];
-	      [anObject release];
-	      anObject = aValue;
-	    }
-	    else
-	      [self error:@"Overwriting existing object!"];
-	    
-	    [curObject release];
-	  }
-	  else
-	    anObject = curObject;
-	}
-	else {
-	  curObject = aValue = nil;
-	  l = i;
-	  if (((unistr *) self)->str[i-1] == '/')
-	    l--;
-	  for (; j < l && iswspace(((unistr *) self)->str[j]); j++)
-	    ;
+        for (j = k; j < i && !iswspace(((unistr *) self)->str[j]) &&
+               ((unistr *) self)->str[j] != '>' && ((unistr *) self)->str[j] != '/'; j++)
+          ;
+        aKey = [CLString stringWithCharacters:&((unistr *) self)->str[k] length:j-k];
+        if ([aKey hasPrefix:cDataString]) {
+          iRange.location = k + cDataString->len;
+          iRange.length = (i - 2) - iRange.location;
+          curObject = [[[self substringWithRange:iRange] entityDecodedString] retain];
+          if (anObject) {
+            if ([anObject isKindOfClass:CLMutableStringClass])
+              [anObject appendString:curObject];
+            else if ([anObject isKindOfClass:CLStringClass]) {
+              aValue = [[anObject stringByAppendingString:curObject] retain];
+              [anObject release];
+              anObject = aValue;
+            }
+            else
+              [self error:@"Overwriting existing object!"];
 
-	  if (l - j && (aValue = [self decodeAttributes:
-					 [self substringWithRange:CLMakeRange(j, l - j)]])) {
-	    curObject = aValue;
-	    aValue = nil;
-	  }
+            [curObject release];
+          }
+          else
+            anObject = curObject;
+        }
+        else {
+          curObject = aValue = nil;
+          l = i;
+          if (((unistr *) self)->str[i-1] == '/')
+            l--;
+          for (; j < l && iswspace(((unistr *) self)->str[j]); j++)
+            ;
 
-	  if (((unistr *) self)->str[i-1] == '/' || [aKey hasPrefix:@"?xml"]) {
-	    aValue = CLNullObject;
-	    i++;
-	  }
-	  else if ([self getRangeOfBlock:aKey end:[CLString stringWithFormat:@"/%@", aKey]
-			 outerRange:&oRange innerRange:&iRange
-			 inRange:CLMakeRange(start, len - start) allowCDATA:YES]) {
-	    aValue = [[self substringWithRange:iRange] decodeXML];
-	    i = CLMaxRange(oRange);
-	  }
+          if (l - j && (aValue = [self decodeAttributes:
+                                         [self substringWithRange:CLMakeRange(j, l - j)]])) {
+            curObject = aValue;
+            aValue = nil;
+          }
 
-	  if (aValue) {
-	    if (!anObject)
-	      anObject = [[CLMutableDictionary alloc] init];
-	  
-	    if (curObject)
-	      aValue = [CLArray arrayWithObjects:curObject, aValue, nil];
-	  
-	    if ((oldObject = [anObject objectForKey:aKey])) {
-	      if (![oldObject isKindOfClass:CLMutableArrayClass]) {
-		curObject = [[CLMutableArray alloc] init];
-		[curObject addObject:oldObject];
-		[anObject setObject:curObject forKey:aKey];
-		oldObject = curObject;
-		[curObject release];
-	      }
-	      [oldObject addObject:aValue];
-	    }
-	    else
-	      [anObject setObject:aValue forKey:aKey];
-	  }
-	}
+          if (((unistr *) self)->str[i-1] == '/' || [aKey hasPrefix:@"?xml"]) {
+            aValue = CLNullObject;
+            i++;
+          }
+          else if ([self getRangeOfBlock:aKey end:[CLString stringWithFormat:@"/%@", aKey]
+                         outerRange:&oRange innerRange:&iRange
+                         inRange:CLMakeRange(start, len - start) allowCDATA:YES]) {
+            aValue = [[self substringWithRange:iRange] decodeXML];
+            i = CLMaxRange(oRange);
+          }
+
+          if (aValue) {
+            if (!anObject)
+              anObject = [[CLMutableDictionary alloc] init];
+
+            if (curObject)
+              aValue = [CLArray arrayWithObjects:curObject, aValue, nil];
+
+            if ((oldObject = [anObject objectForKey:aKey])) {
+              if (![oldObject isKindOfClass:CLMutableArrayClass]) {
+                curObject = [[CLMutableArray alloc] init];
+                [curObject addObject:oldObject];
+                [anObject setObject:curObject forKey:aKey];
+                oldObject = curObject;
+                [curObject release];
+              }
+              [oldObject addObject:aValue];
+            }
+            else
+              [anObject setObject:aValue forKey:aKey];
+          }
+        }
       }
       else if (i < len)
-	[self error:@"Unknown XML encoding"];
+        [self error:@"Unknown XML encoding"];
     }
     else {
-      if (!foundTag) {      
-	anObject = [[self entityDecodedString] retain];
-	i = len;
+      if (!foundTag) {
+        anObject = [[self entityDecodedString] retain];
+        i = len;
       }
       else
-	i++;
+        i++;
     }
   }
 
@@ -1466,7 +1466,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 -(CLArray *) decodeCSV
 {
   return [self decodeCSVUsingCharacterSet:
-		 [CLCharacterSet characterSetWithCharactersInString:@","]];
+                 [CLCharacterSet characterSetWithCharactersInString:@","]];
 }
 
 -(CLArray *) decodeCSVUsingCharacterSet:(CLCharacterSet *) aSet
@@ -1492,7 +1492,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
     [rows release];
     rows = record;
   }
-  
+
   return [rows autorelease];
 }
 
@@ -1502,7 +1502,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 }
 
 -(CLData *) dataUsingEncoding:(CLStringEncoding) encoding
-	 allowLossyConversion:(BOOL) flag  
+         allowLossyConversion:(BOOL) flag
 {
   char *buf;
   CLUInteger blen;
@@ -1510,7 +1510,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 
   CLCheckStringClass(self);
   CLStringConvertEncoding(data, len * sizeof(unichar), CLUnicodeStringEncoding,
-			  &buf, &blen, encoding, flag);
+                          &buf, &blen, encoding, flag);
   return [CLData dataWithBytesNoCopy:buf length:blen];
 }
 
@@ -1550,17 +1550,17 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
     nRange = [self rangeOfCharacterFromSet:separator options:0 range:oRange];
     if (nRange.length) {
       if (nRange.location == 0)
-	[mArray addObject:[self substringToIndex:1]];
+        [mArray addObject:[self substringToIndex:1]];
       else
-	[mArray addObject:[self substringWithRange:
-				   CLMakeRange(oRange.location,
-					       nRange.location - oRange.location)]];
+        [mArray addObject:[self substringWithRange:
+                                   CLMakeRange(oRange.location,
+                                               nRange.location - oRange.location)]];
       oRange.location = nRange.location + 1;
       oRange.length = len - oRange.location;
     }
     else {
       if (oRange.length)
-	[mArray addObject:[self substringFromIndex:oRange.location]];
+        [mArray addObject:[self substringFromIndex:oRange.location]];
       break;
     }
   }
@@ -1582,17 +1582,17 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
     nRange = [self rangeOfString:separator options:0 range:oRange];
     if (nRange.length) {
       if (nRange.location == 0)
-	[mArray addObject:@""];
+        [mArray addObject:@""];
       else
-	[mArray addObject:[self substringWithRange:
-				   CLMakeRange(oRange.location,
-					       nRange.location - oRange.location)]];
+        [mArray addObject:[self substringWithRange:
+                                   CLMakeRange(oRange.location,
+                                               nRange.location - oRange.location)]];
       oRange.location = CLMaxRange(nRange);
       oRange.length = len - oRange.location;
     }
     else {
       if (oRange.length)
-	[mArray addObject:[self substringFromIndex:oRange.location]];
+        [mArray addObject:[self substringFromIndex:oRange.location]];
       break;
     }
   }
@@ -1609,19 +1609,19 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   CLCheckStringClass(self);
   if (!len)
     return self;
-  
+
   aRange = [self rangeOfCharacterNotFromSet:set options:0 range:CLMakeRange(0, len)];
   aRange2 = [self rangeOfCharacterNotFromSet:set options:CLBackwardsSearch
-		  range:CLMakeRange(0, len)];
+                  range:CLMakeRange(0, len)];
   if (aRange.length && aRange2.length) {
     if (!aRange.location && CLMaxRange(aRange2) == len) {
       /* Return a copy because we could be mutable. If we're not
-	 mutable then copy will do a retain. */
+         mutable then copy will do a retain. */
       return [[self copy] autorelease];
     }
     return [self substringWithRange:CLMakeRange(aRange.location,
-						(aRange2.location + aRange2.length)
-						- aRange.location)];
+                                                (aRange2.location + aRange2.length)
+                                                - aRange.location)];
   }
   return @"";
 }
@@ -1629,7 +1629,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 -(CLString *) stringByTrimmingWhitespaceAndNewlines
 {
   return [self stringByTrimmingCharactersInSet:
-		 [CLCharacterSet whitespaceAndNewlineCharacterSet]];
+                 [CLCharacterSet whitespaceAndNewlineCharacterSet]];
 }
 
 -(CLString *) substringFromIndex:(CLUInteger) anIndex
@@ -1653,7 +1653,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   if (max < range.length || max > len)
     [self error:@"Range exceeds length"];
   return [CLString stringWithCharacters:&((unistr *) self)->str[range.location]
-		   length:range.length];
+                   length:range.length];
 }
 
 @end
@@ -1661,29 +1661,29 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 @implementation CLString (CLStringReplacing)
 
 -(CLString *) stringByReplacingOccurrencesOfString:(CLString *) target
-					withString:(CLString *) replacement
+                                        withString:(CLString *) replacement
 {
   CLCheckStringClass(self);
   return [self stringByReplacingOccurrencesOfString:target withString:replacement
-	       options:0 range:CLMakeRange(0, len)];
+               options:0 range:CLMakeRange(0, len)];
 }
 
 -(CLString *) stringByReplacingOccurrencesOfString:(CLString *) target
-					withString:(CLString *) replacement
-					   options:(CLStringCompareOptions) options
-					     range:(CLRange) searchRange
+                                        withString:(CLString *) replacement
+                                           options:(CLStringCompareOptions) options
+                                             range:(CLRange) searchRange
 {
   CLMutableString *mString = [self mutableCopy];
 
 
   [mString replaceOccurrencesOfString:target withString:replacement options:options
-				range:searchRange];
+                                range:searchRange];
   ((CLString *) mString)->isa = CLStringClass;
   return [mString autorelease];
 }
 
 -(CLString *) stringByReplacingCharactersInRange:(CLRange) range
-				      withString:(CLString *) replacement
+                                      withString:(CLString *) replacement
 {
   CLMutableString *mString = [self mutableCopy];
 
@@ -1762,7 +1762,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   for (i = 0, j = len; i < j; i++) {
     c = [self characterAtIndex:i];
     if (!iswspace(c) && c != '0' &&
-	!(!i && (c == '+' || c == '-')))
+        !(!i && (c == '+' || c == '-')))
       break;
   }
 
@@ -1771,7 +1771,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 
   if (![self caseInsensitiveCompare:@"on"])
     return YES;
-  
+
   return NO;
 }
 
@@ -1787,7 +1787,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
 
 -(long long) longLongValue
 {
-  return strtoll([self UTF8String], NULL, 0);  
+  return strtoll([self UTF8String], NULL, 0);
 }
 
 -(unsigned int) unsignedIntValue
@@ -2067,7 +2067,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   aRange = [self rangeOfString:@"://"];
   if (!aRange.length)
     return self;
-  
+
   CLCheckStringClass(self);
   aRange2.location = CLMaxRange(aRange);
   aRange2.length = len - aRange2.location;
@@ -2086,7 +2086,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   aRange = [self rangeOfString:@"://"];
   if (!aRange.length)
     return self;
-  
+
   CLCheckStringClass(self);
   aRange2.location = CLMaxRange(aRange);
   aRange2.length = len - aRange2.location;
@@ -2107,9 +2107,9 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   aRange = [self rangeOfString:@"://" options:0 range:CLMakeRange(0, len)];
   if (aRange.length) {
     alphaSet = [CLCharacterSet characterSetWithCharactersInString:
-				 @"abcdefghijklmnopqrstuvwxyz"];
+                                 @"abcdefghijklmnopqrstuvwxyz"];
     aRange2 = [self rangeOfCharacterNotFromSet:alphaSet options:0
-		    range:CLMakeRange(0, len)];
+                    range:CLMakeRange(0, len)];
     if (aRange2.location == aRange.location)
       return YES;
   }
@@ -2147,7 +2147,7 @@ static const char *CLMPNextLtr = "ENNNR";
   name = [aData bytes];
   mData = [CLMutableData dataWithLength:[aData length] + 1];
   ename = [mData mutableBytes];
-  
+
   for (ii = jj = 0, Lng = [aData length]; ii < Lng; ii++) {
     if (isalpha(name[ii])) {
       ename[jj] = toupper(name[ii]);
@@ -2160,7 +2160,7 @@ static const char *CLMPNextLtr = "ENNNR";
     return nil;
 
   metaph = [[CLMutableString alloc] init];
-  
+
   /* if AE, GN, KN, PN, WR then drop the first letter */
   if ((chrptr = strchr(CLMPExcPair, ename[0]))) {
     chrptr1 = CLMPNextLtr + (chrptr - CLMPExcPair);
@@ -2188,11 +2188,11 @@ static const char *CLMPNextLtr = "ENNNR";
     curLtr = ename[ii];
     vowelBefore = NO;
     prevLtr = ' ';
-      
+
     if (ii > 0) {
       prevLtr = ename[ii-1];
       if (strchr(CLMPVowels, prevLtr))
-	vowelBefore = YES;
+        vowelBefore = YES;
     }
     /* if first letter is a vowel KEEP it */
     if (ii == 0 && strchr(CLMPVowels, curLtr)) {
@@ -2206,9 +2206,9 @@ static const char *CLMPNextLtr = "ENNNR";
     if (ii < lastChr) {
       nextLtr = ename[ii+1];
       if (strchr(CLMPVowels, nextLtr))
-	vowelAfter = YES;
+        vowelAfter = YES;
       if (strchr(CLMPFrontV, nextLtr))
-	frontvAfter = YES;
+        frontvAfter = YES;
     }
     /* skip double letters except ones in list */
     if (curLtr == nextLtr && !strchr(CLMPDouble, nextLtr))
@@ -2226,86 +2226,86 @@ static const char *CLMPNextLtr = "ENNNR";
     case 'B':
       silent = NO;
       if (ii == lastChr && prevLtr == 'M')
-	silent = YES;
+        silent = YES;
       if (!silent)
-	[metaph appendCharacter:curLtr];
+        [metaph appendCharacter:curLtr];
       break;
 
       /*silent -sci-,-sce-,-scy-;  sci-, etc OK*/
     case 'C':
       if (!(ii > 1 && prevLtr == 'S' && frontvAfter)) {
-	if (ii > 0 && nextLtr == 'I' && nextLtr2 == 'A')
-	  [metaph appendCharacter:'X'];
-	else {
-	  if (frontvAfter)
-	    [metaph appendCharacter:'S'];
-	  else {
-	    if (ii > 1 && prevLtr == 'S' && nextLtr == 'H')
-	      [metaph appendCharacter:'K'];
-	    else {
-	      if (nextLtr == 'H') {
-		if (ii == 0 && !strchr(CLMPVowels, nextLtr2))
-		  [metaph appendCharacter:'K'];
-		else
-		  [metaph appendCharacter:'X'];
-	      }
-	      else {
-		if (prevLtr == 'C')
-		  [metaph appendCharacter:'C'];
-		else
-		  [metaph appendCharacter:'K'];
-	      }
-	    }
-	  }
-	}
+        if (ii > 0 && nextLtr == 'I' && nextLtr2 == 'A')
+          [metaph appendCharacter:'X'];
+        else {
+          if (frontvAfter)
+            [metaph appendCharacter:'S'];
+          else {
+            if (ii > 1 && prevLtr == 'S' && nextLtr == 'H')
+              [metaph appendCharacter:'K'];
+            else {
+              if (nextLtr == 'H') {
+                if (ii == 0 && !strchr(CLMPVowels, nextLtr2))
+                  [metaph appendCharacter:'K'];
+                else
+                  [metaph appendCharacter:'X'];
+              }
+              else {
+                if (prevLtr == 'C')
+                  [metaph appendCharacter:'C'];
+                else
+                  [metaph appendCharacter:'K'];
+              }
+            }
+          }
+        }
       }
       break;
 
     case 'D':
       if (nextLtr == 'G' && strchr(CLMPFrontV, nextLtr2))
-	[metaph appendCharacter:'J'];
+        [metaph appendCharacter:'J'];
       else
-	[metaph appendCharacter:'T'];
+        [metaph appendCharacter:'T'];
       break;
 
     case 'G':
       silent = NO;
       /* SILENT -gh- except for -gh and no vowel after h */
       if (ii < (lastChr-1) && nextLtr == 'H' && !strchr(CLMPVowels, nextLtr2))
-	silent = YES;
+        silent = YES;
 
       if (ii == lastChr-3 && nextLtr == 'N' && nextLtr2 == 'E' && nextLtr3 == 'D')
-	silent = YES;
+        silent = YES;
       else
-	if (ii == lastChr-1 && nextLtr == 'N')
-	  silent = YES;
+        if (ii == lastChr-1 && nextLtr == 'N')
+          silent = YES;
 
       if (prevLtr == 'D' && frontvAfter)
-	silent = YES;
+        silent = YES;
 
       if (prevLtr == 'G')
-	hard = YES;
+        hard = YES;
       else
-	hard = NO;
+        hard = NO;
 
       if (!silent) {
-	if (frontvAfter && !hard)
-	  [metaph appendCharacter:'J'];
-	else
-	  [metaph appendCharacter:'K'];
+        if (frontvAfter && !hard)
+          [metaph appendCharacter:'J'];
+        else
+          [metaph appendCharacter:'K'];
       }
       break;
 
     case 'H':
       silent = NO;
       if (strchr(CLMPVarSon, prevLtr))
-	silent = YES;
+        silent = YES;
 
       if (vowelBefore && !vowelAfter)
-	silent = YES;
+        silent = YES;
 
       if (!silent)
-	[metaph appendCharacter:curLtr];
+        [metaph appendCharacter:curLtr];
       break;
 
     case 'F':
@@ -2319,14 +2319,14 @@ static const char *CLMPNextLtr = "ENNNR";
 
     case 'K':
       if (prevLtr != 'C')
-	[metaph appendCharacter:curLtr];
+        [metaph appendCharacter:curLtr];
       break;
 
     case 'P':
       if (nextLtr == 'H')
-	[metaph appendCharacter:'F'];
+        [metaph appendCharacter:'F'];
       else
-	[metaph appendCharacter:'P'];
+        [metaph appendCharacter:'P'];
       break;
 
     case 'Q':
@@ -2335,27 +2335,27 @@ static const char *CLMPNextLtr = "ENNNR";
 
     case 'S':
       if (ii > 1 && nextLtr == 'I' && (nextLtr2 == 'O' || nextLtr2 == 'A'))
-	[metaph appendCharacter:'X'];
+        [metaph appendCharacter:'X'];
       else {
-	if (nextLtr == 'H')
-	  [metaph appendCharacter:'X'];
-	else
-	  [metaph appendCharacter:'S'];
+        if (nextLtr == 'H')
+          [metaph appendCharacter:'X'];
+        else
+          [metaph appendCharacter:'S'];
       }
       break;
 
     case 'T':
       if (ii > 1 && nextLtr == 'I' && (nextLtr2 == 'O' || nextLtr2 == 'A'))
-	[metaph appendCharacter:'X'];
+        [metaph appendCharacter:'X'];
       else {
-	if (nextLtr == 'H') {       /* The=0, Tho=T, Withrow=0 */
-	  if (ii > 0 || strchr(CLMPVowels, nextLtr2))
-	    [metaph appendCharacter:'0'];
-	  else
-	    [metaph appendCharacter:'T'];
-	}
-	else if (!(ii < lastChr-2 && nextLtr == 'C' && nextLtr2 == 'H'))
-	  [metaph appendCharacter:'T'];
+        if (nextLtr == 'H') {       /* The=0, Tho=T, Withrow=0 */
+          if (ii > 0 || strchr(CLMPVowels, nextLtr2))
+            [metaph appendCharacter:'0'];
+          else
+            [metaph appendCharacter:'T'];
+        }
+        else if (!(ii < lastChr-2 && nextLtr == 'C' && nextLtr2 == 'H'))
+          [metaph appendCharacter:'T'];
       }
       break;
 
@@ -2366,7 +2366,7 @@ static const char *CLMPNextLtr = "ENNNR";
     case 'W':
     case 'Y':
       if (ii < lastChr && vowelAfter)
-	[metaph appendCharacter:curLtr];
+        [metaph appendCharacter:curLtr];
       break;
 
     case 'X':
@@ -2395,13 +2395,13 @@ static const char *CLMPNextLtr = "ENNNR";
   pool = [[CLAutoreleasePool alloc] init];
   mArray = [[CLMutableArray alloc] init];
   anArray = [self componentsSeparatedByCharactersInSet:
-		    [CLCharacterSet whitespaceAndNewlineCharacterSet]];
+                    [CLCharacterSet whitespaceAndNewlineCharacterSet]];
   for (i = 0, j = [anArray count]; i < j; i++) {
     aString = [anArray objectAtIndex:i];
     if ([aString length]) {
       aString = [aString englishMetaphoneString];
       if ([aString length])
-	[mArray addObject:aString];
+        [mArray addObject:aString];
     }
   }
   aString = [[mArray componentsJoinedByString:@" "] retain];
@@ -2414,12 +2414,12 @@ static const char *CLMPNextLtr = "ENNNR";
 @end
 
 static int CLPrintObject(FILE *stream, const struct printf_info *info,
-			const void *const *args)
+                        const void *const *args)
 {
   id anObject;
   int len;
   const char *p;
-  
+
 
   anObject = *((id *) (args[0]));
 
@@ -2435,18 +2435,18 @@ static int CLPrintObject(FILE *stream, const struct printf_info *info,
   }
   else
     len = fprintf(stream, "%s", p);
-  
+
   return len;
 }
 
-#define PA_OBJECT	PA_LAST
+#define PA_OBJECT       PA_LAST
 
 #if HAVE_REGISTERPRINTFSPECIFIER
 static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
-				int *argtypes, int *size)
+                                int *argtypes, int *size)
 #else
 static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
-				int *argtypes)
+                                int *argtypes)
 #endif
 {
   if (n > 0) {

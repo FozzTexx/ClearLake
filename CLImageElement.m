@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -110,7 +110,7 @@
   id anObject;
   CLString *effects;
 
-  
+
   [stream readTypes:@"@", &anObject];
   if ([anObject isKindOfClass:CLStringClass])
     imageRep = [[CLImageRep alloc] initFromFile:anObject];
@@ -120,7 +120,7 @@
     if (effects)
       [attributes setObject:effects forCaseInsensitiveString:@"CL_EFFECTS"];
   }
-  
+
   return;
 }
 
@@ -135,7 +135,7 @@
     aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"];
     [stream writeTypes:@"@@", &imageRep, &aString];
   }
-  
+
   return;
 }
 
@@ -146,8 +146,8 @@
   CLData *aData;
   CLImageRep *newRep;
   CLString *format;
-  
-  
+
+
   if ((aString = [CLQuery objectForKey:CL_URLDATA])) {
     aData = [aString decodeBase64];
     stream = [CLStream openWithData:aData mode:CLReadOnly];
@@ -167,9 +167,9 @@
     else {
       /* FIXME - find a way to allow bindings in CL_EFFECTS */
       if ((aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"]))
-	newRep = [imageRep imageRepFromEffects:aString];
+        newRep = [imageRep imageRepFromEffects:aString];
       else
-	newRep = imageRep;
+        newRep = imageRep;
       format = [newRep bestFormat];
       aData = [newRep representationUsingFormat:format];
 
@@ -191,7 +191,7 @@
   CLStream *stream, *stream2;
   CLData *aData;
 
-  
+
   if (imageRep) {
     if ((aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"]))
       newRep = [imageRep imageRepFromEffects:aString];
@@ -203,7 +203,7 @@
       aString = [CLString stringWithUTF8String:p];
     else
       aString = [CLString stringWithString:CLAppPath];
-    
+
     if (![path hasPathPrefix:aString]) {
       stream = [CLStream openMemoryForWriting];
       stream2 = [CLStream openMemoryForWriting];
@@ -218,13 +218,13 @@
     }
     else {
       CLString *prefix, *filename;
-      
+
 
       prefix = [path substringFromIndex:[aString length]];
       filename = [prefix lastPathComponent];
       prefix = [prefix stringByDeletingLastPathComponent];
       aString = [prefix stringByAppendingPathComponent:
-			  [filename stringByAddingPercentEscapes]];
+                          [filename stringByAddingPercentEscapes]];
     }
   }
 
@@ -241,9 +241,9 @@
   if (!ignore)
     ignore = [CLMutableArray array];
   [ignore addObjects:@"CL_VISIBLE", @"CL_SORT", @"CL_FORMAT", @"CL_AUTONUMBER",
-	  @"CL_DATASOURCE", @"CL_BINDING", @"CL_DBINDING", @"CL_VARNAME",
-	  @"CL_EFFECTS", @"CL_SRC", @"CL_NOSIZE", nil];
-  
+          @"CL_DATASOURCE", @"CL_BINDING", @"CL_DBINDING", @"CL_VARNAME",
+          @"CL_EFFECTS", @"CL_SRC", @"CL_NOSIZE", nil];
+
   for (i = 0, j = [ignore count]; i < j; i++) {
     aKey = [ignore objectAtIndex:i];
     if ([mDict objectForCaseInsensitiveString:aKey])
@@ -279,24 +279,24 @@
     }
     else {
       /* FIXME - I have no idea how I'm supposed to convert a struct
-	 into a ffi_type when the Obj-C typespec string doesn't
-	 describe all the individual elements in the struct */      
+         into a ffi_type when the Obj-C typespec string doesn't
+         describe all the individual elements in the struct */
       if ([newRep isFault])
-	[newRep fault];
-      
+        [newRep fault];
+
       aSize = [newRep size];
       [attributes setObject:[CLNumber numberWithInt:aSize.width]
-		  forCaseInsensitiveString:@"WIDTH"];
+                  forCaseInsensitiveString:@"WIDTH"];
       [attributes setObject:[CLNumber numberWithInt:aSize.height]
-		  forCaseInsensitiveString:@"HEIGHT"];
+                  forCaseInsensitiveString:@"HEIGHT"];
     }
 
     [stream writeFormat:@" SRC=\"%@\"" usingEncoding:CLUTF8StringEncoding, [self generateURL]];
   }
-  
+
   [self writeAttributes:stream ignore:nil];
   [stream writeString:@">" usingEncoding:CLUTF8StringEncoding];
-  
+
   return;
 }
 
@@ -323,12 +323,12 @@
   id anObject;
   BOOL found;
 
-  
+
   if ((binding = [attributes objectForCaseInsensitiveString:@"CL_BINDING"])) {
     anObject = [self expandBinding:binding success:&found];
     if (found) {
       if ([anObject isKindOfClass:CLStringClass])
-	anObject = [[[CLImageRep alloc] initFromFile:anObject] autorelease];
+        anObject = [[[CLImageRep alloc] initFromFile:anObject] autorelease];
       [self setImageRep:anObject];
     }
   }
@@ -350,7 +350,7 @@
 
 
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
   aCopy->imageRep = [imageRep retain];
   return aCopy;
 }

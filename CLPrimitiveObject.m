@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -22,7 +22,7 @@
 #define _GNU_SOURCE
 #include <string.h>
 
-#define NO_OVERRIDE	1
+#define NO_OVERRIDE     1
 
 #import "CLPrimitiveObject.h"
 #import "CLRuntime.h"
@@ -115,7 +115,7 @@ id CLDisposeInstance(id object)
 {
   void *buf;
 
-  
+
   buf = object;
   buf -= sizeof(CLObjectReserved);
   free(buf);
@@ -149,7 +149,7 @@ id CLDisposeInstance(id object)
   if ([allocAllow count] && ![[allocAllow lastObject] boolValue])
     [self error:@"No allocing!"];
 #endif
-  
+
   buf = class_createInstance(self, sizeof(CLObjectReserved));
   isa = ((id) buf)->class_pointer;
   new = buf + sizeof(CLObjectReserved);
@@ -169,7 +169,7 @@ id CLDisposeInstance(id object)
 {
   Class aClass;
 
-  
+
 #if DEBUG_ALLOC
   if ([allocAllow count] && ![[allocAllow lastObject] boolValue])
     [self error:@"No allocing!"];
@@ -207,7 +207,7 @@ id CLDisposeInstance(id object)
 #if DEBUG_LEAK || DEBUG_RETAIN || DEBUG_ALLOC
   CLLeak *aLeak;
 
-  
+
   aLeak = CLLeakFindObject(self);
 #endif
 #if DEBUG_LEAK || DEBUG_RETAIN
@@ -218,7 +218,7 @@ id CLDisposeInstance(id object)
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx %u/%i init %s %i\n", (unsigned long) self,
-	    aLeak->sequence, aLeak->flag, className, CLLeakSequence - 1);
+            aLeak->sequence, aLeak->flag, className, CLLeakSequence - 1);
     CLLeakPrint = pl;
   }
 #endif
@@ -243,12 +243,12 @@ id CLDisposeInstance(id object)
     memmove(&CLLeakArray[pos], &CLLeakArray[pos+1], sizeof(CLLeak) * (CLLeakArrayPos - pos));
   CLLeakArrayPos--;
 #endif
-  
+
 #endif
 #if DEBUG_LEAK || DEBUG_RETAIN
   if (CLLeakNumObjects < 0)
     [self error:@"We released more than we allocated!"];
-  
+
   if (CLLeakPrint) {
     int pl = CLLeakPrint;
     CLLeakPrint = 0;
@@ -273,12 +273,12 @@ id CLDisposeInstance(id object)
     reserved->faultData = isa;
     isa = CLReleaseTrackerClass;
   }
-  
+
 #else
   {
     void *buf;
 
-  
+
     buf = self;
     buf -= sizeof(CLObjectReserved);
 #ifdef __GNU_LIBOBJC__
@@ -300,13 +300,13 @@ id CLDisposeInstance(id object)
 #endif
 {
   id newObject;
-  
+
 
   newObject = [[self class] alloc];
 #if DEBUG_LEAK || DEBUG_RETAIN || DEBUG_ALLOC
   CLLeak *aLeak;
 
-  
+
   aLeak = CLLeakFindObject(self);
 #endif
 #if DEBUG_LEAK || DEBUG_RETAIN
@@ -317,7 +317,7 @@ id CLDisposeInstance(id object)
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx %u/%i copy %s %i\n", (unsigned long) newObject,
-	    aLeak->sequence, aLeak->flag, className, CLLeakSequence - 1);
+            aLeak->sequence, aLeak->flag, className, CLLeakSequence - 1);
     CLLeakPrint = pl;
   }
 #endif
@@ -334,7 +334,7 @@ id CLDisposeInstance(id object)
     aClass = (Class) self;
   if ((poseClass = [CLPoseDict objectForKey:aClass]))
     aClass = poseClass;
-  
+
   return aClass;
 }
 
@@ -348,7 +348,7 @@ id CLDisposeInstance(id object)
   static CLHashTable *classNameTable = NULL;
   CLString *aString;
   Class aClass = [self class];
-  
+
 
   if (!classNameTable ||
       !(aString = CLHashTableDataForIdenticalKey(classNameTable, aClass, (size_t) aClass))) {
@@ -363,7 +363,7 @@ id CLDisposeInstance(id object)
 #endif
     CLHashTableSetData(classNameTable, aString, aClass, (size_t) aClass);
   }
-  
+
   return aString;
 }
 
@@ -375,7 +375,7 @@ id CLDisposeInstance(id object)
 -(BOOL) isKindOfClass:(Class) aClassObject
 {
   Class aClass;
-  
+
 
   aClass = object_getClass(self);
   if (class_isMetaClass(aClass))
@@ -424,8 +424,8 @@ id CLDisposeInstance(id object)
 {
   return (struct objc_method_description *)
            ([self isInstance] ?
-	    class_getInstanceMethod(self->isa, aSel) :
-	    class_getClassMethod(self->isa, aSel));
+            class_getInstanceMethod(self->isa, aSel) :
+            class_getClassMethod(self->isa, aSel));
 }
 
 -(CLMethodSignature *) newMethodSignatureForSelector:(SEL) aSel
@@ -446,15 +446,15 @@ id CLDisposeInstance(id object)
 -(void) doesNotRecognize:(SEL) aSel
 {
   [self error:@"%s does not recognize %s",
-	object_getClassName(self), sel_getName(aSel)];
+        object_getClassName(self), sel_getName(aSel)];
   return;
 }
 
 -(IMP) methodFor:(SEL) aSel
 {
   return method_getImplementation([self isInstance] ?
-			class_getInstanceMethod(self->isa, aSel) :
-			class_getClassMethod(self->isa, aSel));
+                        class_getInstanceMethod(self->isa, aSel) :
+                        class_getClassMethod(self->isa, aSel));
 }
 
 /* This is just here to appease gdb */
@@ -467,7 +467,7 @@ id CLDisposeInstance(id object)
 {
   IMP msg = objc_msg_lookup(self, aSel);
 
-  
+
   if (!msg)
     [self error:@"invalid selector passed to %s", sel_getName(_cmd)];
   return (*msg)(self, aSel);
@@ -477,7 +477,7 @@ id CLDisposeInstance(id object)
 {
   IMP msg = objc_msg_lookup(self, aSel);
 
-  
+
   if (!msg)
     [self error:@"invalid selector passed to %s", sel_getName(_cmd)];
   return (*msg)(self, aSel, anObject);
@@ -487,7 +487,7 @@ id CLDisposeInstance(id object)
 {
   IMP msg = objc_msg_lookup(self, aSel);
 
-  
+
   if (!msg)
     [self error:@"invalid selector passed to %s", sel_getName(_cmd)];
   return (*msg)(self, aSel, anObject1, anObject2);
@@ -506,9 +506,9 @@ id CLDisposeInstance(id object)
   }
 
   fprintf(stderr, "error: %s (%s)\n%s\n",
-	  object_getClassName(self),
-	  [self isInstance] ? "instance" : "class",
-	  str);
+          object_getClassName(self),
+          [self isInstance] ? "instance" : "class",
+          str);
   abort();
   return;
 }
@@ -537,7 +537,7 @@ id CLDisposeInstance(id object)
       [self error:@"Double release!"];
 #endif
     if (CLDeferPool && [self respondsTo:@selector(shouldDeferRelease)] &&
-	[self shouldDeferRelease])
+        [self shouldDeferRelease])
       [CLDeferPool addObject:self];
     else
       [self dealloc];
@@ -572,9 +572,9 @@ id CLDisposeInstance(id object)
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx %u/%i alloc %s - 0x%lx %s:%i %i\n",
-	    (unsigned long) anObject, aLeak->sequence, aLeak->flag,
-	    className, (unsigned long) retainer,
-	    file, line, [self retainCount]);
+            (unsigned long) anObject, aLeak->sequence, aLeak->flag,
+            className, (unsigned long) retainer,
+            file, line, [self retainCount]);
     CLLeakPrint = pl;
   }
   return anObject;
@@ -590,8 +590,8 @@ id CLDisposeInstance(id object)
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx retain %s - 0x%lx %s:%i %i\n",
-	    (unsigned long) self, className, (unsigned long) retainer,
-	    file, line, [self retainCount] + 1);
+            (unsigned long) self, className, (unsigned long) retainer,
+            file, line, [self retainCount] + 1);
     CLLeakPrint = pl;
   }
   return [self retain];
@@ -600,7 +600,7 @@ id CLDisposeInstance(id object)
 -(void) release:(const char *) file :(int) line :(id) retainer
 {
   CLLeakReleaseObject(self, retainer);
-  
+
   if (CLLeakPrint) {
     int pl = CLLeakPrint;
     CLLeakPrint = 0;
@@ -608,8 +608,8 @@ id CLDisposeInstance(id object)
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx release %s - 0x%lx %s:%i %i\n",
-	    (unsigned long) self, className, (unsigned long) retainer,
-	    file, line, [self retainCount] - 1);
+            (unsigned long) self, className, (unsigned long) retainer,
+            file, line, [self retainCount] - 1);
     CLLeakPrint = pl;
   }
   [self release];
@@ -625,7 +625,7 @@ id CLDisposeInstance(id object)
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx autorelease %s - 0x%lx %s:%i\n",
-	    (unsigned long) self, className, (unsigned long) retainer, file, line);
+            (unsigned long) self, className, (unsigned long) retainer, file, line);
     CLLeakPrint = pl;
   }
   return [self autorelease];
@@ -665,7 +665,7 @@ static void (*CLoldFreeHook)(void *ptr, const void *caller);
 void *CLoldMalloc(size_t size)
 {
   void *ptr, *saveHook;
-  
+
 
   saveHook = __malloc_hook;
   __malloc_hook = CLoldMallocHook;
@@ -677,7 +677,7 @@ void *CLoldMalloc(size_t size)
 void *CLoldRealloc(void *ptr, size_t size)
 {
   void *saveHook;
-  
+
 
   saveHook = __realloc_hook;
   __realloc_hook = CLoldReallocHook;
@@ -685,7 +685,7 @@ void *CLoldRealloc(void *ptr, size_t size)
   __realloc_hook = saveHook;
   return ptr;
 }
-  
+
 void CLsaveBlock(const char *func, void *ptr, size_t size, char *file, int line, id retainer)
 {
   CLLeak *aLeak = NULL;
@@ -697,7 +697,7 @@ void CLsaveBlock(const char *func, void *ptr, size_t size, char *file, int line,
     file = NULL;
     line = 0;
   }
-  
+
   for (i = 0; i < CLLeakNumBlocks; i++) {
     if (CLLeakBlocks[i].object == ptr) {
       aLeak = &CLLeakBlocks[i];
@@ -719,7 +719,7 @@ void CLsaveBlock(const char *func, void *ptr, size_t size, char *file, int line,
     aLeak->sequence = CLLeakSequence++;
     aLeak->retainerCount = 0;
   }
-  
+
   aLeak->size = size;
   aLeak->flag = CLLeakMarker;
   if (file)
@@ -729,8 +729,8 @@ void CLsaveBlock(const char *func, void *ptr, size_t size, char *file, int line,
 
   if (CLLeakPrint /*&& file && line*/)
     fprintf(stdout, "0x%lx %u/%i %s %u 0x%lx %s:%i\n",
-	    (unsigned long) ptr, aLeak->sequence, aLeak->flag,
-	    func, aLeak->size, (unsigned long) retainer, file, line);
+            (unsigned long) ptr, aLeak->sequence, aLeak->flag,
+            func, aLeak->size, (unsigned long) retainer, file, line);
   return;
 }
 
@@ -742,7 +742,7 @@ int CLfreeBlock(const char *func, void *ptr, char *file, int line, id retainer)
 
   if (!ptr)
     return 0;
-  
+
   for (i = 0; i < CLLeakNumBlocks; i++) {
     if (CLLeakBlocks[i].object == ptr) {
       leakCopy = CLLeakBlocks[i];
@@ -761,8 +761,8 @@ int CLfreeBlock(const char *func, void *ptr, char *file, int line, id retainer)
     else {
       size = aLeak->size;
       fprintf(stdout, "0x%lx %u/%i %s %u 0x%lx %s:%i\n", (unsigned long) ptr,
-	      aLeak->sequence, aLeak->flag, func, aLeak->size,
-	      (unsigned long) retainer, file, line);
+              aLeak->sequence, aLeak->flag, func, aLeak->size,
+              (unsigned long) retainer, file, line);
     }
   }
 
@@ -788,7 +788,7 @@ void *CLmalloc(size_t size, char *file, int line, id retainer)
 
   if (!size)
     fprintf(stdout, "%s %i attempt to malloc zero bytes\n", file, line);
-  
+
   ptr = CLoldMalloc(size);
   CLLeakMemUsed += size;
   CLsaveBlock("malloc", ptr, size, file, line, retainer);
@@ -798,7 +798,7 @@ void *CLmalloc(size_t size, char *file, int line, id retainer)
 void *CLcalloc(size_t nmemb, size_t size, char *file, int line, id retainer)
 {
   void *ptr, *saveHook;
-  
+
 
   if (!size || !nmemb)
     fprintf(stdout, "%s %i attempt to calloc zero bytes\n", file, line);
@@ -824,7 +824,7 @@ void *CLrealloc(void *ptr, size_t size, char *file, int line, id retainer)
 void CLfree(void *ptr, char *file, int line, id retainer)
 {
   void *saveHook;
-  
+
 
   CLLeakMemUsed -= CLfreeBlock("free", ptr, file, line, retainer);
   saveHook = __free_hook;
@@ -846,7 +846,7 @@ char *CLstrdup(const char *s, char *file, int line, id retainer)
 
   if (!s)
     fprintf(stdout, "%s %i attempt to duplicate null string\n", file, line);
-  
+
   ptr = strdup(s);
   size = strlen(ptr) + 1;
   CLLeakMemUsed += size;
@@ -862,7 +862,7 @@ char *CLstrndup(const char *s, size_t n, char *file, int line, id retainer)
 
   if (!s)
     fprintf(stdout, "%s %i attempt to duplicate null string\n", file, line);
-  
+
   ptr = strndup(s, n);
   size = strlen(ptr) + 1;
   CLLeakMemUsed += size;
@@ -894,7 +894,7 @@ static void *CLreallocHook(void *ptr, size_t size, const void *caller)
 static void *CLmemalignHook(size_t alignment, size_t size, const void *caller)
 {
   void *ptr, *saveHook;
-  
+
 
   saveHook = __memalign_hook;
   __memalign_hook = CLoldMemalignHook;
@@ -947,7 +947,7 @@ void CLCleanup()
   [CLRefCountTable release];
   CLRefCountTable = nil;
 #endif
-  
+
 #if DEBUG_LEAK || DEBUG_RETAIN
   if (CLLeakArrayPos) {
     int i;
@@ -956,7 +956,7 @@ void CLCleanup()
     fprintf(stdout, "\n------------ Leaked Objects ------------\n");
     for (i = 0; i < CLLeakArrayPos; i++)
       fprintf(stdout, "0x%lx %s\n", (unsigned long) CLLeakArray[i].object,
-	      [[CLLeakArray[i].object className] UTF8String]);
+              [[CLLeakArray[i].object className] UTF8String]);
   }
 
   if (CLLeakNumBlocks) {
@@ -966,10 +966,10 @@ void CLCleanup()
     fprintf(stdout, "\n------------ Leaked Memory ------------\n");
     for (i = 0; i < CLLeakNumBlocks; i++)
       fprintf(stdout, "0x%lx %i %i\n", (unsigned long) CLLeakBlocks[i].object,
-	      CLLeakBlocks[i].size, CLLeakBlocks[i].flag);
+              CLLeakBlocks[i].size, CLLeakBlocks[i].flag);
   }
 #endif
-  
+
   return;
 }
 
@@ -978,7 +978,7 @@ CLLeak *CLLeakFindObject(id anObject)
 {
   int i;
   CLLeak *aLeak;
-  
+
 
   /* FIXME - use a hash table */
   for (i = 0; i < CLLeakArrayPos; i++)
@@ -1014,7 +1014,7 @@ CLLeak *CLLeakUpdateObject(id anObject, const char *file, int line, id retainer)
     strncpy(aLeak->file, file, sizeof(aLeak->file) - 1);
     aLeak->line = line;
   }
-  
+
   return aLeak;
 }
 
@@ -1028,7 +1028,7 @@ void CLLeakReleaseObject(id anObject, id retainer)
   for (i = 0; i < aLeak->retainerCount; i++) {
     if (aLeak->retainer[i] == anObject) {
       memmove(&aLeak->retainer[i], &aLeak->retainer[i+1],
-	      sizeof(id) * (aLeak->retainerCount - i));
+              sizeof(id) * (aLeak->retainerCount - i));
       aLeak->retainerCount--;
       break;
     }
@@ -1047,13 +1047,13 @@ int CLLeakDump(int all)
     aLeak = &CLLeakArray[i];
     if (all || aLeak->line) {
       fprintf(stdout, "0x%lx %s - %u/%i",
-	      (unsigned long) aLeak->object, [[aLeak->object className] UTF8String],
-	      aLeak->sequence, aLeak->flag);
+              (unsigned long) aLeak->object, [[aLeak->object className] UTF8String],
+              aLeak->sequence, aLeak->flag);
       for (k = 0; k < aLeak->retainerCount; k++)
-	fprintf(stdout, " 0x%lx", (unsigned long) aLeak->retainer[k]);
+        fprintf(stdout, " 0x%lx", (unsigned long) aLeak->retainer[k]);
       fprintf(stdout, " %i %s:%i\n",
-	      [aLeak->object retainCount],	      
-	      aLeak->file, aLeak->line);
+              [aLeak->object retainCount],
+              aLeak->file, aLeak->line);
       j++;
     }
   }
@@ -1088,9 +1088,9 @@ int CLBlockDump(int all)
     aLeak = &CLLeakBlocks[i];
     if (all || aLeak->line) {
       fprintf(stdout, "0x%lx %u - %u/%i 0x%lx %s",
-	      (unsigned long) aLeak->object, aLeak->size,
-	      aLeak->sequence, aLeak->flag,
-	      (unsigned long) aLeak->retainer[0], [[aLeak->retainer[0] className] UTF8String]);
+              (unsigned long) aLeak->object, aLeak->size,
+              aLeak->sequence, aLeak->flag,
+              (unsigned long) aLeak->retainer[0], [[aLeak->retainer[0] className] UTF8String]);
       fprintf(stdout, "  %s:%i\n", aLeak->file, aLeak->line);
       j++;
       size += aLeak->size;

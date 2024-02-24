@@ -24,8 +24,8 @@ static int CLPageBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&", kwlist,
-				   CLPythonConvert, &path,
-				   CLPythonConvert, &owner))
+                                   CLPythonConvert, &path,
+                                   CLPythonConvert, &owner))
     return -1;
 
   self->bridgeObject = [[CLPage alloc] initFromFile:path owner:owner];
@@ -74,8 +74,8 @@ static PyObject *CLPageBridge_writeHTML(CLObjectLink *self, PyObject *args, PyOb
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&", kwlist,
-				   CLPythonConvertStream, &htmlStream,
-				   CLPythonConvertStream, &headerStream))
+                                   CLPythonConvertStream, &htmlStream,
+                                   CLPythonConvertStream, &headerStream))
     return NULL;
 
   [self->bridgeObject writeHTML:htmlStream headers:headerStream];
@@ -118,7 +118,7 @@ static PyMethodDef CLPageBridge_methods[] = {
   {
     "updateBindings", (PyCFunction) CLPageBridge_updateBindings, METH_NOARGS,
     "update all the dynamic content on the page",
-  },  
+  },
   {
     "writeHTML", (PyCFunction) CLPageBridge_writeHTML, METH_VARARGS | METH_KEYWORDS,
     "write out the HTML and optionally the headers",

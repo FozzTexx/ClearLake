@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -38,7 +38,7 @@
    in a .m file that isn't explicitly named in other source. */
 #import "CLStandardContentFile.m"
 
-#define FILE_CMD	@"/usr/local/bin/file"
+#define FILE_CMD        @"/usr/local/bin/file"
 
 @implementation CLOriginalFile
 
@@ -86,14 +86,14 @@
   CLOriginalFile *aFile = nil;
   CLData *aData;
 
-  
+
   if (hardlink) {
     oid = CLStoreFile(nil, [aPath pathExtension], nil);
     if ((dbPath = CLPathForFileID(oid))) {
       unlink([dbPath UTF8String]);
       if (!link([aPath UTF8String], [dbPath UTF8String])) {
-	aFile = [[self alloc] initFromDictionary:nil table:aTable];
-	[aFile setObjectID:oid];
+        aFile = [[self alloc] initFromDictionary:nil table:aTable];
+        [aFile setObjectID:oid];
       }
     }
   }
@@ -170,7 +170,7 @@
   int oid;
   CLString *aString = [self filename];
 
-  
+
   if (![super objectID] && loaded) {
     if ((oid = CLStoreFile(data, nil, [aString pathExtension])))
       [self setObjectID:oid];
@@ -179,7 +179,7 @@
   }
   return YES;
 }
-  
+
 -(unsigned long long) bytes
 {
   unsigned long long l = 0;
@@ -219,7 +219,7 @@
 
   /* Always want to generate a URL so that when the user downloads we
      can stick the original filename on */
-#if 0  
+#if 0
   if (![path hasPrefix:aString] ||
       [path characterAtIndex:[aString length]] != '/') {
 #endif
@@ -232,13 +232,13 @@
   }
   else {
     CLString *prefix, *filename;
-    
-    
+
+
     prefix = [path substringFromIndex:[aString length]];
     filename = [prefix lastPathComponent];
     prefix = [prefix stringByDeletingLastPathComponent];
     aString = [prefix stringByAppendingPathComponent:
-			[filename stringByAddingPercentEscapes]];
+                        [filename stringByAddingPercentEscapes]];
   }
 #endif
 
@@ -262,7 +262,7 @@
 
   mimeType = [CLStream mimeTypeForFile:aPath];
   [tFile remove];
-  
+
   if (!mimeType)
     mimeType = @"application/octet-stream";
   return mimeType;
@@ -348,12 +348,12 @@
     return YES;
   return NO;
 }
-  
+
 -(CLString *) filename
 {
   if ([self hasFieldNamed:@"filename"])
     return CLHashTableDataForKey(_record, @"filename", [@"filename" hash],
-				 @selector(isEqual:));
+                                 @selector(isEqual:));
   return _filename;
 }
 

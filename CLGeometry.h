@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -38,7 +38,7 @@ CL_INLINE CLSize CLMakeSize(float w, float h)
 {
   CLSize s;
 
-  
+
   s.width = w;
   s.height = h;
   return s;
@@ -48,7 +48,7 @@ CL_INLINE CLPoint CLMakePoint(float x, float y)
 {
   CLPoint p;
 
-  
+
   p.x = x;
   p.y = y;
   return p;

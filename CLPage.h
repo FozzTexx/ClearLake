@@ -15,7 +15,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -37,7 +37,7 @@
   CLMutableArray *fileStack, *usedFiles;
   CLUInteger status;
   BOOL frames;
-  
+
   id owner, datasource;
   CLMutableArray *messages;
 }
@@ -77,10 +77,10 @@
 -(void) writeHTML:(CLStream *) stream;
 -(void) writeHTML:(CLStream *) stream withHeaders:(BOOL) showHeaders;
 -(void) writeHTML:(CLStream *) stream withHeaders:(BOOL) showHeaders
-	   output:(CLData **) output;
+           output:(CLData **) output;
 -(void) writeHTML:(CLStream *) htmlStream headers:(CLStream *) headerStream;
 -(void) writeHTML:(CLStream *) htmlStream headers:(CLStream *) headerStream
-	   output:(CLData **) output;
+           output:(CLData **) output;
 -(void) display;
 -(void) display:(CLData **) output;
 -(CLData *) htmlForBody;

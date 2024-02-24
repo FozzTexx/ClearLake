@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -40,11 +40,11 @@
 -(void) appendFormat:(CLString *) format, ...;
 -(void) appendFormat:(CLString *) format arguments:(va_list) argList;
 -(CLUInteger) replaceOccurrencesOfString:(CLString *) target
-			      withString:(CLString *) replacement;
+                              withString:(CLString *) replacement;
 -(CLUInteger) replaceOccurrencesOfString:(CLString *) target
-			      withString:(CLString *) replacement
-				 options:(CLStringCompareOptions) options
-				   range:(CLRange) range;
+                              withString:(CLString *) replacement
+                                 options:(CLStringCompareOptions) options
+                                   range:(CLRange) range;
 @end
 
 @interface CLMutableString (CLStringPaths)

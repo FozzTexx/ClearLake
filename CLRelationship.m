@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -54,7 +54,7 @@
   isOwner = toMany = isDependent = NO;
 
   /* FIXME - trim whitespace */
-  
+
   if (aString) {
     aRange2 = CLMakeRange(0, [aString length]);
     aRange = [aString rangeOfString:@"=" options:0 range:aRange2];
@@ -78,8 +78,8 @@
       ourID = [aString substringToIndex:aRange.location];
 
     theirTable = [[aString substringWithRange:
-			    CLMakeRange(CLMaxRange(aRange),
-				     aRange2.location - CLMaxRange(aRange))] retain];
+                            CLMakeRange(CLMaxRange(aRange),
+                                     aRange2.location - CLMaxRange(aRange))] retain];
     theirID = [aString substringFromIndex:CLMaxRange(aRange2)];
     aRange = [theirTable rangeOfString:@"."];
     if (!aRange.length) {
@@ -92,14 +92,14 @@
     for (i = 0, j = [anArray count]; i < j; i++)
       [mArray addObject:[[anArray objectAtIndex:i] lowerCamelCaseString]];
     ourKeys = mArray;
-    
+
     mArray = [[CLMutableArray alloc] init];
     anArray = [theirID componentsSeparatedByString:@","];
     for (i = 0, j = [anArray count]; i < j; i++)
       [mArray addObject:[[anArray objectAtIndex:i] lowerCamelCaseString]];
     theirKeys = mArray;
   }
-  
+
   return self;
 }
 
@@ -124,7 +124,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -137,7 +137,7 @@
 
   return aCopy;
 }
-      
+
 -(CLString *) theirTable
 {
   return theirTable;
@@ -199,22 +199,22 @@
       aValue = [pk objectForKey:[theirKeys objectAtIndex:i]];
     else
       aValue = pk;
-    
+
     if (!mString)
       mString = [[CLMutableString alloc] init];
-    
+
     if (i)
       [mString appendString:@" and "];
 
     if ([aValue isKindOfClass:CLStringClass])
       aValue = [CLString stringWithFormat:@"'%@'",
-			 [CLDatabase defangString:aValue escape:NULL]];
+                         [CLDatabase defangString:aValue escape:NULL]];
     else if ([aValue isKindOfClass:CLDatetimeClass])
       aValue = [CLString stringWithFormat:@"'%@'", aValue];
 
     [mString appendFormat:@"%@ = %@",
-	     [(CLAttribute *) [fields objectForKey:[theirKeys objectAtIndex:i]] column],
-	     aValue];
+             [(CLAttribute *) [fields objectForKey:[theirKeys objectAtIndex:i]] column],
+             aValue];
   }
 
   /* FIXME - find a better way to become immutable */
@@ -243,7 +243,7 @@
       mDict = nil;
       break;
     }
-    
+
     if (!mDict)
       mDict = [[CLMutableDictionary alloc] init];
     [mDict setObject:aValue forKey:[theirKeys objectAtIndex:i]];
@@ -252,13 +252,13 @@
   /* FIXME - return immutable dictionary */
   if (!mDict)
     [self error:@"Failed to contruct key"];
-  
+
   return [mDict autorelease];
 }
 
 /* Fills in the dictionary using column names in the database */
 -(void) setDictionary:(CLMutableDictionary *) aDict andRecord:(id) aRecord
-	  usingObject:(id) anObject fieldDefinition:(CLDictionary *) fields
+          usingObject:(id) anObject fieldDefinition:(CLDictionary *) fields
 {
   int i, j;
   CLString *aKey;
@@ -274,16 +274,16 @@
 
       theirFields = [[CLEditingContext recordDefinitionForClass:[anObject class]] fields];
       if ([[theirFields objectForKey:[theirKeys objectAtIndex:i]] isPrimaryKey])
-	[CLEditingContext generatePrimaryKey:nil forRecord:anObject];
+        [CLEditingContext generatePrimaryKey:nil forRecord:anObject];
       aValue = [anObject objectValueForBinding:[theirKeys objectAtIndex:i]];
     }
-    
+
     aKey = [ourKeys objectAtIndex:i];
     if (!fields)
       anAttr = [aRecord attributeForField:aKey];
     else
       anAttr = [fields objectForKey:aKey];
-    
+
     if (aValue) {
       [aDict setObject:aValue forKey:[anAttr column]];
       [aRecord setObjectValue:aValue forBinding:aKey];
@@ -298,8 +298,8 @@
 }
 
 /* Fills in the dictionary using column names in the database */
--(void) setDictionary:(CLMutableDictionary *) aDict 
-	  usingRecord:(id) aRecord fieldDefinition:(CLDictionary *) fields
+-(void) setDictionary:(CLMutableDictionary *) aDict
+          usingRecord:(id) aRecord fieldDefinition:(CLDictionary *) fields
 {
   int i, j;
   CLString *aKey;

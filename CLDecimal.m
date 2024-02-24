@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -35,16 +35,16 @@ void CLDecimalCompact(CLDecimal *number)
 
 
   CLCreateMPZ(&num, number);
-  if (CLCompactMPZ(&num)) 
+  if (CLCompactMPZ(&num))
     CLReleaseMPZ(&num, number, CLRoundPlain);
   else
     mpz_clear(num.mantissa);
-  
+
   return;
 }
 
 CLComparisonResult CLDecimalCompare(const CLDecimal *leftOperand,
-				    const CLDecimal *rightOperand)
+                                    const CLDecimal *rightOperand)
 {
   int res;
   CLDecimalMPZ n1, n2;
@@ -59,7 +59,7 @@ CLComparisonResult CLDecimalCompare(const CLDecimal *leftOperand,
 }
 
 void CLDecimalRound(CLDecimal *result, const CLDecimal *number,
-		    CLInteger scale, CLRoundingMode roundingMode)
+                    CLInteger scale, CLRoundingMode roundingMode)
 {
   CLDecimalMPZ num;
   CLInteger s, t;
@@ -77,8 +77,8 @@ void CLDecimalRound(CLDecimal *result, const CLDecimal *number,
 }
 
 CLCalculationError CLDecimalNormalize(CLDecimal *number1,
-				      CLDecimal *number2,
-				      CLRoundingMode roundingMode)
+                                      CLDecimal *number2,
+                                      CLRoundingMode roundingMode)
 {
   CLDecimalMPZ n1, n2;
   CLDecimalMPZ *which;
@@ -94,14 +94,14 @@ CLCalculationError CLDecimalNormalize(CLDecimal *number1,
   }
   err = CLReleaseMPZ(which, number1, roundingMode);
   mpz_clear(n2.mantissa);
-  
+
   return err;
 }
 
 CLCalculationError CLDecimalAdd(CLDecimal *result,
-				       const CLDecimal *leftOperand,
-				       const CLDecimal *rightOperand,
-				       CLRoundingMode roundingMode)
+                                       const CLDecimal *leftOperand,
+                                       const CLDecimal *rightOperand,
+                                       CLRoundingMode roundingMode)
 {
   CLDecimalMPZ n1, n2;
   CLCalculationError err;
@@ -116,9 +116,9 @@ CLCalculationError CLDecimalAdd(CLDecimal *result,
 }
 
 CLCalculationError CLDecimalSubtract(CLDecimal *result,
-					    const CLDecimal *leftOperand,
-					    const CLDecimal *rightOperand,
-					    CLRoundingMode roundingMode)
+                                            const CLDecimal *leftOperand,
+                                            const CLDecimal *rightOperand,
+                                            CLRoundingMode roundingMode)
 {
   CLDecimalMPZ n1, n2;
   CLCalculationError err;
@@ -133,9 +133,9 @@ CLCalculationError CLDecimalSubtract(CLDecimal *result,
 }
 
 CLCalculationError CLDecimalMultiply(CLDecimal *result,
-					    const CLDecimal *leftOperand,
-					    const CLDecimal *rightOperand,
-					    CLRoundingMode roundingMode)
+                                            const CLDecimal *leftOperand,
+                                            const CLDecimal *rightOperand,
+                                            CLRoundingMode roundingMode)
 {
   CLDecimalMPZ n1, n2;
   CLCalculationError err;
@@ -150,9 +150,9 @@ CLCalculationError CLDecimalMultiply(CLDecimal *result,
 }
 
 CLCalculationError CLDecimalDivide(CLDecimal *result,
-					  const CLDecimal *leftOperand,
-					  const CLDecimal *rightOperand,
-					  CLRoundingMode roundingMode)
+                                          const CLDecimal *leftOperand,
+                                          const CLDecimal *rightOperand,
+                                          CLRoundingMode roundingMode)
 {
   CLDecimalMPZ n1, n2;
   CLCalculationError err;
@@ -167,9 +167,9 @@ CLCalculationError CLDecimalDivide(CLDecimal *result,
 }
 
 CLCalculationError CLDecimalPower(CLDecimal *result,
-					 const CLDecimal *number,
-					 CLUInteger power,
-					 CLRoundingMode roundingMode)
+                                         const CLDecimal *number,
+                                         CLUInteger power,
+                                         CLRoundingMode roundingMode)
 {
   CLDecimalMPZ num;
 
@@ -180,9 +180,9 @@ CLCalculationError CLDecimalPower(CLDecimal *result,
 }
 
 CLCalculationError CLDecimalMultiplyByPowerOf10(CLDecimal *result,
-						       const CLDecimal *number,
-						       short power,
-						       CLRoundingMode roundingMode)
+                                                       const CLDecimal *number,
+                                                       short power,
+                                                       CLRoundingMode roundingMode)
 {
   CLDecimalMPZ num;
 

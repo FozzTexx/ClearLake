@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -38,7 +38,7 @@
 
 -(id) init;
 -(id) initFromTable:(CLString *) aTable class:(Class) aClass
-	     fields:(CLDictionary *) fieldsDict relationships:(CLDictionary *) relDict;
+             fields:(CLDictionary *) fieldsDict relationships:(CLDictionary *) relDict;
 -(void) dealloc;
 
 -(CLString *) table; /* Complete table name as dbname.tablename */

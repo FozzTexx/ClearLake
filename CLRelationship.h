@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -49,9 +49,9 @@
 -(CLString *) constructQualifierFromKey:(id) aDict;
 -(id) constructKey:(id) anObject;
 -(void) setDictionary:(CLMutableDictionary *) aDict andRecord:(id) aRecord
-	  usingObject:(id) anObject fieldDefinition:(CLDictionary *) fields;
--(void) setDictionary:(CLMutableDictionary *) aDict 
-	  usingRecord:(id) anObject fieldDefinition:(CLDictionary *) fields;
+          usingObject:(id) anObject fieldDefinition:(CLDictionary *) fields;
+-(void) setDictionary:(CLMutableDictionary *) aDict
+          usingRecord:(id) anObject fieldDefinition:(CLDictionary *) fields;
 -(BOOL) isReciprocal:(CLRelationship *) aRelationship forTable:(CLString *) aTable;
 
 @end

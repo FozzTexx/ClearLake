@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -30,7 +30,7 @@
 @implementation CLChainedSelect
 
 -(int) insertOptions:(CLArray *) anArray parent:(CLOption *) parentOpt
-		name:(CLString *) name other:(CLString *) otherValue
+                name:(CLString *) name other:(CLString *) otherValue
 {
   int i, j;
   CLOption *anOption;
@@ -49,33 +49,33 @@
     anOption = [anArray objectAtIndex:i];
     if ([[anOption subOptions] count]) {
       if (!(subList = [anOption value]))
-	subList = [anOption string];
+        subList = [anOption string];
       subList = [CLString stringWithFormat:@"%@-%u", name, [subList hash]];
       [javascript addObject:[CLString stringWithFormat:
-					@"addList('%@', '%@', '%@', '%@'%@);\n",
-				      parentList,
-				      [[anOption string]
-					stringByReplacingOccurrencesOfString:@"'"
-					withString:@"\\'"],
-				      [[[anOption value] description]
-					stringByReplacingOccurrencesOfString:@"'"
-					withString:@"\\'"], subList,
-				      [anOption selected] ? @", 1" : @""]];
+                                        @"addList('%@', '%@', '%@', '%@'%@);\n",
+                                      parentList,
+                                      [[anOption string]
+                                        stringByReplacingOccurrencesOfString:@"'"
+                                        withString:@"\\'"],
+                                      [[[anOption value] description]
+                                        stringByReplacingOccurrencesOfString:@"'"
+                                        withString:@"\\'"], subList,
+                                      [anOption selected] ? @", 1" : @""]];
       ndepth = [self insertOptions:[anOption subOptions] parent:anOption
-		     name:name other:otherValue];
+                     name:name other:otherValue];
       if (ndepth > depth)
-	depth = ndepth;
+        depth = ndepth;
     }
     else
       [javascript addObject:
-		    [CLString stringWithFormat:@"addOption('%@', '%@', '%@'%@);\n",
-			      parentList, [[anOption string]
-					    stringByReplacingOccurrencesOfString:@"'"
-					    withString:@"\\'"],
-			      [[[anOption value] description]
-				stringByReplacingOccurrencesOfString:@"'"
-				withString:@"\\'"],
-			      [anOption selected] ? @", 1" : @""]];
+                    [CLString stringWithFormat:@"addOption('%@', '%@', '%@'%@);\n",
+                              parentList, [[anOption string]
+                                            stringByReplacingOccurrencesOfString:@"'"
+                                            withString:@"\\'"],
+                              [[[anOption value] description]
+                                stringByReplacingOccurrencesOfString:@"'"
+                                withString:@"\\'"],
+                              [anOption selected] ? @", 1" : @""]];
   }
 
   return depth + 1;
@@ -116,26 +116,26 @@
 
   javascript = [[CLBlock alloc] init];
   levelBlock = [[CLBlock alloc] init];
-  
+
   [javascript addObject:@"<script><!--\n"];
   [javascript addObject:@"var hide_empty_list=true;\n"];
   [javascript addObject:[CLString stringWithFormat:@"addListGroup('%@', '%@');\n",
-				  name, name]];
+                                  name, name]];
 
   anArray = [self content];
   depth = [self insertOptions:anArray parent:nil name:name other:otherValue];
   [levelBlock addObject:[CLInput hiddenFieldNamed:
-				   [CLString stringWithFormat:@"%@_depth", name]
-				 withValue:[CLNumber numberWithInt:depth]]];
+                                   [CLString stringWithFormat:@"%@_depth", name]
+                                 withValue:[CLNumber numberWithInt:depth]]];
 
   if ((cssClass = [attributes objectForCaseInsensitiveString:@"CL_CLASS"]))
     cssClass = [CLElement expandClass:cssClass using:self];
   else
     cssClass = [attributes objectForCaseInsensitiveString:@"CLASS"];
-  
+
   for (i = 0; i < depth; i++) {
     mString = [CLMutableString stringWithFormat:
-				 @"<select id=%@_%i name=%@_%i", name, i+1, name, i+1];
+                                 @"<select id=%@_%i name=%@_%i", name, i+1, name, i+1];
     if (cssClass)
       [mString appendFormat:@" class=\"%@\"", cssClass];
     [mString appendString:@"></select>"];
@@ -145,49 +145,49 @@
   if (otherValue) {
     CLInput *aField;
 
-    
+
     aField = [CLInput textFieldNamed:[CLString stringWithFormat:@"%@_other", name]
-			   withValue:nil];
+                           withValue:nil];
     [[aField attributes] setObject:[CLString stringWithFormat:@"%@_other", name]
-			    forKey:@"id"];
+                            forKey:@"id"];
     [levelBlock addObject:aField];
   }
 
-  if (otherValue) 
+  if (otherValue)
     [javascript addObject:
-		  [CLString stringWithFormat:
-			      @"function %@_showOtherField(list, order, instance, value) {\n"
-			    "  var element = document.getElementById('%@_other');\n"
-			    "  if (value == '%@')\n"
-			    "    element.style.display='';\n"
-			    "  else\n"
-			    "    element.style.display='none';\n"
-			    "}\n", name, name, otherValue]];
-  
+                  [CLString stringWithFormat:
+                              @"function %@_showOtherField(list, order, instance, value) {\n"
+                            "  var element = document.getElementById('%@_other');\n"
+                            "  if (value == '%@')\n"
+                            "    element.style.display='';\n"
+                            "  else\n"
+                            "    element.style.display='none';\n"
+                            "}\n", name, name, otherValue]];
+
   [javascript addObject:[CLString stringWithFormat:@"function %@_catChooserLoad() {\n",
-			 name]];
+                         name]];
   [javascript addObject:[CLString stringWithFormat:@"  initListGroup('%@'", name]];
   for (i = 0; i < depth; i++)
     [javascript addObject:[CLString stringWithFormat:@", document.theForm.%@_%i",
-				    name, i+1]];
+                                    name, i+1]];
   if (otherValue)
     [javascript addObject:[CLString stringWithFormat:@", %@_showOtherField", name]];
   [javascript addObject:@");\n"];
   if (otherValue && ![[[[self defaultOption:anArray] value] description] isEqual:otherValue])
     [javascript addObject:[CLString stringWithFormat:
-				      @"  document.theForm.%@_other.style.display='none';\n",
-				    name]];
+                                      @"  document.theForm.%@_other.style.display='none';\n",
+                                    name]];
   [javascript addObject:@"}\n"];
 
   [javascript addObject:[CLString stringWithFormat:@"CLAddLoadEvent(%@_catChooserLoad);\n",
-			 name]];
-  
+                         name]];
+
   [javascript addObject:@"--></script>\n"];
 
   [javascript addObject:levelBlock];
   [levelBlock release];
   CLWriteHTMLObject(stream, javascript);
-  [javascript release];  
+  [javascript release];
   return;
 }
 

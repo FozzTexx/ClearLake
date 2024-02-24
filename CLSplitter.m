@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -30,7 +30,7 @@
 {
   CLString *aString;
 
-  
+
   [super initFromElement:anElement onPage:aPage];
 
   if ((aString = [attributes objectForCaseInsensitiveString:@"CL_INTERVAL"])) {
@@ -41,7 +41,7 @@
     interval = 4;
 
   byColumn = !![attributes objectForCaseInsensitiveString:@"CL_BYCOLUMN"];
-  
+
   return self;
 }
 
@@ -57,7 +57,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -80,14 +80,14 @@
 {
   int i, j, k;
 
-  
+
   if ([content isKindOfClass:CLArrayClass]) {
     if (!byColumn) {
       [stream writeString:@"<tr>" usingEncoding:CLUTF8StringEncoding];
       for (i = 0, j = [content count]; i < j; i++) {
-	CLWriteHTMLObject(stream, [content objectAtIndex:i]);
-	if (i % interval == interval - 1 && i < j - 1)
-	  [stream writeString:@"</tr><tr>" usingEncoding:CLUTF8StringEncoding];
+        CLWriteHTMLObject(stream, [content objectAtIndex:i]);
+        if (i % interval == interval - 1 && i < j - 1)
+          [stream writeString:@"</tr><tr>" usingEncoding:CLUTF8StringEncoding];
       }
       [stream writeString:@"</tr>" usingEncoding:CLUTF8StringEncoding];
     }
@@ -95,15 +95,15 @@
       j = [content count];
       k = (j + interval - 1) / interval;
       for (i = 0, j = [content count]; i < j; i++) {
-	CLWriteHTMLObject(stream, [content objectAtIndex:i]);
-	if (i % k == k - 1 && i < j - 1)
-	  [stream writeString:@"</td><td valign=top>" usingEncoding:CLUTF8StringEncoding];
+        CLWriteHTMLObject(stream, [content objectAtIndex:i]);
+        if (i % k == k - 1 && i < j - 1)
+          [stream writeString:@"</td><td valign=top>" usingEncoding:CLUTF8StringEncoding];
       }
     }
   }
   else
     CLWriteHTMLObject(stream, content);
-  
+
   return;
 }
 

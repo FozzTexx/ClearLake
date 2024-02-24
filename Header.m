@@ -15,7 +15,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -35,7 +35,7 @@
   headers = malloc(1);
   mbuf = malloc(1);
   headers[0] = mbuf[0] = 0;
-  
+
   return self;
 }
 
@@ -48,7 +48,7 @@
 {
   char *p;
 
-  
+
   [self init];
 
   if (headers)
@@ -63,7 +63,7 @@
   if (*headers == '\n')
     *headers = 0;
   mbuf = realloc(mbuf, strlen(headers) + 1);
-  
+
   return self;
 }
 
@@ -87,7 +87,7 @@
 {
 #if DEBUG_RETAIN
   self = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   self = [super copy];
 #endif
@@ -95,7 +95,7 @@
     headers = strdup(headers);
   if (mbuf)
     mbuf = strdup(headers); /* Yes, headers. Could be a NULL too soon in mbuf */
-  
+
   return self;
 }
 
@@ -114,7 +114,7 @@
 {
   char *p;
 
-  
+
   if (headers)
     headers = realloc(headers, len+2);
   else
@@ -126,12 +126,12 @@
     *(p+1) = 0;
   if (*headers == '\n')
     *headers = 0;
-  
+
   if (mbuf)
     mbuf = realloc(mbuf, len+1);
   else
     mbuf = malloc(len+1);
-  
+
   return self;
 }
 
@@ -139,7 +139,7 @@
 {
   char *p;
   int fm;
-  
+
 
   fm = !strcmp(hstr, "From ");
   if (!fm && strpbrk(hstr, " \t\n")) /* Can't have these characters in header string */
@@ -149,11 +149,11 @@
     p = headers;
   else
     p = pos;
-  
+
   while (p && *p) {
     if (!strncasecmp(p, hstr, strlen(hstr)) && (fm || p[strlen(hstr)] == ':'))
       return p;
-    
+
     p = strchr(p, '\n');
     if (p)
       p++;
@@ -174,7 +174,7 @@
   }
   else
     p = pos;
-  
+
   if (!p)
     return NULL;
 
@@ -190,7 +190,7 @@
 {
   char *p, *q;
   int i;
-  
+
 
   if (![self headerStart:hstr past:NULL])
     return NULL;
@@ -201,21 +201,21 @@
     p += strlen(hstr) + 1;
     while (*p == ' ' || *p == '\t')
       p++;
-  
+
     q = [self headerEnd:hstr past:p];
 
     if (mbuf[0])
       strcat(mbuf, "\n");
-    
+
     i = strlen(mbuf);
     strncat(mbuf, p, q - p);
     mbuf[i + (q - p)] = 0;
 
     for (p = mbuf + i; *p; p++)
       while (*p == '\n')
-	strcpy(p, p+1);
+        strcpy(p, p+1);
   }
-  
+
   return mbuf;
 }
 
@@ -223,7 +223,7 @@
 {
   char *p, *q;
   int fm;
-  
+
 
   fm = !strcmp(hstr, "From ");
   if ((p = [self headerStart:hstr past:NULL]))
@@ -235,7 +235,7 @@
 
   while (str && isspace(*str))
     str++;
-  
+
   if (str) {
     mbuf = realloc(mbuf, strlen(headers) - (q - p) + strlen(hstr) + strlen(str) + 4);
     strncpy(mbuf, headers, p - headers);
@@ -256,8 +256,8 @@
     strcat(mbuf, q);
     free(headers);
     headers = strdup(mbuf);
-  }    
-  
+  }
+
   return self;
 }
 
@@ -288,7 +288,7 @@
   int i;
   char *p, *q;
 
-  
+
   if (index >= [self count])
     return NULL;
 
@@ -307,7 +307,7 @@
     if (!isspace(*p))
       i++;
   }
-  
+
   return NULL;
 }
 

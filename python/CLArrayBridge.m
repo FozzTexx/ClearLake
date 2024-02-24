@@ -17,7 +17,7 @@
       return NULL;
     }
   }
-    
+
   return py_tuple;
 }
 

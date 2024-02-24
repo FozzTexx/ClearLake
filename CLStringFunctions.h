@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -57,41 +57,41 @@ extern void *CLStringAllocateBuffer(void *old, CLUInteger length, char *utf8, id
 extern char *CLStringFreeBuffer(void *old);
 extern const char *CLUTF8ForString(CLString *aString);
 extern CLRange CLStringRangeOfString(CLString *inString, CLString *searchString,
-				     CLStringCompareOptions mask, CLRange range);
+                                     CLStringCompareOptions mask, CLRange range);
 extern void CLStringAppendCharacter(CLString *aString, unichar aChar, id self);
 
 extern void CLCacheStringClasses();
 extern CLComparisonResult CLStringCompare(CLString *string1, CLString *string2,
-				   CLStringCompareOptions options, CLRange range);
+                                   CLStringCompareOptions options, CLRange range);
 extern BOOL CLStringFindCharacterFromSet(CLString *aString, CLCharacterSet *aSet,
-				  CLStringCompareOptions options, CLRange searchRange,
-				  CLRange *resultRange);
+                                  CLStringCompareOptions options, CLRange searchRange,
+                                  CLRange *resultRange);
 extern int CLStringConvertEncoding(const char *source, CLUInteger slen,
-				   CLStringEncoding sEncoding,
-				   char **dest, CLUInteger *dlen, CLStringEncoding dEncoding,
-				   BOOL allowLossy);
+                                   CLStringEncoding sEncoding,
+                                   char **dest, CLUInteger *dlen, CLStringEncoding dEncoding,
+                                   BOOL allowLossy);
 extern BOOL CLStringReplaceCharacters(CLString *dest, CLRange aRange,
-				      unichar *src, CLUInteger slen);
+                                      unichar *src, CLUInteger slen);
 extern BOOL CLStringReplaceString(CLString *dest, CLRange aRange, CLString *source);
 extern CLUInteger CLStringHash(CLString *aString);
 
 extern CLComparisonResult CLUnistrCompare(unistr *string1, unistr *string2,
-					  CLStringCompareOptions options, CLRange range);
+                                          CLStringCompareOptions options, CLRange range);
 extern void CLUnistrReplaceCharacters(unistr *dest, CLRange aRange,
-				      unichar *src, CLUInteger slen);
+                                      unichar *src, CLUInteger slen);
 extern void CLUnistrReplace(unistr *dest, CLRange aRange, unistr *src);
 extern unistr *CLStringToUnistr(CLString *aString);
 
 #import "CLClassConstants.h"
 #define CLCheckStringClass(anObject) ({ \
-      unistr *ustr = (unistr *) anObject;				\
+      unistr *ustr = (unistr *) anObject;                               \
       if (ustr->_reserved == CLUTF8StringClass || ustr->_reserved == CLConstantStringClass) \
-	[((id) anObject) swizzle];					\
-      ustr->_reserved == CLStringClass				\
-	|| ustr->_reserved == CLMutableStringClass			\
-	|| ustr->_reserved == CLConstantUnicodeStringClass		\
-	|| ustr->_reserved == CLImmutableStackStringClass		\
-	|| ustr->_reserved == CLMutableStackStringClass;		\
+        [((id) anObject) swizzle];                                      \
+      ustr->_reserved == CLStringClass                          \
+        || ustr->_reserved == CLMutableStringClass                      \
+        || ustr->_reserved == CLConstantUnicodeStringClass              \
+        || ustr->_reserved == CLImmutableStackStringClass               \
+        || ustr->_reserved == CLMutableStackStringClass;                \
     })
 
 #endif /* _CLSTRINGFUNCTIONS_H */

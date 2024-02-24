@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -69,32 +69,32 @@
 extern char *cuserid(char *string);
 
 /* FIXME - make these part of ClearLake somehow */
-#define RANDOMIZE	"/usr/local/bin/randomize"
-#define WORDLIST	"/usr/local/lib/kjv.words"
+#define RANDOMIZE       "/usr/local/bin/randomize"
+#define WORDLIST        "/usr/local/lib/kjv.words"
 
-#define URL_START	@"start_url"
-#define URL_REFERRER	@"referrer_url"
+#define URL_START       @"start_url"
+#define URL_REFERRER    @"referrer_url"
 
-#define COOKIE_SESSION	@"CL-session"
+#define COOKIE_SESSION  @"CL-session"
 
-#define FIELD_ACCOUNT	@"cl_account"
-#define FIELD_PASSWORD	@"cl_password"
-#define FIELD_VERPASS	@"cl_verpass"
-#define FIELD_EMAIL	@"cl_email"
-#define FIELD_RETURN	@"cl_return"
-#define FIELD_CREATE	@"cl_create"
-#define FIELD_SKIP	@"cl_skip"
+#define FIELD_ACCOUNT   @"cl_account"
+#define FIELD_PASSWORD  @"cl_password"
+#define FIELD_VERPASS   @"cl_verpass"
+#define FIELD_EMAIL     @"cl_email"
+#define FIELD_RETURN    @"cl_return"
+#define FIELD_CREATE    @"cl_create"
+#define FIELD_SKIP      @"cl_skip"
 
-#define PAGE_LOGIN	@"cl_login"
-#define PAGE_FORGOT	@"cl_recover"
-#define PAGE_SIGNUP	@"cl_signup"
+#define PAGE_LOGIN      @"cl_login"
+#define PAGE_FORGOT     @"cl_recover"
+#define PAGE_SIGNUP     @"cl_signup"
 
-#define QUERY_RETURN	@"cl_return"
-#define QUERY_USER	@"cl_user"
-#define QUERY_ACCOUNT	@"CLuser"
-#define QUERY_SESSIONID	@"CLsid"
+#define QUERY_RETURN    @"cl_return"
+#define QUERY_USER      @"cl_user"
+#define QUERY_ACCOUNT   @"CLuser"
+#define QUERY_SESSIONID @"CLsid"
 
-#define MSG_FORGOT	@"cl_recover-msg"
+#define MSG_FORGOT      @"cl_recover-msg"
 
 static char *cryptset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789./";
 static id _manager = nil;
@@ -141,13 +141,13 @@ static CLMutableDictionary *CLConfig = nil;
 {
   char *buf;
 
-  
+
   if (![aFile isAbsolutePath]) {
     buf = get_current_dir_name();
     aFile = [[CLString stringWithUTF8String:buf] stringByAppendingPathComponent:aFile];
     free(buf);
   }
-  
+
   CLConfigFile = [aFile copy];
   CLAddToCleanup(CLConfigFile);
   if (!CLConfigDir) {
@@ -156,7 +156,7 @@ static CLMutableDictionary *CLConfig = nil;
   }
   return;
 }
-  
+
 +(CLString *) configurationFile
 {
   const char *username;
@@ -164,11 +164,11 @@ static CLMutableDictionary *CLConfig = nil;
   CLString *aString = nil, *docRoot;
   CLMutableArray *mArray;
   int i, j;
-  
+
 
   if (CLConfigFile)
     return CLConfigFile;
-  
+
   if (!CLConfigDir) {
     mArray = [[CLMutableArray alloc] init];
 
@@ -178,32 +178,32 @@ static CLMutableDictionary *CLConfig = nil;
 
     if ((docRoot = [CLEnvironment objectForKey:@"DOCUMENT_ROOT"])) {
       aString = [[[[[docRoot stringByDeletingLastPathComponent]
-		     stringByAppendingPathComponent:CLAppName]
-		    stringByAppendingPathExtension:@"conf"]
-		   stringByAppendingPathComponent:CLAppName]
-		  stringByAppendingPathExtension:@"conf"];
+                     stringByAppendingPathComponent:CLAppName]
+                    stringByAppendingPathExtension:@"conf"]
+                   stringByAppendingPathComponent:CLAppName]
+                  stringByAppendingPathExtension:@"conf"];
       [mArray addObject:aString];
 
       aString = [[[docRoot stringByDeletingLastPathComponent]
-		   stringByAppendingPathComponent:CLAppName]
-		  stringByAppendingPathExtension:@"conf"];
+                   stringByAppendingPathComponent:CLAppName]
+                  stringByAppendingPathExtension:@"conf"];
       [mArray addObject:aString];
-      
+
       aString = [[docRoot stringByDeletingLastPathComponent]
-		  stringByAppendingPathComponent:@"db.conf"];
+                  stringByAppendingPathComponent:@"db.conf"];
       [mArray addObject:aString];
 
       aString = [[[[[docRoot stringByDeletingLastPathComponent]
-		     stringByAppendingPathComponent:@"conf"]
-		    stringByAppendingPathComponent:CLAppName]
-		   stringByAppendingPathComponent:CLAppName]
-		  stringByAppendingPathExtension:@"conf"];
+                     stringByAppendingPathComponent:@"conf"]
+                    stringByAppendingPathComponent:CLAppName]
+                   stringByAppendingPathComponent:CLAppName]
+                  stringByAppendingPathExtension:@"conf"];
       [mArray addObject:aString];
 
       aString = [[[[docRoot stringByDeletingLastPathComponent]
-		    stringByAppendingPathComponent:@"conf"]
-		   stringByAppendingPathComponent:CLAppName]
-		  stringByAppendingPathExtension:@"conf"];
+                    stringByAppendingPathComponent:@"conf"]
+                   stringByAppendingPathComponent:CLAppName]
+                  stringByAppendingPathExtension:@"conf"];
       [mArray addObject:aString];
     }
 
@@ -212,31 +212,31 @@ static CLMutableDictionary *CLConfig = nil;
       [mArray addObject:[CLString stringWithFormat:@"/etc/%@/db.conf", CLAppName]];
 
       if (!(username = cuserid(NULL)))
-	username = getlogin();
+        username = getlogin();
       if (username)
-	pwent = getpwnam(username);
+        pwent = getpwnam(username);
       else
-	pwent = getpwuid(getuid());
+        pwent = getpwuid(getuid());
       aString = [[[CLString stringWithUTF8String:pwent->pw_dir]
-		   stringByAppendingPathComponent:CLAppName]
-		  stringByAppendingPathExtension:@"conf"];
+                   stringByAppendingPathComponent:CLAppName]
+                  stringByAppendingPathExtension:@"conf"];
       [mArray addObject:aString];
 
       if ((docRoot = [CLEnvironment objectForKey:@"SCRIPT_FILENAME"])) {
-	aString = [[[[[[docRoot stringByDeletingLastPathComponent]
-			stringByDeletingLastPathComponent]
-		       stringByAppendingPathComponent:@"conf"]
-		      stringByAppendingPathComponent:CLAppName]
-		     stringByAppendingPathComponent:CLAppName]
-		    stringByAppendingPathExtension:@"conf"];
-	[mArray addObject:aString];
+        aString = [[[[[[docRoot stringByDeletingLastPathComponent]
+                        stringByDeletingLastPathComponent]
+                       stringByAppendingPathComponent:@"conf"]
+                      stringByAppendingPathComponent:CLAppName]
+                     stringByAppendingPathComponent:CLAppName]
+                    stringByAppendingPathExtension:@"conf"];
+        [mArray addObject:aString];
       }
     }
 
     for (i = 0, j = [mArray count]; i < j; i++) {
       aString = [mArray objectAtIndex:i];
       if (!access([aString UTF8String], R_OK))
-	break;
+        break;
     }
 
     if (i == j)
@@ -246,7 +246,7 @@ static CLMutableDictionary *CLConfig = nil;
       [self setConfigurationFile:aString];
     [mArray release];
   }
-  
+
   if (!CLConfigFile && CLConfigDir)
     [self setConfigurationFile:[[CLString alloc] initWithFormat:@"%@/db.conf", CLConfigDir]];
 
@@ -266,20 +266,20 @@ static CLMutableDictionary *CLConfig = nil;
   CLRange aRange;
   CLString *aString;
   CLMutableDictionary *mDict = nil;
-  
+
 
   if ((file = fopen([aFile UTF8String], "r"))) {
     mDict = [[CLMutableDictionary alloc] init];
     while ((aString = CLGets(file, CLUTF8StringEncoding))) {
       aRange = [aString rangeOfString:@":"];
       if (aRange.length)
-	[mDict setObject:[[aString substringFromIndex:CLMaxRange(aRange)]
-			      stringByTrimmingWhitespaceAndNewlines]
-		  forKey:[aString substringToIndex:aRange.location]];
+        [mDict setObject:[[aString substringFromIndex:CLMaxRange(aRange)]
+                              stringByTrimmingWhitespaceAndNewlines]
+                  forKey:[aString substringToIndex:aRange.location]];
     }
     fclose(file);
   }
-    
+
   return mDict;
 }
 
@@ -291,7 +291,7 @@ static CLMutableDictionary *CLConfig = nil;
       CLAddToCleanup(CLConfig);
   }
 
-  return [CLConfig objectForKey:anOption];    
+  return [CLConfig objectForKey:anOption];
 }
 
 +(CLString *) domain
@@ -319,47 +319,47 @@ static CLMutableDictionary *CLConfig = nil;
   id strings;
   BOOL match = NO;
   static int _didcheck = 0;
-  
-  
+
+
   if (!_didcheck) {
     /* FIXME - read site specific one and when there are no matches
        fall back to /usr/local/lib one. */
     if (!(aString = [CLString stringWithContentsOfFile:@"/usr/local/lib/browsers.plist"
-			      encoding:CLUTF8StringEncoding])) {
+                              encoding:CLUTF8StringEncoding])) {
       aString = [[self configurationDirectory]
-		  stringByAppendingPathComponent:@"browsers.plist"];
+                  stringByAppendingPathComponent:@"browsers.plist"];
       aString = [CLString stringWithContentsOfFile:aString
-			  encoding:CLUTF8StringEncoding];
+                          encoding:CLUTF8StringEncoding];
     }
-    
+
     if (aString) {
       aDict = [aString decodePropertyList];
       allKeys = [aDict allKeys];
       for (i = 0, j = [allKeys count]; i < j; i++) {
-	strings = [aDict objectForKey:[allKeys objectAtIndex:i]];
-	if ([strings isKindOfClass:CLArrayClass]) {
-	  for (k = 0, l = [strings count]; k < l; k++) {
-	    aRegex = [[CLRegularExpression alloc] initFromString:[strings objectAtIndex:k]
-						  options:0];
-	    match = [aRegex matchesString:CLUserAgent];
-	    [aRegex release];
-	    if (match)
-	      break;
-	  }
-	}
-	else {
-	  aRegex = [[CLRegularExpression alloc] initFromString:strings options:0];
-	  match = [aRegex matchesString:CLUserAgent];
-	  [aRegex release];
-	}
+        strings = [aDict objectForKey:[allKeys objectAtIndex:i]];
+        if ([strings isKindOfClass:CLArrayClass]) {
+          for (k = 0, l = [strings count]; k < l; k++) {
+            aRegex = [[CLRegularExpression alloc] initFromString:[strings objectAtIndex:k]
+                                                  options:0];
+            match = [aRegex matchesString:CLUserAgent];
+            [aRegex release];
+            if (match)
+              break;
+          }
+        }
+        else {
+          aRegex = [[CLRegularExpression alloc] initFromString:strings options:0];
+          match = [aRegex matchesString:CLUserAgent];
+          [aRegex release];
+        }
 
-	if (match)
-	  break;
+        if (match)
+          break;
       }
 
       if (i < j) {
-	CLBrowserType = [[allKeys objectAtIndex:i] retain];
-	CLAddToCleanup(CLBrowserType);
+        CLBrowserType = [[allKeys objectAtIndex:i] retain];
+        CLAddToCleanup(CLBrowserType);
       }
     }
 
@@ -368,7 +368,7 @@ static CLMutableDictionary *CLConfig = nil;
 
   return CLBrowserType;
 }
-  
+
 +(CLString *) randomPassword
 {
   FILE *file;
@@ -379,18 +379,18 @@ static CLMutableDictionary *CLConfig = nil;
   /* Used to look for 4 letter words but it keeps giving me
      inappropriate things. Maybe I should make my own dictionary. */
   file = popen("egrep '^[a-z][a-z][a-z][a-z][a-z][a-z]$' "
-	       WORDLIST " | " RANDOMIZE " | head -2", "r");
+               WORDLIST " | " RANDOMIZE " | head -2", "r");
   mString = [[CLMutableString alloc] init];
   while ((aString = CLGets(file, CLUTF8StringEncoding))) {
     if ([mString length])
       [mString appendString:@"-"];
     [mString appendString:
-	       [[aString stringByTrimmingCharactersInSet:
-			  [CLCharacterSet whitespaceAndNewlineCharacterSet]]
-		 lowercaseString]];
+               [[aString stringByTrimmingCharactersInSet:
+                          [CLCharacterSet whitespaceAndNewlineCharacterSet]]
+                 lowercaseString]];
   }
   pclose(file);
-  
+
   return [mString autorelease];
 }
 
@@ -405,24 +405,24 @@ static CLMutableDictionary *CLConfig = nil;
   for (i = 0; i < 8; i++)
     buf[i+3] = cryptset[random() % strlen(cryptset)];
   aString = [CLString stringWithUTF8String:buf];
-  
+
   return aString;
 }
 
 +(CLString *) returnFor:(id) anObject action:(SEL) anAction
-	     localQuery:(CLDictionary *) aQuery
+             localQuery:(CLDictionary *) aQuery
 {
   CLStream *stream;
   CLData *aData;
   CLString *aString;
 
-  
+
   stream = [CLStream openMemoryForWriting];
   [stream writeTypes:@"@:@", &anObject, &anAction, &aQuery];
   aData = [stream data];
   aString = [aData encodeBase64];
   [stream close];
-  
+
   return aString;
 }
 
@@ -437,7 +437,7 @@ static CLMutableDictionary *CLConfig = nil;
 -(id) init
 {
   [super init];
-  
+
   if (!_manager)
     [self becomeManager];
 
@@ -448,7 +448,7 @@ static CLMutableDictionary *CLConfig = nil;
 
   return _manager;
 }
-    
+
 -(void) dealloc
 {
   [activeSession release];
@@ -465,7 +465,7 @@ static CLMutableDictionary *CLConfig = nil;
     [self becomeManager];
   return [super read:stream];
 }
-  
+
 -(void) setupSession:(int) anID
 {
   CLDatabase *db;
@@ -487,7 +487,7 @@ static CLMutableDictionary *CLConfig = nil;
 
 
   /* FIXME - use a different context to setup session? */
-  
+
   if (_manager != self) {
     [_manager setupSession:anID];
     return;
@@ -518,7 +518,7 @@ static CLMutableDictionary *CLConfig = nil;
       cookies = [CLArray arrayWithObjects:aCookie, nil];
     [aCookie release];
   }
-  
+
   j = [cookies count];
   i = 0;
 
@@ -528,51 +528,51 @@ static CLMutableDictionary *CLConfig = nil;
   do {
     if (anID) {
       aString = [CLString stringWithFormat:
-			    @"select %@, %@ from %@ where %@ = %i",
-			  [sessionDef columnNameForKey:@"objectID"],
-			  [sessionDef columnNameForKey:@"browserHash"],
-			  localTable, [sessionDef columnNameForKey:@"objectID"], anID];
+                            @"select %@, %@ from %@ where %@ = %i",
+                          [sessionDef columnNameForKey:@"objectID"],
+                          [sessionDef columnNameForKey:@"browserHash"],
+                          localTable, [sessionDef columnNameForKey:@"objectID"], anID];
       rows = [db read:attr qualifier:aString errors:NULL];
 
       if ([rows count]) {
-	browserHash2 = [[[rows objectAtIndex:0] objectForKey:@"browserHash"]
-			 unsignedLongValue];
-	if (browserHash == browserHash2) {
-	  err = 0;
-	  break;
-	}
-	
-	err = 1;
-	anID = 0;
+        browserHash2 = [[[rows objectAtIndex:0] objectForKey:@"browserHash"]
+                         unsignedLongValue];
+        if (browserHash == browserHash2) {
+          err = 0;
+          break;
+        }
+
+        err = 1;
+        anID = 0;
       }
       else
-	err = 1;      
+        err = 1;
     }
 
     if (i < j && [[cookies objectAtIndex:i] value]) {
       anID = [[[cookies objectAtIndex:i] value] intValue];
       while (!anID && (i + 1) < j) {
-	i++;
-	anID = [[[cookies objectAtIndex:i] value] intValue];
+        i++;
+        anID = [[[cookies objectAtIndex:i] value] intValue];
       }
     }
     i++;
   } while (anID && i <= j);
-    
+
   if (err || !anID) {
     mDict = [[CLMutableDictionary alloc] init];
     [mDict setObject:[CLDatetime now] forKey:@"last_seen"];
     [mDict setObject:[CLNumber numberWithUnsignedLong:browserHash]
-	      forKey:[sessionDef columnNameForKey:@"browserHash"]];
+              forKey:[sessionDef columnNameForKey:@"browserHash"]];
     mArray = [[CLMutableArray alloc]
-	       initWithObjects:
-		 [CLString stringWithFormat:@"%@:@",
-			   [sessionDef columnNameForKey:@"lastSeen"]],
-		 [CLString stringWithFormat:@"%@:i",
-			   [sessionDef columnNameForKey:@"accountID"]],
-		 [CLString stringWithFormat:@"%@:#",
-			   [sessionDef columnNameForKey:@"browserHash"]],
-	       nil];
+               initWithObjects:
+                 [CLString stringWithFormat:@"%@:@",
+                           [sessionDef columnNameForKey:@"lastSeen"]],
+                 [CLString stringWithFormat:@"%@:i",
+                           [sessionDef columnNameForKey:@"accountID"]],
+                 [CLString stringWithFormat:@"%@:#",
+                           [sessionDef columnNameForKey:@"browserHash"]],
+               nil];
 
     {
       CLString *aString;
@@ -580,20 +580,20 @@ static CLMutableDictionary *CLConfig = nil;
 
 
       if ([[sessionDef fields]
-	    objectForKey:[URL_START lowerCamelCaseString]] &&
-	  (p = getenv("PATH_INFO")) && *p) {
-	aString = [CLString stringWithUTF8String:p];
-	if ((p = getenv("QUERY_STRING")) && *p)
-	  aString = [aString stringByAppendingFormat:@"?%s", p];
-	[mDict setObject:aString forKey:URL_START];
-	[mArray addObject:URL_START @":*"];
+            objectForKey:[URL_START lowerCamelCaseString]] &&
+          (p = getenv("PATH_INFO")) && *p) {
+        aString = [CLString stringWithUTF8String:p];
+        if ((p = getenv("QUERY_STRING")) && *p)
+          aString = [aString stringByAppendingFormat:@"?%s", p];
+        [mDict setObject:aString forKey:URL_START];
+        [mArray addObject:URL_START @":*"];
       }
-  
+
       if ([[sessionDef fields]
-	    objectForKey:[URL_REFERRER lowerCamelCaseString]] &&
-	  (p = getenv("HTTP_REFERER")) && *p) {
-	[mDict setObject:[CLString stringWithUTF8String:p] forKey:URL_REFERRER];
-	[mArray addObject:URL_REFERRER @":*"];
+            objectForKey:[URL_REFERRER lowerCamelCaseString]] &&
+          (p = getenv("HTTP_REFERER")) && *p) {
+        [mDict setObject:[CLString stringWithUTF8String:p] forKey:URL_REFERRER];
+        [mArray addObject:URL_REFERRER @":*"];
       }
     }
 
@@ -601,7 +601,7 @@ static CLMutableDictionary *CLConfig = nil;
     [mArray release];
     if (anID)
       [db insertDictionary:mDict withAttributes:attr into:localTable withID:anID
-	  errors:NULL];
+          errors:NULL];
     else
       anID = [db insertDictionary:mDict withAttributes:attr into:localTable errors:NULL];
     [mDict release];
@@ -611,7 +611,7 @@ static CLMutableDictionary *CLConfig = nil;
   if ([CLEditingContext model]) {
     id session;
     CLEditingContext *sessionContext;
-    
+
 
     sessionContext = [[CLEditingContext alloc] init];
     session = [sessionContext loadObjectWithClass:sessionClass objectID:anID];
@@ -622,7 +622,7 @@ static CLMutableDictionary *CLConfig = nil;
     /* FIXME - if we already loaded the session in another context it
        needs to be refreshed. */
   }
-  
+
   [self setActiveSession:[CLDefaultContext loadObjectWithClass:sessionClass objectID:anID]];
   if (newSession && [CLDelegate respondsTo:@selector(didCreateSession:)])
     [CLDelegate didCreateSession:[self activeSession]];
@@ -631,7 +631,7 @@ static CLMutableDictionary *CLConfig = nil;
   [aCookie setKey:COOKIE_SESSION];
   [aCookie setValue:[CLNumber numberWithInt:anID]];
   [aCookie setExpires:
-	     [CLDatetime dateWithTimeIntervalSince1970:time(NULL) + 30 * 24 * 60 * 60]];
+             [CLDatetime dateWithTimeIntervalSince1970:time(NULL) + 30 * 24 * 60 * 60]];
 #if 0
   if ((aString = [[self class] domain])) {
     if ([aString hasPrefix:@"www."])
@@ -664,10 +664,10 @@ static CLMutableDictionary *CLConfig = nil;
     aUser = [sender objectForKey:FIELD_ACCOUNT];
 
   recordDef = [CLEditingContext recordDefinitionForClass:[CLEditingContext accountClass]];
-  
+
   attr = CLAttributes(@"id:i", @"password:*", @"flags:*", nil);
   mString = [CLMutableString stringWithFormat:@"select id, password, flags from %@ where",
-		      [recordDef databaseTable]];
+                      [recordDef databaseTable]];
   if (ignore) {
     [mString appendFormat:@" (flags is null or flags not like '%%%c%%')", CLAccountFlagInternalUseOnly];
     if (!(mask & CLNameNotUnique) || !(mask & CLEmailNotUnique))
@@ -705,22 +705,22 @@ static CLMutableDictionary *CLConfig = nil;
     aUser = [sender objectForKey:FIELD_ACCOUNT];
     aPass = [sender objectForKey:FIELD_PASSWORD];
   }
-  
+
   if (!aUser)
     return 0;
 
   rows = [self getUsers:sender uniqueMask:mask ignoreInternal:YES];
   for (i = 0, j = [rows count]; i < j; i++) {
     aDict = [rows objectAtIndex:i];
-    
+
     /* Check if account is locked */
     aRange.length = 0;
     if ((aString = [aDict objectForKey:@"flags"]) && aString != CLNullObject)
       aRange = [aString rangeOfCharacter:CLAccountFlagLocked options:CLCaseInsensitiveSearch
-				   range:CLMakeRange(0, [aString length])];
+                                   range:CLMakeRange(0, [aString length])];
     if (aRange.length)
       continue;
-    
+
     aString = [aDict objectForKey:@"password"];
     if (aString == CLNullObject)
       aString = nil;
@@ -731,26 +731,26 @@ static CLMutableDictionary *CLConfig = nil;
 
       p = crypt([[aPass lowercaseString] UTF8String], [aString UTF8String]);
       if (p)
-	cryptPass = [CLString stringWithUTF8String:p];
+        cryptPass = [CLString stringWithUTF8String:p];
     }
-      
+
     if ((!aString && !aPass) ||
-	(aString && aPass && [aString isEqualToString:cryptPass])) {
+        (aString && aPass && [aString isEqualToString:cryptPass])) {
       uid = [[aDict objectForKey:@"id"] intValue];
       if ([CLDelegate respondsTo:@selector(willValidateAccountID:sender:)]
-	  && ![CLDelegate willValidateAccountID:uid sender:sender]) {
-	uid = 0;
-	continue;
+          && ![CLDelegate willValidateAccountID:uid sender:sender]) {
+        uid = 0;
+        continue;
       }
 
       if ((aString = [aDict objectForKey:@"flags"]) && aString != CLNullObject) {
-	aRange = [aString rangeOfCharacter:CLAccountFlagUnconfirmed
-				   options:CLCaseInsensitiveSearch
-				     range:CLMakeRange(0, [aString length])];
-	if (aRange.length)
-	  uid = -uid;
+        aRange = [aString rangeOfCharacter:CLAccountFlagUnconfirmed
+                                   options:CLCaseInsensitiveSearch
+                                     range:CLMakeRange(0, [aString length])];
+        if (aRange.length)
+          uid = -uid;
       }
-	
+
       break;
     }
   }
@@ -773,11 +773,11 @@ static CLMutableDictionary *CLConfig = nil;
     retString = [[[anObject objectValueForBinding:@"returnTo"] retain] autorelease];
     [[anObject editingContext] deleteObject:anObject];
   }
-  
+
   if ([sender isKindOfClass:CLFormClass] &&
       (aString = [sender valueOfFieldNamed:FIELD_RETURN]))
     retString = aString;
-  
+
   if (!retString) {
     if (![sender respondsTo:@selector(doVaction)] || ![sender doVaction])
       return NO;
@@ -791,7 +791,7 @@ static CLMutableDictionary *CLConfig = nil;
     [aQuery release];
     [anObject perform:anAction with:sender];
   }
-  
+
   return YES;
 }
 
@@ -808,77 +808,77 @@ static CLMutableDictionary *CLConfig = nil;
   if ([sender isKindOfClass:CLFormClass]) {
     if ((loginReturn = [sender valueOfFieldNamed:FIELD_RETURN])) {
       [[[[sender page] objectWithID:@"cl_lostControl"] localQuery]
-	setObject:loginReturn forKey:QUERY_RETURN];
+        setObject:loginReturn forKey:QUERY_RETURN];
       [[[[sender page] objectWithID:@"cl_signupControl"] localQuery]
-	setObject:loginReturn forKey:QUERY_RETURN];
+        setObject:loginReturn forKey:QUERY_RETURN];
     }
-  
+
     if ([sender valueOfFieldNamed:FIELD_SKIP]) {
       [self return:sender];
       return;
     }
     else {
       if ([sender target] == self)
-	user_id = [self validateUser:sender uniqueMask:0];
-    
+        user_id = [self validateUser:sender uniqueMask:0];
+
       if (user_id > 0) {
-	[[self activeSession]
-	  setAccount:[CLDefaultContext loadObjectWithClass:[CLEditingContext accountClass]
-						   objectID:user_id]];
-	/* FIXME - use our own context */
-	[CLDefaultContext saveChanges];
-	[self return:sender];
-	return;
+        [[self activeSession]
+          setAccount:[CLDefaultContext loadObjectWithClass:[CLEditingContext accountClass]
+                                                   objectID:user_id]];
+        /* FIXME - use our own context */
+        [CLDefaultContext saveChanges];
+        [self return:sender];
+        return;
       }
       else {
-	[self replacePage:sender filename:PAGE_LOGIN];
-	if ((loginReturn = [sender valueOfFieldNamed:FIELD_RETURN])) {
-	  [[[[sender page] objectWithID:@"cl_lostControl"] localQuery]
-	    setObject:loginReturn forKey:QUERY_RETURN];
-	  [[[[sender page] objectWithID:@"cl_signupControl"] localQuery]
-	    setObject:loginReturn forKey:QUERY_RETURN];
-	}
-	
-	[[sender pageForm] copyValuesFrom:sender];
-	[[sender page] setStatus:401];
-  
-	if (user_id < 0) { /* Expired */
-	  CLControl *c1, *c2;
-	  CLStream *stream;
-	  CLData *aData;
-	  CLInfoMessage *aMessage;
+        [self replacePage:sender filename:PAGE_LOGIN];
+        if ((loginReturn = [sender valueOfFieldNamed:FIELD_RETURN])) {
+          [[[[sender page] objectWithID:@"cl_lostControl"] localQuery]
+            setObject:loginReturn forKey:QUERY_RETURN];
+          [[[[sender page] objectWithID:@"cl_signupControl"] localQuery]
+            setObject:loginReturn forKey:QUERY_RETURN];
+        }
+
+        [[sender pageForm] copyValuesFrom:sender];
+        [[sender page] setStatus:401];
+
+        if (user_id < 0) { /* Expired */
+          CLControl *c1, *c2;
+          CLStream *stream;
+          CLData *aData;
+          CLInfoMessage *aMessage;
 
 
-	  c1 = [[CLControl alloc] init];
-	  c2 = [[CLControl alloc] init];
-	  [c2 setTarget:self];
-	  [c2 setAction:@selector(sendActivation:)];
-	  [c2 addObject:@"Click here to resend the activation link."];
-	  [[c2 localQuery] setObject:[CLNumber numberWithInt:-user_id] forKey:QUERY_USER];
-	  [[c2 localQuery] setObject:[sender valueOfFieldNamed:FIELD_RETURN]
-			   forKey:QUERY_RETURN];
-	  
-	  [c1 addObject:@"Your account has not been activated."
-	      " Please click the activation link that was emailed to you. "];
-	  [c1 addObject:c2];
+          c1 = [[CLControl alloc] init];
+          c2 = [[CLControl alloc] init];
+          [c2 setTarget:self];
+          [c2 setAction:@selector(sendActivation:)];
+          [c2 addObject:@"Click here to resend the activation link."];
+          [[c2 localQuery] setObject:[CLNumber numberWithInt:-user_id] forKey:QUERY_USER];
+          [[c2 localQuery] setObject:[sender valueOfFieldNamed:FIELD_RETURN]
+                           forKey:QUERY_RETURN];
 
-	  stream = [CLStream openMemoryForWriting];
-	  [c1 writeHTML:stream];
-	  [stream close];
-	  /* FIXME - we should be using nocopy to move the stream buffer into the string */
-	  aData = [stream data];
-	  aMessage = [[CLInfoMessage alloc]
-		       initWithMessage:[CLString stringWithData:aData
-						       encoding:CLUTF8StringEncoding]
-			       isError:YES];
-	  [[sender page] addInfoMessage:aMessage];
-	  [aMessage release];
-	  [c1 release];
-	  [c2 release];
-	}
-	else if ([sender target] == self)
-	  [[sender fieldNamed:FIELD_ACCOUNT] setErrorString:
-					       @"Invalid email address or password"];
+          [c1 addObject:@"Your account has not been activated."
+              " Please click the activation link that was emailed to you. "];
+          [c1 addObject:c2];
+
+          stream = [CLStream openMemoryForWriting];
+          [c1 writeHTML:stream];
+          [stream close];
+          /* FIXME - we should be using nocopy to move the stream buffer into the string */
+          aData = [stream data];
+          aMessage = [[CLInfoMessage alloc]
+                       initWithMessage:[CLString stringWithData:aData
+                                                       encoding:CLUTF8StringEncoding]
+                               isError:YES];
+          [[sender page] addInfoMessage:aMessage];
+          [aMessage release];
+          [c1 release];
+          [c2 release];
+        }
+        else if ([sender target] == self)
+          [[sender fieldNamed:FIELD_ACCOUNT] setErrorString:
+                                               @"Invalid email address or password"];
       }
     }
   }
@@ -897,7 +897,7 @@ static CLMutableDictionary *CLConfig = nil;
   if (aMessage)
     [[sender page] appendInfoString:aMessage];
 #endif
-  
+
   return;
 }
 
@@ -907,26 +907,26 @@ static CLMutableDictionary *CLConfig = nil;
 }
 
 -(void) runLoginFor:(id) anObject action:(SEL) anAction
-	     sender:(id) sender localQuery:(CLDictionary *) aQuery
+             sender:(id) sender localQuery:(CLDictionary *) aQuery
 {
   [self runLoginFor:anObject action:anAction sender:sender localQuery:aQuery message:nil];
   return;
 }
 
 -(void) runLoginFor:(id) anObject action:(SEL) anAction
-	     sender:(id) sender localQuery:(CLDictionary *) aQuery
-	    message:(CLString *) aMessage
+             sender:(id) sender localQuery:(CLDictionary *) aQuery
+            message:(CLString *) aMessage
 {
   [self runLoginFor:anObject action:anAction sender:sender localQuery:aQuery
-	message:aMessage ignore:NO];
+        message:aMessage ignore:NO];
 }
 
 -(void) runLoginFor:(id) anObject action:(SEL) anAction
-	     sender:(id) sender localQuery:(CLDictionary *) aQuery
-	    message:(CLString *) aMessage ignore:(BOOL) ignore
+             sender:(id) sender localQuery:(CLDictionary *) aQuery
+            message:(CLString *) aMessage ignore:(BOOL) ignore
 {
   CLPage *aPage;
-  
+
 
   loginReturn = [[self class] returnFor:anObject action:anAction localQuery:aQuery];
 
@@ -936,17 +936,17 @@ static CLMutableDictionary *CLConfig = nil;
 
     if (!anObject)
       anObject = [[[CLManager manager] activeSession]
-		   addNewObjectToBothSidesOfRelationship:@"returnTo"];
+                   addNewObjectToBothSidesOfRelationship:@"returnTo"];
 
     [anObject setObjectValue:loginReturn forBinding:@"returnTo"];
     /* FIXME - use our own context */
     [CLDefaultContext saveChanges];
   }
-  
+
   if ([sender isKindOfClass:CLFormClass]) {
     [(CLForm *) sender addObject:[[[CLInput alloc]
-			initWithTitle:FIELD_RETURN cols:0 rows:0 value:loginReturn
-				   type:CLTextInputType onPage:nil] autorelease]];
+                        initWithTitle:FIELD_RETURN cols:0 rows:0 value:loginReturn
+                                   type:CLTextInputType onPage:nil] autorelease]];
     [self login:sender message:aMessage];
   }
   else {
@@ -963,11 +963,11 @@ static CLMutableDictionary *CLConfig = nil;
     if (aMessage)
       [aPage appendInfoString:aMessage];
 #endif
-    
+
     [sender setPage:aPage];
     [aPage autorelease];
   }
-  
+
   return;
 }
 
@@ -999,55 +999,55 @@ static CLMutableDictionary *CLConfig = nil;
 
   [self replacePage:sender filename:PAGE_FORGOT];
   [self preparePage:[sender page]];
-  
+
   if ([sender isKindOfClass:CLFormClass]) {
     if (!(email = [sender valueOfFieldNamed:FIELD_EMAIL]))
       [[sender fieldNamed:FIELD_EMAIL] setErrorString:@"Invalid email address"];
     else {
       anArray = [CLDefaultContext loadTableWithClass:[CLEditingContext accountClass]
-					   qualifier:
-			  [CLString stringWithFormat:@"email = '%@'",
-			    [CLDatabase defangString:email escape:NULL]]];
+                                           qualifier:
+                          [CLString stringWithFormat:@"email = '%@'",
+                            [CLDatabase defangString:email escape:NULL]]];
       if (![anArray count])
-	[[sender fieldNamed:FIELD_EMAIL] setErrorString:@"Invalid email address"];
+        [[sender fieldNamed:FIELD_EMAIL] setErrorString:@"Invalid email address"];
       else {
-	for (i = 0, j = [anArray count]; i < j; i++) {
-	  anAccount = [anArray objectAtIndex:i];
-	  if (![anAccount isLocked]) {
-	    pass = [[self class] randomPassword];
+        for (i = 0, j = [anArray count]; i < j; i++) {
+          anAccount = [anArray objectAtIndex:i];
+          if (![anAccount isLocked]) {
+            pass = [[self class] randomPassword];
 
-	    [anAccount setPassword:[CLString stringWithUTF8String:
-					       crypt([[pass lowercaseString] UTF8String],
-						     [[[self class] randomSalt]
-						       UTF8String])]];
-	    /* FIXME - use our own context */
-	    [CLDefaultContext saveChanges];
+            [anAccount setPassword:[CLString stringWithUTF8String:
+                                               crypt([[pass lowercaseString] UTF8String],
+                                                     [[[self class] randomSalt]
+                                                       UTF8String])]];
+            /* FIXME - use our own context */
+            [CLDefaultContext saveChanges];
 
-	    mDict = [[CLMutableDictionary alloc] init];
-	    [mDict setObject:[anAccount email] forKey:@"cl_email"];
-	    [mDict setObject:[anAccount objectValueForBinding:@"name"] forKey:@"cl_name"];
-	    [mDict setObject:pass forKey:@"cl_plain"];
-	    aMessage = [[CLEmailMessage alloc] initFromFile:MSG_FORGOT owner:mDict];
-	    [aMessage send];
-	    [aMessage release];
-	    [mDict release];
-	  }
-	}
+            mDict = [[CLMutableDictionary alloc] init];
+            [mDict setObject:[anAccount email] forKey:@"cl_email"];
+            [mDict setObject:[anAccount objectValueForBinding:@"name"] forKey:@"cl_name"];
+            [mDict setObject:pass forKey:@"cl_plain"];
+            aMessage = [[CLEmailMessage alloc] initFromFile:MSG_FORGOT owner:mDict];
+            [aMessage send];
+            [aMessage release];
+            [mDict release];
+          }
+        }
 
-	if (![self return:sender]) {
-	  CLPage *aPage;
+        if (![self return:sender]) {
+          CLPage *aPage;
 
 
-	  aPage = [[CLPage alloc] initFromFile:PAGE_LOGIN owner:self];
+          aPage = [[CLPage alloc] initFromFile:PAGE_LOGIN owner:self];
 #if 0
-	  [aPage appendInfoString:[CLString stringWithFormat:
-					      @"A new password has been emailed to %@",
-					    email]];
+          [aPage appendInfoString:[CLString stringWithFormat:
+                                              @"A new password has been emailed to %@",
+                                            email]];
 #endif
-	  [aPage display];
-	  [aPage release];
-	  [sender setPage:nil];
-	}
+          [aPage display];
+          [aPage release];
+          [sender setPage:nil];
+        }
       }
     }
   }
@@ -1057,7 +1057,7 @@ static CLMutableDictionary *CLConfig = nil;
     [CLQuery removeObjectForKey:QUERY_RETURN];
   }
   else if ([sender isKindOfClass:CLFormClass] &&
-	   (aString = [sender valueOfFieldNamed:FIELD_RETURN]))
+           (aString = [sender valueOfFieldNamed:FIELD_RETURN]))
     loginReturn = [aString retain];
 
   return;
@@ -1107,33 +1107,33 @@ static CLMutableDictionary *CLConfig = nil;
     aRange = [instr rangeOfString:@":" options:0 range:aRange2];
     aRange2 = [instr rangeOfString:@" " options:0 range:aRange2];
     if (aRange.length &&
-	(!aRange2.length || aRange.location < aRange2.location)) {
+        (!aRange2.length || aRange.location < aRange2.location)) {
       aRange = [instr rangeOfString:@"\n\n" options:0 range:CLMakeRange(0, [instr length])];
       head = [[instr substringToIndex:aRange.location+1] mutableCopy];
       body = [[instr substringFromIndex:CLMaxRange(aRange)] mutableCopy];
 
       [head replaceOccurrencesOfString:@"--FROM--" withString:
-	      [CLString stringWithFormat:@"support@%@", [[self class] domain]]
-	    options:0 range:CLMakeRange(0, [head length])];
+              [CLString stringWithFormat:@"support@%@", [[self class] domain]]
+            options:0 range:CLMakeRange(0, [head length])];
       [head replaceOccurrencesOfString:@"--ERRORS--" withString:
-	      [CLString stringWithFormat:@"support@%@", [[self class] domain]]
-	    options:0 range:CLMakeRange(0, [head length])];
+              [CLString stringWithFormat:@"support@%@", [[self class] domain]]
+            options:0 range:CLMakeRange(0, [head length])];
       [head replaceOccurrencesOfString:@"--SUBJET--" withString:
-	      [CLString stringWithFormat:@"Your %@ password", [[self class] domain]]
-	    options:0 range:CLMakeRange(0, [head length])];
+              [CLString stringWithFormat:@"Your %@ password", [[self class] domain]]
+            options:0 range:CLMakeRange(0, [head length])];
       [head replaceOccurrencesOfString:@"--TO--" withString:anEmail
-	    options:0 range:CLMakeRange(0, [head length])];
+            options:0 range:CLMakeRange(0, [head length])];
       if (bcc)
-	[head replaceOccurrencesOfString:@"--BCC--" withString:bcc
-	      options:0 range:CLMakeRange(0, [head length])];
+        [head replaceOccurrencesOfString:@"--BCC--" withString:bcc
+              options:0 range:CLMakeRange(0, [head length])];
     }
     else
       body = [instr mutableCopy];
 
     [head replaceOccurrencesOfString:@"--USER--" withString:aUser
-	  options:0 range:CLMakeRange(0, [head length])];
+          options:0 range:CLMakeRange(0, [head length])];
     [head replaceOccurrencesOfString:@"--PASS--" withString:aPass
-	  options:0 range:CLMakeRange(0, [head length])];
+          options:0 range:CLMakeRange(0, [head length])];
   }
 
   if (head)
@@ -1141,24 +1141,24 @@ static CLMutableDictionary *CLConfig = nil;
   aRange2 = CLMakeRange(0, [head length]);
   aRange = [head rangeOfString:@"From:" options:0 range:aRange2];
   if (!head || !aRange.length || (aRange.location > 0 &&
-				  [head characterAtIndex:aRange.location - 1] != '\n'))
+                                  [head characterAtIndex:aRange.location - 1] != '\n'))
     CLPrintf(oFile, @"From: support@%@\n", [[self class] domain]);
   aRange = [head rangeOfString:@"Subject:" options:0 range:aRange2];
   if (!head || !aRange.length || (aRange.location > 0 &&
-				  [head characterAtIndex:aRange.location - 1] != '\n'))
+                                  [head characterAtIndex:aRange.location - 1] != '\n'))
     CLPrintf(oFile, @"Subject: Your %@ password\n", [[self class] domain]);
   aRange = [head rangeOfString:@"To:" options:0 range:aRange2];
   if (!head || !aRange.length || (aRange.location > 0 &&
-				  [head characterAtIndex:aRange.location - 1] != '\n'))
+                                  [head characterAtIndex:aRange.location - 1] != '\n'))
     CLPrintf(oFile, @"To: %@\n", anEmail);
   aRange = [head rangeOfString:@"Bcc:" options:0 range:aRange2];
   if (bcc && (!head || !aRange.length ||
-	      (aRange.location > 0 &&
-	       [head characterAtIndex:aRange.location - 1] != '\n')))
+              (aRange.location > 0 &&
+               [head characterAtIndex:aRange.location - 1] != '\n')))
     CLPrintf(oFile, @"Bcc: %@\n", bcc);
   aRange = [head rangeOfString:@"Errors-To:" options:0 range:aRange2];
   if (!head || !aRange.length || (aRange.location > 0 &&
-				  [head characterAtIndex:aRange.location - 1] != '\n'))
+                                  [head characterAtIndex:aRange.location - 1] != '\n'))
     CLPrintf(oFile, @"Errors-To: support@%@\n", [[self class] domain]);
   CLPrintf(oFile, @"X-Remote-Addr: %s\n", getenv("REMOTE_ADDR"));
   CLPrintf(oFile, @"\n");
@@ -1171,7 +1171,7 @@ static CLMutableDictionary *CLConfig = nil;
     CLPrintf(oFile, @"Username: %@\n", aUser);
     CLPrintf(oFile, @"Password: %@\n", aPass);
   }
-  
+
   [oFile close];
   aString = [CLString stringWithFormat:@"/usr/lib/sendmail -t < %@", [oFile path]];
   system([aString UTF8String]);
@@ -1192,9 +1192,9 @@ static CLMutableDictionary *CLConfig = nil;
   CLString *aString;
   CLData *aData;
 
-  
+
   anAccount = [CLDefaultContext loadObjectWithClass:[CLEditingContext accountClass]
-					   objectID:accountID];
+                                           objectID:accountID];
   for (i = 0; i < sizeof(abuf); i++)
     abuf[i] = random() % 128;
   h = htonl(accountID);
@@ -1202,7 +1202,7 @@ static CLMutableDictionary *CLConfig = nil;
   strncpy(abuf + sizeof(h), [[anAccount email] UTF8String], sizeof(abuf) - sizeof(h) - 1);
   aData = [[CLData alloc] initWithBytes:abuf length:strlen(abuf)];
   aString = [CLString stringWithFormat:@"%@%@/activate?emailid=%@",
-		      CLServerURL, CLWebName, [aData encodeBase64]];
+                      CLServerURL, CLWebName, [aData encodeBase64]];
   [aData release];
   [anAccount release];
 
@@ -1234,9 +1234,9 @@ static CLMutableDictionary *CLConfig = nil;
   localTable = [fullTable substringFromIndex:CLMaxRange(aRange)];
 
   rows = [db read:CLAttributes(@"id:i", nil) qualifier:
-	       [CLString stringWithFormat:@"select id from %@ where name = '%@'",
-			 localTable,
-			 [CLDatabase defangString:aString escape:NULL]] errors:NULL];
+               [CLString stringWithFormat:@"select id from %@ where name = '%@'",
+                         localTable,
+                         [CLDatabase defangString:aString escape:NULL]] errors:NULL];
 
   if ([rows count])
     return NO;
@@ -1258,9 +1258,9 @@ static CLMutableDictionary *CLConfig = nil;
   localTable = [fullTable substringFromIndex:CLMaxRange(aRange)];
 
   rows = [db read:CLAttributes(@"id:i", nil) qualifier:
-	       [CLString stringWithFormat:@"select id from %@ where email = '%@'",
-			 localTable,
-			 [CLDatabase defangString:aString escape:NULL]] errors:NULL];
+               [CLString stringWithFormat:@"select id from %@ where email = '%@'",
+                         localTable,
+                         [CLDatabase defangString:aString escape:NULL]] errors:NULL];
 
   if ([rows count])
     return NO;
@@ -1291,7 +1291,7 @@ static CLMutableDictionary *CLConfig = nil;
   }
 
   mDict = [CLMutableDictionary dictionary];
-  
+
   if ((mask & CLPasswordRequired)) {
     if (!pass) {
       [mDict setObject:@"Please enter a password" forKey:FIELD_PASSWORD];
@@ -1316,7 +1316,7 @@ static CLMutableDictionary *CLConfig = nil;
   aRange = [user rangeOfString:@"@" options:0 range:CLMakeRange(0, [user length])];
   if (user && aRange.length) {
     [mDict setObject:@"You cannot use an email address as your user name"
-	   forKey:FIELD_ACCOUNT];
+           forKey:FIELD_ACCOUNT];
     err++;
   }
 
@@ -1335,12 +1335,12 @@ static CLMutableDictionary *CLConfig = nil;
       buf3 = calloc(j+1, sizeof(unichar));
       [user getCharacters:buf2];
       for (i = len = 0; i < j; i++)
-	if (!wcschr(buf1, buf2[i]) && !wcschr(buf3, buf2[i]))
-	  buf3[len++] = buf2[i];
+        if (!wcschr(buf1, buf2[i]) && !wcschr(buf3, buf2[i]))
+          buf3[len++] = buf2[i];
       [mDict setObject:[CLString stringWithFormat:
-				   @"You cannot use these characters in your user name: %@",
-				 [CLString stringWithCharacters:buf3 length:len]]
-		forKey:FIELD_ACCOUNT];
+                                   @"You cannot use these characters in your user name: %@",
+                                 [CLString stringWithCharacters:buf3 length:len]]
+                forKey:FIELD_ACCOUNT];
       free(buf1);
       free(buf2);
       free(buf3);
@@ -1350,7 +1350,7 @@ static CLMutableDictionary *CLConfig = nil;
 
   if (!(mask & CLNameNotUnique) && user && ![self availableUser:user]) {
     [mDict setObject:[CLString stringWithFormat:@"Username <kbd>%@</kbd> is already taken",
-			       user] forKey:FIELD_ACCOUNT];
+                               user] forKey:FIELD_ACCOUNT];
     err++;
   }
 
@@ -1366,7 +1366,7 @@ static CLMutableDictionary *CLConfig = nil;
 
   if (!(mask & CLEmailNotUnique) && email && ![self unusedEmail:email]) {
     [mDict setObject:@"That email address already has an account."
-	   forKey:FIELD_EMAIL];
+           forKey:FIELD_EMAIL];
     err++;
   }
 
@@ -1376,8 +1376,8 @@ static CLMutableDictionary *CLConfig = nil;
     [anAccount setEmail:email];
     if (pass)
       [anAccount setPassword:[CLString stringWithUTF8String:
-					 crypt([[pass lowercaseString] UTF8String],
-					       [[[self class] randomSalt] UTF8String])]];
+                                         crypt([[pass lowercaseString] UTF8String],
+                                               [[[self class] randomSalt] UTF8String])]];
     [anAccount setCreated:[CLDatetime now]];
     /* FIXME - use our own context */
     [CLDefaultContext saveChanges];
@@ -1393,7 +1393,7 @@ static CLMutableDictionary *CLConfig = nil;
       aField = [anArray objectAtIndex:i];
       aString = [mDict objectForKey:aField];
       if (aString == CLNullObject)
-	aString = nil;
+        aString = nil;
       [[info fieldNamed:aField] setErrorString:aString];
     }
   }
@@ -1403,7 +1403,7 @@ static CLMutableDictionary *CLConfig = nil;
     if (err)
       *errors = mDict;
   }
-  
+
   return anAccount;
 }
 
@@ -1415,20 +1415,20 @@ static CLMutableDictionary *CLConfig = nil;
   CLAccessControl *anAcl;
   BOOL allow, foundMatch;
 
-  
+
   if (_manager != self)
     return [_manager checkPermission:anObject];
-  
+
   if (!acls && (aString = [CLManager configOption:@"ACL"])) {
     acls = [[CLMutableArray alloc] init];
     aString = [[CLManager configurationDirectory] stringByAppendingPathComponent:aString];
     if ((file = fopen([aString UTF8String], "r"))) {
       while ((aString = CLGets(file, CLUTF8StringEncoding))) {
-	if ([aString length] && [aString characterAtIndex:0] != '#') {
-	  anAcl = [[CLAccessControl alloc] initFromString:aString];
-	  [acls addObject:anAcl];
-	  [anAcl release];
-	}
+        if ([aString length] && [aString characterAtIndex:0] != '#') {
+          anAcl = [[CLAccessControl alloc] initFromString:aString];
+          [acls addObject:anAcl];
+          [anAcl release];
+        }
       }
       fclose(file);
     }
@@ -1442,24 +1442,24 @@ static CLMutableDictionary *CLConfig = nil;
     if ([[acls objectAtIndex:i] matchesObject:anObject]) {
       foundMatch = YES;
       if ((allow = [[acls objectAtIndex:i] checkPermission:anObject]))
-	return YES;
+        return YES;
     }
 
   if (foundMatch && !allow) {
     if ([anObject isKindOfClass:[CLControl class]]) {
       id target = [anObject target];
       CLString *action = [CLString stringWithUTF8String:
-				     sel_getName([anObject action])];
+                                     sel_getName([anObject action])];
 
 
       fprintf(stderr, "Access denied for object %s,%s\n",
-	      [[target className] UTF8String], [action UTF8String]);
+              [[target className] UTF8String], [action UTF8String]);
     }
     else if ([anObject isKindOfClass:[CLPage class]]) {
       fprintf(stderr, "Access denied for page %s\n", [[anObject filename] UTF8String]);
     }
   }
-  
+
   return !foundMatch &&
     ![@"allow" caseInsensitiveCompare:[CLManager configOption:@"ACL-Default"]];
 }
@@ -1480,7 +1480,7 @@ static CLMutableDictionary *CLConfig = nil;
   aRange = [query rangeOfString:@"?"];
   if (aRange.length)
     current = [current stringByAppendingString:[query substringFromIndex:aRange.location]];
-  
+
   return current;
 }
 
@@ -1511,7 +1511,7 @@ void CLInit()
   static int didInit = 0;
   char **env;
   CLString *DOCUMENT_ROOT = nil, *SCRIPT_NAME = nil, *SCRIPT_FILENAME = nil;
-  
+
 
   if (didInit)
     return;
@@ -1523,7 +1523,7 @@ void CLInit()
 
   CLDefaultContext = [[CLEditingContext alloc] init];
   CLAddToCleanup(CLDefaultContext);
-  
+
   CLEnvironment = [[CLMutableDictionary alloc] init];
   CLAddToCleanup(CLEnvironment);
 
@@ -1535,16 +1535,16 @@ void CLInit()
 
     pos = strchr(*env, '=');
     name = [[CLString alloc] initWithBytes:*env length:pos - *env
-				  encoding:CLUTF8StringEncoding];
+                                  encoding:CLUTF8StringEncoding];
     value = [[CLString alloc] initWithBytes:pos+1 length:strlen(pos)
-				   encoding:CLUTF8StringEncoding];
+                                   encoding:CLUTF8StringEncoding];
     [CLEnvironment setObject:value forKey:name];
     [name release];
     [value release];
     env++;
   }
-  
-  /* FIXME - use CLEnvironment */ 
+
+  /* FIXME - use CLEnvironment */
   if ((p = getenv("DOCUMENT_ROOT")))
     DOCUMENT_ROOT = [CLString stringWithUTF8String:p];
   if ((p = getenv("SCRIPT_NAME")))
@@ -1560,7 +1560,7 @@ void CLInit()
     CLString *aString;
     CLArray *anArray;
     CLMutableArray *mArray;
-    
+
 
     CLWebName = nil;
     if (SCRIPT_FILENAME) {
@@ -1569,22 +1569,22 @@ void CLInit()
       anArray = [DOCUMENT_ROOT pathComponents];
       j = [mArray count];
       if (j > [anArray count])
-	j = [anArray count];
+        j = [anArray count];
       for (i = 0; i < j; i++)
-	if (![[mArray objectAtIndex:i] isEqualToString:[anArray objectAtIndex:i]])
-	  break;
+        if (![[mArray objectAtIndex:i] isEqualToString:[anArray objectAtIndex:i]])
+          break;
       if (i < [mArray count]) {
-	[mArray removeObjectsInRange:CLMakeRange(i, [mArray count] - i)];
-	aString = [CLString pathWithComponents:mArray];
-	CLWebName = [SCRIPT_FILENAME substringFromIndex:[aString length]];
+        [mArray removeObjectsInRange:CLMakeRange(i, [mArray count] - i)];
+        aString = [CLString pathWithComponents:mArray];
+        CLWebName = [SCRIPT_FILENAME substringFromIndex:[aString length]];
       }
     }
 
     if ((!CLWebName || [CLWebName hasSuffix:SCRIPT_NAME]) && [SCRIPT_NAME length]) {
       if ([SCRIPT_NAME hasSuffix:PATH_INFO])
-	CLWebName = [SCRIPT_NAME substringToIndex:[SCRIPT_NAME length] - [PATH_INFO length]];
+        CLWebName = [SCRIPT_NAME substringToIndex:[SCRIPT_NAME length] - [PATH_INFO length]];
       else
-	CLWebName = SCRIPT_NAME;
+        CLWebName = SCRIPT_NAME;
       CLAppName = [CLWebName lastPathComponent];
     }
   }
@@ -1604,8 +1604,8 @@ void CLInit()
     CLAppPath = [DOCUMENT_ROOT stringByAppendingPathComponent:CLAppName];
     if (access([CLAppPath UTF8String], X_OK)) {
       CLAppPath = [[[SCRIPT_FILENAME stringByDeletingLastPathComponent]
-		     stringByDeletingLastPathComponent]
-		    stringByAppendingPathComponent:CLAppName];
+                     stringByDeletingLastPathComponent]
+                    stringByAppendingPathComponent:CLAppName];
     }
   }
   else
@@ -1630,16 +1630,16 @@ void CLInit()
   id self = nil;
 #endif
 
-    
+
     w = strdup(p);
 
     for (r = w; r && *r; ) {
       if ((s = strchr(r, '=')))
-	*s++ = 0;
+        *s++ = 0;
       if (!s)
-	break;
+        break;
       if ((t = strchr(s, ';')))
-	*t++ = 0;
+        *t++ = 0;
 
       anObject = [[CLCookie alloc] init];
       key = [[CLString stringWithUTF8String:r] stringByReplacingPercentEscapes];
@@ -1652,9 +1652,9 @@ void CLInit()
 
       r = t;
       while (r && *r && isspace(*r))
-	r++;
+        r++;
     }
-    
+
     free(w);
 
     if (CLCookieWithKey(COOKIE_SESSION, YES))
@@ -1676,7 +1676,7 @@ void CLInit()
     CLServerURL = [[CLServerURL substringToIndex:[CLServerURL length] - 1] retain];
   }
   aRange = [CLServerURL rangeOfString:@":" options:0
-			range:CLMakeRange(0, [CLServerURL length])];
+                        range:CLMakeRange(0, [CLServerURL length])];
   if (!aRange.length) {
     i = 80;
     if ([CLServerURL hasPrefix:@"https:"])
@@ -1696,9 +1696,9 @@ void CLInit()
     CLUserAgent = [[CLString alloc] initWithUTF8String:p];
     CLAddToCleanup(CLUserAgent);
   }
-  
+
   [pool release];
-  
+
   didInit = 1;
   return;
 }
@@ -1719,10 +1719,10 @@ void CLRun(CLString *mainObjectName)
   SCRIPT_NAME = getenv("SCRIPT_NAME");
 
   CLInitializeQuery([CLString stringWithUTF8String:QUERY_STRING]);
-  
+
   if (!PATH_INFO || !PATH_TRANSLATED || !*(PATH_INFO)) {
     printf("Status: 302 Moved Temporarily\r\n");
-    if (QUERY_STRING && *QUERY_STRING) 
+    if (QUERY_STRING && *QUERY_STRING)
       printf("Location: %s/?%s\r\n", SCRIPT_NAME, QUERY_STRING);
     else
       printf("Location: %s/\r\n", SCRIPT_NAME);
@@ -1737,11 +1737,11 @@ void CLRun(CLString *mainObjectName)
     if ((p = getenv("HTTP_REFERER"))) {
       isValidURL = NO;
       for (i = 0; validURLs[i]; i++) {
-	re_comp(validURLs[i]);
-	if (re_exec(p)) {
-	  isValidURL = YES;
-	  break;
-	}
+        re_comp(validURLs[i]);
+        if (re_exec(p)) {
+          isValidURL = YES;
+          break;
+        }
       }
     }
   }
@@ -1760,7 +1760,7 @@ void CLRun(CLString *mainObjectName)
       [CLDelegate respondsTo:@selector(delegateDecodeSimpleURL:)] &&
       [CLDelegate delegateDecodeSimpleURL:[CLString stringWithUTF8String:PATH_INFO+1]])
     goto done;
-  
+
   if (PATH_INFO && *PATH_INFO && *(PATH_INFO+1)) {
     CLArray *anArray;
 
@@ -1775,7 +1775,7 @@ void CLRun(CLString *mainObjectName)
   }
 
   CLMainObject = nil;
-  
+
 #if DEBUG_RETAIN
     id self = nil;
 #endif
@@ -1791,7 +1791,7 @@ void CLRun(CLString *mainObjectName)
       mainAction = @selector(display);
     }
   }
-  
+
   [CLMainObject perform:mainAction with:nil];
   [CLMainObject release];
 
@@ -1802,7 +1802,7 @@ void CLRun(CLString *mainObjectName)
 }
 
 CLUInteger CLHandleRequest(CLString *mainObjectName, CLStream *htmlStream,
-			   CLStream *headerStream, CLStream *inputStream)
+                           CLStream *headerStream, CLStream *inputStream)
 {
   CLStream *old1, *old2, *old3;
 
@@ -1820,7 +1820,7 @@ CLUInteger CLHandleRequest(CLString *mainObjectName, CLStream *htmlStream,
   CLPageDisplayHTML = old1;
   CLPageDisplayHeaders = old2;
   CLFormInputStream = old3;
-  
+
   return CLPageDisplayStatus;
 }
 
@@ -1839,28 +1839,28 @@ void CLInitializeQuery(CLString *aString)
 
     [CLQuery removeAllObjects];
     w = strdup([aString UTF8String]);
-    
+
     for (r = w; r && *r; ) {
       s = strchr(r, '=');
       t = strchr(r, '&');
       if (s && (!t || s < t)) {
-	*s++ = 0;
-	if ((t = strchr(s, '&')))
-	  *t++ = 0;
+        *s++ = 0;
+        if ((t = strchr(s, '&')))
+          *t++ = 0;
       }
       else if (t)
-	*t++ = 0;
+        *t++ = 0;
       if (r && *r) {
-	key = [[CLString stringWithUTF8String:r] stringByReplacingPercentEscapes];
-	if (s)
-	  val = [[CLString stringWithUTF8String:s] stringByReplacingPercentEscapes];
-	else
-	  val = CLNullObject;
-	[CLQuery setObject:val forKey:key];
+        key = [[CLString stringWithUTF8String:r] stringByReplacingPercentEscapes];
+        if (s)
+          val = [[CLString stringWithUTF8String:s] stringByReplacingPercentEscapes];
+        else
+          val = CLNullObject;
+        [CLQuery setObject:val forKey:key];
       }
       r = t;
     }
-    
+
     free(w);
   }
 

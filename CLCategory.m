@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -33,7 +33,7 @@
 
 #include <stdlib.h>
 
-#define MAX_URLLENGTH		20
+#define MAX_URLLENGTH           20
 
 static CLMutableArray *categories = nil;
 
@@ -44,7 +44,7 @@ static CLMutableArray *categories = nil;
   int i, j;
   CLCategory *aCat;
 
-  
+
   if (!categories)
     categories = [[CLMutableArray alloc] init];
 
@@ -75,12 +75,12 @@ static CLMutableArray *categories = nil;
   attr = CLAttributes(@"id:i", nil);
   if (anID)
     qual = [CLString stringWithFormat:
-		       @"select id from %@ where title = '%@' and parent_id = %i",
-		     localTable, aString, anID];
+                       @"select id from %@ where title = '%@' and parent_id = %i",
+                     localTable, aString, anID];
   else
     qual = [CLString stringWithFormat:
-		       @"select id from %@ where title = '%@' and parent_id is null",
-		     localTable, aString];
+                       @"select id from %@ where title = '%@' and parent_id is null",
+                     localTable, aString];
   rows = [db read:attr qualifier:qual errors:NULL];
 
   if ([rows count])
@@ -104,7 +104,7 @@ static CLMutableArray *categories = nil;
   int i, j;
   CLString *aString;
 
-  
+
   anArray = [self categoryPath];
   mArray = [[CLMutableArray alloc] init];
   for (i = 0, j = [anArray count]; i < j; i++)
@@ -123,7 +123,7 @@ static CLMutableArray *categories = nil;
 
   mArray = [[CLMutableArray alloc] init];
   [mArray addObject:self];
-  
+
   if ([self parent]) {
     anArray = [[self parent] categoryPath];
     for (i = 0, j = [anArray count]; i < j; i++)
@@ -173,9 +173,9 @@ static CLMutableArray *categories = nil;
     aData = [aString dataUsingEncoding:CLASCIIStringEncoding allowLossyConversion:YES];
     mString = [CLMutableString stringWithData:aData encoding:CLASCIIStringEncoding];
     aSet = [CLCharacterSet characterSetWithCharactersInString:
-			     @"0123456789"
-			   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-			   "abcdefghijklmnopqrstuvwxyz"];
+                             @"0123456789"
+                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                           "abcdefghijklmnopqrstuvwxyz"];
     notSet = [aSet invertedSet];
 
     aRange = [mString rangeOfCharacterFromSet:notSet];
@@ -184,29 +184,29 @@ static CLMutableArray *categories = nil;
       aRange2.length = [mString length] - aRange2.location;
       aRange2 = [mString rangeOfCharacterFromSet:aSet options:0 range:aRange2];
       if (aRange2.length)
-	aRange.length = aRange2.location - aRange.location;
+        aRange.length = aRange2.location - aRange.location;
       [mString replaceCharactersInRange:aRange withString:@""];
       if (aRange2.length) {
-	aRange2.location = aRange.location;
-	aRange2.length = [mString length] - aRange2.location;
-	aRange = [mString rangeOfCharacterFromSet:notSet options:0 range:aRange2];
+        aRange2.location = aRange.location;
+        aRange2.length = [mString length] - aRange2.location;
+        aRange = [mString rangeOfCharacterFromSet:notSet options:0 range:aRange2];
       }
       else
-	aRange.length = 0;
+        aRange.length = 0;
     }
 
     if ([mString length] > MAX_URLLENGTH)
       [mString deleteCharactersInRange:
-		 CLMakeRange(MAX_URLLENGTH, [mString length] - MAX_URLLENGTH)];
-  
+                 CLMakeRange(MAX_URLLENGTH, [mString length] - MAX_URLLENGTH)];
+
     anArray = [[self editingContext] loadTableWithClass:[self class] qualifier:
-			[CLString stringWithFormat:@"url_title = '%@'", mString]];
+                        [CLString stringWithFormat:@"url_title = '%@'", mString]];
     counter = 1;
     while ([anArray count] && ([anArray count] > 1 ||
-			       ![[anArray objectAtIndex:0] isEqual:self])) {
+                               ![[anArray objectAtIndex:0] isEqual:self])) {
       counter++;
       anArray = [[self editingContext] loadTableWithClass:[self class] qualifier:
-			  [CLString stringWithFormat:@"url_title = '%@%i'", mString, counter]];
+                          [CLString stringWithFormat:@"url_title = '%@%i'", mString, counter]];
     }
     if (counter > 1)
       [mString appendFormat:@"%i", counter];
@@ -251,7 +251,7 @@ static CLMutableArray *categories = nil;
   }
 
   [self createUrlTitleFromString:aString];
-  
+
   return YES;
 }
 

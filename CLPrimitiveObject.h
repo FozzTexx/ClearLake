@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -26,10 +26,10 @@
 
 #include <limits.h>
 
-#define DEBUG_LEAK	0
-#define DEBUG_RETAIN	0
-#define DEBUG_RELEASE	0
-#define DEBUG_ALLOC	0
+#define DEBUG_LEAK      0
+#define DEBUG_RETAIN    0
+#define DEBUG_RELEASE   0
+#define DEBUG_ALLOC     0
 
 typedef enum CLComparisonResult {
   CLOrderedAscending = -1,
@@ -134,22 +134,22 @@ extern char *CLstrdup(const char *s, char *file, int line, id retainer);
 extern char *CLstrndup(const char *s, size_t n, char *file, int line, id retainer);
 extern int CLvasprintf(char **strp, const char *fmt, void *ap, char *file, int line, id retainer);
 
-#define malloc(x)		CLmalloc(x, __FILE__, __LINE__, self)
-#define calloc(x, y)		CLcalloc(x, y, __FILE__, __LINE__, self)
-#define realloc(x, y)		CLrealloc(x, y, __FILE__, __LINE__, self)
-#define free(x)			CLfree(x, __FILE__, __LINE__, self)
-#define strdup(x)		CLstrdup(x, __FILE__, __LINE__, self)
-#define strndup(x, y)		CLstrndup(x, y, __FILE__, __LINE__, self)
-#define vasprintf(x, y, z)	CLvasprintf(x, y, z, __FILE__, __LINE__, self)
+#define malloc(x)               CLmalloc(x, __FILE__, __LINE__, self)
+#define calloc(x, y)            CLcalloc(x, y, __FILE__, __LINE__, self)
+#define realloc(x, y)           CLrealloc(x, y, __FILE__, __LINE__, self)
+#define free(x)                 CLfree(x, __FILE__, __LINE__, self)
+#define strdup(x)               CLstrdup(x, __FILE__, __LINE__, self)
+#define strndup(x, y)           CLstrndup(x, y, __FILE__, __LINE__, self)
+#define vasprintf(x, y, z)      CLvasprintf(x, y, z, __FILE__, __LINE__, self)
 
 #endif /* DEBUG_LEAK && !defined(NO_OVERRIDE) */
 
 #if DEBUG_RETAIN
-#define alloc		alloc:__FILE__ :__LINE__ :self
-#define copy		copy:__FILE__ :__LINE__ :self
-#define retain		retain:__FILE__ :__LINE__ :self
-#define release		release:__FILE__ :__LINE__ :self
-#define autorelease	autorelease:__FILE__ :__LINE__ :self
+#define alloc           alloc:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
+#define retain          retain:__FILE__ :__LINE__ :self
+#define release         release:__FILE__ :__LINE__ :self
+#define autorelease     autorelease:__FILE__ :__LINE__ :self
 #endif /* DEBUG_RETAIN */
 
 extern void CLAddToCleanup(id anObject);

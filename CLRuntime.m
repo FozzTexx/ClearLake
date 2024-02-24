@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -39,16 +39,16 @@ CLString *CLSelGetName(SEL selector)
   CLString *aString;
   const char *selName;
 
-  
+
   if (!CLSelNameTable ||
       !(aString =
-	CLHashTableDataForIdenticalKey(CLSelNameTable, (id) selector, (size_t) selector))) {
+        CLHashTableDataForIdenticalKey(CLSelNameTable, (id) selector, (size_t) selector))) {
     selName = sel_getName(selector);
 #if DEBUG_RETAIN
     id self = nil;
 #endif
     aString = [[CLString alloc] initWithBytes:selName length:strlen(selName)
-				     encoding:CLUTF8StringEncoding];
+                                     encoding:CLUTF8StringEncoding];
     if (!CLSelNameTable)
       CLSelNameTable = CLHashTableAlloc(CLHashTableDefaultSize);
     CLHashTableSetData(CLSelNameTable, aString, (id) selector, (size_t) selector);
@@ -68,7 +68,7 @@ CLMethodInfo *CLGetMethods(Class aClass, unsigned int *count)
 #if DEBUG_LEAK
   id self = nil;
 #endif
-  
+
 
   totalMethods = 0;
   info = NULL;
@@ -88,7 +88,7 @@ CLMethodInfo *CLGetMethods(Class aClass, unsigned int *count)
     }
     aClass = [aClass superClass];
   }
-  
+
   *count = totalMethods;
   return info;
 }
@@ -113,12 +113,12 @@ void *CLGetIvars(Class aClass, unsigned int *count)
       totalIvars += numIvars;
       info = realloc(info, totalIvars * sizeof(CLIvarInfo));
       for (i = 0; i < numIvars; i++) {
-	anIvar = ivars[i];
-	ivInfo = &info[i + totalIvars - numIvars];
-	ivInfo->name = ivar_getName(anIvar);
-	ivInfo->offset = ivar_getOffset(anIvar);
-	enc = ivar_getTypeEncoding(anIvar);
-	ivInfo->type = *enc;
+        anIvar = ivars[i];
+        ivInfo = &info[i + totalIvars - numIvars];
+        ivInfo->name = ivar_getName(anIvar);
+        ivInfo->offset = ivar_getOffset(anIvar);
+        enc = ivar_getTypeEncoding(anIvar);
+        ivInfo->type = *enc;
       }
     }
     aClass = [aClass superClass];
@@ -151,7 +151,7 @@ CLMethodInfo *CLGetMethods(Class aClass, unsigned int *count)
 #if DEBUG_LEAK || DEBUG_RETAIN
   id self = nil;
 #endif
-  
+
 
   totalMethods = 0;
   info = NULL;
@@ -160,20 +160,20 @@ CLMethodInfo *CLGetMethods(Class aClass, unsigned int *count)
       totalMethods += mlist->method_count;
       info = realloc(info, totalMethods * sizeof(CLMethodInfo));
       for (i = 0; i < mlist->method_count; i++) {
-	aMethod = mlist->method_list[i];
-	mInfo = &info[i + totalMethods - mlist->method_count];
-	mInfo->selector = aMethod.method_name;
-	mInfo->name = sel_getName(mInfo->selector);
-	mInfo->imp = aMethod.method_imp;
-	mInfo->methodTypes = aMethod.method_types;
-	mInfo->returnType = *(mInfo->methodTypes);
-	mInfo->numArguments = method_getNumberOfArguments(&aMethod) - 2;
+        aMethod = mlist->method_list[i];
+        mInfo = &info[i + totalMethods - mlist->method_count];
+        mInfo->selector = aMethod.method_name;
+        mInfo->name = sel_getName(mInfo->selector);
+        mInfo->imp = aMethod.method_imp;
+        mInfo->methodTypes = aMethod.method_types;
+        mInfo->returnType = *(mInfo->methodTypes);
+        mInfo->numArguments = method_getNumberOfArguments(&aMethod) - 2;
       }
     }
     else
       aClass = [aClass superClass];
   }
-  
+
   *count = totalMethods;
   return info;
 }
@@ -199,12 +199,12 @@ void *CLGetIvars(Class aClass, unsigned int *count)
       totalIvars += ivarList->ivar_count;
       info = realloc(info, totalIvars * sizeof(CLIvarInfo));
       for (i = 0; i < ivarList->ivar_count; i++) {
-	anIvar = ivarList->ivar_list + i;
-	ivInfo = &info[i + totalIvars - ivarList->ivar_count];
-	ivInfo->name = anIvar->ivar_name;
-	ivInfo->offset = anIvar->ivar_offset;
-	enc = anIvar->ivar_type;
-	ivInfo->type = *enc;
+        anIvar = ivarList->ivar_list + i;
+        ivInfo = &info[i + totalIvars - ivarList->ivar_count];
+        ivInfo->name = anIvar->ivar_name;
+        ivInfo->offset = anIvar->ivar_offset;
+        enc = anIvar->ivar_type;
+        ivInfo->type = *enc;
       }
     }
     aClass = [aClass superClass];

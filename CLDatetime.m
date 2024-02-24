@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -37,14 +37,14 @@
 #include <time.h>
 #include <string.h>
 
-#define CLGregorianOffset	719163
+#define CLGregorianOffset       719163
 
 CLUInteger CLLastDayOfGregorianMonth(CLUInteger month, CLUInteger year)
 {
   switch (month) {
   case 2:
     if ((((year % 4) == 0) && ((year % 100) != 0))
-	|| ((year % 400) == 0))
+        || ((year % 400) == 0))
       return 29;
     else
       return 28;
@@ -61,7 +61,7 @@ CLUInteger CLAbsoluteGregorianDay(CLUInteger day, CLUInteger month, CLUInteger y
   if (month > 1)
     while (--month)
       day += CLLastDayOfGregorianMonth(month, year);
-  
+
   if (year)
     year--;
 
@@ -74,10 +74,10 @@ CLUInteger CLAbsoluteGregorianDay(CLUInteger day, CLUInteger month, CLUInteger y
 }
 
 CLTimeInterval CLMakeTime(CLUInteger year, CLUInteger month, CLUInteger day,
-			  CLUInteger hour, CLUInteger minute, CLUInteger second)
+                          CLUInteger hour, CLUInteger minute, CLUInteger second)
 {
   CLTimeInterval a;
-  
+
 
   a = CLAbsoluteGregorianDay(day, month, year);
 
@@ -99,7 +99,7 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 
   *month = 1;
   while (abs >
-	 CLAbsoluteGregorianDay(CLLastDayOfGregorianMonth(*month, *year), *month, *year))
+         CLAbsoluteGregorianDay(CLLastDayOfGregorianMonth(*month, *year), *month, *year))
     (*month)++;
   *day = abs - CLAbsoluteGregorianDay(1, *month, *year) + 1;
 }
@@ -123,22 +123,22 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 +(id) dateWithString:(CLString *) description format:(CLString *) format
 {
   return [[[self alloc] initWithString:description format:format timeZone:nil]
-	   autorelease];
+           autorelease];
 }
 
 +(id) dateWithString:(CLString *) description format:(CLString *) format
-	    timeZone:(CLTimeZone *) aZone
+            timeZone:(CLTimeZone *) aZone
 {
   return [[[self alloc] initWithString:description format:format timeZone:aZone]
-	   autorelease];
+           autorelease];
 }
 
 +(id) dateWithYear:(CLInteger) year month:(CLUInteger) month day:(CLUInteger) day
-	      hour:(CLUInteger) hour minute:(CLUInteger) minute second:(CLUInteger) second
-	  timeZone:(CLTimeZone *) aTimeZone
+              hour:(CLUInteger) hour minute:(CLUInteger) minute second:(CLUInteger) second
+          timeZone:(CLTimeZone *) aTimeZone
 {
   return [[[self alloc] initWithYear:year month:month day:day hour:hour minute:minute
-			second:second timeZone:aTimeZone] autorelease];
+                        second:second timeZone:aTimeZone] autorelease];
 }
 
 +(id) dateWithTimeIntervalSince1970:(CLTimeInterval) seconds
@@ -166,7 +166,7 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 }
 
 -(id) initWithString:(CLString *) description format:(CLString *) aFormat
-	    timeZone:(CLTimeZone *) aZone
+            timeZone:(CLTimeZone *) aZone
 {
   struct tm tm;
 
@@ -197,28 +197,28 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
       p = [aString UTF8String];
       tsize = 40;
       if (!(tbuf = alloca(tsize)))
-	[self error:@"Unable to allocate memory"];
+        [self error:@"Unable to allocate memory"];
       while (!strftime(tbuf, tsize, p, &tm)) {
-	tsize *= 2;
-	if (!(tbuf = realloc(tbuf, tsize)))
-	  [self error:@"Unable to allocate memory"];
+        tsize *= 2;
+        if (!(tbuf = realloc(tbuf, tsize)))
+          [self error:@"Unable to allocate memory"];
       }
       aString = [CLString stringWithUTF8String:tbuf];
 
       aRegex = [CLRegularExpression regularExpressionFromString:aString];
       if ([aRegex matchesString:description substringRanges:&anArray]) {
-	aRange = [[anArray objectAtIndex:1] rangeValue];
-	aString = [description substringWithRange:aRange];
-	dZone = [[CLTimeZone alloc] initWithName:aString];
-	/* If aZone is already set, should we calculate some kind of offset? */
-	if (!aZone)
-	  aZone = dZone;
+        aRange = [[anArray objectAtIndex:1] rangeValue];
+        aString = [description substringWithRange:aRange];
+        dZone = [[CLTimeZone alloc] initWithName:aString];
+        /* If aZone is already set, should we calculate some kind of offset? */
+        if (!aZone)
+          aZone = dZone;
       }
     }
   }
 
   [self initWithYear:tm.tm_year + 1900 month:tm.tm_mon + 1 day:tm.tm_mday
-	hour:tm.tm_hour minute:tm.tm_min second:tm.tm_sec timeZone:aZone];
+        hour:tm.tm_hour minute:tm.tm_min second:tm.tm_sec timeZone:aZone];
   [format release];
   format = [aFormat copy];
 
@@ -233,12 +233,12 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 }
 
 -(id) initWithYear:(CLInteger) year month:(CLUInteger) month day:(CLUInteger) day
-	      hour:(CLUInteger) hour minute:(CLUInteger) minute second:(CLUInteger) second
-	  timeZone:(CLTimeZone *) aTimeZone
+              hour:(CLUInteger) hour minute:(CLUInteger) minute second:(CLUInteger) second
+          timeZone:(CLTimeZone *) aTimeZone
 {
   CLInteger off1, off2;
 
-  
+
   [self init];
   if (!aTimeZone)
     aTimeZone = [CLTimeZone systemTimeZone];
@@ -251,8 +251,8 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
     off1 = [aTimeZone secondsFromGMTForDate:self];
     if (off1 != off2)
       [self error:@"Can't figure out what date you're talking about:"
-	    " %u %u %u %u %u %u %s", year, month, day, hour, minute, second,
-	    [[aTimeZone zone] UTF8String]];
+            " %u %u %u %u %u %u %s", year, month, day, hour, minute, second,
+            [[aTimeZone zone] UTF8String]];
   }
   [self setTimeZone:aTimeZone];
   return self;
@@ -428,7 +428,7 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 }
 
 -(CLDatetime *) dateByAddingYears:(int) year months:(int) month days:(int) day
-				hours:(int) hour minutes:(int) minute seconds:(int) second
+                                hours:(int) hour minutes:(int) minute seconds:(int) second
 {
   struct tm tm;
   CLInteger off1, off2;
@@ -458,25 +458,25 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
     if (tm.tm_mday > 28) {
       i = CLLastDayOfGregorianMonth(tm.tm_mon + 1, tm.tm_year + 1900);
       while (tm.tm_mday > i) {
-	tm.tm_mday -= i;
-	if (tm.tm_mon < 11)
-	  tm.tm_mon++;
-	else {
-	  tm.tm_mon = 0;
-	  tm.tm_year++;
-	}
-	i = CLLastDayOfGregorianMonth(tm.tm_mon + 1, tm.tm_year + 1900);
+        tm.tm_mday -= i;
+        if (tm.tm_mon < 11)
+          tm.tm_mon++;
+        else {
+          tm.tm_mon = 0;
+          tm.tm_year++;
+        }
+        i = CLLastDayOfGregorianMonth(tm.tm_mon + 1, tm.tm_year + 1900);
       }
     }
     else {
       while (tm.tm_mday < 1) {
-	if (tm.tm_mon == 0) {
-	  tm.tm_year--;
-	  tm.tm_mon = 11;
-	}
-	else
-	  tm.tm_mon--;
-	tm.tm_mday += CLLastDayOfGregorianMonth(tm.tm_mon + 1, tm.tm_year + 1900);
+        if (tm.tm_mon == 0) {
+          tm.tm_year--;
+          tm.tm_mon = 11;
+        }
+        else
+          tm.tm_mon--;
+        tm.tm_mday += CLLastDayOfGregorianMonth(tm.tm_mon + 1, tm.tm_year + 1900);
       }
     }
 
@@ -513,7 +513,7 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
   newDate->zone = [zone retain];
   off1 = [zone secondsFromGMTForDate:self];
   newDate->when = CLMakeTime(tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-			     tm.tm_hour, tm.tm_min, tm.tm_sec) - off1;
+                             tm.tm_hour, tm.tm_min, tm.tm_sec) - off1;
   off2 = [zone secondsFromGMTForDate:newDate];
   if (off1 != off2) {
     newDate->when -= off2 - off1;
@@ -526,7 +526,7 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 }
 
 -(void) years:(CLInteger *) yearsPointer months:(CLInteger *) monthsPointer
-	 days:(CLInteger *) daysPointer hours:(CLInteger *) hoursPointer
+         days:(CLInteger *) daysPointer hours:(CLInteger *) hoursPointer
       minutes:(CLInteger *) minutesPointer seconds:(CLInteger *) secondsPointer
     sinceDate:(CLDatetime *) date
 {
@@ -592,8 +592,8 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
       int tmpyear = etm.tm_year;
 
       while (tmpmonth < 0) {
-	tmpmonth += 12;
-	tmpyear--;
+        tmpmonth += 12;
+        tmpyear--;
       }
       extra += CLLastDayOfGregorianMonth(tmpmonth + 1, tmpyear + 1900);
     }
@@ -632,8 +632,8 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 {
   /* Write it out the GNUstep way */
   return [CLString stringWithFormat:@"<*D%@>",
-		   [self descriptionWithFormat:@"%Y-%m-%d %H:%M:%S +0000"
-			 timeZone:[CLTimeZone UTCTimeZone]]];
+                   [self descriptionWithFormat:@"%Y-%m-%d %H:%M:%S +0000"
+                         timeZone:[CLTimeZone UTCTimeZone]]];
 }
 
 -(CLString *) json
@@ -674,7 +674,7 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 
   if (!aZone)
     aZone = zone;
-  
+
   tm = [self breakTime:aZone];
 
   /* FIXME - parse the string correctly, %%z will end up getting mangled */
@@ -685,8 +685,8 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
       aString = @"Z";
     else
       aString = [CLString stringWithFormat:@"%c%02i%02i",
-			 offset < 0 ? '-' : '+',
-			  abs(offset) / 60, abs(offset) % 60];
+                         offset < 0 ? '-' : '+',
+                          abs(offset) / 60, abs(offset) % 60];
     aFormat = [aFormat stringByReplacingOccurrencesOfString:@"%z" withString:aString];
   }
 
@@ -701,7 +701,7 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
     }
     aFormat = [aFormat stringByReplacingOccurrencesOfString:@"%Z" withString:aString];
   }
-  
+
   p = [aFormat UTF8String];
   tsize = 40;
   if (!(tbuf = alloca(tsize)))
@@ -720,7 +720,7 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 {
   if (!aDate)
     return CLOrderedDescending;
-  
+
   if (when < aDate->when)
     return CLOrderedAscending;
   if (when > aDate->when)

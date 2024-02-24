@@ -64,7 +64,7 @@
 
   wrote = PyLong_AsLong(result);
   Py_DECREF(result);
-  
+
   return wrote;
 }
 

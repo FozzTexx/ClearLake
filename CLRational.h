@@ -13,13 +13,13 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
  */
 
-#define CLRationalMaxSize	8
+#define CLRationalMaxSize       8
 
 typedef struct {
   unsigned int _isNegative:1;
@@ -30,14 +30,14 @@ typedef struct {
 } CLRational;
 
 extern CLCalculationError CLRationalAdd(CLRational *result,
-					const CLRational *leftOp, CLRational *rightOp,
-					CLRoundingMode roundingMode);
+                                        const CLRational *leftOp, CLRational *rightOp,
+                                        CLRoundingMode roundingMode);
 extern CLCalculationError CLRationalSubtract(CLRational *result,
-					     const CLRational *leftOp, CLRational *rightOp,
-					     CLRoundingMode roundingMode);
+                                             const CLRational *leftOp, CLRational *rightOp,
+                                             CLRoundingMode roundingMode);
 extern CLCalculationError CLRationalMultiply(CLRational *result,
-					     const CLRational *leftOp, CLRational *rightOp,
-					     CLRoundingMode roundingMode);
+                                             const CLRational *leftOp, CLRational *rightOp,
+                                             CLRoundingMode roundingMode);
 extern CLCalculationError CLRationalDivide(CLRational *result,
-					   const CLRational *leftOp, CLRational *rightOp,
-					   CLRoundingMode roundingMode);
+                                           const CLRational *leftOp, CLRational *rightOp,
+                                           CLRoundingMode roundingMode);

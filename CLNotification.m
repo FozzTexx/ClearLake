@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -29,10 +29,10 @@
 }
 
 +(id) notificationWithName:(CLString *) aName object:(id) anObject
-		  userInfo:(CLDictionary *) userInfo
+                  userInfo:(CLDictionary *) userInfo
 {
   return [[[[self class] alloc] initFromName:aName object:anObject userInfo:userInfo]
-	   autorelease];
+           autorelease];
 }
 
 -(id) initFromName:(CLString *) aName object:(id) anObject userInfo:(CLDictionary *) userInfo

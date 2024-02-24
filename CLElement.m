@@ -15,7 +15,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -45,7 +45,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#define MAX_HASH	10
+#define MAX_HASH        10
 
 @class CLField, CLImageElement, CLOption, CLScriptElement, CLRangeView, CLSplitter, CLPager,
   CLChainedSelect;
@@ -68,7 +68,7 @@
 
   if (![aBinding isKindOfClass:CLStringClass])
     return aBinding;
-  
+
   *success = NO;
 
   bstr = CLStringToUnistr(aBinding);
@@ -80,43 +80,43 @@
   for (i = nc = 0, last = -1; i <= bstr->len; i++)
     if (i == bstr->len || bstr->str[i] == ' ') {
       if (i - last > 1) {
-	pstr = alloca(sizeof(unistr));
-	*pstr = CLMakeStackString(&bstr->str[last + 1], i - last - 1);
-	aValue = components[nc] = (id) pstr;
+        pstr = alloca(sizeof(unistr));
+        *pstr = CLMakeStackString(&bstr->str[last + 1], i - last - 1);
+        aValue = components[nc] = (id) pstr;
 
-	/* FIXME - let people escape the "=" */
-	aRange = [aValue rangeOfString:@"="];
-	if (aRange.length) {
-	  ustr = *pstr;
-	  ustr.str += CLMaxRange(aRange);
-	  ustr.len -= CLMaxRange(aRange);
-	  anExp = [[CLExpression alloc] initFromString:(CLString *) &ustr];
-	  anObject = [anExp evaluate:anElement success:success];
-	  [anExp release];
+        /* FIXME - let people escape the "=" */
+        aRange = [aValue rangeOfString:@"="];
+        if (aRange.length) {
+          ustr = *pstr;
+          ustr.str += CLMaxRange(aRange);
+          ustr.len -= CLMaxRange(aRange);
+          anExp = [[CLExpression alloc] initFromString:(CLString *) &ustr];
+          anObject = [anExp evaluate:anElement success:success];
+          [anExp release];
 
-	  if (!aRange.location) {
-	    aValue = anObject;
-	    flag = YES;
-	  }
-	  else {
-	    pstr->len = aRange.location;
-	    aValue = (CLString *) pstr;
-	    if ([anObject isKindOfClass:CLNumberClass])
-	      flag = [anObject boolValue];
-	    else
-	      flag = !!anObject;
-	  }
+          if (!aRange.location) {
+            aValue = anObject;
+            flag = YES;
+          }
+          else {
+            pstr->len = aRange.location;
+            aValue = (CLString *) pstr;
+            if ([anObject isKindOfClass:CLNumberClass])
+              flag = [anObject boolValue];
+            else
+              flag = !!anObject;
+          }
 
-	  if (flag && aValue)
-	    components[nc] = aValue;
-	  else
-	    nc--;
-	}
-	else
-	  *success = YES;
+          if (flag && aValue)
+            components[nc] = aValue;
+          else
+            nc--;
+        }
+        else
+          *success = YES;
 
-	nc++;
-      }      
+        nc++;
+      }
 
       last = i;
     }
@@ -126,7 +126,7 @@
   else if (nc == 1) {
     anObject = components[0];
     if ([anObject isKindOfClass:CLMutableStackStringClass] ||
-	[anObject isKindOfClass:CLImmutableStackStringClass])
+        [anObject isKindOfClass:CLImmutableStackStringClass])
       anObject = [anObject copy];
     else
       [anObject retain];
@@ -140,10 +140,10 @@
     for (i = 0; i < nc; i++) {
       anObject = components[i];
       if ([anObject isKindOfClass:CLMutableStackStringClass] ||
-	  [anObject isKindOfClass:CLImmutableStackStringClass])
-	anObject = [anObject copy];
+          [anObject isKindOfClass:CLImmutableStackStringClass])
+        anObject = [anObject copy];
       else
-	[anObject retain];
+        [anObject retain];
       [mArray addObject:anObject];
       [anObject release];
     }
@@ -157,7 +157,7 @@
   id anObject;
   BOOL val, success;
 
-  
+
   anObject = [anElement expandBinding:aBinding success:&success];
   if (anObject == CLNullObject)
     val = NO;
@@ -169,10 +169,10 @@
 #endif
   else
     val = !!anObject;
-  
+
   return val;
 }
-  
+
 +(CLString *) expandClass:(CLString *) aString using:(CLElement *) anElement
 {
   id expanded;
@@ -186,7 +186,7 @@
     expanded = [expanded description];
   return expanded;
 }
-  
+
 +(void) writeAttributes:(CLDictionary *) aDict using:(id) anElement to:(CLStream *) stream
 {
   int i, j;
@@ -202,15 +202,15 @@
 
     /* Not using hasPrefix: because I need case insensitive */
     if ([aKey length] >= 3 && ![aKey compare:@"CL_" options:CLCaseInsensitiveSearch
-				     range:CLMakeRange(0, 3)]) {
+                                     range:CLMakeRange(0, 3)]) {
       if (![aKey caseInsensitiveCompare:@"CL_CLASS"])
-	aValue = [self expandClass:[aDict objectForKey:aKey] using:anElement];
+        aValue = [self expandClass:[aDict objectForKey:aKey] using:anElement];
       else {
-	aValue = [self expandBinding:[aDict objectForKey:aKey] using:anElement success:&found];
-	if ([aValue isKindOfClass:CLArrayClass])
-	  aValue = [aValue componentsJoinedByString:@" "];
-	if (!aValue && found)
-	  aValue = CLNullObject;
+        aValue = [self expandBinding:[aDict objectForKey:aKey] using:anElement success:&found];
+        if ([aValue isKindOfClass:CLArrayClass])
+          aValue = [aValue componentsJoinedByString:@" "];
+        if (!aValue && found)
+          aValue = CLNullObject;
       }
       aKey = [aKey substringFromIndex:3];
     }
@@ -220,8 +220,8 @@
     if (aValue) {
       [stream writeFormat:@" %@" usingEncoding:CLUTF8StringEncoding, aKey];
       if (aValue != CLNullObject)
-	[stream writeFormat:@"=\"%@\"" usingEncoding:CLUTF8StringEncoding,
-		[[aValue description] entityEncodedString]];
+        [stream writeFormat:@"=\"%@\"" usingEncoding:CLUTF8StringEncoding,
+                [[aValue description] entityEncodedString]];
     }
   }
 
@@ -237,8 +237,8 @@
 {
   unichar *buf, *p, *q, stringMarker;
   CLString *key, *val;
-  
-  
+
+
   [super init];
   page = aPage;
   title = [aString copy];
@@ -264,40 +264,40 @@
     while (*p) {
       q = p;
       while (*q && *q != '=' && *q != '>' && !iswspace(*q))
-	q++;
+        q++;
       key = [[CLString alloc] initWithCharacters:p length:q-p];
       while (iswspace(*q))
-	q++;
+        q++;
       p = q+1;
       if (*q != '=')
-	val = nil;
+        val = nil;
       else {
-	while (iswspace(*p))
-	  p++;
-	q = p;
-	if (*q == '"' || *q == '\'') {
-	  stringMarker = *q;
-	  q++;
-	  p++;
-	  while (*q && *q != stringMarker)
-	    q++;
-	}
-	else {
-	  while (*q && *q != '>' && !iswspace(*q))
-	    q++;
-	}
-	val = [[CLString alloc] initWithCharacters:p length:q-p];
+        while (iswspace(*p))
+          p++;
+        q = p;
+        if (*q == '"' || *q == '\'') {
+          stringMarker = *q;
+          q++;
+          p++;
+          while (*q && *q != stringMarker)
+            q++;
+        }
+        else {
+          while (*q && *q != '>' && !iswspace(*q))
+            q++;
+        }
+        val = [[CLString alloc] initWithCharacters:p length:q-p];
       }
       if (val)
-	[attributes setObject:[val entityDecodedString] forCaseInsensitiveString:key];
+        [attributes setObject:[val entityDecodedString] forCaseInsensitiveString:key];
       else
-	[attributes setObject:CLNullObject forCaseInsensitiveString:key];
+        [attributes setObject:CLNullObject forCaseInsensitiveString:key];
       [key release];
       [val release];
 
       p = q;
       while (*p && !iswalpha(*p))
-	p++;
+        p++;
     }
 
     free(buf);
@@ -314,7 +314,7 @@
   title = [[anElement title] copy];
   [attributes release];
   attributes = [[anElement attributes] mutableCopy];
-  
+
   return self;
 }
 
@@ -367,7 +367,7 @@
   id oldDatasource = [[self datasource] retain];
   id newDatasource;
 
-  
+
   page = aPage;
   newDatasource = [self datasource];
   if (newDatasource != oldDatasource)
@@ -417,10 +417,10 @@
   if (anObject != datasource) {
 #if 0
     fprintf(stdout, "<%s: 0x%lx> datasource: <%s: 0x%lx> anObject: <%s: 0x%lx> %s:%i\n",
-	    [[self className] UTF8String], (unsigned long) self,
-	    [[datasource className] UTF8String], (unsigned long) datasource,
-	    [[anObject className] UTF8String], (unsigned long) anObject,
-	    __FILE__, __LINE__);
+            [[self className] UTF8String], (unsigned long) self,
+            [[datasource className] UTF8String], (unsigned long) datasource,
+            [[anObject className] UTF8String], (unsigned long) anObject,
+            __FILE__, __LINE__);
 #endif
     if (datasource != page)
       [datasource release];
@@ -432,7 +432,7 @@
 }
 
 -(id) objectValueForSpecialBinding:(CLString *) aBinding allowConstant:(BOOL) flag
-			     found:(BOOL *) found wasConstant:(BOOL *) wasConst
+                             found:(BOOL *) found wasConstant:(BOOL *) wasConst
 {
   CLRange aRange;
   id anObject;
@@ -441,15 +441,15 @@
 
   if (aBinding == CLNullObject)
     return nil;
-  
+
   if (flag) {
     if ([aBinding isKindOfClass:CLStringClass] && [aBinding characterAtIndex:0] == '=') {
       index = 1;
       if ([aBinding characterAtIndex:index] == '!')
-	index++;
+        index++;
       aBinding = [aBinding substringFromIndex:index];
       if (wasConst)
-	*wasConst = NO;
+        *wasConst = NO;
     }
     else {
       *found = YES;
@@ -464,33 +464,33 @@
   else {
     if ([aBinding hasPrefix:@"#"]) {
       aRange = [aBinding rangeOfString:@"." options:0
-				 range:CLMakeRange(0, [aBinding length])];
+                                 range:CLMakeRange(0, [aBinding length])];
       if (!aRange.length)
-	aRange.location = [aBinding length];
+        aRange.location = [aBinding length];
       anObject = [[self page] objectWithID:[aBinding substringWithRange:
-						       CLMakeRange(1, aRange.location-1)]];
-      aBinding = [aBinding substringFromIndex:CLMaxRange(aRange)];      
+                                                       CLMakeRange(1, aRange.location-1)]];
+      aBinding = [aBinding substringFromIndex:CLMaxRange(aRange)];
     }
     else if ([aBinding hasPrefix:@"@"]) {
       aRange = [aBinding rangeOfString:@"." options:0
-				 range:CLMakeRange(0, [aBinding length])];
+                                 range:CLMakeRange(0, [aBinding length])];
       if (!aRange.length)
-	aRange.location = [aBinding length];
+        aRange.location = [aBinding length];
       if (aRange.location == 1) {
-	anObject = [self page];
-	aBinding = [aBinding substringFromIndex:CLMaxRange(aRange)];
+        anObject = [self page];
+        aBinding = [aBinding substringFromIndex:CLMaxRange(aRange)];
       }
     }
     else if ([CLDelegate respondsTo:@selector(datasourceForElement:binding:)])
       anObject = [CLDelegate datasourceForElement:self binding:&aBinding];
     else if (iswupper([aBinding characterAtIndex:0])) {
       aRange = [aBinding rangeOfString:@"." options:0
-				 range:CLMakeRange(0, [aBinding length])];
+                                 range:CLMakeRange(0, [aBinding length])];
       if (!aRange.length)
-	aRange.location = [aBinding length];
+        aRange.location = [aBinding length];
       anObject = [[[CLClassFromString([aBinding substringToIndex:aRange.location])
-				     alloc] init] autorelease];
-      aBinding = [aBinding substringFromIndex:CLMaxRange(aRange)];      
+                                     alloc] init] autorelease];
+      aBinding = [aBinding substringFromIndex:CLMaxRange(aRange)];
     }
     else
       anObject = [self datasource];
@@ -500,7 +500,7 @@
     anObject = [anObject objectValueForBinding:aBinding found:found];
   else
     *found = YES;
-  
+
   if (anObject == CLNullObject)
     anObject = nil;
 
@@ -536,13 +536,13 @@
   int i, j;
 
 
-  mDict = [attributes mutableCopy];  
+  mDict = [attributes mutableCopy];
   if (!ignore)
     ignore = [CLMutableArray array];
-  
+
   [ignore addObjects:@"CL_VISIBLE", @"CL_SORT", @"CL_FORMAT", @"CL_AUTONUMBER",
-	  @"CL_DATASOURCE", @"CL_BINDING", @"CL_DBINDING", @"CL_VARNAME", nil];
-  
+          @"CL_DATASOURCE", @"CL_BINDING", @"CL_DBINDING", @"CL_VARNAME", nil];
+
   for (i = 0, j = [ignore count]; i < j; i++) {
     aKey = [ignore objectAtIndex:i];
     if ([mDict objectForCaseInsensitiveString:aKey])
@@ -570,7 +570,7 @@
 
 
   anObject = [self objectValueForSpecialBinding:aString allowConstant:NO
-		   found:success wasConstant:&wasConst];
+                   found:success wasConstant:&wasConst];
   if (!*success) {
     /* FIXME - do better number/constant recognition */
     if ([aString length] && isdigit([aString characterAtIndex:0]))
@@ -600,7 +600,7 @@
 
 
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
   aCopy->title = [title copy];
   aCopy->page = page;
   aCopy->attributes = [attributes mutableCopy];

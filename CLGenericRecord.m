@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -46,8 +46,8 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_HASH	10
-#define DONTCHANGE	-2
+#define MAX_HASH        10
+#define DONTCHANGE      -2
 
 @interface CLGenericRecord (CLMagicNew)
 -(void) edit:(id) sender;
@@ -74,7 +74,7 @@
 
   _changed = DONTCHANGE;
   _record = CLHashTableAlloc(MAX_HASH);
-  if (aTable) 
+  if (aTable)
     _recordDef = [[CLEditingContext recordDefinitionForTable:aTable] retain];
   else
     _recordDef = [[CLEditingContext recordDefinitionForClass:[self class]] retain];
@@ -93,7 +93,7 @@
   }
 
   _changed = NO;
-  
+
   return self;
 }
 
@@ -135,10 +135,10 @@
       aKey = [anArray objectAtIndex:i];
       aRel = [aDict objectForKey:aKey];
       if ([aString isEqualToString:aKey] &&
-	  ([aRel isOwner] || [aRel toMany] ||
-	   ![self theirRelationship:aRel named:&aName])) {
-	sr = YES;
-	break;
+          ([aRel isOwner] || [aRel toMany] ||
+           ![self theirRelationship:aRel named:&aName])) {
+        sr = YES;
+        break;
       }
     }
   }
@@ -177,11 +177,11 @@
     if ((var = [self pointerForIvar:[aKey UTF8String] type:&aType])) {
       switch (aType) {
       case _C_ID:
-	[(*(id *) var) release];
-	break;
+        [(*(id *) var) release];
+        break;
       case _C_CHARPTR:
-	free(*(char **) var);
-	break;
+        free(*(char **) var);
+        break;
       }
     }
   }
@@ -227,16 +227,16 @@
 
   if (pk) {
     anObject = [CLDefaultContext registerInstance:self inTable:[_recordDef table]
-				   withPrimaryKey:pk];
+                                   withPrimaryKey:pk];
     if (anObject != self) {
       [anObject retain];
       [self release];
       self = anObject;
     }
-    else  
+    else
       CLBecomeFault(self, pk, _recordDef, NO);
   }
-  
+
   return self;
 }
 
@@ -258,8 +258,8 @@
 {
   return [self retain:file :line :retainer];
 }
-#define copy		copy:__FILE__ :__LINE__ :self
-#define retain		retain:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
+#define retain          retain:__FILE__ :__LINE__ :self
 #else
 -(id) copy
 {
@@ -295,7 +295,7 @@
     anAttr = [fields objectForKey:aKey];
     if ([anAttr isPrimaryKey]) {
       if (!(anObject = [super objectValueForBinding:aKey]))
-	anObject = CLNullObject;
+        anObject = CLNullObject;
       [mDict setObject:anObject forKey:[anAttr column]];
     }
   }
@@ -308,12 +308,12 @@
   if (!_primaryKey || _changed) {
     [_primaryKey release];
     _primaryKey = [[CLEditingContext constructPrimaryKey:self recordDef:_recordDef
-					    fromDatabase:NO asDictionary:NO] retain];
+                                            fromDatabase:NO asDictionary:NO] retain];
   }
-  
+
   if (!_dbPrimaryKey)
     _dbPrimaryKey = [_primaryKey retain];
-  
+
   return _primaryKey;
 }
 
@@ -409,7 +409,7 @@
   CLString *aKey;
   BOOL new;
 
-  
+
   cache = [super cacheBindings];
 
   /* Insert all the field and relationship bindings. If there are any
@@ -421,8 +421,8 @@
   for (i = 0, j = [anArray count]; i < j; i++) {
     aKey = [anArray objectAtIndex:i];
     new = NO;
-    if (!(aBinding = 
-	  CLHashTableDataForKey(cache, aKey, [aKey hash], @selector(isEqual:)))) {
+    if (!(aBinding =
+          CLHashTableDataForKey(cache, aKey, [aKey hash], @selector(isEqual:)))) {
       aBinding = malloc(sizeof(CLCachedBinding));
       aBinding->getter = aBinding->setter = NULL;
       aBinding->getSel = aBinding->setSel = NULL;
@@ -455,8 +455,8 @@
   for (i = 0, j = [anArray count]; i < j; i++) {
     aKey = [anArray objectAtIndex:i];
     new = NO;
-    if (!(aBinding = 
-	  CLHashTableDataForKey(cache, aKey, [aKey hash], @selector(isEqual:)))) {
+    if (!(aBinding =
+          CLHashTableDataForKey(cache, aKey, [aKey hash], @selector(isEqual:)))) {
       aBinding = malloc(sizeof(CLCachedBinding));
       aBinding->getter = aBinding->setter = NULL;
       aBinding->getSel = aBinding->setSel = NULL;
@@ -490,8 +490,8 @@
 -(id) objectForCachedBinding:(CLCachedBinding *) cachedBinding
 {
   return CLHashTableDataForKey(_record, cachedBinding->getter,
-			       [((CLString *) cachedBinding->getter) hash],
-			       @selector(isEqual:));
+                               [((CLString *) cachedBinding->getter) hash],
+                               @selector(isEqual:));
 }
 
 -(id) retainField:(CLString *) aField object:(id) anObject oldObject:(id) oldObject
@@ -508,7 +508,7 @@
   if ([self shouldRetain:aField]) {
     id dup;
 
-    
+
     if (!_autoretain)
       _autoretain = [[CLMutableArray alloc] init];
     dup = [aField copy];
@@ -521,7 +521,7 @@
   }
   return anObject;
 }
-  
+
 -(void) setObjectValue:(id) anObject forVariable:(CLString *) aField
 {
   void *var;
@@ -540,74 +540,74 @@
     switch (aType) {
     case _C_ID:
       {
-	id oldObject = *(id *) var;
-	if ((!oldObject && anObject) ||
-	    (oldObject && ![oldObject isEqual:anObject])) {
-	  [self willChange];
-	  *(id *) var = anObject;
-	  [self retainField:aField object:anObject oldObject:oldObject];
-	}
+        id oldObject = *(id *) var;
+        if ((!oldObject && anObject) ||
+            (oldObject && ![oldObject isEqual:anObject])) {
+          [self willChange];
+          *(id *) var = anObject;
+          [self retainField:aField object:anObject oldObject:oldObject];
+        }
       }
       break;
     case _C_CHR:
     case _C_SHT:
     case _C_INT:
       {
-	int c = *(int *) var;
-	*(int *) var = [anObject intValue];
-	if (c != *(int *) var)
-	  [self willChange];
+        int c = *(int *) var;
+        *(int *) var = [anObject intValue];
+        if (c != *(int *) var)
+          [self willChange];
       }
       break;
     case _C_UCHR:
     case _C_USHT:
     case _C_UINT:
       {
-	unsigned int c = *(unsigned int *) var;
-	*(unsigned int *) var = [anObject unsignedIntValue];
-	if (c != *(unsigned int *) var)
-	  [self willChange];
+        unsigned int c = *(unsigned int *) var;
+        *(unsigned int *) var = [anObject unsignedIntValue];
+        if (c != *(unsigned int *) var)
+          [self willChange];
       }
       break;
     case _C_LNG:
       {
-	long c = *(long *) var;
-	*(long *) var = [anObject longValue];
-	if (c != *(long *) var)
-	  [self willChange];
+        long c = *(long *) var;
+        *(long *) var = [anObject longValue];
+        if (c != *(long *) var)
+          [self willChange];
       }
       break;
     case _C_ULNG:
       {
-	unsigned long c = *(unsigned long *) var;
-	*(unsigned long *) var = [anObject unsignedLongValue];
-	if (c != *(unsigned long *) var)
-	  [self willChange];
+        unsigned long c = *(unsigned long *) var;
+        *(unsigned long *) var = [anObject unsignedLongValue];
+        if (c != *(unsigned long *) var)
+          [self willChange];
       }
       break;
     case _C_LNG_LNG:
       {
-	long long c = *(long long *) var;
-	*(long long *) var = [anObject longLongValue];
-	if (c != *(long long *) var)
-	  [self willChange];
+        long long c = *(long long *) var;
+        *(long long *) var = [anObject longLongValue];
+        if (c != *(long long *) var)
+          [self willChange];
       }
       break;
     case _C_ULNG_LNG:
       {
-	unsigned long long c = *(unsigned long long *) var;
-	*(unsigned long long *) var = [anObject unsignedLongLongValue];
-	if (c != *(unsigned long long *) var)
-	  [self willChange];
+        unsigned long long c = *(unsigned long long *) var;
+        *(unsigned long long *) var = [anObject unsignedLongLongValue];
+        if (c != *(unsigned long long *) var)
+          [self willChange];
       }
       break;
     case _C_FLT:
     case _C_DBL:
       {
-	float c = *(float *) var;
-	*(float *) var = [anObject doubleValue];
-	if (c != *(float *) var)
-	  [self willChange];
+        float c = *(float *) var;
+        *(float *) var = [anObject doubleValue];
+        if (c != *(float *) var)
+          [self willChange];
       }
       break;
     }
@@ -618,13 +618,13 @@
 
     oldKey = CLHashTableKeyForKey(_record, aField, [aField hash], @selector(isEqual:));
     oldObject = CLHashTableRemoveDataForKey(_record, aField, [aField hash],
-					    @selector(isEqual:));
+                                            @selector(isEqual:));
     if ([[self attributeForField:aField] isPrimaryKey]) {
       if (oldObject && ![oldObject isEqual:anObject])
-	[self error:@"Changing primary key"];
+        [self error:@"Changing primary key"];
       if ([anObject isKindOfClass:CLNumberClass] && ![anObject intValue] &&
-	  ![self allowZeroPrimaryKey])
-	[self error:@"Trying to set primary key to 0"];
+          ![self allowZeroPrimaryKey])
+        [self error:@"Trying to set primary key to 0"];
     }
     [self retainField:aField object:anObject oldObject:oldObject];
     if (!oldKey)
@@ -654,12 +654,12 @@
     switch (aType) {
     case _C_ID:
       {
-	id oldObject = *(id *) var;
-	if ((!oldObject && anObject) ||
-	    (oldObject && ![oldObject isEqual:anObject])) {
-	  *(id *) var = anObject;
-	  [self retainField:aKey object:anObject oldObject:oldObject];
-	}
+        id oldObject = *(id *) var;
+        if ((!oldObject && anObject) ||
+            (oldObject && ![oldObject isEqual:anObject])) {
+          *(id *) var = anObject;
+          [self retainField:aKey object:anObject oldObject:oldObject];
+        }
       }
       break;
     case _C_CHR:
@@ -698,10 +698,10 @@
     oldObject = CLHashTableRemoveDataForKey(_record, aKey, [aKey hash], @selector(isEqual:));
     if ([[self attributeForField:aKey] isPrimaryKey]) {
       if (oldObject && ![oldObject isEqual:anObject])
-	[self error:@"Changing primary key"];
+        [self error:@"Changing primary key"];
       if ([anObject isKindOfClass:CLNumberClass] && ![anObject intValue] &&
-	  ![self allowZeroPrimaryKey])
-	[self error:@"Trying to set primary key to 0"];
+          ![self allowZeroPrimaryKey])
+        [self error:@"Trying to set primary key to 0"];
     }
     [self retainField:aKey object:anObject oldObject:oldObject];
     if (!oldKey)
@@ -724,9 +724,9 @@
     if (aRange.length) {
       aString = [aBinding substringToIndex:aRange.location];
       if (![self objectValueForBinding:aString]) {
-	aRelationship = [[_recordDef relationships] objectForKey:aString];
-	if ([aRelationship isOwner])
-	  [self addNewObjectToBothSidesOfRelationship:aString];
+        aRelationship = [[_recordDef relationships] objectForKey:aString];
+        if ([aRelationship isOwner])
+          [self addNewObjectToBothSidesOfRelationship:aString];
       }
     }
   }
@@ -751,7 +751,7 @@
   fieldName[strlen(fieldName) - 1] = 0;
   fieldName[0] = tolower(fieldName[0]);
   var = [self pointerForIvar:fieldName type:&aType];
-  
+
   if (!var) {
     free(fieldName);
     return NO;
@@ -763,96 +763,96 @@
     switch (aType) {
     case _C_ID:
       {
-	id anObject = *(id *) var;
-	[anInvocation getArgument:var atIndex:2];
-	if ((!anObject && *(id *) var) ||
-	    (anObject && ![anObject isEqual:*(id *)var]))
-	  [self willChange];
-	[self retainField:[CLString stringWithUTF8String:fieldName]
-		   object:*(id *) var oldObject:anObject];
+        id anObject = *(id *) var;
+        [anInvocation getArgument:var atIndex:2];
+        if ((!anObject && *(id *) var) ||
+            (anObject && ![anObject isEqual:*(id *)var]))
+          [self willChange];
+        [self retainField:[CLString stringWithUTF8String:fieldName]
+                   object:*(id *) var oldObject:anObject];
       }
       break;
     case _C_CHR:
     case _C_SHT:
     case _C_INT:
       {
-	int c = *(int *) var;
-	[anInvocation getArgument:var atIndex:2];
-	if (c != *(int *) var)
-	  [self willChange];
+        int c = *(int *) var;
+        [anInvocation getArgument:var atIndex:2];
+        if (c != *(int *) var)
+          [self willChange];
       }
       break;
     case _C_UCHR:
     case _C_USHT:
     case _C_UINT:
       {
-	unsigned int c = *(unsigned int *) var;
-	[anInvocation getArgument:var atIndex:2];
-	if (c != *(unsigned int *) var)
-	  [self willChange];
+        unsigned int c = *(unsigned int *) var;
+        [anInvocation getArgument:var atIndex:2];
+        if (c != *(unsigned int *) var)
+          [self willChange];
       }
       break;
     case _C_LNG:
       {
-	long c = *(long *) var;
-	[anInvocation getArgument:var atIndex:2];
-	if (c != *(long *) var)
-	  [self willChange];
+        long c = *(long *) var;
+        [anInvocation getArgument:var atIndex:2];
+        if (c != *(long *) var)
+          [self willChange];
       }
       break;
     case _C_ULNG:
       {
-	unsigned long c = *(unsigned long *) var;
-	[anInvocation getArgument:var atIndex:2];
-	if (c != *(unsigned long *) var)
-	  [self willChange];
+        unsigned long c = *(unsigned long *) var;
+        [anInvocation getArgument:var atIndex:2];
+        if (c != *(unsigned long *) var)
+          [self willChange];
       }
       break;
     case _C_LNG_LNG:
       {
-	long long c = *(long long *) var;
-	[anInvocation getArgument:var atIndex:2];
-	if (c != *(long long *) var)
-	  [self willChange];
+        long long c = *(long long *) var;
+        [anInvocation getArgument:var atIndex:2];
+        if (c != *(long long *) var)
+          [self willChange];
       }
       break;
     case _C_ULNG_LNG:
       {
-	unsigned long long c = *(unsigned long long *) var;
-	[anInvocation getArgument:var atIndex:2];
-	if (c != *(unsigned long long *) var)
-	  [self willChange];
+        unsigned long long c = *(unsigned long long *) var;
+        [anInvocation getArgument:var atIndex:2];
+        if (c != *(unsigned long long *) var)
+          [self willChange];
       }
       break;
     case _C_FLT:
       {
-	float c = *(float *) var;
-	[anInvocation getArgument:var atIndex:2];
-	if (c != *(float *) var)
-	  [self willChange];
+        float c = *(float *) var;
+        [anInvocation getArgument:var atIndex:2];
+        if (c != *(float *) var)
+          [self willChange];
       }
       break;
     case _C_DBL:
       {
-	double c = *(double *) var;
-	[anInvocation getArgument:var atIndex:2];
-	if (c != *(double *) var)
-	  [self willChange];
+        double c = *(double *) var;
+        [anInvocation getArgument:var atIndex:2];
+        if (c != *(double *) var)
+          [self willChange];
       }
       break;
     case _C_CHARPTR:
       {
-	char *c = *(char **) var;
-	[anInvocation getArgument:var atIndex:2];
-	if (c != *(char **) var)
-	  [self willChange];
+        char *c = *(char **) var;
+        [anInvocation getArgument:var atIndex:2];
+        if (c != *(char **) var)
+          [self willChange];
       }
       break;
     }
   }
   else
     [self error:@"Type mismatch in %@ method %s", [[self class] className],
-	  sel_getName([anInvocation selector])];
+          sel_getName([anInvocation selector])];
 
   free(fieldName);
   return YES;
@@ -874,17 +874,17 @@
   ustr.len -= 4;
   ustr.str[0] = towlower(ustr.str[0]);
   fieldName = (CLString *) &ustr;
-  
+
   if ((anAttr = [[_recordDef fields] objectForKey:fieldName])) {
     oldKey = CLHashTableKeyForKey(_record, fieldName, [fieldName hash], @selector(isEqual:));
     oldObject = CLHashTableRemoveDataForKey(_record, fieldName, [fieldName hash],
-					    @selector(isEqual:));
+                                            @selector(isEqual:));
     if ([[self attributeForField:fieldName] isPrimaryKey]) {
       if (oldObject && ![oldObject isEqual:anObject])
-	[self error:@"Changing primary key"];
+        [self error:@"Changing primary key"];
       if ([anObject isKindOfClass:CLNumberClass] && ![anObject intValue] &&
-	  ![self allowZeroPrimaryKey])
-	[self error:@"Trying to set primary key to 0"];
+          ![self allowZeroPrimaryKey])
+        [self error:@"Trying to set primary key to 0"];
     }
     if (!oldKey)
       oldKey = [fieldName copy];
@@ -894,19 +894,19 @@
   else if ((aRelationship = [[_recordDef relationships] objectForKey:fieldName])) {
     if ([aRelationship toMany])
       [self error:@"Can't replace relationship with %@ in %s", [[self class] className],
-	    sel_getName([anInvocation selector])];
-    
+            sel_getName([anInvocation selector])];
+
     oldKey = CLHashTableKeyForKey(_record, fieldName, [fieldName hash], @selector(isEqual:));
     oldObject = CLHashTableRemoveDataForKey(_record, fieldName, [fieldName hash],
-					    @selector(isEqual:));
+                                            @selector(isEqual:));
     [self retainField:fieldName object:anObject oldObject:oldObject];
     if (!oldKey)
       oldKey = [fieldName copy];
     CLHashTableSetData(_record, anObject, oldKey, [oldKey hash]);
     [aRelationship setDictionary:nil andRecord:self usingObject:anObject
-		   fieldDefinition:[_recordDef fields]];
+                   fieldDefinition:[_recordDef fields]];
   }
-  
+
   if (anAttr || aRelationship) {
     [self willChange];
     return YES;
@@ -923,7 +923,7 @@
 
   fieldName = [CLString stringWithUTF8String:sel_getName([anInvocation selector])];
   fieldName = [[fieldName substringWithRange:CLMakeRange(5, [fieldName length]-6)]
-		lowerCamelCaseString];
+                lowerCamelCaseString];
   if (![self hasFieldNamed:fieldName])
     return NO;
 
@@ -941,7 +941,7 @@
 
   fieldName = [CLString stringWithUTF8String:sel_getName([anInvocation selector])];
   fieldName = [[fieldName substringWithRange:CLMakeRange(10, [fieldName length]-11)]
-		lowerCamelCaseString];
+                lowerCamelCaseString];
   if (![self hasFieldNamed:fieldName])
     return NO;
 
@@ -967,61 +967,61 @@
   }
   else
     aRange.length = 0;
-  
+
   if (aRange.length && [[anInvocation methodSignature] numberOfArguments] == 3) {
     if (!strncmp(aBinding, "set", 3) && isupper(aBinding[3])) {
       if ([self setIvarFromInvocation:anInvocation]) {
-	anObject = nil;
-	[anInvocation setReturnValue:&anObject];
-	return;
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
       }
       else if ([self setFieldFromInvocation:anInvocation]) {
-	anObject = nil;
-	[anInvocation setReturnValue:&anObject];
-	return;
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
       }
     }
     else if (!strncmp(aBinding, "addTo", 5)) {
       if ([self addToFromInvocation:anInvocation]) {
-	anObject = nil;
-	[anInvocation setReturnValue:&anObject];
-	return;
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
       }
     }
     else if (!strncmp(aBinding, "removeFrom", 10)) {
       if ([self removeFromFromInvocation:anInvocation]) {
-	anObject = nil;
-	[anInvocation setReturnValue:&anObject];
-	return;
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
       }
     }
     else if (*[[anInvocation methodSignature] getArgumentTypeAtIndex:2] == _C_ID) {
       [anInvocation getArgument:&sender atIndex:2];
       if (!strncmp(aBinding, "new", 3) && isupper(aBinding[3])) {
-	CLString *aString;
+        CLString *aString;
 
 
-	aString = [[CLString stringWithBytes:&aBinding[1] length:strlen(aBinding) - 4
-				    encoding:CLUTF8StringEncoding] lowerCamelCaseString];
-	anObject = [self addNewObjectToBothSidesOfRelationship:aString];
-	[CLEditingContext generatePrimaryKey:nil forRecord:anObject];
-	[anObject edit:sender];
-	[anObject release];
-	anObject = nil;
-	[anInvocation setReturnValue:&anObject];
-	return;
+        aString = [[CLString stringWithBytes:&aBinding[1] length:strlen(aBinding) - 4
+                                    encoding:CLUTF8StringEncoding] lowerCamelCaseString];
+        anObject = [self addNewObjectToBothSidesOfRelationship:aString];
+        [CLEditingContext generatePrimaryKey:nil forRecord:anObject];
+        [anObject edit:sender];
+        [anObject release];
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
       }
       else if ([self replacePage:sender selector:[anInvocation selector]]) {
-	anObject = nil;
-	[anInvocation setReturnValue:&anObject];
-	return;
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
       }
     }
   }
   else {
     CLString *bString;
 
-    
+
     bString = [[CLString alloc] initWithUTF8String:aBinding];
     anObject = [self objectValueForBinding:bString found:&found];
     [bString release];
@@ -1029,69 +1029,69 @@
       pos = [[anInvocation methodSignature] methodReturnType];
       switch (*pos) {
       case _C_ID:
-	[anInvocation setReturnValue:&anObject];
-	break;
+        [anInvocation setReturnValue:&anObject];
+        break;
       case _C_CHR:
       case _C_SHT:
       case _C_INT:
-	{
-	  int c = [anObject intValue];
-	  [anInvocation setReturnValue:&c];
-	}
-	break;
+        {
+          int c = [anObject intValue];
+          [anInvocation setReturnValue:&c];
+        }
+        break;
       case _C_UCHR:
       case _C_USHT:
       case _C_UINT:
-	{
-	  unsigned int c = [anObject unsignedIntValue];
-	  [anInvocation setReturnValue:&c];
-	}
-	break;
+        {
+          unsigned int c = [anObject unsignedIntValue];
+          [anInvocation setReturnValue:&c];
+        }
+        break;
       case _C_LNG:
-	{
-	  long c = [anObject longValue];
-	  [anInvocation setReturnValue:&c];
-	}
-	break;
+        {
+          long c = [anObject longValue];
+          [anInvocation setReturnValue:&c];
+        }
+        break;
       case _C_ULNG:
-	{
-	  unsigned long c = [anObject unsignedLongValue];
-	  [anInvocation setReturnValue:&c];
-	}
-	break;
+        {
+          unsigned long c = [anObject unsignedLongValue];
+          [anInvocation setReturnValue:&c];
+        }
+        break;
 
-	/* For some reason a nil object can't set a long long or unsigned long long to 0 */
+        /* For some reason a nil object can't set a long long or unsigned long long to 0 */
       case _C_LNG_LNG:
-	{
-	  long long c;
+        {
+          long long c;
 
 
-	  if (anObject)
-	    c = [anObject longLongValue];
-	  else
-	    c = 0;
-	  [anInvocation setReturnValue:&c];
-	}
-	break;
+          if (anObject)
+            c = [anObject longLongValue];
+          else
+            c = 0;
+          [anInvocation setReturnValue:&c];
+        }
+        break;
       case _C_ULNG_LNG:
-	{
-	  unsigned long long c;
+        {
+          unsigned long long c;
 
 
-	  if (anObject)
-	    c = [anObject unsignedLongLongValue];
-	  else
-	    c = 0;
-	  [anInvocation setReturnValue:&c];
-	}
-	break;
-	
+          if (anObject)
+            c = [anObject unsignedLongLongValue];
+          else
+            c = 0;
+          [anInvocation setReturnValue:&c];
+        }
+        break;
+
       case _C_FLT:
       case _C_DBL:
-	{
-	  double c = [anObject doubleValue];
-	  [anInvocation setReturnValue:&c];
-	}
+        {
+          double c = [anObject doubleValue];
+          [anInvocation setReturnValue:&c];
+        }
       }
       return;
     }
@@ -1126,7 +1126,7 @@
 
 
   aString = [CLString stringWithFormat:@"select count(*) from %@ where %@",
-		      [_recordDef databaseTable], [self generateQualifier]];
+                      [_recordDef databaseTable], [self generateQualifier]];
   results = [db runQuery:aString];
   anArray = [results objectForKey:@"rows"];
   if ([anArray count] && [[[anArray objectAtIndex:0] objectAtIndex:0] intValue])
@@ -1155,14 +1155,14 @@
     ourTable = [aRelationship theirTable];
     if ([ourTable isEqualToString:_table] && ![aRelationship toMany]) {
       if (![[aRecord objectValueForBinding:aKey] isEqual:self])
-	continue;
+        continue;
 
       fields = [aRelationship theirKeys];
       for (k = 0, l = [fields count]; k < l; k++) {
-	aKey = [fields objectAtIndex:k];
-	anAttr = [self attributeForField:aKey];
-	if ([anAttr isPrimaryKey])
-	  return YES;
+        aKey = [fields objectAtIndex:k];
+        anAttr = [self attributeForField:aKey];
+        if ([anAttr isPrimaryKey])
+          return YES;
       }
     }
   }
@@ -1174,7 +1174,7 @@
 {
   if ([added containsObjectIdenticalTo:anObject])
     return [CLPlaceholder placeholderFromString:[[anObject class] className]
-			  tag:[added indexOfObjectIdenticalTo:anObject] + 1];
+                          tag:[added indexOfObjectIdenticalTo:anObject] + 1];
 
   if ([anObject isKindOfClass:CLArrayClass]) {
     CLMutableArray *mArray;
@@ -1186,8 +1186,8 @@
     anArray = anObject;
     for (i = 0, j = [anArray count]; i < j; i++)
       if ((anObject = [self plistFor:[anArray objectAtIndex:i]
-			alreadyAdded:added allFields:allFields]))
-	[mArray addObject:anObject];
+                        alreadyAdded:added allFields:allFields]))
+        [mArray addObject:anObject];
 #if 0 /* Need to indicate that it's an empty array */
     if (![mArray count]) {
       [mArray release];
@@ -1216,28 +1216,28 @@
       fields = [record->_recordDef fields];
       anArray = [[record->_recordDef relationships] allKeys];
       for (i = 0, j = [anArray count]; i < j; i++) {
-	aKey = [anArray objectAtIndex:i];
-	anObject = [record objectValueForBinding:aKey];
-	aRelationship = [[record->_recordDef relationships] objectForKey:aKey];
-	[aRelationship setDictionary:nil andRecord:record
-			 usingObject:anObject fieldDefinition:fields];
+        aKey = [anArray objectAtIndex:i];
+        anObject = [record objectValueForBinding:aKey];
+        aRelationship = [[record->_recordDef relationships] objectForKey:aKey];
+        [aRelationship setDictionary:nil andRecord:record
+                         usingObject:anObject fieldDefinition:fields];
       }
-      
+
       anArray = [[[fields allKeys] arrayByAddingObjectsFromArray:
-						  [[record->_recordDef relationships] allKeys]]
-		  sortedArrayUsingSelector:@selector(compare:)];
+                                                  [[record->_recordDef relationships] allKeys]]
+                  sortedArrayUsingSelector:@selector(compare:)];
       for (i = 0, j = [anArray count]; i < j; i++) {
-	aKey = [anArray objectAtIndex:i];
-	anObject = [record objectValueForBinding:aKey];
-	//aRelationship = [[record->_recordDef relationships] objectForKey:aKey];
-	if (!anObject) {
-	  anObject = CLNullObject;
-	  [mDict setObject:anObject forKey:aKey];
-	}
-	else if ((anObject = [self plistFor:anObject alreadyAdded:added
-				  allFields:allFields]) &&
-		 (!allFields || ![anObject isKindOfClass:CLPlaceholderClass]))
-	  [mDict setObject:anObject forKey:aKey];
+        aKey = [anArray objectAtIndex:i];
+        anObject = [record objectValueForBinding:aKey];
+        //aRelationship = [[record->_recordDef relationships] objectForKey:aKey];
+        if (!anObject) {
+          anObject = CLNullObject;
+          [mDict setObject:anObject forKey:aKey];
+        }
+        else if ((anObject = [self plistFor:anObject alreadyAdded:added
+                                  allFields:allFields]) &&
+                 (!allFields || ![anObject isKindOfClass:CLPlaceholderClass]))
+          [mDict setObject:anObject forKey:aKey];
       }
     }
 
@@ -1281,14 +1281,14 @@
   [added release];
   return [anObject json];
 }
-  
+
 -(CLString *) description
 {
   return [self propertyList];
 }
 
 -(id) createObject:(id) anObject relationship:(CLRelationship *) aRelationship
-	      seen:(CLMutableDictionary *) seen updateChanged:(BOOL) flag
+              seen:(CLMutableDictionary *) seen updateChanged:(BOOL) flag
 {
   id newObject = nil, regObject;
   CLRecordDefinition *recordDef;
@@ -1302,26 +1302,26 @@
   else {
     recordDef = [CLEditingContext recordDefinitionForTable:[aRelationship theirTable]];
     if ((pk = [CLEditingContext constructPrimaryKey:anObject
-					  recordDef:recordDef fromDatabase:NO
-				       asDictionary:NO]))
+                                          recordDef:recordDef fromDatabase:NO
+                                       asDictionary:NO]))
       newObject = [[self editingContext]
-		    loadObjectWithClass:[recordDef recordClass] primaryKey:pk];
+                    loadObjectWithClass:[recordDef recordClass] primaryKey:pk];
     else {
       newObject = [[[recordDef recordClass] alloc]
-		    initFromDictionary:anObject table:[recordDef table]];
+                    initFromDictionary:anObject table:[recordDef table]];
       if ((regObject = [[self editingContext] registerInstance:newObject]) &&
-	  regObject != newObject) {
-	[regObject retain];
-	[newObject release];
-	newObject = regObject;
+          regObject != newObject) {
+        [regObject retain];
+        [newObject release];
+        newObject = regObject;
       }
 #if 0
       else
-	[CLDefaultContext addObject:newObject];
+        [CLDefaultContext addObject:newObject];
 #endif
     }
     [seen setObject:newObject forKey:
-	    [CLPlaceholder placeholderFromString:[newObject className] tag:[seen count] + 1]];
+            [CLPlaceholder placeholderFromString:[newObject className] tag:[seen count] + 1]];
     if ([newObject respondsTo:@selector(setFieldsFromDictionary:seen:updateChanged:)])
       [newObject setFieldsFromDictionary:anObject seen:seen updateChanged:flag];
   }
@@ -1330,7 +1330,7 @@
 }
 
 -(void) setFieldsFromDictionary:(CLDictionary *) aDict seen:(CLMutableDictionary *) seen
-		  updateChanged:(BOOL) flag
+                  updateChanged:(BOOL) flag
 {
   CLArray *anArray, *fields, *relFields;
   int i, j, k, l;
@@ -1357,32 +1357,32 @@
     else if ([relFields containsObject:aKey] && anObject) {
       aRelationship = [relationships objectForKey:aKey];
       if ([aRelationship toMany]) {
-	mArray = [[CLMutableArray alloc] init];
-	[self setObjectValue:mArray forBinding:aKey];
-	[mArray release];
-      
-	for (k = 0, l = [anObject count]; k < l; k++) {
-	  aRecord = [anObject objectAtIndex:k];
-	  aRecord = [self createObject:aRecord relationship:aRelationship
-				  seen:seen updateChanged:flag];
-	  if (![mArray containsObject:aRecord])
-	    [self addObject:aRecord toBothSidesOfRelationship:aKey];
-	}
+        mArray = [[CLMutableArray alloc] init];
+        [self setObjectValue:mArray forBinding:aKey];
+        [mArray release];
+
+        for (k = 0, l = [anObject count]; k < l; k++) {
+          aRecord = [anObject objectAtIndex:k];
+          aRecord = [self createObject:aRecord relationship:aRelationship
+                                  seen:seen updateChanged:flag];
+          if (![mArray containsObject:aRecord])
+            [self addObject:aRecord toBothSidesOfRelationship:aKey];
+        }
       }
       else if (anObject) {
-	/* FIXME - should we nullify if the key was empty? Probably need
-	   to check if the related key is set.  */
-	anObject = [self createObject:anObject relationship:aRelationship
-				 seen:seen updateChanged:flag];
-	if (anObject != [self objectValueForBinding:aKey])
-	  [self addObject:anObject toBothSidesOfRelationship:aKey];
+        /* FIXME - should we nullify if the key was empty? Probably need
+           to check if the related key is set.  */
+        anObject = [self createObject:anObject relationship:aRelationship
+                                 seen:seen updateChanged:flag];
+        if (anObject != [self objectValueForBinding:aKey])
+          [self addObject:anObject toBothSidesOfRelationship:aKey];
       }
     }
   }
 
   if (!flag)
     _changed = oldChanged;
-  
+
   return;
 }
 
@@ -1393,8 +1393,8 @@
 
   mDict = [[CLMutableDictionary alloc] init];
   [mDict setObject:self forKey:
-	   [CLPlaceholder placeholderFromString:[[self class] className]
-			  tag:1]];
+           [CLPlaceholder placeholderFromString:[[self class] className]
+                          tag:1]];
   [self setFieldsFromDictionary:aDict seen:mDict updateChanged:flag];
   [mDict release];
   return;
@@ -1414,14 +1414,14 @@
 
   if ([ignoreList containsObjectIdenticalTo:self])
     return NO;
-  
+
   if (_changed)
     return YES;
 
   if (!ignoreList)
     ignoreList = mArray = [[CLMutableArray alloc] init];
   [ignoreList addObject:self];
-  
+
   aDict = [_recordDef relationships];
   anArray = [aDict allKeys];
   for (i = 0, j = [anArray count]; i < j; i++) {
@@ -1430,9 +1430,9 @@
     if (![aRelationship toMany]) {
       anObject = [self objectValueForBinding:aKey];
       if (![ignoreList containsObjectIdenticalTo:anObject] &&
-	  [anObject hasChanges:ignoreList]) {
-	hasChanges = YES;
-	break;
+          [anObject hasChanges:ignoreList]) {
+        hasChanges = YES;
+        break;
       }
     }
     else {
@@ -1442,16 +1442,16 @@
 
       anArray2 = [self objectValueForBinding:aKey];
       for (k = 0, l = [anArray2 count]; k < l; k++) {
-	anObject = [anArray2 objectAtIndex:k];
-	if (![ignoreList containsObjectIdenticalTo:anObject] &&
-	    [anObject hasChanges:ignoreList]) {
-	  hasChanges = YES;
-	  break;
-	}
-	if (hasChanges)
-	  break;
-	
-	[ignoreList addObject:anObject];
+        anObject = [anArray2 objectAtIndex:k];
+        if (![ignoreList containsObjectIdenticalTo:anObject] &&
+            [anObject hasChanges:ignoreList]) {
+          hasChanges = YES;
+          break;
+        }
+        if (hasChanges)
+          break;
+
+        [ignoreList addObject:anObject];
       }
     }
   }
@@ -1504,20 +1504,20 @@
 
       objects = [self objectValueForBinding:aKey];
       for (idx = 0, len = [objects count]; idx < len; idx++) {
-	anObject = [objects objectAtIndex:idx];
-	if ([anObject retainCount] > 1)
-	  return YES;
+        anObject = [objects objectAtIndex:idx];
+        if ([anObject retainCount] > 1)
+          return YES;
       }
     }
     else if ([aRelationship isOwner]) {
       anObject = [self objectValueForBinding:aKey];
       if ([anObject retainCount] > 1 &&
-	  [self relationshipDependsOnUs:aRelationship record:anObject]) {
-	return YES;
+          [self relationshipDependsOnUs:aRelationship record:anObject]) {
+        return YES;
       }
     }
   }
-  
+
   return NO;
 }
 
@@ -1534,7 +1534,7 @@
 
   if (![[self flags] length])
     return NO;
-  
+
   buf[0] = aFlag;
   aString = [[CLString alloc] initWithCharacters:buf length:1];
   aRange = [[self flags] rangeOfString:aString options:CLCaseInsensitiveSearch];
@@ -1562,7 +1562,7 @@
     [self setFlags:aString];
     [aString release];
   }
-  
+
   return;
 }
 
@@ -1571,7 +1571,7 @@
   CLString *aString;
   unistr ustr;
   int i;
-  
+
 
   if (!(aString = [self flags]))
     return;
@@ -1603,9 +1603,9 @@
 
 /* FIXME - should we do this? The editingContext will not be set when
    a new object is instantiated instead of loaded from the database. */
-  if (!reserved->context) 
+  if (!reserved->context)
     reserved->context = CLDefaultContext;
-  
+
   return reserved->context;
 }
 
@@ -1658,18 +1658,18 @@
       aKey = [keys objectAtIndex:i];
       aRel = [relationships objectForKey:aKey];
       if ([aRel toMany]) {
-	anArray = [self objectValueForBinding:aKey];
-	if (![anArray isFault]) {
-	  for (k = 0, l = [anArray count]; k < l; k++) {
-	    anObject = [anArray objectAtIndex:k];
-	    if (![anObject isFault] && ![anObject exists])
-	      [[self editingContext] addObject:anObject];
-	  }
-	}
+        anArray = [self objectValueForBinding:aKey];
+        if (![anArray isFault]) {
+          for (k = 0, l = [anArray count]; k < l; k++) {
+            anObject = [anArray objectAtIndex:k];
+            if (![anObject isFault] && ![anObject exists])
+              [[self editingContext] addObject:anObject];
+          }
+        }
       }
     }
   }
-  
+
   return;
 }
 
@@ -1701,8 +1701,8 @@
 -(BOOL) exists
 {
   return [[self editingContext] recordExists:self
-		       recordDefinition:[CLEditingContext
-					  recordDefinitionForClass:[self class]]];
+                       recordDefinition:[CLEditingContext
+                                          recordDefinitionForClass:[self class]]];
 }
 
 -(BOOL) hasFieldNamed:(CLString *) aString
@@ -1731,13 +1731,13 @@
   *aName = nil;
   table = [CLEditingContext tableForClass:[self class]];
   if ((aDict = [[CLEditingContext recordDefinitionForTable:[ours theirTable]]
-		 relationships])) {
+                 relationships])) {
     anArray = [aDict allKeys];
     for (i = 0, j = [anArray count]; i < j; i++) {
       theirs = [aDict objectForKey:[anArray objectAtIndex:i]];
       if ([theirs isReciprocal:ours forTable:table]) {
-	*aName = [anArray objectAtIndex:i];
-	return theirs;
+        *aName = [anArray objectAtIndex:i];
+        return theirs;
       }
     }
   }
@@ -1753,10 +1753,10 @@
 
 
   /* FIXME - set editing context on anObject if it doesn't have one? */
-  
+
   if ([self objectValueForBinding:aKey] == anObject)
     return;
-  
+
   aRelationship = [[recordDef relationships] objectForKey:aKey];
   if ([aRelationship toMany]) {
     mArray = [self objectValueForBinding:aKey];
@@ -1786,7 +1786,7 @@
 
   if ([self objectValueForBinding:aKey] == anObject)
     return;
-  
+
   rel1 = [[recordDef relationships] objectForKey:aKey];
   rel2 = [self theirRelationship:rel1 named:&relName];
 
@@ -1798,7 +1798,7 @@
     if (![rel2 toMany] && self != [anObject objectValueForBinding:relName]) {
       otherObject = [anObject objectValueForBinding:relName];
       if ([otherObject respondsTo:@selector(removeObject:fromRelationship:)])
-	[otherObject removeObject:anObject fromRelationship:aKey];
+        [otherObject removeObject:anObject fromRelationship:aKey];
     }
     [anObject addObject:self toRelationship:relName];
   }
@@ -1815,7 +1815,7 @@
 
   aRelationship = [[recordDef relationships] objectForKey:aKey];
   anObject = [[[CLEditingContext classForTable:[aRelationship theirTable]]
-		alloc] initFromDictionary:nil table:[aRelationship theirTable]];
+                alloc] initFromDictionary:nil table:[aRelationship theirTable]];
   [self addObject:anObject toBothSidesOfRelationship:aKey];
   return anObject;
 }

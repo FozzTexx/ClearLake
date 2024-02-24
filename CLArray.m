@@ -217,9 +217,9 @@
       aString = [[self objectAtIndex:idx] description];
       aRange = [aString rangeOfCharacterFromSet:notAlnumSet];
       if (aRange.length) {
-	aString = [aString stringByReplacingOccurrencesOfString:@"\""
-			   withString:@"\"\""];
-	aString = [CLString stringWithFormat:@"\"%@\"", aString];
+        aString = [aString stringByReplacingOccurrencesOfString:@"\""
+                           withString:@"\"\""];
+        aString = [CLString stringWithFormat:@"\"%@\"", aString];
       }
       [mString appendString:aString];
     }
@@ -420,42 +420,42 @@
 {
   if ([self class] == CLArrayClass)
     [self error:@"%s: %s must be implemented by subclass",
-	  object_getClassName(self), sel_getName(_cmd)];
+          object_getClassName(self), sel_getName(_cmd)];
   return [super init];
 }
 
 -(id) initWithObjects:(const id *) objects count:(unsigned) count
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return nil;
 }
 
 -(id) read:(CLStream *) stream
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return nil;
 }
 
 -(void) write:(CLStream *) stream
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return;
 }
 
 -(CLUInteger) count
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return 0;
 }
 
 -(id) objectAtIndex:(CLUInteger) index
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return nil;
 }
 

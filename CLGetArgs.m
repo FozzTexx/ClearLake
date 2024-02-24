@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -27,11 +27,11 @@
 
 /***********************************************************************
 
-		   Based on getargs.c from fozzlib
-  
-		 Copyright 1991-2011 by Chris Osborn
-			fozztexx@fozztexx.com
-  
+                   Based on getargs.c from fozzlib
+
+                 Copyright 1991-2011 by Chris Osborn
+                        fozztexx@fozztexx.com
+
 
   This function will read the flags from the command line and fill the
   variables that are passed with the appropriate values, if the
@@ -52,14 +52,14 @@
     -abcd H 25 Hello
   or even mixed, like
     -abc H 25 -d Hello
-   
+
   You need to pass it argc, argv, a format string, and all the
   pointers to variables.
 
   The structure of the format string is flag, type. The string
      "AbQi"
   specifies that flag "A" is a boolean, and flag "Q" is of type int.
-  
+
   If any of the flags are not present in the passed argv, the contents
   of the corresponding variable will not be changed.
 
@@ -90,7 +90,7 @@ CLInteger CLGetArgs(int argc, char **argv, CLString *format, ...)
 #if DEBUG_LEAK
   id self = nil;
 #endif
-  
+
 
   va_start(ap, format);
   count = argc;
@@ -105,74 +105,74 @@ CLInteger CLGetArgs(int argc, char **argv, CLString *format, ...)
   for (argc--, na = ++argv, na++; !result && argc && **argv == '-'; argc--, argv = na, na++)
     for ((*argv)++; !result && **argv; (*argv)++) {
       for (nf = 0, i = 0; !result && buf[i]; i += 2)
-	if (buf[i] == **argv) {
-	  nf++;
-	  switch (buf[i + 1]) {
-	  case 'b':
-	    *((BOOL *) arg[i / 2]) = 1;
-	    break;
+        if (buf[i] == **argv) {
+          nf++;
+          switch (buf[i + 1]) {
+          case 'b':
+            *((BOOL *) arg[i / 2]) = 1;
+            break;
 
-	  case 'o':
-	    order++;
-	    *((CLInteger *) arg[i / 2]) = order;
-	    break;
-	  
-	  case 'c':
-	    argc--;
-	    if (!argc)
-	      result = -(**argv);
-	    else {
-	      *((CLInteger *) arg[i / 2]) = **na;
-	      na++;
-	    }
-	    break;
+          case 'o':
+            order++;
+            *((CLInteger *) arg[i / 2]) = order;
+            break;
 
-	  case 's':
-	    argc--;
-	    if (!argc)
-	      result = -(**argv);
-	    else {
-	      *((CLString **) arg[i / 2]) = [CLString stringWithUTF8String:(char *) *na];
-	      na++;
-	    }
-	    break;
+          case 'c':
+            argc--;
+            if (!argc)
+              result = -(**argv);
+            else {
+              *((CLInteger *) arg[i / 2]) = **na;
+              na++;
+            }
+            break;
 
-	  case 'i':
-	    argc--;
-	    if (!argc)
-	      result = -(**argv);
-	    else {
-	      *((int *) arg[i / 2]) = atoi(*na);
-	      na++;
-	    }
-	    break;
+          case 's':
+            argc--;
+            if (!argc)
+              result = -(**argv);
+            else {
+              *((CLString **) arg[i / 2]) = [CLString stringWithUTF8String:(char *) *na];
+              na++;
+            }
+            break;
 
-	  case 'd':
-	    argc--;
-	    if (!argc)
-	      result = -(**argv);
-	    else {
-	      *((double *) arg[i / 2]) = atof(*na);
-	      na++;
-	    }
-	    break;
+          case 'i':
+            argc--;
+            if (!argc)
+              result = -(**argv);
+            else {
+              *((int *) arg[i / 2]) = atoi(*na);
+              na++;
+            }
+            break;
 
-	  case 'f':
-	    argc--;
-	    if (!argc)
-	      result = -(**argv);
-	    else {
-	      mf = (void *) arg[i / 2];
-	      j = mf((int) buf[i], na);
-	      for (k = 0; k < j; k++, na++)
-		;
-	    }
-	    break;
-	  }
-	}
-      
+          case 'd':
+            argc--;
+            if (!argc)
+              result = -(**argv);
+            else {
+              *((double *) arg[i / 2]) = atof(*na);
+              na++;
+            }
+            break;
+
+          case 'f':
+            argc--;
+            if (!argc)
+              result = -(**argv);
+            else {
+              mf = (void *) arg[i / 2];
+              j = mf((int) buf[i], na);
+              for (k = 0; k < j; k++, na++)
+                ;
+            }
+            break;
+          }
+        }
+
       if (!nf)
-	result = -(**argv);
+        result = -(**argv);
     }
 
   va_end(ap);

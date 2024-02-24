@@ -45,7 +45,7 @@
 {
   [super init];
   return self;
-}	
+}
 
 -(id) initFromString:(CLString *) aString
 {
@@ -73,7 +73,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -92,7 +92,7 @@
   CLMutableString *result = [[CLMutableString alloc] init];
   id obj;
 
-	
+
   for (i = 0, j = [contents count]; i < j; ++i) {
     obj = [contents objectAtIndex:i];
     [result appendString:[obj description]];
@@ -107,7 +107,7 @@
   CLMutableString *result = [[CLMutableString alloc] init];
   id obj;
 
-	
+
   for (i = 0, j = [contents count]; i < j; ++i) {
     obj = [contents objectAtIndex:i];
     if ([obj respondsTo:@selector(html)])
@@ -130,12 +130,12 @@
     anObject = [[CLWikiLink alloc] initWithAttributes:args];
   else if (![objName caseInsensitiveCompare:@"media"])
     anObject = [[CLWikiMedia alloc] initWithAttributes:args];
-    
+
   return [anObject autorelease];
 }
 
 -(void) addParamsFromString:(CLString *) aString
-	     intoDictionary:(CLMutableDictionary *) mDict
+             intoDictionary:(CLMutableDictionary *) mDict
 {
   unichar ch, inString, *buf;
   CLString *key, *value;
@@ -144,40 +144,40 @@
 
   buf = calloc([aString length], sizeof(unichar));
   [aString getCharacters:buf];
-  
+
   indx = 0;
   len = [aString length];
   while (indx < len) {
     for (begin = indx; indx < len; indx++) {
       ch = buf[indx];
       if (ch == '=' || iswspace(ch))
-	break;
+        break;
     }
     key = [[CLString alloc] initWithCharacters:&buf[begin] length:indx -begin];
 
     if (indx < len && ch == '=') {
       indx++;
       while (indx < len && iswspace(buf[indx]))
-	indx++;
+        indx++;
 
       if (indx < len && buf[indx] == '"') {
-	inString = buf[indx];
-	indx++;
-	begin = indx;
-	while (indx < len && buf[indx] != inString)
-	  indx++;
+        inString = buf[indx];
+        indx++;
+        begin = indx;
+        while (indx < len && buf[indx] != inString)
+          indx++;
       }
       else {
-	begin = indx;
-	while (indx < len && !iswspace(buf[indx]))
-	  indx++;
+        begin = indx;
+        while (indx < len && !iswspace(buf[indx]))
+          indx++;
       }
 
       value = [[CLString alloc] initWithCharacters:&buf[begin] length:indx -begin];
       [mDict setObject:value forKey:key];
       [value release];
       if (indx < len && buf[indx] == '"')
-	indx++;
+        indx++;
     }
     else
       [mDict setObject:CLNullObject forKey:key];
@@ -204,7 +204,7 @@
     rngSpace = [objectString rangeOfString:@" "];
     objName = [objectString substringToIndex:rngSpace.location];
     rest = [[objectString substringFromIndex:rngSpace.location + 1]
-	     stringByReplacingOccurrencesOfString:@"&quot;" withString:@"\""];
+             stringByReplacingOccurrencesOfString:@"&quot;" withString:@"\""];
     params = [[CLMutableDictionary alloc] init];
     [self addParamsFromString:rest intoDictionary:params];
   }
@@ -237,7 +237,7 @@
     beginRange = [source rangeOfString:@"[[" options:0 range:aRange];
     if (!beginRange.length)
       break;
-    
+
     endRange.location = CLMaxRange(beginRange);
     endRange.length = len - endRange.location;
     endRange = [source rangeOfString:@"]]" options:0 range:endRange];
@@ -248,7 +248,7 @@
       aRange.length = beginRange.location - aRange.location;
       [results addObject:[source substringWithRange:aRange]];
     }
-    
+
     aRange.location = CLMaxRange(beginRange);
     aRange.length = endRange.location - aRange.location;
     str = [source substringWithRange:aRange];
@@ -266,7 +266,7 @@
 
   if (aRange.length)
     [results addObject:[source substringWithRange:aRange]];
-    
+
   return [results autorelease];
 }
 
@@ -293,7 +293,7 @@
 {
   return [self filterByClass:CLWikiImageClass];
 }
-  
+
 -(CLArray *) links
 {
   return [self filterByClass:CLWikiLinkClass];

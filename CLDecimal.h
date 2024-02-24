@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -62,51 +62,51 @@ CL_INLINE void CLDecimalCopy(CLDecimal *destination, const CLDecimal *source)
 extern void CLDecimalCompact(CLDecimal *number);
 
 extern CLComparisonResult CLDecimalCompare(const CLDecimal *leftOperand,
-					   const CLDecimal *rightOperand);
+                                           const CLDecimal *rightOperand);
 // CLDecimalCompare:Compares leftOperand and rightOperand.
 
 extern void CLDecimalRound(CLDecimal *result, const CLDecimal *number,
-			   CLInteger scale, CLRoundingMode roundingMode);
+                           CLInteger scale, CLRoundingMode roundingMode);
 // Rounds num to the given scale using the given mode.
 // result may be a pointer to same space as num.
 // scale indicates number of significant digits after the decimal point
 
 extern CLCalculationError CLDecimalNormalize(CLDecimal *number1,
-					     CLDecimal *number2,
-					     CLRoundingMode roundingMode);
+                                             CLDecimal *number2,
+                                             CLRoundingMode roundingMode);
 extern CLCalculationError CLDecimalAdd(CLDecimal *result,
-				       const CLDecimal *leftOperand,
-				       const CLDecimal *rightOperand,
-				       CLRoundingMode roundingMode);
+                                       const CLDecimal *leftOperand,
+                                       const CLDecimal *rightOperand,
+                                       CLRoundingMode roundingMode);
 // Exact operations. result may be a pointer to same space as leftOperand or rightOperand
 
 extern CLCalculationError CLDecimalSubtract(CLDecimal *result,
-					    const CLDecimal *leftOperand,
-					    const CLDecimal *rightOperand,
-					    CLRoundingMode roundingMode);
+                                            const CLDecimal *leftOperand,
+                                            const CLDecimal *rightOperand,
+                                            CLRoundingMode roundingMode);
 // Exact operations. result may be a pointer to same space as leftOperand or rightOperand
 
 extern CLCalculationError CLDecimalMultiply(CLDecimal *result,
-					    const CLDecimal *leftOperand,
-					    const CLDecimal *rightOperand,
-					    CLRoundingMode roundingMode);
+                                            const CLDecimal *leftOperand,
+                                            const CLDecimal *rightOperand,
+                                            CLRoundingMode roundingMode);
 // Exact operations. result may be a pointer to same space as leftOperand or rightOperand
 extern CLCalculationError CLDecimalDivide(CLDecimal *result,
-					  const CLDecimal *leftOperand,
-					  const CLDecimal *rightOperand,
-					  CLRoundingMode roundingMode);
+                                          const CLDecimal *leftOperand,
+                                          const CLDecimal *rightOperand,
+                                          CLRoundingMode roundingMode);
 // Division could be silently inexact;
 // Exact operations. result may be a pointer to same space as leftOperand or rightOperand
 
 extern CLCalculationError CLDecimalPower(CLDecimal *result,
-					 const CLDecimal *number,
-					 CLUInteger power,
-					 CLRoundingMode roundingMode);
+                                         const CLDecimal *number,
+                                         CLUInteger power,
+                                         CLRoundingMode roundingMode);
 
 extern CLCalculationError CLDecimalMultiplyByPowerOf10(CLDecimal *result,
-						       const CLDecimal *number,
-						       short power,
-						       CLRoundingMode roundingMode);
+                                                       const CLDecimal *number,
+                                                       short power,
+                                                       CLRoundingMode roundingMode);
 
 extern CLString *CLDecimalString(const CLDecimal *number);
 

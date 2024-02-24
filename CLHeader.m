@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -37,16 +37,16 @@
 {
   CLStringStorage *stor;
 
-  
+
   [super init];
   headers = [[CLMutableArray alloc] init];
   values = [[CLMutableArray alloc] init];
 
   if ([aString length]) {
     stor = CLStringStorage(aString);
-    
+
   }
-  
+
   return self;
 }
 
@@ -84,7 +84,7 @@
 
   return found;
 }
-  
+
 -(void) insertHeader:(CLString *) aHeader withValue:(CLString *) aValue atIndex:(int) anIndex
 {
 }
@@ -96,5 +96,5 @@
 -(void) deleteHeader:(CLString *) aHeader
 {
 }
-			
+
 @end

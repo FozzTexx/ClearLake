@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -35,10 +35,10 @@
 }
 
 +(CLPipeStream *) streamWithExecutable:(CLString *) aCommand arguments:(CLArray *) args
-				 stdin:(int) sin stdout:(int) sout stderr:(int) serr
+                                 stdin:(int) sin stdout:(int) sout stderr:(int) serr
 {
   return [[[self alloc] initWithExecutable:aCommand arguments:args
-				     stdin:sin stdout:sout stderr:serr] autorelease];
+                                     stdin:sin stdout:sout stderr:serr] autorelease];
 }
 
 -(id) init
@@ -55,18 +55,18 @@
   [super init];
 
   rfd = wfd = pid = -1;
-  
+
   pipe(wp);
   pipe(rp);
 
   pid = fork();
-  
+
   if (pid > 0) {
     close(wp[0]);
     close(rp[1]);
     rfd = rp[0];
     wfd = wp[1];
-    
+
     if (aMode == CLReadOnly) {
       close(wfd);
       wfd = -1;
@@ -89,7 +89,7 @@
       ioctl(tty, TIOCNOTTY, 0);
       close(tty);
     }
-    
+
     execl("/bin/sh", "/bin/sh", "-c", [aCommand UTF8String], NULL);
   }
 
@@ -97,7 +97,7 @@
 }
 
 -(id) initWithExecutable:(CLString *) aCommand arguments:(CLArray *) args
-		   stdin:(int) sin stdout:(int) sout stderr:(int) serr
+                   stdin:(int) sin stdout:(int) sout stderr:(int) serr
 {
   int tty, fd, maxf;
   char **strargs;
@@ -105,7 +105,7 @@
 
 
   [super init];
-  
+
   pid = fork();
   if (pid > 0) {
     rfd = sout;
@@ -202,7 +202,7 @@
 {
   int status = 0;
 
-  
+
   [self close];
   if (pid) {
     waitpid(pid, &status, 0);
@@ -210,7 +210,7 @@
   }
 
   return status;
-}  
+}
 
 -(int) pid
 {

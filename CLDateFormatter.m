@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -34,7 +34,7 @@
   aFormatter = [[[self alloc] init] autorelease];
   [aFormatter setFormat:aFormat];
   return aFormatter;
-}  
+}
 
 -(id) init
 {
@@ -62,7 +62,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -81,7 +81,7 @@
 {
   if (![anObject isKindOfClass:CLDatetimeClass])
     return nil;
-  
+
   return [anObject descriptionWithFormat:format];
 }
 

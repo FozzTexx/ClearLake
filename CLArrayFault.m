@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -44,7 +44,7 @@
   reserved = buf - sizeof(CLObjectReserved);
   reserved->context = nil;
   [super dealloc];
-  
+
   return;
 }
 
@@ -65,13 +65,13 @@
   pool = [[CLAutoreleasePool alloc] init];
   if (data->info.arrayData.qualifier) {
     anArray = [reserved->context loadTableWithRecordDefinition:
-		    [CLEditingContext recordDefinitionForTable:data->info.arrayData.table]
-						     qualifier:data->info.arrayData.qualifier];
+                    [CLEditingContext recordDefinitionForTable:data->info.arrayData.table]
+                                                     qualifier:data->info.arrayData.qualifier];
     [((CLMutableArray *) self) addObjectsFromArray:anArray];
     [data->info.arrayData.objects removeObjectsInArray:anArray];
 #if 0
     fprintf(stderr, "Loaded %s - %s : %i\n", [data->val2 UTF8String],
-	    [data->val1 UTF8String], [((CLMutableArray *) self) count]);
+            [data->val1 UTF8String], [((CLMutableArray *) self) count]);
 #endif
   }
 
@@ -120,7 +120,7 @@
     return NO;
 
   /* FIXME - query the database and see if there's a record with that pk tied to us */
-  
+
   [self fault];
   return [self containsObjectIdenticalTo:anObject];
 }
@@ -152,7 +152,7 @@ id CLNewArrayFault(CLString *aQualifier, CLString *aTable, CLEditingContext *aCo
 #if DEBUG_LEAK || DEBUG_RETAIN
   id self = nil;
 #endif
-  
+
 
   anObject = (CLFaultData *) [[CLMutableArray alloc] init];
   buf = anObject;

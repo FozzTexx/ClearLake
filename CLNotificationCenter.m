@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -47,13 +47,13 @@ static id _defaultCenter = nil;
   [super dealloc];
   return;
 }
-  
+
 -(void) addObserver:(id) notificationObserver selector:(SEL) notificationSelector
-	       name:(CLString *) notificationName object:(id) notificationSender
+               name:(CLString *) notificationName object:(id) notificationSender
 {
   CLMutableArray *mArray;
 
-  
+
   if (!notificationName)
     notifcationName = [CLNull null];
   if (!(mArray = [names objectForKey:notificationName])) {
@@ -62,7 +62,7 @@ static id _defaultCenter = nil;
     [mArray release];
   }
   [mArray addObject:observer];
-  
+
   if (!notificationSender)
     notifcationSender = [CLNull null];
   if (!(mArray = [objects objectForKey:notificationSender])) {
@@ -86,11 +86,11 @@ static id _defaultCenter = nil;
 }
 
 -(void) postNotificationName:(CLString *) notificationName object:(id) notificationSender
-		    userInfo:(CLDictionary *) userInfo
+                    userInfo:(CLDictionary *) userInfo
 {
   [self postNotification:[CLNotification notificationWithname:notificationName
-					 object:notificationSender
-					 userInfo:userInfo]];
+                                         object:notificationSender
+                                         userInfo:userInfo]];
   return;
 }
 
@@ -101,7 +101,7 @@ static id _defaultCenter = nil;
 }
 
 -(void) removeObserver:(id) notificationObserver name:(CLString *) notificationName
-		object:(id) notificationSender
+                object:(id) notificationSender
 {
 }
 

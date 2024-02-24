@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -28,7 +28,7 @@
 @implementation CLUTF8String
 
 -(id) initWithBytes:(char *) bytes length:(CLUInteger) length
-		 encoding:(CLStringEncoding) encoding
+                 encoding:(CLStringEncoding) encoding
 {
   if (encoding != CLUTF8StringEncoding)
     [self error:@"Don't know how to init with encoding\n"];
@@ -37,12 +37,12 @@
   len = length;
   if (!(data = malloc(len)))
     [self error:@"Unable to allocate memory"];
-  memmove(data, bytes, len);  
+  memmove(data, bytes, len);
   return self;
 }
 
 -(id) initWithBytesNoCopy:(char *) bytes length:(CLUInteger) length
-		 encoding:(CLStringEncoding) encoding
+                 encoding:(CLStringEncoding) encoding
 {
   if (encoding != CLUTF8StringEncoding)
     [self error:@"Don't know how to init with encoding\n"];
@@ -69,7 +69,7 @@
 
   if (len) {
     CLStringConvertEncoding(data, len, CLUTF8StringEncoding,
-			    &buf, &blen, CLUnicodeStringEncoding, NO);
+                            &buf, &blen, CLUnicodeStringEncoding, NO);
     blen /= sizeof(unichar);
   }
 
@@ -88,7 +88,7 @@
 {
   if (!len)
     return 0;
-  
+
   if ([self respondsTo:@selector(swizzle)])
     [self swizzle];
   return [super length];

@@ -15,7 +15,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -76,16 +76,16 @@ extern CLString *CLTargetFrame;
 -(void) control:(CLControl *) aControl writePersistentData:(CLStream *) stream;
 
 -(CLString *) delegateEncodeSimpleURL:(id) aControl
-			    localQuery:(CLMutableDictionary *) localQuery;
+                            localQuery:(CLMutableDictionary *) localQuery;
 -(BOOL) delegateDecodeSimpleURL:(CLString *) aString;
 @end
 
 extern CLMutableDictionary *CLControlState;
 
 extern void CLWriteURLForGet(CLStream *stream, id object,
-			     CLData *aData, CLDictionary *localQuery,
-			     BOOL withoutQuery);
+                             CLData *aData, CLDictionary *localQuery,
+                             BOOL withoutQuery);
 extern void CLWriteURL(CLStream *stream, id object,
-		       CLData *aData, CLDictionary *localQuery);
+                       CLData *aData, CLDictionary *localQuery);
 
 #endif /* _CLCONTROL_H */

@@ -11,7 +11,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -110,7 +110,7 @@ int CLInitClassConstants()
 {
   static int doingInit = NO;
   static int initStage = 0;
-  
+
 
   if (!doingInit) {
     doingInit = YES;
@@ -151,7 +151,7 @@ int CLInitClassConstants()
 
     case 1:
       break;
-      
+
     case 2:
       CLStandardContentImageClass = [CLStandardContentImage class];
       CLStandardContentCategoryClass = [CLStandardContentCategory class];

@@ -12,10 +12,10 @@ int main(int argc, char *argv[])
 {
   struct timeval tv;
   CLAutoreleasePool *pool;
-  
+
 
   pool = [[CLAutoreleasePool alloc] init];
-  
+
   gettimeofday(&tv, NULL);
   srandom(tv.tv_sec + tv.tv_usec);
 

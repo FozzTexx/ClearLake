@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -31,10 +31,10 @@
 
 @class CLData, CLArray, CLDictionary;
 
-#define CLReadOnly	1
-#define CLWriteOnly	2
-#define CLReadWrite	4
-#define CLEOF		-1
+#define CLReadOnly      1
+#define CLWriteOnly     2
+#define CLReadWrite     4
+#define CLEOF           -1
 
 @protocol CLStream
 -(int) readByte;
@@ -64,7 +64,7 @@
 -(void) writeString:(CLString *) aString usingEncoding:(CLStringEncoding) enc;
 -(void) writeFormat:(CLString *) aFormat usingEncoding:(CLStringEncoding) enc, ...;
 -(void) writeFormat:(CLString *) format usingEncoding:(CLStringEncoding) enc
-	  arguments:(va_list) argList;
+          arguments:(va_list) argList;
 @end
 
 @interface CLStream (CLStreamOpening)
@@ -75,7 +75,7 @@
 +(CLStream *) openMemoryForWriting;
 +(CLStream *) openPipe:(CLString *) aCommand mode:(int) mode;
 +(CLStream *) openPty:(CLString *) aCommand termios:(struct termios *) termp
-	   windowSize:(struct winsize *) winp environment:(CLDictionary *) environ;
+           windowSize:(struct winsize *) winp environment:(CLDictionary *) environ;
 +(CLStream *) openDescriptor:(int) fd mode:(int) mode;
 @end
 
@@ -116,17 +116,17 @@ extern CLString *CLGetsfd(int fd, CLStringEncoding enc);
 
 extern CLString *CLPathForFileID(int image_id);
 extern BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint,
-			    int seq);
+                            int seq);
 extern int CLNextFileSequence();
 extern int CLStoreFile(CLData *aData, CLString *extension, CLString *extensionHint);
 extern void CLWriteHTMLObject(CLStream *stream, id anObject);
 extern CLString *CLFullPathForFile(CLString *aFilename, CLArray *extensions,
-				   CLArray *directories);
+                                   CLArray *directories);
 extern int CLDeflate(const void *data, int len, int level, CLData **aData);
 
-#define CL_FROMSTART	SEEK_SET
-#define CL_FROMCURRENT	SEEK_CUR
-#define CL_FROMEND	SEEK_END
+#define CL_FROMSTART    SEEK_SET
+#define CL_FROMCURRENT  SEEK_CUR
+#define CL_FROMEND      SEEK_END
 
 @protocol CLStreamDelegate
 -(CLString *) delegateGetFileDirectory;

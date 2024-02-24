@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -51,7 +51,7 @@ struct {
   {CLLogicalNotOperator, 14, @"!"},
   {0, 0, nil}
 };
-  
+
 @implementation CLExpression
 
 -(id) init
@@ -67,7 +67,7 @@ struct {
 
   if (aString)
     [self parseString:aString];
-  
+
   return self;
 }
 
@@ -84,12 +84,12 @@ struct {
   id aValue = nil;
   int val;
 
-  
+
   switch (operator) {
   case CLOperandOperator:
     aValue = [anObject valueForExpression:left success:success];
     break;
-    
+
   case CLLogicalNotOperator:
     aValue = [left evaluate:anObject success:success];
     if ([aValue isKindOfClass:CLNumberClass])
@@ -109,9 +109,9 @@ struct {
     if (![aValue boolValue]) {
       aValue = [right evaluate:anObject success:success];
       if ([aValue isKindOfClass:CLNumberClass])
-	val = [aValue boolValue];
+        val = [aValue boolValue];
       else
-	val = !!aValue;
+        val = !!aValue;
       aValue = [CLNumber numberWithBool:val];
     }
     break;
@@ -126,29 +126,29 @@ struct {
     if ([aValue boolValue]) {
       aValue = [right evaluate:anObject success:success];
       if ([aValue isKindOfClass:CLNumberClass])
-	val = [aValue boolValue];
+        val = [aValue boolValue];
       else
-	val = !!aValue;
+        val = !!aValue;
       aValue = [CLNumber numberWithBool:val];
     }
     break;
   }
-    
+
   return aValue;
 }
 
 -(void) parseOperator:(CLExpression *) anExp operatorStack:(CLMutableArray *) operatorStack
-	 operandStack:(CLMutableArray *) operandStack
+         operandStack:(CLMutableArray *) operandStack
 {
   id aLeft = nil, aRight = nil;
 
-  
+
   switch ([anExp operator]) {
   case CLLogicalNotOperator:
     aLeft = [[operandStack lastObject] retain];
     [operandStack removeLastObject];
     break;
-		
+
   default:
     aRight = [[operandStack lastObject] retain];
     [operandStack removeLastObject];
@@ -181,17 +181,17 @@ struct {
 
   operandStack = [[CLMutableArray alloc] init];
   operatorStack = [[CLMutableArray alloc] init];
-  
+
   for (i = 0, j = [aString length]; i < j; i++) {
     c = [aString characterAtIndex:i];
     if (iswspace(c))
       continue;
-    
+
     if (![operandSet characterIsMember:c]) {
       aRange = [aString rangeOfCharacterFromSet:operandSet options:0
-			range:CLMakeRange(i, j - i)];
+                        range:CLMakeRange(i, j - i)];
       if (!aRange.length)
-	aRange.location = j;
+        aRange.location = j;
       anOperand = [aString substringWithRange:CLMakeRange(i, aRange.location - i)];
       i = aRange.location - 1;
 
@@ -205,46 +205,46 @@ struct {
     else {
       aRange.location = i;
       for (k = 0; CLOperations[k].op; k++) {
-	aRange.length = [CLOperations[k].string length];
-	if (CLMaxRange(aRange) <= j &&
-	    ![aString compare:CLOperations[k].string options:0 range:aRange]) {
-	  i = CLMaxRange(aRange) - 1;
+        aRange.length = [CLOperations[k].string length];
+        if (CLMaxRange(aRange) <= j &&
+            ![aString compare:CLOperations[k].string options:0 range:aRange]) {
+          i = CLMaxRange(aRange) - 1;
 
-	  anExp = [[CLExpression alloc] init];
-	  [anExp setOperator:CLOperations[k].op];
-	  [anExp setPrecedence:CLOperations[k].precedence];
-	  
-	  if ([anExp operator] != CLParenRightOperator &&
-	      (![operatorStack count] ||
-	       [[operatorStack lastObject] precedence] < [anExp precedence] ||
-	       [anExp operator] == CLParenLeftOperator))
-	    [operatorStack addObject:anExp];
-	  else {
-	    if ([anExp operator] == CLParenRightOperator) {
-	      anExp2 = [[operatorStack lastObject] retain];
-	      [operatorStack removeLastObject];
-	      while ([anExp2 operator] != CLParenLeftOperator) {
-		[self parseOperator:anExp2 operatorStack:operatorStack
-		      operandStack:operandStack];
-		[anExp2 release];
-		anExp2 = [[operatorStack lastObject] retain];
-		[operatorStack removeLastObject];		
-	      }
-	      [anExp2 release];
-	    }
-	    else {
-	      anExp2 = [[operatorStack lastObject] retain];
-	      [operatorStack removeLastObject];		
-	      [operatorStack addObject:anExp];
-	      [self parseOperator:anExp2 operatorStack:operatorStack
-		    operandStack:operandStack];
-	      [anExp2 release];
-	    }
-	  }
-	  
-	  [anExp release];
-	  break;
-	}
+          anExp = [[CLExpression alloc] init];
+          [anExp setOperator:CLOperations[k].op];
+          [anExp setPrecedence:CLOperations[k].precedence];
+
+          if ([anExp operator] != CLParenRightOperator &&
+              (![operatorStack count] ||
+               [[operatorStack lastObject] precedence] < [anExp precedence] ||
+               [anExp operator] == CLParenLeftOperator))
+            [operatorStack addObject:anExp];
+          else {
+            if ([anExp operator] == CLParenRightOperator) {
+              anExp2 = [[operatorStack lastObject] retain];
+              [operatorStack removeLastObject];
+              while ([anExp2 operator] != CLParenLeftOperator) {
+                [self parseOperator:anExp2 operatorStack:operatorStack
+                      operandStack:operandStack];
+                [anExp2 release];
+                anExp2 = [[operatorStack lastObject] retain];
+                [operatorStack removeLastObject];
+              }
+              [anExp2 release];
+            }
+            else {
+              anExp2 = [[operatorStack lastObject] retain];
+              [operatorStack removeLastObject];
+              [operatorStack addObject:anExp];
+              [self parseOperator:anExp2 operatorStack:operatorStack
+                    operandStack:operandStack];
+              [anExp2 release];
+            }
+          }
+
+          [anExp release];
+          break;
+        }
       }
     }
   }
@@ -261,10 +261,10 @@ struct {
   [self setPrecedence:[anExp precedence]];
   [self setLeft:[anExp left]];
   [self setRight:[anExp right]];
-  
+
   [operandStack release];
   [operatorStack release];
-  
+
   return;
 }
 
@@ -308,7 +308,7 @@ struct {
   }
   return;
 }
-    
+
 -(void) setRight:(id) anObject
 {
   if (right != anObject) {
@@ -334,7 +334,7 @@ struct {
   case CLOperandOperator:
     [mString appendString:[left description]];
     break;
-    
+
   case CLLogicalNotOperator:
     [mString appendString:@" : "];
     [mString appendString:[left description]];
@@ -350,7 +350,7 @@ struct {
   }
 
   [mString appendString:@"\n"];
-  
+
   return mString;
 }
 

@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -40,8 +40,8 @@ BOOL CLHasDNSRecord(CLString *type, CLString *host)
 
 
   aString = [CLString stringWithFormat:
-			@"/usr/bin/dig -t %@ '%@' | egrep -v '^;' | grep '\t%@\t'",
-		      type, host, type];
+                        @"/usr/bin/dig -t %@ '%@' | egrep -v '^;' | grep '\t%@\t'",
+                      type, host, type];
   file = popen([aString UTF8String], "r");
   while ((aString = CLGets(file, CLUTF8StringEncoding)))
     if ([aString length])
@@ -49,8 +49,8 @@ BOOL CLHasDNSRecord(CLString *type, CLString *host)
   pclose(file);
 
   return !![aString length];
-}  
-  
+}
+
 BOOL CLValidEmailAddress(CLString *anAddress)
 {
   CLRange aRange, aRange2;
@@ -61,7 +61,7 @@ BOOL CLValidEmailAddress(CLString *anAddress)
 
   if (![anAddress length])
     return NO;
-  
+
   aRange = [anAddress rangeOfString:@"@" options:0 range:CLMakeRange(0, [anAddress length])];
   if (!aRange.length)
     return NO;
@@ -70,14 +70,14 @@ BOOL CLValidEmailAddress(CLString *anAddress)
   host = [anAddress substringFromIndex:CLMaxRange(aRange)];
   if (![local length] || ![host length])
     return NO;
-  
+
   notGoodSet = [[CLCharacterSet characterSetWithCharactersInString:validEmailChars]
-		 invertedSet];
+                 invertedSet];
   aRange = [local rangeOfCharacterFromSet:notGoodSet];
   if (aRange.length)
     return NO;
-  
-  if (CLHasDNSRecord(@"MX", host) || CLHasDNSRecord(@"A", host))      
+
+  if (CLHasDNSRecord(@"MX", host) || CLHasDNSRecord(@"A", host))
     return YES;
 
   len = [host length];
@@ -91,12 +91,12 @@ BOOL CLValidEmailAddress(CLString *anAddress)
       return NO;
 
     if (CLHasDNSRecord(@"MX", [CLString stringWithFormat:@"*%@",
-					[host substringFromIndex:aRange2.location]]))
+                                        [host substringFromIndex:aRange2.location]]))
       return YES;
 
     aRange = aRange2;
   }
-  
+
   return NO;
 }
 
@@ -125,14 +125,14 @@ BOOL CLValidCreditCard(CLString *aCCNumber, CLUInteger month, CLUInteger year)
     /* Using isdigit and not iswdigit cuz I'm only interested in ASCII digits */
     for (i = 0; i < len && i < maxlen; i++)
       if (isdigit(buf[i]))
-	ccNum[ccPos++] = buf[i];
+        ccNum[ccPos++] = buf[i];
     free(buf);
   }
   ccNum[ccPos] = 0;
 
   if (ccNum[0] != '3' && ccNum[0] != '4' && ccNum[0] != '5')
     valid = NO;
-  
+
   if (valid &&
       ((ccNum[0] == '3' && ccPos != 15) ||
        (ccNum[0] == '4' && ccPos != 13 && ccPos != 16) ||
@@ -143,13 +143,13 @@ BOOL CLValidCreditCard(CLString *aCCNumber, CLUInteger month, CLUInteger year)
     for (p = ccNum, j = strlen(ccNum) % 2, k = 0; p && *p; p++, j++) {
       i = (*p) - '0';
       if (!(j % 2)) {
-	i *= 2;
-	if (i > 9)
-	  i -= 9;
-	k += i;
+        i *= 2;
+        if (i > 9)
+          i -= 9;
+        k += i;
       }
       else
-	k += i;
+        k += i;
     }
     if (k % 10)
       valid = NO;
@@ -159,8 +159,8 @@ BOOL CLValidCreditCard(CLString *aCCNumber, CLUInteger month, CLUInteger year)
     t = time(NULL);
     tp = localtime(&t);
     if (year < tp->tm_year + 1900 ||
-	(tp->tm_year + 1900 == year && month < tp->tm_mon + 1) ||
-	year > tp->tm_year + 1910)
+        (tp->tm_year + 1900 == year && month < tp->tm_mon + 1) ||
+        year > tp->tm_year + 1910)
       valid = NO;
   }
 

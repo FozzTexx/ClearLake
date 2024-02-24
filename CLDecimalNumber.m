@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -33,11 +33,11 @@
 #include <math.h>
 #include <wctype.h>
 #ifndef __USE_ISOC99
-#define __USE_ISOC99	1
+#define __USE_ISOC99    1
 #endif
 #include <stdlib.h>
 
-#define MAX_DIGITS	38
+#define MAX_DIGITS      38
 
 CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
 
@@ -48,10 +48,10 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
 @implementation CLDecimalNumber
 
 +(CLDecimalNumber *) decimalNumberWithMantissa:(unsigned long long) mantissa
-				      exponent:(short) exponent isNegative:(BOOL) flag
+                                      exponent:(short) exponent isNegative:(BOOL) flag
 {
   return [[[self alloc] initWithMantissa:mantissa exponent:exponent isNegative:flag]
-	   autorelease];
+           autorelease];
 }
 
 +(CLDecimalNumber *) decimalNumberWithString:(CLString *) numberValue
@@ -102,18 +102,18 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
 }
 
 -(id) initWithMantissa:(unsigned long long) mantissa exponent:(short) exponent
-	    isNegative:(BOOL) flag
+            isNegative:(BOOL) flag
 {
   unsigned long int uli;
   CLDecimalMPZ *val;
 
-  
+
   [super init];
 
   if (!(val = malloc(sizeof(CLDecimalMPZ))))
     [self error:@"Unable to allocate memory"];
   value.dval = val;
-  
+
   /* GMP only uses long and not long long, so I have to set it in stages */
   if (sizeof(mantissa) > sizeof(uli)) {
     uli = mantissa / ULONG_MAX;
@@ -128,7 +128,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   if (flag)
     mpz_neg(val->mantissa, val->mantissa);
   val->exponent = exponent;
-  
+
   return self;
 }
 
@@ -151,7 +151,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   [mString getCharacters:buf];
   for (i = j = 0; i < len; i++)
     if (iswdigit(buf[i]) || buf[i] == '+' || buf[i] == '-' || buf[i] == '.' ||
-	buf[i] == 'e' || buf[i] == 'e')
+        buf[i] == 'e' || buf[i] == 'e')
       buf2[j++] = buf[i];
   free(buf);
   buf = buf2;
@@ -171,9 +171,9 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
       dLoc = i;
       i++;
       for (; i < len && iswdigit(buf[i]); i++)
-	;
+        ;
       for (; i && buf[i-1] == '0'; i--)
-	;
+        ;
       exp = i - dLoc - 1;
       exp = -exp;
     }
@@ -213,7 +213,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   mpz_set(val->mantissa, num);
   return self;
 }
-  
+
 -(id) initWithInt:(int) aValue
 {
   return [self initWithLongLong:aValue];
@@ -238,7 +238,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
 {
   return [self initWithUnsignedLongLong:aValue];
 }
-  
+
 -(id) initWithUnsignedLongLong:(unsigned long long) aValue
 {
   return [self initWithMantissa:aValue exponent:0 isNegative:NO];
@@ -257,10 +257,10 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   unsigned long int uli;
   CLDecimalMPZ val, two;
 
-  
+
   lVal = frexp(aValue, &exp) * INT64_MAX;
   mantissa = llabs(lVal);
-  
+
   /* GMP only uses long and not long long, so I have to set it in stages */
   if (sizeof(mantissa) > sizeof(uli)) {
     uli = mantissa / ULONG_MAX;
@@ -349,7 +349,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   CLString *aString;
   CLDecimalMPZ *val;
 
-  
+
   [super read:stream];
   [stream readTypes:@"@", &aString];
   if (!(val = calloc(1, sizeof(CLDecimalMPZ))))
@@ -383,7 +383,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   CLCompactMPZ(value.dval);
   return;
 }
-  
+
 -(CLDecimalNumber *) decimalNumberByAdding:(CLDecimalNumber *) decimalNumber
 {
   CLDecimalMPZ res;
@@ -515,7 +515,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   mpz_t exp, n1;
   int res;
 
-  
+
   num1 = value.dval;
 
   if (num1->exponent > 0) {
@@ -543,7 +543,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
     res = CLOrderedDescending;
 
   mpz_clear(n1);
-  
+
   return res;
 }
 
@@ -553,7 +553,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   mpz_t exp, n1;
   int res;
 
-  
+
   num1 = value.dval;
 
   if (num1->exponent > 0) {
@@ -581,7 +581,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
     res = CLOrderedDescending;
 
   mpz_clear(n1);
-  
+
   return res;
 }
 
@@ -623,7 +623,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
 {
   return (int) [self longLongValue];
 }
-  
+
 -(long) longValue
 {
   return (long) [self longLongValue];
@@ -636,7 +636,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   unsigned long uli = 0;
   long long mantissa;
 
-  
+
   num1 = value.dval;
 
   if (num1->exponent > 0) {
@@ -655,7 +655,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   }
   else
     mpz_init_set(n1, num1->mantissa);
-  
+
   if (sizeof(mantissa) > sizeof(uli)) {
     mpz_init(exp);
     uli = mpz_fdiv_q_ui(exp, n1, ULONG_MAX);
@@ -666,9 +666,9 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   }
   else
     mantissa = mpz_get_ui(n1);
-  
+
   mpz_clear(n1);
-  
+
   return mantissa;
 }
 
@@ -686,7 +686,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
 {
   return (unsigned long long) [self longLongValue];
 }
-  
+
 -(double) doubleValue
 {
   CLDecimalMPZ *num1;
@@ -697,7 +697,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   d = mpz_get_d(num1->mantissa);
   exp = pow(10.0, num1->exponent);
   d *= exp;
-  
+
   return d;
 }
 

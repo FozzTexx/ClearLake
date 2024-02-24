@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -47,7 +47,7 @@ typedef u_int8_t CLUInteger8;
     [self error:@"Could not allocate table"];
   return self;
 }
-  
+
 -(void) dealloc
 {
   int i, j;
@@ -63,7 +63,7 @@ typedef u_int8_t CLUInteger8;
       aBucket = aBucket2;
     }
   }
-  
+
   free(table);
   [super dealloc];
   return;
@@ -120,7 +120,7 @@ typedef u_int8_t CLUInteger8;
     [self error:@"Could not allocate aBucket"];
   aBucket->key = aKey;
   aBucket->data = data;
-  
+
   if (!table[val]) {
     table[val] = aBucket;
     [self linkBucket:aBucket val:val];
@@ -139,7 +139,7 @@ typedef u_int8_t CLUInteger8;
 -(void *) dataForKey:(id) aKey hash:(CLUInteger) aValue
 {
   CLBucket *aBucket;
-  
+
 
   if ((aBucket = [self bucketForKey:aKey hash:aValue selector:@selector(isEqual:)]))
     return aBucket->data;
@@ -167,7 +167,7 @@ typedef u_int8_t CLUInteger8;
 -(void *) dataForKey:(id) aKey hash:(CLUInteger) aValue selector:(SEL) aSel
 {
   CLBucket *aBucket;
-  
+
 
   if ((aBucket = [self bucketForKey:aKey hash:aValue selector:aSel]))
     return aBucket->data;
@@ -193,7 +193,7 @@ typedef u_int8_t CLUInteger8;
 -(void *) dataForKeyIdenticalTo:(id) aKey hash:(CLUInteger) aValue
 {
   CLBucket *aBucket;
-  
+
 
   if ((aBucket = [self bucketForKeyIdenticalTo:aKey hash:aValue]))
     return aBucket->data;
@@ -214,7 +214,7 @@ typedef u_int8_t CLUInteger8;
     return aBucket->key;
   return NULL;
 }
-  
+
 -(void *) removeDataForKey:(id) aKey hash:(CLUInteger) aValue
 {
   return [self removeDataForKey:aKey hash:aValue selector:@selector(isEqual:)];
@@ -233,15 +233,15 @@ typedef u_int8_t CLUInteger8;
     imp = objc_msg_lookup(aBucket->key, aSel);
     if (aBucket->key == aKey || ((BOOL (*) (id,SEL,id)) imp)(aBucket->key, aSel, aKey)) {
       if (pBucket)
-	pBucket->next = aBucket->next;
+        pBucket->next = aBucket->next;
       else {
-	table[val] = aBucket->next;
-	if (!table[val])
-	  [self unlinkBucket:aBucket val:val];
-	else {
-	  aBucket->next->pv = aBucket->pv;
-	  aBucket->next->nv = aBucket->nv;
-	}
+        table[val] = aBucket->next;
+        if (!table[val])
+          [self unlinkBucket:aBucket val:val];
+        else {
+          aBucket->next->pv = aBucket->pv;
+          aBucket->next->nv = aBucket->nv;
+        }
       }
       data = aBucket->data;
       free(aBucket);
@@ -264,15 +264,15 @@ typedef u_int8_t CLUInteger8;
        pBucket = aBucket, aBucket = aBucket->next)
     if (aBucket->key == aKey) {
       if (pBucket)
-	pBucket->next = aBucket->next;
+        pBucket->next = aBucket->next;
       else {
-	table[val] = aBucket->next;
-	if (!table[val])
-	  [self unlinkBucket:aBucket val:val];
-	else {
-	  aBucket->next->pv = aBucket->pv;
-	  aBucket->next->nv = aBucket->nv;
-	}
+        table[val] = aBucket->next;
+        if (!table[val])
+          [self unlinkBucket:aBucket val:val];
+        else {
+          aBucket->next->pv = aBucket->pv;
+          aBucket->next->nv = aBucket->nv;
+        }
       }
       data = aBucket->data;
       free(aBucket);
@@ -298,7 +298,7 @@ typedef u_int8_t CLUInteger8;
     aBucket = table[i];
     while (aBucket) {
       if (j >= count)
-	[self error:@"Corrupted bucket list"];
+        [self error:@"Corrupted bucket list"];
       buf[j++] = aBucket->key;
       aBucket = aBucket->next;
     }
@@ -320,7 +320,7 @@ typedef u_int8_t CLUInteger8;
       aBucket = aBucket->next;
     }
   }
-  
+
   return;
 }
 
@@ -332,7 +332,7 @@ typedef u_int8_t CLUInteger8;
 
   if (!count)
     return nil;
-  
+
   if (!(keys = malloc(sizeof(id) * count)))
     [self error:@"Could not allocate keys"];
   [self getKeys:keys];
@@ -340,7 +340,7 @@ typedef u_int8_t CLUInteger8;
   free(keys);
   return [anArray autorelease];
 }
-  
+
 -(CLString *) propertyList
 {
   CLUInteger i;
@@ -354,8 +354,8 @@ typedef u_int8_t CLUInteger8;
   [self getKeys:keys];
   for (i = 0; i < count; i++)
     [mString appendFormat:@"  %@ = %@;\n",
-	     CLPropertyListString(keys[i]),
-	     CLPropertyListString([self dataForKey:keys[i] hash:[keys[i] hash]])];
+             CLPropertyListString(keys[i]),
+             CLPropertyListString([self dataForKey:keys[i] hash:[keys[i] hash]])];
   free(keys);
 
   [mString appendString:@"}\n"];
@@ -446,7 +446,7 @@ typedef u_int8_t CLUinteger8;
 /* http://www.azillionmonkeys.com/qed/hash.html */
 
 CLUInteger32 CLHashBytes(const void *buf, register CLUInteger32 length,
-			 register CLUInteger32 initval)
+                         register CLUInteger32 initval)
 {
   register CLUInteger32 a, b, c, len;
   const register CLUInteger8 *k = buf;

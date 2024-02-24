@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -44,9 +44,9 @@
 +(Class) accountClass;
 +(CLString *) generateQualifier:(CLDictionary *) aDict;
 +(CLString *) qualifierForObject:(id) aRecord fromDatabase:(BOOL) fromDB
-		recordDefinition:(CLRecordDefinition *) recordDef;
+                recordDefinition:(CLRecordDefinition *) recordDef;
 +(id) constructPrimaryKey:(id) record recordDef:(CLRecordDefinition *) recordDef
-	     fromDatabase:(BOOL) fromDB asDictionary:(BOOL) asDict;
+             fromDatabase:(BOOL) fromDB asDictionary:(BOOL) asDict;
 +(void) createSelect:(CLMutableString **) select andAttributes:(CLArray **) attributes
  forRecordDefinition:(CLRecordDefinition *) recordDef;
 +(int) generatePrimaryKey:(CLMutableDictionary *) mDict forRecord:(id) aRecord;
@@ -76,11 +76,11 @@
 -(id) loadObjectWithClass:(Class) aClass primaryKey:(id) pk;
 -(id) loadExistingObjectWithClass:(Class) aClass primaryKey:(id) pk;
 -(CLArray *) loadTableWithRecordDefinition:(CLRecordDefinition *) recordDef
-				     array:(CLArray *) anArray;
+                                     array:(CLArray *) anArray;
 -(CLArray *) loadTableWithRecordDefinition:(CLRecordDefinition *) recordDef
-				 qualifier:(id) qual;
+                                 qualifier:(id) qual;
 -(CLArray *) loadTableWithRecordDefinition:(CLRecordDefinition *) recordDef
-				 qualifier:(id) qual orderBy:(CLString *) order;
+                                 qualifier:(id) qual orderBy:(CLString *) order;
 -(CLArray *) loadTableWithClass:(Class) aClass qualifier:(id) qual;
 -(CLArray *) loadTableWithClass:(Class) aClass qualifier:(id) qual orderBy:(CLString *) order;
 -(CLArray *) loadTableWithClass:(Class) aClass array:(CLArray *) anArray;

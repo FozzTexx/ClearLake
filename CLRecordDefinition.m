@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -38,11 +38,11 @@
 }
 
 -(id) initFromTable:(CLString *) aTable class:(Class) aClass
-	     fields:(CLDictionary *) fieldsDict relationships:(CLDictionary *) relDict
+             fields:(CLDictionary *) fieldsDict relationships:(CLDictionary *) relDict
 {
   CLRange aRange;
 
-  
+
   [super init];
   table = [aTable copy];
   aRange = [table rangeOfString:@"."];
@@ -81,14 +81,14 @@
   CLRange aRange;
   unistr ustr;
 
-  
+
   if (!db) {
     aRange = [table rangeOfString:@"."];
     ustr = CLCloneStackString(table);
     ustr.len = aRange.location;
     db = [CLEditingContext databaseNamed:(CLString *) &ustr];
   }
-  
+
   return db;
 }
 
@@ -134,7 +134,7 @@
     for (i = 0, j = [anArray count]; i < j; i++) {
       anAttr = [anArray objectAtIndex:i];
       if ([anAttr isPrimaryKey])
-	[mArray addObject:anAttr];
+        [mArray addObject:anAttr];
     }
     _primaryKeys = mArray;
   }
@@ -153,13 +153,13 @@
     anArray = _primaryKeys;
   else
     anArray = [fields allValues];
-  
+
   for (i = 0, j = [anArray count]; i < j; i++) {
     anAttr = [anArray objectAtIndex:i];
     if ([[anAttr key] isEqualToString:fieldName] ||
-	([fieldName isEqualToString:@"objectID"] &&
-	 [recordClass isKindOfClass:CLGenericRecordClass] &&
-	 [[anAttr key] isEqualToString:@"id"]))
+        ([fieldName isEqualToString:@"objectID"] &&
+         [recordClass isKindOfClass:CLGenericRecordClass] &&
+         [[anAttr key] isEqualToString:@"id"]))
       return [anAttr isPrimaryKey];
   }
 

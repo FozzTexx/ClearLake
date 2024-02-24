@@ -75,7 +75,7 @@
   va_end(ap);
 
   anObject = [[[CLInternalDictionary alloc] initWithObjects:objects forKeys:keys count:i]
-	       autorelease];
+               autorelease];
   return anObject;
 }
 
@@ -180,7 +180,7 @@
 
   if (aRange.length)
     anObject = [anObject objectValueForBinding:
-			   [aBinding substringFromIndex:CLMaxRange(aRange)] found:found];
+                           [aBinding substringFromIndex:CLMaxRange(aRange)] found:found];
 
   return anObject;
 }
@@ -212,49 +212,49 @@
 {
   if ([self class] == CLDictionaryClass)
     [self error:@"%s: %s must be implemented by subclass",
-	  object_getClassName(self), sel_getName(_cmd)];
+          object_getClassName(self), sel_getName(_cmd)];
   return [super init];
 }
 
 -(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count
 {
   [self error:@"%s: %s must be implemented by subclass",
-	  object_getClassName(self), sel_getName(_cmd)];
+          object_getClassName(self), sel_getName(_cmd)];
   return nil;
 }
 
 -(CLUInteger) count
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return 0;
 }
 
 -(id) objectForKey:(id) aKey
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return nil;
 }
 
 -(id) objectForCaseInsensitiveString:(CLString *) aKey
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return nil;
 }
 
 -(CLArray *) allKeys
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return nil;
 }
 
 -(CLArray *) allValues
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return nil;
 }
 
@@ -327,7 +327,7 @@
 
 
   return CLHashTableDataForKey(storage->table, aKey, [aKey hash],
-			       @selector(isEqualToCaseInsensitiveString:));
+                               @selector(isEqualToCaseInsensitiveString:));
 }
 
 -(CLArray *) allKeys
@@ -413,11 +413,11 @@
     for (idx = 0; idx < count; idx++) {
       aKey = [mArray objectAtIndex:idx];
       if (idx)
-	[mString appendString:@" "];
+        [mString appendString:@" "];
       [mString appendFormat:@"%@ = %@;",
-	       CLPropertyListString(aKey),
-	       CLPropertyListString(CLHashTableDataForKey(storage->table, aKey, [aKey hash],
-							  @selector(isEqual:)))];
+               CLPropertyListString(aKey),
+               CLPropertyListString(CLHashTableDataForKey(storage->table, aKey, [aKey hash],
+                                                          @selector(isEqual:)))];
     }
     [mArray release];
   }
@@ -444,9 +444,9 @@
     if (idx)
       [mString appendString:@", "];
     [mString appendFormat:@"%@:%@",
-	     CLJSONString(keys[idx]),
-	     CLJSONString(CLHashTableDataForKey(storage->table, keys[idx], [keys[idx] hash],
-						@selector(isEqual:)))];
+             CLJSONString(keys[idx]),
+             CLJSONString(CLHashTableDataForKey(storage->table, keys[idx], [keys[idx] hash],
+                                                @selector(isEqual:)))];
   }
 
   [mString appendString:@"}"];
@@ -472,17 +472,17 @@
   CLHashTableGetKeys(storage->table, keys);
   for (idx = 0; idx < storage->table->count; idx++) {
     aValue = CLHashTableDataForKey(storage->table, keys[idx], [keys[idx] hash],
-				   @selector(isEqual:));
+                                   @selector(isEqual:));
     if ([aValue isKindOfClass:CLArrayClass] && [aValue count] == 2 &&
-	[[aValue objectAtIndex:0] isKindOfClass:CLDictionaryClass]) {
+        [[aValue objectAtIndex:0] isKindOfClass:CLDictionaryClass]) {
       [mString appendFormat:@"<%@", [keys[idx] description]];
       aDict = [aValue objectAtIndex:0];
       aValue = [aValue objectAtIndex:1];
       anArray = [aDict allKeys];
       for (jdx = 0, count = [anArray count]; jdx < count; jdx++) {
-	aKey = [anArray objectAtIndex:jdx];
-	[mString appendFormat:@" %@=\"%@\"", [aKey description],
-		 [[[aDict objectForKey:aKey] description] xmlEntityEncodedString]];
+        aKey = [anArray objectAtIndex:jdx];
+        [mString appendFormat:@" %@=\"%@\"", [aKey description],
+                 [[[aDict objectForKey:aKey] description] xmlEntityEncodedString]];
       }
     }
     else
@@ -492,7 +492,7 @@
       [mString appendFormat:@" />"];
     else
       [mString appendFormat:@">%@</%@>",
-	       [[aValue description] xmlEntityEncodedString], [keys[idx] description]];
+               [[aValue description] xmlEntityEncodedString], [keys[idx] description]];
   }
 
   return [mString autorelease];

@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -35,8 +35,8 @@
 #include <string.h>
 #include <errno.h>
 
-#define PATHSEP_CHAR	'/'
-#define PATHSEP_STRING	@"/"
+#define PATHSEP_CHAR    '/'
+#define PATHSEP_STRING  @"/"
 
 #define hexval(c) ({int _c = c; toupper(_c) - '0' - (_c > '9' ? 7 : 0);})
 
@@ -60,15 +60,15 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx copy %s - 0x%lx %s:%i %i\n",
-	    (unsigned long) self, className, (unsigned long) retainer,
-	    file, line, [self retainCount] + 1);
+            (unsigned long) self, className, (unsigned long) retainer,
+            file, line, [self retainCount] + 1);
     CLLeakPrint = pl;
   }
 
   aString->isa = CLStringClass;
   return aString;
 }
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
 -(id) copy
 {
@@ -91,7 +91,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
   CLUInteger i;
   unistr *ustr;
 
-    
+
   CLCheckStringClass(self);
   ustr = (unistr *) self;
   for (i = 0; len && i < len - 1; i++)
@@ -100,42 +100,42 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
       len--;
       switch (ustr->str[i]) {
       case 'b':
-	ustr->str[i] = '\b';
-	break;
+        ustr->str[i] = '\b';
+        break;
 
       case 'f':
-	ustr->str[i] = '\f';
-	break;
+        ustr->str[i] = '\f';
+        break;
 
       case 'n':
-	ustr->str[i] = '\n';
-	break;
+        ustr->str[i] = '\n';
+        break;
 
       case 'r':
-	ustr->str[i] = '\r';
-	break;
+        ustr->str[i] = '\r';
+        break;
 
       case 't':
-	ustr->str[i] = '\t';
-	break;
+        ustr->str[i] = '\t';
+        break;
 
       case 'u':
-	{
-	  unichar c = 0;
-	  int n;
+        {
+          unichar c = 0;
+          int n;
 
 
-	  /* Not using wide tests here cuz it's too complicated */
-	  for (n = 0; n < 4 && i+n+1 < len && isxdigit(ustr->str[i+n+1]); n++) {
-	    c *= 16;
-	    c += hexval(ustr->str[i+n+1]);
-	  }
-	  
-	  ustr->str[i] = c;
-	  memmove(&ustr->str[i+1], &ustr->str[i+n+1], (len - (i+n+1)) * sizeof(unichar));
-	  len -= n;
-	}
-	break;
+          /* Not using wide tests here cuz it's too complicated */
+          for (n = 0; n < 4 && i+n+1 < len && isxdigit(ustr->str[i+n+1]); n++) {
+            c *= 16;
+            c += hexval(ustr->str[i+n+1]);
+          }
+
+          ustr->str[i] = c;
+          memmove(&ustr->str[i+1], &ustr->str[i+n+1], (len - (i+n+1)) * sizeof(unichar));
+          len -= n;
+        }
+        break;
       }
     }
 
@@ -231,7 +231,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
   vasprintf(&str, [format UTF8String], argList);
 
   CLStringConvertEncoding(str, strlen(str), CLUTF8StringEncoding,
-			  &buf, &blen, CLUnicodeStringEncoding, NO);
+                          &buf, &blen, CLUnicodeStringEncoding, NO);
   output._reserved = CLImmutableStackStringClass;
   output.len = blen / sizeof(unichar);
   output.str = (unichar *) buf;
@@ -242,16 +242,16 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
 }
 
 -(CLUInteger) replaceOccurrencesOfString:(CLString *) target
-			      withString:(CLString *) replacement
+                              withString:(CLString *) replacement
 {
   return [self replaceOccurrencesOfString:target withString:replacement
-	       options:0 range:CLMakeRange(0, len)];
+               options:0 range:CLMakeRange(0, len)];
 }
 
 -(CLUInteger) replaceOccurrencesOfString:(CLString *) target
-			      withString:(CLString *) replacement
-				 options:(CLStringCompareOptions) options
-				   range:(CLRange) range
+                              withString:(CLString *) replacement
+                                 options:(CLStringCompareOptions) options
+                                   range:(CLRange) range
 {
   CLRange aRange;
   int replaced = 0;
@@ -302,7 +302,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
 {
   unistr *ustr;
 
-  
+
   ustr = (unistr *) self;
   if (len && ustr->str[len-1] == PATHSEP_CHAR)
     len--;
@@ -317,17 +317,17 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
 
 
   sRange = [self rangeOfString:PATHSEP_STRING options:CLBackwardsSearch
-		 range:CLMakeRange(0, len)];
+                 range:CLMakeRange(0, len)];
   if (!sRange.length)
     len = 0;
   else {
     sRange2 = [self rangeOfString:PATHSEP_STRING options:CLBackwardsSearch
-			    range:CLMakeRange(0, sRange.location)];
+                            range:CLMakeRange(0, sRange.location)];
     if (sRange.location == len - 1) {
       if (sRange2.location == 0)
-	len = 1;
+        len = 1;
       else
-	len = sRange2.location;
+        len = sRange2.location;
     }
     else if (sRange.location == 0)
       len = 1;
@@ -360,7 +360,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
 {
   int length;
 
-  
+
   if (![self hasPathPrefix:aPrefix])
     return;
 
@@ -388,7 +388,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
     free(stor->utf8);
     stor->utf8 = NULL;
   }
-  
+
   ustr = (unistr *) self;
   for (i = 0; i < ustr->len; i++)
     ustr->str[i] = towlower(ustr->str[i]);
@@ -408,7 +408,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
     free(stor->utf8);
     stor->utf8 = NULL;
   }
-  
+
   ustr = (unistr *) self;
   for (i = 0; i < ustr->len; i++)
     ustr->str[i] = towupper(ustr->str[i]);
@@ -427,7 +427,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
     free(stor->utf8);
     stor->utf8 = NULL;
   }
-  
+
   ustr = (unistr *) self;
   for (i = 0; i < ustr->len; i++) {
     if (!i)
@@ -438,7 +438,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
       ustr->str[i] = towupper(ustr->str[i]);
       /* Special case _id to ID */
       if (i+2 == ustr->len && ustr->str[i] == 'I' && ustr->str[i+1] == 'd')
-	ustr->str[i+1] = towupper(ustr->str[i+1]);
+        ustr->str[i+1] = towupper(ustr->str[i+1]);
     }
   }
 
@@ -469,7 +469,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
     free(stor->utf8);
     stor->utf8 = NULL;
   }
-  
+
   ustr = (unistr *) self;
   for (i = cnt = 0; i < ustr->len; i++)
     if (i && iswupper(ustr->str[i]))
@@ -488,7 +488,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
       i++;
       /* Special case "ID" to "_id" */
       if (i+2 == ustr->len && ustr->str[i] == 'i' && ustr->str[i+1] == 'D')
-	ustr->str[i+1] = towlower(ustr->str[i+1]);
+        ustr->str[i+1] = towlower(ustr->str[i+1]);
     }
     else
       ustr->str[i] = towlower(ustr->str[i]);
@@ -514,7 +514,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
     c = ustr->str[pos];
     for (ent = 0; CLEntities[ent].c; ent++)
       if (c == CLEntities[ent].c)
-	break;
+        break;
 
     estr.len = 0;
     if (CLEntities[ent].c && (!max || ent < max))
@@ -560,44 +560,44 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
   estr.len = 1;
 
   hexStr = CLNewStackString(30);
-  
+
   for (i = 0; CLEntities[i].c; i++) {
     estr.str[0] = CLEntities[i].c;
     [self replaceOccurrencesOfString:CLEntities[i].entity withString:(CLString *) &estr
-	     options:0 range:CLMakeRange(0, len)];
+             options:0 range:CLMakeRange(0, len)];
   }
 
   ustr = (unistr *) self;
   aRange = [((CLString *) ustr) rangeOfString:@"&#" options:0
-					range:CLMakeRange(0, ustr->len)];
+                                        range:CLMakeRange(0, ustr->len)];
   while (aRange.length) {
     if (ustr->str[CLMaxRange(aRange)] == 'x') {
       for (i = CLMaxRange(aRange); i < ustr->len; i++)
-	if (!iswxdigit(ustr->str[i]))
-	  break;
+        if (!iswxdigit(ustr->str[i]))
+          break;
     }
     else {
       for (i = CLMaxRange(aRange); i < ustr->len; i++)
-	if (!iswdigit(ustr->str[i]))
-	  break;
+        if (!iswdigit(ustr->str[i]))
+          break;
     }
     if (i < ustr->len && ustr->str[i] == ';') {
       if (ustr->str[CLMaxRange(aRange)] == 'x') {
-	hexStr.len = 0;
-	istr = CLMakeStackString(&ustr->str[CLMaxRange(aRange)+1],
-				 ustr->len - CLMaxRange(aRange)+1);
-	[((CLMutableString *) &hexStr) appendFormat:@"0x%@", (CLString *) &istr];
-	val = [((CLString *) &hexStr) intValue];
+        hexStr.len = 0;
+        istr = CLMakeStackString(&ustr->str[CLMaxRange(aRange)+1],
+                                 ustr->len - CLMaxRange(aRange)+1);
+        [((CLMutableString *) &hexStr) appendFormat:@"0x%@", (CLString *) &istr];
+        val = [((CLString *) &hexStr) intValue];
       }
       else {
-	istr = CLMakeStackString(&ustr->str[CLMaxRange(aRange)],
-				 ustr->len - CLMaxRange(aRange));
-	val = [((CLString *) &istr) intValue];
+        istr = CLMakeStackString(&ustr->str[CLMaxRange(aRange)],
+                                 ustr->len - CLMaxRange(aRange));
+        val = [((CLString *) &istr) intValue];
       }
       estr.str[0] = val;
       [((CLMutableString *) ustr)
-	replaceCharactersInRange:CLMakeRange(aRange.location, i - aRange.location + 1)
-		      withString:(CLString *) &estr];
+        replaceCharactersInRange:CLMakeRange(aRange.location, i - aRange.location + 1)
+                      withString:(CLString *) &estr];
       aRange.location++;
     }
     else
@@ -624,7 +624,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
 
  /* It's gonna be less than or equal to that */
   percentStr = CLNewStackString(strlen(utf8) * 3);
-  
+
   for (p = percentStr.str; *utf8; p++, utf8++) {
     *p = *utf8;
     if (flag && *utf8 == ' ')
@@ -645,7 +645,7 @@ static char *goodurl = ".0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopq
 {
   unistr *ustr, npStr;
   unichar *src, *dest;
-  
+
 
   ustr = (unistr *) self;
   npStr = CLNewStackString(ustr->len);

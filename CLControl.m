@@ -15,7 +15,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -49,11 +49,11 @@
 
 #include <stdlib.h>
 
-#define QUERY_SESSIONID	@"CLsid"
+#define QUERY_SESSIONID @"CLsid"
 
 void CLWriteURLForGet(CLStream *stream, id object,
-		      CLData *aData, CLDictionary *localQuery,
-		      BOOL withoutQuery)
+                      CLData *aData, CLDictionary *localQuery,
+                      BOOL withoutQuery)
 {
   int c;
   CLStream *stream2;
@@ -71,7 +71,7 @@ void CLWriteURLForGet(CLStream *stream, id object,
 
   mDict = [localQuery mutableCopy];
   [mDict addEntriesFromDictionary:CLQuery];
-  
+
   /* AvantGo can't parse HTML escape codes in A tags. */
   /* Neither can some crazy proxy server that the Arabians like to use */
   if ([CLUserAgent hasPrefix:@"Mozilla/3.0 (compatible; AvantGo 3.2"] ||
@@ -81,7 +81,7 @@ void CLWriteURLForGet(CLStream *stream, id object,
   if ([CLUserAgent hasPrefix:@"Mozilla/5.0 (compatible; Googlebot/2.1;"] ||
       [CLUserAgent hasPrefix:@"Mediapartners-Google"])
     CLCookiesEnabled = YES;
-  
+
   stream2 = [CLStream openMemoryForWriting];
 
   aURL = nil;
@@ -89,15 +89,15 @@ void CLWriteURLForGet(CLStream *stream, id object,
     aURL = [object baseURL];
   if (aURL && ![CLServerURL isEqual:aURL])
     [stream2 writeString:aURL usingEncoding:CLUTF8StringEncoding];
-  
-  if (CLDelegate && 
+
+  if (CLDelegate &&
       [CLDelegate respondsTo:@selector(delegateEncodeSimpleURL:localQuery:)] &&
 #if 0
       [object respondsTo:@selector(target)] &&
       [object respondsTo:@selector(action)] &&
 #endif
       (aString = [CLDelegate delegateEncodeSimpleURL:object
-			     localQuery:mDict])) {
+                             localQuery:mDict])) {
     if (![aString isAbsolutePath])
       [stream2 writeFormat:@"%@/%@" usingEncoding:CLUTF8StringEncoding, CLWebName, aString];
     else
@@ -111,7 +111,7 @@ void CLWriteURLForGet(CLStream *stream, id object,
 
     if ((aString = [mDict objectForKey:CL_URLSEL])) {
       if ([aString length] && [aString characterAtIndex:[aString length]-1] == ':')
-	aString = [aString substringToIndex:[aString length]-1];
+        aString = [aString substringToIndex:[aString length]-1];
       CLPrintf(stream2, @"%@", aString);
       [mDict removeObjectForKey:CL_URLSEL];
     }
@@ -125,13 +125,13 @@ void CLWriteURLForGet(CLStream *stream, id object,
   }
 
   /* FIXME - find a way to differentiate between a browser with no
-     cookies set yet and a robot */  
-  if (1 || CLCookiesEnabled) 
+     cookies set yet and a robot */
+  if (1 || CLCookiesEnabled)
     [mDict removeObjectForKey:QUERY_SESSIONID];
   else {
     int sid;
 
-    
+
     if ((sid = [[[CLManager manager] activeSession] objectID]))
       [mDict setObject:[CLNumber numberWithInt:sid] forKey:QUERY_SESSIONID];
   }
@@ -142,23 +142,23 @@ void CLWriteURLForGet(CLStream *stream, id object,
     int i, j;
     id aValue;
 
-    
+
     keys = [mDict allKeys];
     for (c = '?', i = 0, j = [keys count]; i < j; i++, c = '&') {
       aKey = [keys objectAtIndex:i];
       aValue = [mDict objectForKey:aKey];
       if (aValue && aValue != CLNullObject)
-	CLPrintf(stream2, @"%c%@=%@", c, [[aKey description] stringByAddingPercentEscapes],
-		 [[aValue description] stringByAddingPercentEscapes]);
+        CLPrintf(stream2, @"%c%@=%@", c, [[aKey description] stringByAddingPercentEscapes],
+                 [[aValue description] stringByAddingPercentEscapes]);
       else
-	CLPrintf(stream2, @"%c%@", c, [[aKey description] stringByAddingPercentEscapes]);
+        CLPrintf(stream2, @"%c%@", c, [[aKey description] stringByAddingPercentEscapes]);
     }
   }
 
   aString = [[CLString alloc] initWithBytes:[stream2 bytes] length:[stream2 length]
-				   encoding:CLUTF8StringEncoding];
+                                   encoding:CLUTF8StringEncoding];
   [stream writeString:dumbBrowser ? aString : [aString entityEncodedString]
-	usingEncoding:CLUTF8StringEncoding];
+        usingEncoding:CLUTF8StringEncoding];
   [stream2 close];
   [aString release];
 
@@ -167,12 +167,12 @@ void CLWriteURLForGet(CLStream *stream, id object,
     CLString *aKey;
     CLArray *keys;
     int i, j;
-    
+
     keys = [CLQuery allKeys];
     for (i = 0, j = [keys count]; i < j; i++) {
       aKey = [keys objectAtIndex:i];
       if ([aKey hasPrefix:@"url"])
-	[CLQuery removeObjectForKey:aKey];
+        [CLQuery removeObjectForKey:aKey];
     }
   }
 #endif
@@ -180,11 +180,11 @@ void CLWriteURLForGet(CLStream *stream, id object,
   [mDict release];
   [pool release];
 
-  return;  
+  return;
 }
 
 void CLWriteURL(CLStream *stream, id object,
-		CLData *aData, CLDictionary *localQuery)
+                CLData *aData, CLDictionary *localQuery)
 {
   CLWriteURLForGet(stream, object, aData, localQuery, NO);
 }
@@ -204,35 +204,35 @@ void CLWriteURL(CLStream *stream, id object,
 
   if ((aString = [CLManager configOption:@"RewriteRule"])) {
     anArray = [aString decodeCSVUsingCharacterSet:
-			 [CLCharacterSet whitespaceAndNewlineCharacterSet]];
+                         [CLCharacterSet whitespaceAndNewlineCharacterSet]];
     /* decodeCSVUsingCharacterSet will treat runs of characters in the
        set as individual separators and insert empty strings between
        them. */
     for (i = 0, j = [anArray count]; i < j && (!regString || !newString); i++) {
       aString = [anArray objectAtIndex:i];
       if ([aString length]) {
-	if (!regString)
-	  regString = aString;
-	else
-	  newString = [[aString mutableCopy] autorelease];
+        if (!regString)
+          regString = aString;
+        else
+          newString = [[aString mutableCopy] autorelease];
       }
     }
 
     if (regString && newString) {
       aRegex = [CLRegularExpression regularExpressionFromString:regString];
       if ([aRegex matchesString:aURL substringRanges:&anArray]) {
-	for (i = 1, j = [anArray count]; i < j; i++) {
-	  aRange = [[anArray objectAtIndex:i] rangeValue];
-	  /* FIXME - watch out for escaped $ */
-	  [newString replaceOccurrencesOfString:[CLString stringWithFormat:@"$%i", i]
-		     withString:[aURL substringWithRange:aRange]];
-	}
+        for (i = 1, j = [anArray count]; i < j; i++) {
+          aRange = [[anArray objectAtIndex:i] rangeValue];
+          /* FIXME - watch out for escaped $ */
+          [newString replaceOccurrencesOfString:[CLString stringWithFormat:@"$%i", i]
+                     withString:[aURL substringWithRange:aRange]];
+        }
 
-	aRegex = [CLRegularExpression regularExpressionFromString:@"\\$[0-9]+"];
-	while ([aRegex matchesString:newString substringRanges:&anArray])
-	  [newString deleteCharactersInRange:[[anArray objectAtIndex:0] rangeValue]];
-	
-	aURL = newString;
+        aRegex = [CLRegularExpression regularExpressionFromString:@"\\$[0-9]+"];
+        while ([aRegex matchesString:newString substringRanges:&anArray])
+          [newString deleteCharactersInRange:[[anArray objectAtIndex:0] rangeValue]];
+
+        aURL = newString;
       }
     }
   }
@@ -266,13 +266,13 @@ void CLWriteURL(CLStream *stream, id object,
   CLString *aString;
   BOOL success;
 
-  
+
   [super initFromElement:anElement onPage:aPage];
 
   if ((aString = [attributes objectForCaseInsensitiveString:@"CL_PAGE"])) {
     [self setTarget:[[[CLPageTarget alloc] initFromPath:
-				    [self expandBinding:aString success:&success]]
-		      autorelease]];
+                                    [self expandBinding:aString success:&success]]
+                      autorelease]];
     [self setAction:@selector(showPage:)];
   }
 
@@ -286,7 +286,7 @@ void CLWriteURL(CLStream *stream, id object,
     aRange = [aString rangeOfString:@":"];
     if (aRange.length && aRange.location < [aString length] - 1) {
       [self setTarget:[self expandBinding:[aString substringToIndex:aRange.location]
-				  success:&success]];
+                                  success:&success]];
       aString = [aString substringFromIndex:CLMaxRange(aRange)];
     }
     aString = [self expandBinding:aString success:&success];
@@ -294,19 +294,19 @@ void CLWriteURL(CLStream *stream, id object,
       aString = [aString stringByAppendingString:@":"];
     [self setAction:sel_getUid([aString UTF8String])];
     if (!target && ![attributes objectForCaseInsensitiveString:@"CL_TARGET"])
-      [self setTarget:[page owner]];      
+      [self setTarget:[page owner]];
   }
 
   if ((aString = [attributes objectForCaseInsensitiveString:@"CL_JSON"])) {
     [self setTarget:[[[CLJSONTarget alloc] initFromDatasource:[self datasource]
-						      binding:aString] autorelease]];
+                                                      binding:aString] autorelease]];
     [self setAction:@selector(showPage:)];
   }
-  
+
   if ((aString = [attributes objectForCaseInsensitiveString:@"CL_WRITECONTENTS"])) {
     [self setWriteContents:[aString boolValue]];
   }
-  
+
   return self;
 }
 
@@ -346,7 +346,7 @@ void CLWriteURL(CLStream *stream, id object,
 -(void) setEnabled:(BOOL) flag
 {
   [attributes setObject:[CLNumber numberWithBool:flag]
-	      forCaseInsensitiveString:@"CL_ENABLED"];
+              forCaseInsensitiveString:@"CL_ENABLED"];
   return;
 }
 
@@ -387,17 +387,17 @@ void CLWriteURL(CLStream *stream, id object,
 
 
     if (!(perform = [[CLManager manager] checkPermission:self]) &&
-	[CLDelegate respondsTo:@selector(accessDenied:)])
+        [CLDelegate respondsTo:@selector(accessDenied:)])
       [CLDelegate accessDenied:self];
-    
+
     if (perform && [target respondsTo:@selector(controlShouldPerform:)])
       perform = [target controlShouldPerform:self];
     owner = [page owner];
     if (perform && owner && owner != target &&
-	[owner respondsTo:@selector(controlShouldPerform:)])
+        [owner respondsTo:@selector(controlShouldPerform:)])
       perform = [owner controlShouldPerform:self];
     if (perform && CLDelegate && CLDelegate != target && CLDelegate != owner &&
-	[CLDelegate respondsTo:@selector(controlShouldPerform:)])
+        [CLDelegate respondsTo:@selector(controlShouldPerform:)])
       perform = [CLDelegate controlShouldPerform:self];
     if (perform) {
       [target perform:action with:self];
@@ -461,16 +461,16 @@ void CLWriteURL(CLStream *stream, id object,
       [anImage setParentBlock:self];
       [[anImage attributes] setObject:aString forCaseInsensitiveString:@"CL_BINDING"];
       if ((aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"]))
-	[[anImage attributes] setObject:aString forCaseInsensitiveString:@"CL_EFFECTS"];
+        [[anImage attributes] setObject:aString forCaseInsensitiveString:@"CL_EFFECTS"];
       [anImage updateBinding];
       aURL = [anImage generateURL];
       aRep = [anImage imageRep];
       if ((aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"]))
-	aRep = [aRep imageRepFromEffects:aString];
+        aRep = [aRep imageRepFromEffects:aString];
       [attributes setObject:[CLNumber numberWithInt:[aRep size].width]
-		  forCaseInsensitiveString:@"WIDTH"];
+                  forCaseInsensitiveString:@"WIDTH"];
       [attributes setObject:[CLNumber numberWithInt:[aRep size].height]
-		  forCaseInsensitiveString:@"HEIGHT"];
+                  forCaseInsensitiveString:@"HEIGHT"];
       [anImage release];
     }
     else if ((aString = [attributes objectForCaseInsensitiveString:@"CL_HREF"]))
@@ -506,7 +506,7 @@ void CLWriteURL(CLStream *stream, id object,
   CLPage *aPage = nil;
   id anObject;
 
-  
+
   if ([CLDelegate respondsTo:@selector(control:readPersistentData:)])
     [CLDelegate control:self readPersistentData:stream];
 
@@ -521,7 +521,7 @@ void CLWriteURL(CLStream *stream, id object,
   if ([filename isAbsolutePath] &&
       ![filename hasPathPrefix:[CLEnvironment objectForKey:@"DOCUMENT_ROOT"]])
     filename = [filename lastPathComponent];
-  
+
   if (aString)
     [attributes setObject:aString forCaseInsensitiveString:@"ID"];
   aString = [CLQuery objectForKey:CL_URLSEL];
@@ -540,9 +540,9 @@ void CLWriteURL(CLStream *stream, id object,
 
   if (aString) {
     if ((anObject = [aPage objectWithID:aString]) &&
-	[anObject respondsTo:@selector(setTarget:)])
+        [anObject respondsTo:@selector(setTarget:)])
       [anObject setTarget:target];
-  }  
+  }
 
   return;
 }
@@ -564,10 +564,10 @@ void CLWriteURL(CLStream *stream, id object,
       [((CLMutableString *) &filename) deletePathPrefix:CLAppPath];
     else
       [((CLMutableString *) &filename) deletePathPrefix:
-			    [CLEnvironment objectForKey:@"DOCUMENT_ROOT"]];
+                            [CLEnvironment objectForKey:@"DOCUMENT_ROOT"]];
     fString = (CLString *) &filename;
   }
-  
+
   anObject = [page owner];
   if (!(aString = [attributes objectForCaseInsensitiveString:@"ID"]) &&
       (aString = [attributes objectForCaseInsensitiveString:@"CL_ID"])) {
@@ -591,8 +591,8 @@ void CLWriteURL(CLStream *stream, id object,
   if (!ignore)
     ignore = [CLMutableArray array];
   [ignore addObjects:@"CL_ACTION", @"CL_TARGET", @"CL_JSON", @"CL_PAGE", @"CL_QUERY",
-	  @"CL_WRITECONTENTS", @"CL_HREF", @"CL_IMAGE", nil];
-  
+          @"CL_WRITECONTENTS", @"CL_HREF", @"CL_IMAGE", nil];
+
   [super writeAttributes:stream ignore:ignore];
   return;
 }
@@ -613,11 +613,11 @@ void CLWriteURL(CLStream *stream, id object,
        [attributes objectForCaseInsensitiveString:@"CL_HREF"] ||
        ![title caseInsensitiveCompare:@"A"]))
     writeATag = YES;
-  
+
   if (writeATag) {
     CLPrintf(stream, @"<A");
     if (action || [attributes objectForCaseInsensitiveString:@"CL_HREF"] ||
-	[attributes objectForCaseInsensitiveString:@"CL_IMAGE"])
+        [attributes objectForCaseInsensitiveString:@"CL_IMAGE"])
       CLPrintf(stream, @" HREF=\"%@\"", [self generateURL]);
 
 #if 0
@@ -630,17 +630,17 @@ void CLWriteURL(CLStream *stream, id object,
      */
     {
       CLString *aString;
-      
+
 
       /* FIXME - don't do this unless the page is actually writing us out */
       if ((aString = [attributes objectForCaseInsensitiveString:@"HREF"]) &&
-	  [aString length] && [aString characterAtIndex:0] == '#' && CLWebName)
-	[attributes setObject:[CLString stringWithFormat:@"%@%s%@",
-					CLWebName, getenv("PATH_INFO"), aString]
-		    forCaseInsensitiveString:@"HREF"];
+          [aString length] && [aString characterAtIndex:0] == '#' && CLWebName)
+        [attributes setObject:[CLString stringWithFormat:@"%@%s%@",
+                                        CLWebName, getenv("PATH_INFO"), aString]
+                    forCaseInsensitiveString:@"HREF"];
     }
 #endif
-    
+
     [self writeAttributes:stream ignore:nil];
 
     CLPrintf(stream, @">");
@@ -652,7 +652,7 @@ void CLWriteURL(CLStream *stream, id object,
     CLPrintf(stream, @"</A>");
 
   [pool release];
-  
+
   return;
 }
 
@@ -664,7 +664,7 @@ void CLWriteURL(CLStream *stream, id object,
 
 
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
   aCopy->target = [target retain];
   aCopy->action = action;
   aCopy->writeContents = writeContents;

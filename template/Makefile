@@ -2,7 +2,7 @@ PRODUCT=        cl
 # If PRODUCT= line is missing, be sure to insert one
 # $(PRODUCT).c will be automatically compiled, so it
 # doesn't need to be inserted below
-CLASSES=        
+CLASSES=
 CFILES=
 MFILES= $(PRODUCT)_main.m
 CFLAGS= -m32 -g -Wall -Wno-import -I$(HOME)/Unix/$(OSTYPE)/include \

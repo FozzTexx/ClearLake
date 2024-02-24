@@ -105,8 +105,8 @@
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx copy %s - 0x%lx %s:%i %i\n",
-	    (unsigned long) self, className, (unsigned long) retainer,
-	    file, line, [self retainCount] + 1);
+            (unsigned long) self, className, (unsigned long) retainer,
+            file, line, [self retainCount] + 1);
     CLLeakPrint = pl;
   }
 
@@ -151,9 +151,9 @@
 
   [anObject retain];
   if ((oldObject = CLHashTableKeyForKey(storage->table, aKey, [aKey hash],
-					@selector(isEqual:)))) {
+                                        @selector(isEqual:)))) {
     oldObject2 = CLHashTableRemoveDataForKey(storage->table, aKey, [aKey hash],
-					     @selector(isEqual:));
+                                             @selector(isEqual:));
     [oldObject release];
     [oldObject2 release];
   }
@@ -175,9 +175,9 @@
 
 
   if ((oldKey = CLHashTableKeyForKey(storage->table, aKey, [aKey hash],
-				     @selector(isEqualToCaseInsensitiveString:)))) {
+                                     @selector(isEqualToCaseInsensitiveString:)))) {
     oldObject = CLHashTableRemoveDataForKey(storage->table, oldKey, [oldKey hash],
-					    @selector(isEqualToCaseInsensitiveString:));
+                                            @selector(isEqualToCaseInsensitiveString:));
     [oldKey release];
     [oldObject release];
 
@@ -198,9 +198,9 @@
 
 
   if ((oldKey = CLHashTableKeyForKey(storage->table, aKey, [aKey hash],
-				     @selector(isEqual:)))) {
+                                     @selector(isEqual:)))) {
     oldObject = CLHashTableRemoveDataForKey(storage->table, oldKey, [oldKey hash],
-					    @selector(isEqual:));
+                                            @selector(isEqual:));
     [oldKey release];
     [oldObject release];
 
@@ -228,7 +228,7 @@
     CLHashTableGetKeys(storage->table, keys);
     for (idx = 0; idx < storage->table->count; idx++) {
       oldObject = CLHashTableRemoveDataForKey(storage->table, keys[idx], [keys[idx] hash],
-					      @selector(isEqual:));
+                                              @selector(isEqual:));
       [keys[idx] release];
       [oldObject release];
     }
@@ -283,7 +283,7 @@
 
 
   return CLHashTableDataForKey(storage->table, aKey, [aKey hash],
-			       @selector(isEqualToCaseInsensitiveString:));
+                               @selector(isEqualToCaseInsensitiveString:));
 }
 
 -(CLArray *) allKeys

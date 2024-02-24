@@ -9,9 +9,9 @@
 @interface CLMutableDictionary (CLPythonExtensions)
 +(id) dictionaryWithPythonObject:(PyObject *) pyList;
 @end
-     
+
 @interface CLMutableDictionaryBridge:CLMutableDictionary <CLDictionarySubclass,
-							    CLMutableDictionarySubclass>
+                                                            CLMutableDictionarySubclass>
 -(id) initWithPythonObject:(PyObject *) pyObject;
 -(void) dealloc;
 @end
