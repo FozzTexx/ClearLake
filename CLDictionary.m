@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -34,9 +34,16 @@
 
 @implementation CLDictionary
 
++(id) alloc
+{
+  if (self == CLDictionaryClass)
+    self = CLInternalDictionaryClass;
+  return [super alloc];
+}
+
 +(id) dictionary
 {
-  return [[[self alloc] init] autorelease];
+  return [[[CLInternalDictionary alloc] init] autorelease];
 }
 
 +(id) dictionaryWithObjectsAndKeys:(id) firstObject , ...
@@ -46,7 +53,7 @@
   va_list ap;
   id anObject;
 
-  
+
   va_start(ap, firstObject);
   for (i = 1; va_arg(ap, id); i++)
     ;
@@ -59,7 +66,7 @@
 
   va_start(ap, firstObject);
   objects[0] = firstObject;
-  keys[0] = va_arg(ap, id);  
+  keys[0] = va_arg(ap, id);
 
   for (i = 1; (anObject = va_arg(ap, id)); i ++) {
     objects[i] = anObject;
@@ -67,57 +74,30 @@
   }
   va_end(ap);
 
-  anObject = [[[self alloc] initWithObjects:objects forKeys:keys count:i] autorelease];
+  anObject = [[[CLInternalDictionary alloc] initWithObjects:objects forKeys:keys count:i]
+	       autorelease];
   return anObject;
-}
-
--(id) init
-{
-  return [self initWithSize:1024];
-}
-
--(id) initWithSize:(CLUInteger) size
-{
-  CLDictionaryStorage *storage;
-
-
-  [super init];
-  dictionaryData = storage = calloc(1, sizeof(*storage));
-  storage->table = CLHashTableAlloc(size);
-  return self;
 }
 
 -(id) initFromDictionary:(CLDictionary *) aDict
 {
-  CLDictionaryStorage *storage;
-  CLArray *allKeys;
-  int i, j;
-  id aKey;
+  CLUInteger count;
+  id *objects, *keys;
 
-  
+
   [self init];
-  storage = dictionaryData;
-  allKeys = [aDict allKeys];
-  for (i = 0, j = [allKeys count]; i < j; i++) {
-    aKey = [allKeys objectAtIndex:i];
-    CLHashTableSetData(storage->table, [[aDict objectForKey:aKey] retain],
-		       [aKey copy], [aKey hash]);
-  }
 
-  return self;
-}
+  count = [aDict count];
+  if (!(objects = alloca(sizeof(id) * count)))
+    [self error:@"Unable to allocate memory"];
+  if (!(keys = alloca(sizeof(id) * count)))
+    [self error:@"Unable to allocate memory"];
 
--(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count
-{
-  CLDictionaryStorage *storage;
-  CLUInteger i;
-  
-  
-  [self init];
-  storage = dictionaryData;
-  for (i = 0; i < count; i++)
-    CLHashTableSetData(storage->table, [objects[i] retain], [keys[i] copy], [keys[i] hash]);
-  
+  [[aDict allKeys] getObjects:keys];
+  [[aDict allValues] getObjects:objects];
+
+  [self initWithObjects:objects forKeys:keys count:count];
+
   return self;
 }
 
@@ -128,7 +108,7 @@
   va_list ap;
   id anObject;
 
-  
+
   va_start(ap, firstObject);
   for (i = 1; va_arg(ap, id); i++)
     ;
@@ -141,7 +121,7 @@
 
   va_start(ap, firstObject);
   objects[0] = firstObject;
-  keys[0] = va_arg(ap, id);  
+  keys[0] = va_arg(ap, id);
 
   for (i = 1; (anObject = va_arg(ap, id)); i ++) {
     objects[i] = anObject;
@@ -153,53 +133,9 @@
   return anObject;
 }
 
--(void) dealloc
-{
-  CLDictionaryStorage *storage = dictionaryData;
-  CLUInteger idx;
-  id *data;
-
-
-  if (storage->table->count) {
-    if (!(data = alloca(sizeof(id) * storage->table->count)))
-      [self error:@"Unable to allocate memory"];
-    CLHashTableGetData(storage->table, (void **) data);
-    for (idx = 0; idx < storage->table->count; idx++)
-      [data[idx] release];
-    CLHashTableGetKeys(storage->table, data);
-    for (idx = 0; idx < storage->table->count; idx++)
-      [data[idx] release];
-  }
-  CLHashTableFree(storage->table);
-  [storage->_keys release];
-  [storage->_values release];
-
-  free(storage);
-  [super dealloc];
-  return;
-}
-
 -(id) mutableCopy
 {
   return [[CLMutableDictionary alloc] initFromDictionary:self];
-}
-
--(id) read:(CLStream *) stream
-{
-  CLDictionaryStorage *storage = dictionaryData;
-  CLUInteger idx, count;
-  id aKey, aValue;
-
-  
-  [super read:stream];
-  storage->table = CLHashTableAlloc(1024);
-  [stream readType:@"u" data:&count];
-  for (idx = 0; idx < count; idx++) {
-    [stream readTypes:@"@@", &aKey, &aValue];
-    CLHashTableSetData(storage->table, aValue, aKey, [aKey hash]);
-  }
-
-  return self;
 }
 
 -(void) write:(CLStream *) stream
@@ -208,7 +144,7 @@
   id aKey, aValue;
   int i, j;
 
-  
+
   [super write:stream];
   anArray = [self allKeys];
   j = [anArray count];
@@ -220,6 +156,161 @@
   }
 
   return;
+}
+
+-(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
+{
+  CLRange aRange;
+  CLString *aString;
+  id anObject = nil;
+
+
+  *found = NO;
+
+  aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
+  if (!aRange.length)
+    aString = aBinding;
+  else
+    aString = [aBinding substringToIndex:aRange.location];
+
+  if (!(anObject = [self objectForKey:aString]))
+    return [super objectValueForBinding:aBinding found:found];
+
+  *found = YES;
+
+  if (aRange.length)
+    anObject = [anObject objectValueForBinding:
+			   [aBinding substringFromIndex:CLMaxRange(aRange)] found:found];
+
+  return anObject;
+}
+
+-(CLString *) description
+{
+  return [self propertyList];
+}
+
+#if DEBUG_RETAIN
+#undef copy
+#undef retain
+-(id) copy:(const char *) file :(int) line :(id) retainer
+{
+  return [self retain:file :line :retainer];
+}
+#else
+-(id) copy
+{
+  return [self retain];
+}
+#endif
+
+@end
+
+@implementation CLDictionary (CLSubclassMethods)
+
+-(id) init
+{
+  if ([self class] == CLDictionaryClass)
+    [self error:@"%s: %s must be implemented by subclass",
+	  object_getClassName(self), sel_getName(_cmd)];
+  return [super init];
+}
+
+-(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count
+{
+  [self error:@"%s: %s must be implemented by subclass",
+	  object_getClassName(self), sel_getName(_cmd)];
+  return nil;
+}
+
+-(CLUInteger) count
+{
+  [self error:@"%s: %s must be implemented by subclass",
+	object_getClassName(self), sel_getName(_cmd)];
+  return 0;
+}
+
+-(id) objectForKey:(id) aKey
+{
+  [self error:@"%s: %s must be implemented by subclass",
+	object_getClassName(self), sel_getName(_cmd)];
+  return nil;
+}
+
+-(id) objectForCaseInsensitiveString:(CLString *) aKey
+{
+  [self error:@"%s: %s must be implemented by subclass",
+	object_getClassName(self), sel_getName(_cmd)];
+  return nil;
+}
+
+-(CLArray *) allKeys
+{
+  [self error:@"%s: %s must be implemented by subclass",
+	object_getClassName(self), sel_getName(_cmd)];
+  return nil;
+}
+
+-(CLArray *) allValues
+{
+  [self error:@"%s: %s must be implemented by subclass",
+	object_getClassName(self), sel_getName(_cmd)];
+  return nil;
+}
+
+@end
+
+@implementation CLInternalDictionary
+
+-(id) init
+{
+  return [self initWithSize:1024];
+}
+
+-(id) initWithSize:(CLUInteger) size
+{
+  [super init];
+  dictionaryData = CLInternalDictionaryInitStorage(size);
+  return self;
+}
+
+-(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count
+{
+  CLDictionaryStorage *storage;
+  CLUInteger i;
+
+
+  [self init];
+  storage = dictionaryData;
+  for (i = 0; i < count; i++)
+    CLHashTableSetData(storage->table, [objects[i] retain], [keys[i] copy], [keys[i] hash]);
+
+  return self;
+}
+
+-(void) dealloc
+{
+  CLInternalDictionaryDeallocStorage((CLDictionaryStorage *) dictionaryData);
+  [super dealloc];
+  return;
+}
+
+-(id) read:(CLStream *) stream
+{
+  CLDictionaryStorage *storage = dictionaryData;
+  CLUInteger idx, count;
+  id aKey, aValue;
+
+
+  [super read:stream];
+  storage->table = CLHashTableAlloc(1024);
+  [stream readType:@"u" data:&count];
+  for (idx = 0; idx < count; idx++) {
+    [stream readTypes:@"@@", &aKey, &aValue];
+    CLHashTableSetData(storage->table, aValue, aKey, [aKey hash]);
+  }
+
+  return self;
 }
 
 -(id) objectForKey:(id) aKey
@@ -244,7 +335,7 @@
   CLDictionaryStorage *storage = dictionaryData;
   id *data;
 
-  
+
   if (!storage->_keys) {
     if (!(data = alloca(sizeof(id) * storage->table->count)))
       [self error:@"Unable to allocate memory"];
@@ -273,7 +364,7 @@
   for (idx = 0; idx < storage->table->count; idx++)
     if ([anObject isEqual:data[idx]])
       [anArray addObject:keys[idx]];
-  
+
   return [anArray autorelease];
 }
 
@@ -289,7 +380,7 @@
     CLHashTableGetData(storage->table, (void **) data);
     storage->_values = [[CLArray alloc] initWithObjects:data count:storage->table->count];
   }
-  
+
   return storage->_values;
 }
 
@@ -299,33 +390,6 @@
 
 
   return storage->table->count;
-}
-
--(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
-{
-  CLRange aRange;
-  CLString *aString;
-  id anObject = nil;
-
-
-  *found = NO;
-  
-  aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
-  if (!aRange.length)
-    aString = aBinding;
-  else
-    aString = [aBinding substringToIndex:aRange.location];
-
-  if (!(anObject = [self objectForKey:aString]))
-    return [super objectValueForBinding:aBinding found:found];
-
-  *found = YES;
-  
-  if (aRange.length)
-    anObject = [anObject objectValueForBinding:
-			   [aBinding substringFromIndex:CLMaxRange(aRange)] found:found];
-  
-  return anObject;
 }
 
 -(CLString *) propertyList
@@ -390,11 +454,6 @@
   return [mString autorelease];
 }
 
--(CLString *) description
-{
-  return [self propertyList];
-}
-
 -(CLString *) encodeXML
 {
   CLDictionaryStorage *storage = dictionaryData;
@@ -428,7 +487,7 @@
     }
     else
       [mString appendFormat:@"<%@", [keys[idx] description]];
-    
+
     if (!aValue || aValue == CLNullObject)
       [mString appendFormat:@" />"];
     else
@@ -438,7 +497,7 @@
 
   return [mString autorelease];
 }
- 
+
 -(BOOL) isEqual:(id) anObject
 {
   CLDictionaryStorage *storage = dictionaryData;
@@ -449,7 +508,7 @@
 
   if (self == anObject)
     return YES;
-  
+
   if (![anObject isKindOfClass:CLDictionaryClass])
     return NO;
 
@@ -458,7 +517,7 @@
 
   if ([self hash] != [anObject hash])
     return NO;
-  
+
   if (!(data = alloca(sizeof(id) * storage->table->count)))
     [self error:@"Unable to allocate memory"];
   CLHashTableGetKeys(storage->table, data);
@@ -467,7 +526,7 @@
       res = NO;
       break;
     }
-  
+
   return res;
 }
 
@@ -494,18 +553,40 @@
   return storage->_hash;
 }
 
-#if DEBUG_RETAIN
-#undef copy
-#undef retain
--(id) copy:(const char *) file :(int) line :(id) retainer
-{
-  return [self retain:file :line :retainer];
-}
-#else
--(id) copy
-{
-  return [self retain];
-}
-#endif
-
 @end
+
+void *CLInternalDictionaryInitStorage(CLUInteger size)
+{
+  CLDictionaryStorage *storage;
+
+
+  storage = calloc(1, sizeof(*storage));
+  storage->table = CLHashTableAlloc(size);
+  return storage;
+}
+
+void CLInternalDictionaryDeallocStorage(CLDictionaryStorage *storage)
+{
+  CLUInteger idx;
+  id *data;
+
+
+  if (storage->table->count) {
+    if (!(data = alloca(sizeof(id) * storage->table->count))) {
+      fprintf(stderr, "error: Unable to allocate memory");
+      abort();
+    }
+    CLHashTableGetData(storage->table, (void **) data);
+    for (idx = 0; idx < storage->table->count; idx++)
+      [data[idx] release];
+    CLHashTableGetKeys(storage->table, data);
+    for (idx = 0; idx < storage->table->count; idx++)
+      [data[idx] release];
+  }
+  CLHashTableFree(storage->table);
+  [storage->_keys release];
+  [storage->_values release];
+
+  free(storage);
+  return;
+}

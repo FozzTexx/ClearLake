@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -51,7 +51,7 @@ static int CLQsortCompareBySelector(const void *ptr1, const void *ptr2)
     return CLOrderedAscending;
   if (object1 && !object2)
     return CLOrderedDescending;
-  
+
   if ((imp = [object1 methodFor:CLQsortComparator]))
     return ((CLComparisonResult (*) (id,SEL,id)) imp)(object1, CLQsortComparator, object2);
 
@@ -81,7 +81,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
   descriptors = [CLQsortStack lastObject];
   len = [descriptors count];
-  
+
   for (i = 0; i < len; i++)
     if ((res = [[descriptors objectAtIndex:i] compareObject:object1 toObject:object2]))
       break;
@@ -108,14 +108,65 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   return [self insertObject:anObject atIndex:[self count]];
 }
 
+-(void) addObjects:(id) firstObj, ...
+{
+  va_list ap;
+  id anObject;
+
+
+  [self addObject:firstObj];
+  va_start(ap, firstObj);
+  while ((anObject = va_arg(ap, id)))
+    [self addObject:anObject];
+  va_end(ap);
+
+  return;
+}
+
+-(void) addObjectsFromArray:(CLArray *) otherArray
+{
+  CLUInteger idx, count;
+
+
+  for (idx = 0, count = [otherArray count]; idx < count; idx++)
+    [self addObject:[otherArray objectAtIndex:idx]];
+
+  return;
+}
+
+-(void) removeObject:(id) anObject
+{
+  CLUInteger idx;
+
+
+  idx = [self indexOfObject:anObject];
+  if (idx != CLNotFound)
+    [self removeObjectAtIndex:idx];
+  return;
+}
+
 -(void) removeObjectAtIndex:(CLUInteger) index
 {
   [self removeObjectsInRange:CLMakeRange(index, 1)];
 }
-  
+
 -(void) removeAllObjects
 {
   [self removeObjectsInRange:CLMakeRange(0, [self count])];
+  return;
+}
+
+-(void) removeLastObject
+{
+  CLUInteger count;
+
+
+  count = [self count];
+  if (!count) {
+    /* FIXME - raise an exception */
+    return;
+  }
+  [self removeObjectsInRange:CLMakeRange(count - 1, 1)];
   return;
 }
 
@@ -125,7 +176,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 #include <stdio.h>
 -(id) copy:(const char *) file :(int) line :(id) retainer
 {
-  CLMutableArray *anArray = [self mutableCopy];
+  CLMutableArray *anArray = [[CLInternalMutableArray alloc] initWithArray:self];
   extern int CLLeakPrint;
 
 
@@ -141,42 +192,54 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
     CLLeakPrint = pl;
   }
 
-  anArray->isa = CLArrayClass;
   return anArray;
 }
 #else
 -(id) copy
 {
-  CLMutableArray *anArray = [self mutableCopy];
-
-
-  anArray->isa = CLArrayClass;
-  return anArray;
+  return [[[CLInternalMutableArray alloc] initWithArray:self] autorelease];
 }
 #endif
 
 @end
 
-@implementation CLInternalMutableArray
+@implementation CLMutableArray (CLSubclassMethods)
 
--(void) immutable
+-(id) init
 {
-  self->isa = CLInternalArrayClass;
+  if ([self class] == CLArrayClass)
+    [self error:@"%s: %s must be implemented by subclass",
+	  object_getClassName(self), sel_getName(_cmd)];
+  return [super init];
 }
+
+-(void) insertObject:(id) anObject atIndex:(CLUInteger) index
+{
+  [self error:@"%s: %s must be implemented by subclass",
+	object_getClassName(self), sel_getName(_cmd)];
+  return;
+}
+
+-(void) removeObjectsInRange:(CLRange) aRange
+{
+  [self error:@"%s: %s must be implemented by subclass",
+	object_getClassName(self), sel_getName(_cmd)];
+  return;
+}
+
+@end
+
+@implementation CLInternalMutableArray
 
 -(void) grow
 {
   CLArrayStorage *storage = arrayData;
 
 
-#if 0
-  if (storage->maxElements < 128)
-    storage->maxElements *= 2;
-  else
-#endif
-    storage->maxElements += CLARRAY_BLOCKSIZE;
-  if (!(storage->dataPtr = realloc(storage->dataPtr, storage->maxElements * sizeof(id) + 1)))
+  storage->maxElements += CLARRAY_BLOCKSIZE;
+  if (!(storage->dataPtr = realloc(storage->dataPtr, storage->maxElements * sizeof(id))))
     [self error:@"Unable to allocate memory"];
+
   return;
 }
 
@@ -186,7 +249,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   CLUInteger idx, count;
   va_list ap;
 
-  
+
   va_start(ap, firstObj);
   for (count = 1; va_arg(ap, id); count++)
     ;
@@ -211,7 +274,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   CLArrayStorage *storage = arrayData;
   CLUInteger idx;
 
-  
+
   while (storage->numElements + [otherArray count] > storage->maxElements)
     [self grow];
   [otherArray getObjects:&storage->dataPtr[storage->numElements]];
@@ -231,11 +294,12 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
     [self error:@"Attempt to insert nil"];
   if (index > storage->numElements)
     [self error:@"Index out of range"];
-  
+
   if (storage->numElements+1 > storage->maxElements)
     [self grow];
   if (storage->numElements - index)
-    memmove(&storage->dataPtr[index+1], &storage->dataPtr[index], (storage->numElements - index) * sizeof(id));
+    memmove(&storage->dataPtr[index+1], &storage->dataPtr[index],
+	    (storage->numElements - index) * sizeof(id));
   storage->dataPtr[index] = anObject;
   storage->numElements++;
   [anObject retain];
@@ -253,21 +317,8 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
       [(CLMutableArray *) self removeObjectAtIndex:idx];
       break;
     }
-      
-
-  return;
-}
-
--(void) removeLastObject
-{
-  CLArrayStorage *storage = arrayData;
 
 
-  if (!storage->numElements) {
-    /* FIXME - raise an exception */
-    return;
-  }
-  [self removeObjectsInRange:CLMakeRange(storage->numElements-1, 1)];
   return;
 }
 
@@ -284,7 +335,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
     shorter = anArray;
     longer = self;
   }
-  
+
   for (idx = 0, count = [shorter count]; idx < count; idx++) {
     pos = [longer indexOfObject:[shorter objectAtIndex:idx]];
     if (pos != CLNotFound) {
@@ -306,7 +357,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   CLUInteger idx;
   id *oldData;
 
-  
+
   if (CLMaxRange(aRange) > storage->numElements || !aRange.length)
     return;
 
@@ -321,7 +372,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
   for (idx = 0; idx < aRange.length; idx++)
     [oldData[idx] release];
-  
+
   return;
 }
 
@@ -332,7 +383,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
   if (storage->numElements < 2)
     return;
-  
+
   if (!CLQsortStack) {
     CLQsortStack = [[CLMutableArray alloc] init];
     CLAddToCleanup(CLQsortStack);
@@ -354,7 +405,74 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
     CLQsortComparator = comparator;
     qsort(storage->dataPtr, storage->numElements, sizeof(id), CLQsortCompareBySelector);
   }
-  
+
+  return;
+}
+
+@end
+
+@implementation CLInternalMutableArray (CopiedFromInternalArray)
+
+-(id) init
+{
+  return [self initWithObjects:NULL count:0];
+}
+
+-(id) initWithObjects:(const id *) objects count:(unsigned) count
+{
+  [super init];
+  arrayData = CLInternalArrayInitStorage(objects, count);
+  return self;
+}
+
+-(void) dealloc
+{
+  CLInternalArrayDeallocStorage((CLArrayStorage *) arrayData);
+  [super dealloc];
+  return;
+}
+
+-(CLUInteger) count
+{
+  return ((CLArrayStorage *) arrayData)->numElements;
+}
+
+-(id) objectAtIndex:(CLUInteger) index
+{
+  CLArrayStorage *storage = arrayData;
+
+
+  if (index >= storage->numElements)
+    [self error:@"index beyond length"];
+  return (id) storage->dataPtr[index];
+}
+
+-(id) read:(CLStream *) stream
+{
+  CLArrayStorage *storage = arrayData;
+  CLUInteger idx;
+
+
+  [super read:stream];
+  [stream readTypes:@"I", &storage->numElements];
+  storage->maxElements = storage->numElements;
+  if (!(storage->dataPtr = malloc(sizeof(id) * storage->maxElements)))
+    [self error:@"Unable to alloc dataPtr"];
+  for (idx = 0; idx < storage->numElements; idx++)
+    [stream readTypes:@"@", &storage->dataPtr[idx]];
+  return self;
+}
+
+-(void) write:(CLStream *) stream
+{
+  CLArrayStorage *storage = arrayData;
+  CLUInteger idx;
+
+
+  [super write:stream];
+  [stream writeTypes:@"I", &storage->numElements];
+  for (idx = 0; idx < storage->numElements; idx++)
+    [stream writeTypes:@"@", &storage->dataPtr[idx]];
   return;
 }
 

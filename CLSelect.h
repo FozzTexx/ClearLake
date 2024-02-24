@@ -22,6 +22,10 @@
 #import <ClearLake/CLInput.h>
 
 @interface CLSelect:CLInput
+{
+  id _deferSelected;
+}
+
 -(void) addOption:(CLString *) aString withValue:(id) aValue;
 -(void) removeAllOptions;
 -(void) selectOptionWithValue:(id) aValue;

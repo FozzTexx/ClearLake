@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -29,11 +29,122 @@
 
 @implementation CLMutableDictionary
 
++(id) alloc
+{
+  if (self == CLMutableDictionaryClass)
+    self = CLInternalMutableDictionaryClass;
+  return [super alloc];
+}
+
+-(id) init
+{
+  if ([self class] == CLMutableDictionaryClass)
+    [self error:@"Must be implemented by subclass"];
+  return [super init];
+}
+
+-(void) setObject:(id) anObject forCaseInsensitiveString:(CLString *) aString
+{
+  if (!anObject || !aString)
+    [self error:@"Can't set nil objects!"];
+
+  [anObject retain];
+  [aString retain];
+  [self removeObjectForCaseInsensitiveString:aString];
+  [self setObject:anObject forKey:aString];
+  [anObject release];
+  [aString release];
+
+  return;
+}
+
+-(void) setObjectValue:(id) anObject forVariable:(CLString *) aField
+{
+  [self setObject:anObject forKey:aField];
+  return;
+}
+
+-(void) addEntriesFromDictionary:(CLDictionary *) otherDictionary
+{
+  CLArray *anArray;
+  int i, j;
+  id aKey;
+
+
+  anArray = [otherDictionary allKeys];
+  for (i = 0, j = [anArray count]; i < j; i++) {
+    aKey = [anArray objectAtIndex:i];
+    [self setObject:[otherDictionary objectForKey:aKey] forKey:aKey];
+  }
+
+  return;
+}
+
+/* Doing an extra retain & autorelease on allKeys because we are
+   mutable. If we get modified the array will be released unexpectedly
+   and it should stick around until the caller is done with it. */
+-(CLArray *) allKeys
+{
+  return [[[super allKeys] retain] autorelease];
+}
+
+#if DEBUG_RETAIN
+#undef copy
+#undef retain
+#include <stdio.h>
+-(id) copy:(const char *) file :(int) line :(id) retainer
+{
+  CLMutableDictionary *aDict = [self mutableCopy];
+  extern int CLLeakPrint;
+
+
+  if (CLLeakPrint) {
+    int pl = CLLeakPrint;
+    CLLeakPrint = 0;
+    const char *className = [[[self class] className] UTF8String];
+    if (!className)
+      [self error:@"Unknown class!"];
+    fprintf(stdout, "0x%lx copy %s - 0x%lx %s:%i %i\n",
+	    (unsigned long) self, className, (unsigned long) retainer,
+	    file, line, [self retainCount] + 1);
+    CLLeakPrint = pl;
+  }
+
+  aDict->isa = CLDictionaryClass;
+  return aDict;
+}
+#else
+-(id) copy
+{
+  CLMutableDictionary *aDict = [self mutableCopy];
+
+
+  aDict->isa = CLDictionaryClass;
+  return aDict;
+}
+#endif
+
+@end
+
+@implementation CLInternalMutableDictionary
+
+-(id) init
+{
+  return [self initWithSize:1024];
+}
+
+-(id) initWithSize:(CLUInteger) size
+{
+  [super init];
+  dictionaryData = CLInternalDictionaryInitStorage(size);
+  return self;
+}
+
 -(void) setObject:(id) anObject forKey:(id) aKey
 {
   CLDictionaryStorage *storage = dictionaryData;
   id oldObject, oldObject2;
-  
+
 
   if (!anObject || !aKey)
     [self error:@"Can't set nil objects!"];
@@ -54,27 +165,6 @@
   storage->_keys = nil;
   [storage->_values release];
   storage->_values = nil;
-  return;
-}
-  
--(void) setObject:(id) anObject forCaseInsensitiveString:(CLString *) aString
-{
-  if (!anObject || !aString)
-    [self error:@"Can't set nil objects!"];
-
-  [anObject retain];
-  [aString retain];
-  [self removeObjectForCaseInsensitiveString:aString];
-  [self setObject:anObject forKey:aString];
-  [anObject release];
-  [aString release];
-  
-  return;
-}
-
--(void) setObjectValue:(id) anObject forVariable:(CLString *) aField
-{
-  [self setObject:anObject forKey:aField];
   return;
 }
 
@@ -124,29 +214,13 @@
   return;
 }
 
--(void) addEntriesFromDictionary:(CLDictionary *) otherDictionary
-{
-  CLArray *anArray;
-  int i, j;
-  id aKey;
-
-
-  anArray = [otherDictionary allKeys];
-  for (i = 0, j = [anArray count]; i < j; i++) {
-    aKey = [anArray objectAtIndex:i];
-    [self setObject:[otherDictionary objectForKey:aKey] forKey:aKey];
-  }
-
-  return;
-}
-
 -(void) removeAllObjects
 {
   CLDictionaryStorage *storage = dictionaryData;
   CLUInteger idx;
   id *keys;
   id oldObject;
-  
+
 
   if (storage->table->count) {
     if (!(keys = alloca(sizeof(id) * storage->table->count)))
@@ -158,7 +232,7 @@
       [keys[idx] release];
       [oldObject release];
     }
-  
+
     storage->_hash = 0;
     [storage->_keys release];
     storage->_keys = nil;
@@ -169,48 +243,79 @@
   return;
 }
 
-/* Doing an extra retain & autorelease on allKeys because we are
-   mutable. If we get modified the array will be released unexpectedly
-   and it should stick around until the caller is done with it. */
+@end
+
+@implementation CLInternalMutableDictionary (CopiedFromInternalDictionary)
+
+-(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count
+{
+  CLDictionaryStorage *storage;
+  CLUInteger i;
+
+
+  [self init];
+  storage = dictionaryData;
+  for (i = 0; i < count; i++)
+    CLHashTableSetData(storage->table, [objects[i] retain], [keys[i] copy], [keys[i] hash]);
+
+  return self;
+}
+
+-(CLUInteger) count
+{
+  CLDictionaryStorage *storage = dictionaryData;
+
+
+  return storage->table->count;
+}
+
+-(id) objectForKey:(id) aKey
+{
+  CLDictionaryStorage *storage = dictionaryData;
+
+
+  return CLHashTableDataForKey(storage->table, aKey, [aKey hash], @selector(isEqual:));
+}
+
+-(id) objectForCaseInsensitiveString:(CLString *) aKey
+{
+  CLDictionaryStorage *storage = dictionaryData;
+
+
+  return CLHashTableDataForKey(storage->table, aKey, [aKey hash],
+			       @selector(isEqualToCaseInsensitiveString:));
+}
+
 -(CLArray *) allKeys
 {
-  return [[[super allKeys] retain] autorelease];
-}
-
-#if DEBUG_RETAIN
-#undef copy
-#undef retain
-#include <stdio.h>
--(id) copy:(const char *) file :(int) line :(id) retainer
-{
-  CLMutableDictionary *aDict = [self mutableCopy];
-  extern int CLLeakPrint;
+  CLDictionaryStorage *storage = dictionaryData;
+  id *data;
 
 
-  if (CLLeakPrint) {
-    int pl = CLLeakPrint;
-    CLLeakPrint = 0;
-    const char *className = [[[self class] className] UTF8String];
-    if (!className)
-      [self error:@"Unknown class!"];
-    fprintf(stdout, "0x%lx copy %s - 0x%lx %s:%i %i\n",
-	    (unsigned long) self, className, (unsigned long) retainer,
-	    file, line, [self retainCount] + 1);
-    CLLeakPrint = pl;
+  if (!storage->_keys) {
+    if (!(data = alloca(sizeof(id) * storage->table->count)))
+      [self error:@"Unable to allocate memory"];
+    CLHashTableGetKeys(storage->table, data);
+    storage->_keys = [[CLArray alloc] initWithObjects:data count:storage->table->count];
   }
 
-  aDict->isa = CLDictionaryClass;
-  return aDict;
+  return storage->_keys;
 }
-#else
--(id) copy
+
+-(CLArray *) allValues
 {
-  CLMutableDictionary *aDict = [self mutableCopy];
+  CLDictionaryStorage *storage = dictionaryData;
+  id *data;
 
 
-  aDict->isa = CLDictionaryClass;
-  return aDict;
+  if (!storage->_values) {
+    if (!(data = alloca(sizeof(id) * storage->table->count)))
+      [self error:@"Unable to allocate memory"];
+    CLHashTableGetData(storage->table, (void **) data);
+    storage->_values = [[CLArray alloc] initWithObjects:data count:storage->table->count];
+  }
+
+  return storage->_values;
 }
-#endif
 
 @end

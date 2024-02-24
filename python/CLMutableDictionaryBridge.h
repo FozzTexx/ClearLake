@@ -10,13 +10,10 @@
 +(id) dictionaryWithPythonObject:(PyObject *) pyList;
 @end
      
-@interface CLMutableDictionaryBridge:CLMutableDictionary
-{
-}
-
+@interface CLMutableDictionaryBridge:CLMutableDictionary <CLDictionarySubclass,
+							    CLMutableDictionarySubclass>
 -(id) initWithPythonObject:(PyObject *) pyObject;
 -(void) dealloc;
-
 @end
 
 #endif /* CLMUTABLEDICTIONARYBRIDGE_H */

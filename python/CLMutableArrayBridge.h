@@ -9,14 +9,10 @@
 @interface CLMutableArray (CLPythonExtensions)
 +(id) arrayWithPythonObject:(PyObject *) pyList;
 @end
-     
-@interface CLMutableArrayBridge:CLMutableArray <CLArrayPrimitive, CLMutableArrayPrimitive>
-{
-}
 
+@interface CLMutableArrayBridge:CLMutableArray <CLArraySubclass, CLMutableArraySubclass>
 -(id) initWithPythonObject:(PyObject *) pyObject;
 -(void) dealloc;
-
 @end
 
 #endif /* CLMUTABLEARRAYBRIDGE_H */

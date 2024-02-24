@@ -17,18 +17,6 @@
 
 @implementation CLObjectBridge
 
-+(id) alloc
-{
-  CLClassDef *hack;
-  id new;
-
-
-  hack = (CLClassDef *) self;
-  new = [super alloc];
-  printf("Allocating for python %s %x\n", hack->name, new);
-  return new;
-}
-
 +(BOOL) isBridgeClass:(PyObject *) pyObject
 {
   return pyObject->ob_type == &CLPageBridgeType
@@ -88,7 +76,6 @@
   pythonObject = PyObject_CallObject(py_class, NULL);
   if (!pythonObject)
     [self error:@"Unable to create instance of %@", className];
-  printf("Bridge pythonObject: %x %x\n", self, pythonObject);
 
   return self;
 }
@@ -229,6 +216,10 @@
   if (result) {
     anObject = [[self class] objectWithPythonObject:result];
     Py_DECREF(result);
+  }
+  else {
+    PyErr_Print();
+    PyErr_Clear();
   }
 
   Py_DECREF(attr);

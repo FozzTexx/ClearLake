@@ -28,7 +28,7 @@ typedef u_int8_t CLUInteger8;
 #include <stdlib.h>
 
 #ifdef HASHTABLE_AS_STRUCT
-#else
+#else /* !HASHTABLE_AS_STRUCT */
 @implementation CLHashTable
 
 -(id) init
@@ -423,7 +423,7 @@ void CLHashTableGetData(CLHashTable *ht, void **buf)
   return;
 }
 
-#endif
+#endif /* HASHTABLE_AS_STRUCT */
 
 typedef u_int8_t CLUinteger8;
 
