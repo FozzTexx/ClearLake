@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -43,7 +43,7 @@
 -(CLString *) authorizeNetString
 {
   return [[self stringByReplacingOccurrencesOfString:@"\"" withString:@""]
-	   stringByAddingPercentEscapes];
+           stringByAddingPercentEscapes];
 }
 
 @end
@@ -63,23 +63,23 @@
   CLMutableData *mData;
   CLData *aData;
 
-  
+
   mString = [[CLMutableString alloc] init];
-  
+
   [mString appendFormat:@"x_tran_key=%@&x_login=%@",
-	   [[[credentials objectForKey:CLGatewayPassword] description]
-	     authorizeNetString],
-	   [[[credentials objectForKey:CLGatewayUser] description]
-	     authorizeNetString]];
+           [[[credentials objectForKey:CLGatewayPassword] description]
+             authorizeNetString],
+           [[[credentials objectForKey:CLGatewayUser] description]
+             authorizeNetString]];
 
   [mString appendString:@"&x_version=3.1&x_delim_data=TRUE&x_delim_char=,&x_encap_char=\""];
-  
+
   [mString appendString:@"&x_type="];
   switch ([[aDict objectForKey:CLGatewayTransactionType] intValue]) {
   case CLTransactionCapture:
     if ((anObject = [aDict objectForKey:CLGatewayTransactionID]))
       [mString appendFormat:@"PRIOR_AUTH_CAPTURE&x_trans_id=%@",
-	       [[anObject description] authorizeNetString]];
+               [[anObject description] authorizeNetString]];
     else
       [mString appendString:@"AUTH_CAPTURE"];
     break;
@@ -88,52 +88,52 @@
     break;
   case CLTransactionCredit:
     [mString appendFormat:@"CREDIT&x_trans_id=%@",
-	     [[[aDict objectForKey:CLGatewayTransactionID] description]
-	       authorizeNetString]];
+             [[[aDict objectForKey:CLGatewayTransactionID] description]
+               authorizeNetString]];
     break;
   case CLTransactionVoid:
     [mString appendFormat:@"VOID&x_trans_id=%@",
-	     [[[aDict objectForKey:CLGatewayTransactionID] description]
-	       authorizeNetString]];
+             [[[aDict objectForKey:CLGatewayTransactionID] description]
+               authorizeNetString]];
     break;
   }
 
   if ((cc = [aDict objectForKey:CLGatewayCreditCard])) {
     [mString appendFormat:@"&x_card_num=%@", [[[cc number] description]
-					       authorizeNetString]];
+                                               authorizeNetString]];
     [mString appendFormat:@"&x_exp_date=%02i-%04i",
-	     [[cc expirationMonth] intValue], [[[cc expirationYear] description] intValue]];
+             [[cc expirationMonth] intValue], [[[cc expirationYear] description] intValue]];
     if ((aString = [cc cvv]))
       [mString appendFormat:@"&x_card_code=%@", [[aString description]
-						  authorizeNetString]];
+                                                  authorizeNetString]];
 
     if ((address = [cc address])) {
       if ((aString = [address address1]))
-	[mString appendFormat:@"&x_address=%@", [[aString description]
-						  authorizeNetString]];
+        [mString appendFormat:@"&x_address=%@", [[aString description]
+                                                  authorizeNetString]];
       if ((aString = [address zip]))
-	[mString appendFormat:@"&x_zip=%@", [[[aString description] substringFromIndex:2]
-					      authorizeNetString]];
+        [mString appendFormat:@"&x_zip=%@", [[[aString description] substringFromIndex:2]
+                                              authorizeNetString]];
       if ((aString = [address phone]))
-	[mString appendFormat:@"&x_phone=%@", [[aString description]
-						authorizeNetString]];
+        [mString appendFormat:@"&x_phone=%@", [[aString description]
+                                                authorizeNetString]];
       if ((aString = [address name])) {
-	CLString *first = nil, *last;
-	CLRange aRange;
+        CLString *first = nil, *last;
+        CLRange aRange;
 
-	
-	last = aString;
-	aRange = [last rangeOfString:@" " options:CLBackwardsSearch];
-	if (aRange.length) {
-	  first = [last substringToIndex:aRange.location];
-	  last = [last substringFromIndex:CLMaxRange(aRange)];
-	}
 
-	if (first)
-	  [mString appendFormat:@"&x_first_name=%@", [[first description]
-						       authorizeNetString]];
-	[mString appendFormat:@"&x_last_name=%@", [[last description]
-						    authorizeNetString]];
+        last = aString;
+        aRange = [last rangeOfString:@" " options:CLBackwardsSearch];
+        if (aRange.length) {
+          first = [last substringToIndex:aRange.location];
+          last = [last substringFromIndex:CLMaxRange(aRange)];
+        }
+
+        if (first)
+          [mString appendFormat:@"&x_first_name=%@", [[first description]
+                                                       authorizeNetString]];
+        [mString appendFormat:@"&x_last_name=%@", [[last description]
+                                                    authorizeNetString]];
       }
     }
   }
@@ -142,22 +142,22 @@
 
   if ((anObject = [aDict objectForKey:CLGatewayComment1]))
     [mString appendFormat:@"&x_invoice_num=%@", [[anObject description]
-						  authorizeNetString]];
+                                                  authorizeNetString]];
   if ((anObject = [aDict objectForKey:CLGatewayComment2]))
     [mString appendFormat:@"&x_description=%@", [[anObject description]
-						  authorizeNetString]];
+                                                  authorizeNetString]];
   if ((anObject = [aDict objectForKey:CLGatewayTransactionID]))
     [mString appendFormat:@"&x_trans_id=%@", [[anObject description]
-					       authorizeNetString]];
+                                               authorizeNetString]];
 
   if ((anObject = [aDict objectForKey:CLGatewayIPAddress]))
     [mString appendFormat:@"&x_customer_ip=%@", [[anObject description]
-					       authorizeNetString]];
-  
+                                               authorizeNetString]];
+
   [mString appendString:@"\n"];
-  
+
   aString = [CLString stringWithFormat:@"/usr/bin/curl -s -d @- %@",
-		      [credentials objectForKey:CLGatewayURL]];
+                      [credentials objectForKey:CLGatewayURL]];
 
   pStream = [CLStream openPipe:aString mode:CLReadWrite];
   [pStream writeString:mString usingEncoding:CLUTF8StringEncoding];
@@ -174,7 +174,7 @@
     [mDict setObject:[anArray objectAtIndex:0] forKey:CLGatewayResultCode];
   if ([anArray count] > 6)
     [mDict setObject:[anArray objectAtIndex:6] forKey:CLGatewayTransactionID];
-  
+
   return [mDict autorelease];
 }
 

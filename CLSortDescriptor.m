@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -41,7 +41,7 @@
 +(id) sortDescriptorFromKey:(CLString *) aString ascending:(BOOL) flag selector:(SEL) sel
 {
   return [[[[self class] alloc] initWithKey:aString ascending:flag selector:sel]
-	   autorelease];
+           autorelease];
 }
 
 +(CLArray *) sortDescriptorsFromString:(CLString *) aString
@@ -68,7 +68,7 @@
 {
   unichar c;
 
-  
+
   [super init];
   key = [aString copy];
   ascending = flag;
@@ -82,7 +82,7 @@
   }
 
   selector = sel;
-  
+
   return self;
 }
 
@@ -105,7 +105,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -154,7 +154,7 @@
     val1 = val2;
     val2 = vals;
   }
-    
+
   if (!val1 || !val2) {
     if (!val1 && val2)
       return CLOrderedAscending;
@@ -170,10 +170,10 @@
     else
       sel = @selector(compare:);
   }
-  
+
   if (!(imp = [val1 methodFor:sel]))
     [self error:@"No method for selector %s", sel_getName(sel)];
-  
+
   return ((int (*) (id,SEL,id)) imp)(val1, sel, val2);
 }
 

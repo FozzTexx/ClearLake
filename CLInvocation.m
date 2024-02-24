@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -38,47 +38,47 @@ void *CLFFITypeForObjCType(const char *aType)
   case _C_SEL:
   case _C_PTR:
   case _C_CHARPTR:
-    return &ffi_type_pointer;      
+    return &ffi_type_pointer;
 
   case _C_CHR:
     return &ffi_type_schar;
-    
+
   case _C_UCHR:
     return &ffi_type_uchar;
-      
+
   case _C_SHT:
     return &ffi_type_sshort;
-      
+
   case _C_USHT:
     return &ffi_type_ushort;
-      
+
   case _C_INT:
     return &ffi_type_sint;
-      
+
   case _C_UINT:
     return &ffi_type_uint;
-      
+
   case _C_LNG:
     return &ffi_type_slong;
-      
+
   case _C_ULNG:
     return &ffi_type_ulong;
-      
+
   case _C_LNG_LNG:
     return &ffi_type_sint64;
-    
+
   case _C_ULNG_LNG:
     return &ffi_type_uint64;
-      
+
   case _C_FLT:
     return &ffi_type_float;
-      
+
   case _C_DBL:
     return &ffi_type_double;
 
   case _C_VOID:
     return &ffi_type_void;
-    
+
   default:
     fprintf(stderr, "Unknown Obj-C type: %s\n", aType);
     break;
@@ -98,7 +98,7 @@ void *CLFFITypeForObjCType(const char *aType)
 {
   CLUInteger i;
 
-  
+
   [super init];
   sig = [signature retain];
   target = nil;
@@ -148,8 +148,8 @@ void *CLFFITypeForObjCType(const char *aType)
 
 #if DEBUG_RETAIN
   aCopy = [[[self class] alloc:file :line :retainer] initWithMethodSignature:sig];
-#define alloc		alloc:__FILE__ :__LINE__ :self
-#define copy		copy:__FILE__ :__LINE__ :self
+#define alloc           alloc:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [[[self class] alloc] initWithMethodSignature:sig];
 #endif
@@ -157,7 +157,7 @@ void *CLFFITypeForObjCType(const char *aType)
   aCopy->action = action;
   return aCopy;
 }
-      
+
 -(CLMethodSignature *) methodSignature
 {
   return sig;
@@ -239,7 +239,7 @@ void *CLFFITypeForObjCType(const char *aType)
   case _C_CHARPTR:
     anObject = [CLString stringWithUTF8String:*(char **) var];
     break;
-    
+
   case _C_CLASS:
   case _C_SEL:
   case _C_BFLD:
@@ -299,9 +299,9 @@ void *CLFFITypeForObjCType(const char *aType)
     arg_types = calloc(narg, sizeof(ffi_type *));
     for (i = 0; i < narg; i++)
       arg_types[i] = CLFFITypeForObjCType([sig getArgumentTypeAtIndex:i]);
-    
+
     status = ffi_prep_cif(&cif, FFI_DEFAULT_ABI, narg,
-			  CLFFITypeForObjCType([sig methodReturnType]), arg_types);
+                          CLFFITypeForObjCType([sig methodReturnType]), arg_types);
     if (status != FFI_OK)
       [self error:@"Unable to invoke"];
     ffi_call(&cif, FFI_FN(imp), &result, &values[1]);

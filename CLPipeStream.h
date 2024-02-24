@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -31,11 +31,11 @@
 
 +(CLPipeStream *) streamWithCommand:(CLString *) aCommand mode:(int) aMode;
 +(CLPipeStream *) streamWithExecutable:(CLString *) aCommand arguments:(CLArray *) args
-				 stdin:(int) sin stdout:(int) sout stderr:(int) serr;
+                                 stdin:(int) sin stdout:(int) sout stderr:(int) serr;
 
 -(id) initWithCommand:(CLString *) aCommand mode:(int) aMode;
 -(id) initWithExecutable:(CLString *) aCommand arguments:(CLArray *) args
-		   stdin:(int) sin stdout:(int) sout stderr:(int) serr;
+                   stdin:(int) sin stdout:(int) sout stderr:(int) serr;
 -(id) init;
 -(void) dealloc;
 

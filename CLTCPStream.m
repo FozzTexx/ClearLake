@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -52,7 +52,7 @@
     [self release];
     return nil;
   }
-  
+
   return self;
 }
 
@@ -74,7 +74,7 @@
   const char *p;
   CLData *aData;
 
-  
+
   if (enc == CLUTF8StringEncoding) {
     p = [aString UTF8String];
     write(sock, p, strlen(p));
@@ -138,14 +138,14 @@
     ;
   if (!*p) {
     hp = [[[[CLMutableData alloc] initWithLength:sizeof(struct hostent)] autorelease]
-	   mutableBytes];
+           mutableBytes];
     hp->h_length = 4;
     hp->h_addr_list = [[[[CLMutableData alloc] initWithLength:sizeof(int)*2] autorelease]
-			mutableBytes];
+                        mutableBytes];
     hostaddr.s_addr = inet_addr(serverCString);
     if (hostaddr.s_addr) {
       hp->h_addr_list[0] = [[[[CLMutableData alloc] initWithLength:4] autorelease]
-			     mutableBytes];
+                             mutableBytes];
       memcpy(hp->h_addr_list[0], &hostaddr.s_addr, 4);
       hp->h_addr_list[1] = NULL;
     }

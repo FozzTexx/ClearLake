@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -74,7 +74,7 @@
 
   if (pos >= ustr->len)
     return NO;
-  
+
   errno = 0;
   end = NULL;
   val = wcstod(ustr->str + pos, &end);

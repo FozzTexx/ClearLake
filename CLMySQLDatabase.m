@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -51,7 +51,7 @@ int mysqlCount = 0;
 }
 
 -(id) initWithDatabase:(CLString *) aDatabase user:(CLString *) user
-	      password:(CLString *) password host:(CLString *) aHost
+              password:(CLString *) password host:(CLString *) aHost
 {
   [super init];
 
@@ -60,7 +60,7 @@ int mysqlCount = 0;
   if (aDatabase && user && password && aHost) {
     conn = mysql_init(NULL);
     if (!mysql_real_connect(conn, [aHost UTF8String], [user UTF8String],
-			    [password UTF8String], [aDatabase UTF8String], 0, NULL, 0)) {
+                            [password UTF8String], [aDatabase UTF8String], 0, NULL, 0)) {
       mysql_close(conn);
       conn = NULL;
     }
@@ -97,12 +97,12 @@ int mysqlCount = 0;
   static int total_queries = 0;
   static double elapsed, total_time = 0.0;
 #endif
-  
+
 
 #if QUERY_TIME
   gettimeofday(&start, NULL);
 #endif
-  
+
   pool = [[CLAutoreleasePool alloc] init];
   aData = [aQuery dataUsingEncoding:[self encoding]];
 
@@ -113,19 +113,19 @@ int mysqlCount = 0;
 
     while ((field = mysql_fetch_field(res))) {
       if (!mArray) {
-	mArray = [[CLMutableArray alloc] init];
+        mArray = [[CLMutableArray alloc] init];
       }
       [mArray addObject:
-		 [CLDictionary dictionaryWithObjectsAndKeys:
-				 [CLString stringWithBytes:field->name
-					   length:strlen(field->name)
-					   encoding:[self encoding]], @"name",
-			       nil]];
+                 [CLDictionary dictionaryWithObjectsAndKeys:
+                                 [CLString stringWithBytes:field->name
+                                           length:strlen(field->name)
+                                           encoding:[self encoding]], @"name",
+                               nil]];
     }
 
     if (mArray) {
       if (!mDict) {
-	mDict = [[CLMutableDictionary alloc] init];
+        mDict = [[CLMutableDictionary alloc] init];
       }
       [mDict setObject:mArray forKey:@"columns"];
       [mArray release];
@@ -134,22 +134,22 @@ int mysqlCount = 0;
 
     while ((values = mysql_fetch_row(res))) {
       CLMutableArray *aRow;
-      
+
 
       mysqlCount++;
       aRow = [[CLMutableArray alloc] init];
       for (i = 0; i < nf; i++) {
-	/* FIXME - use mysql_fetch_lengths, not strlen() */
-	if (values[i]) {
-	  [aRow addObject:[CLString stringWithBytes:values[i]
-				    length:strlen(values[i]) encoding:[self encoding]]];
-	}
-	else
-	  [aRow addObject:CLNullObject];
+        /* FIXME - use mysql_fetch_lengths, not strlen() */
+        if (values[i]) {
+          [aRow addObject:[CLString stringWithBytes:values[i]
+                                    length:strlen(values[i]) encoding:[self encoding]]];
+        }
+        else
+          [aRow addObject:CLNullObject];
       }
 
       if (!mArray) {
-	mArray = [[CLMutableArray alloc] init];
+        mArray = [[CLMutableArray alloc] init];
       }
       [mArray addObject:aRow];
       [aRow release];
@@ -157,13 +157,13 @@ int mysqlCount = 0;
 
     if (mArray) {
       if (!mDict) {
-	mDict = [[CLMutableDictionary alloc] init];
+        mDict = [[CLMutableDictionary alloc] init];
       }
       [mDict setObject:mArray forKey:@"rows"];
       [mArray release];
       mArray = nil;
     }
-    
+
     mysql_free_result(res);
   }
   else if (err) {
@@ -171,9 +171,9 @@ int mysqlCount = 0;
       mDict = [[CLMutableDictionary alloc] init];
     }
     [mDict setObject:[CLString stringWithUTF8String:mysql_error(conn)]
-	   forKey:@"errors"];
+           forKey:@"errors"];
   }
-  
+
   [pool release];
 
 #if QUERY_TIME
@@ -185,9 +185,9 @@ int mysqlCount = 0;
   elapsed = i / 1000000.0;
   total_time += elapsed;
   fprintf(stderr, "%i %.4f + %.4f %i records %s\n", total_queries, total_time, elapsed,
-	  [[mDict objectForKey:@"rows"] count], [aQuery UTF8String]);
+          [[mDict objectForKey:@"rows"] count], [aQuery UTF8String]);
 #endif
-  
+
   return [mDict autorelease];
 }
 
@@ -195,7 +195,7 @@ int mysqlCount = 0;
 {
   id errors;
 
-  
+
   errors = [self runQuery:@"set autocommit = 0"];
   if (errors)
     [self error:@"Failed to begin %@", errors];
@@ -228,7 +228,7 @@ int mysqlCount = 0;
 -(void) setEncoding:(CLStringEncoding) aValue
 {
   char *enc = NULL;
-  
+
   [super setEncoding:aValue];
 
   switch (encoding) {
@@ -246,5 +246,5 @@ int mysqlCount = 0;
 
   return;
 }
-  
+
 @end

@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -72,7 +72,7 @@
     [self increaseLengthBy:length];
     memmove(data+olen, bytes, length);
   }
-  
+
   return;
 }
 
@@ -80,7 +80,7 @@
 {
   [self increaseLengthBy:1];
   data[len - 1] = byte;
-  
+
   return;
 }
 
@@ -98,7 +98,7 @@
 {
   CLMutableData *aData = [self mutableCopy];
   extern int CLLeakPrint;
-  
+
 
   if (CLLeakPrint) {
     int pl = CLLeakPrint;
@@ -107,8 +107,8 @@
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx copy %s - 0x%lx %s:%i %i\n",
-	    (unsigned long) self, className, (unsigned long) retainer,
-	    file, line, [self retainCount] + 1);
+            (unsigned long) self, className, (unsigned long) retainer,
+            file, line, [self retainCount] + 1);
     CLLeakPrint = pl;
   }
 

@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -24,11 +24,11 @@
 @class CLString, CLDictionary, CLForm, CLControl, CLSession, CLPage,
   CLAccount, CLMutableDictionary, CLArray, CLMutableArray, CLEditingContext;
 
-#define CLPasswordRequired	0x01
-#define CLNameRequired		0x02
-#define CLEmailRequired		0x04
-#define CLNameNotUnique		0x08
-#define CLEmailNotUnique	0x10
+#define CLPasswordRequired      0x01
+#define CLNameRequired          0x02
+#define CLEmailRequired         0x04
+#define CLNameNotUnique         0x08
+#define CLEmailNotUnique        0x10
 
 @interface CLManager:CLObject
 {
@@ -54,7 +54,7 @@
 +(CLString *) randomPassword;
 +(CLString *) randomSalt;
 +(CLString *) returnFor:(id) anObject action:(SEL) anAction
-	     localQuery:(CLDictionary *) aQuery;
+             localQuery:(CLDictionary *) aQuery;
 
 -(id) init;
 -(void) dealloc;
@@ -66,13 +66,13 @@
 -(void) preparePage:(CLPage *) aPage;
 -(void) login:(id) sender;
 -(void) runLoginFor:(id) anObject action:(SEL) anAction
-	     sender:(id) sender localQuery:(CLDictionary *) aQuery;
+             sender:(id) sender localQuery:(CLDictionary *) aQuery;
 -(void) runLoginFor:(id) anObject action:(SEL) anAction
-	     sender:(id) sender localQuery:(CLDictionary *) aQuery
-	    message:(CLString *) aMessage;
+             sender:(id) sender localQuery:(CLDictionary *) aQuery
+            message:(CLString *) aMessage;
 -(void) runLoginFor:(id) anObject action:(SEL) anAction
-	     sender:(id) sender localQuery:(CLDictionary *) aQuery
-	    message:(CLString *) aMessage ignore:(BOOL) ignore;
+             sender:(id) sender localQuery:(CLDictionary *) aQuery
+            message:(CLString *) aMessage ignore:(BOOL) ignore;
 -(void) logout:(id) sender;
 -(void) sendPassword:(id) sender;
 -(id) activeSession;
@@ -99,19 +99,19 @@
 -(Class) sessionClass;
 @end
 
-extern CLString *CLAppName;	/* This is the name of the script
-				   without any path info */
-extern CLString *CLWebName;	/* This is the local URL of the
-				   script. There is no
-				   protocol://server.name */
-extern CLString *CLAppPath;	/* This is the filesystem path to where the
-				   program's files are stored. No trailing '/' */
-extern CLString *CLWebPath;	/* This is the URL path to where the program's
-				   files are stored. No trailing '/' */
-extern CLString *CLServerURL;	/* This is the URL of the server. It
-				   contains
-				   protocol://server.name:portno. No
-				   trailing '/' */
+extern CLString *CLAppName;     /* This is the name of the script
+                                   without any path info */
+extern CLString *CLWebName;     /* This is the local URL of the
+                                   script. There is no
+                                   protocol://server.name */
+extern CLString *CLAppPath;     /* This is the filesystem path to where the
+                                   program's files are stored. No trailing '/' */
+extern CLString *CLWebPath;     /* This is the URL path to where the program's
+                                   files are stored. No trailing '/' */
+extern CLString *CLServerURL;   /* This is the URL of the server. It
+                                   contains
+                                   protocol://server.name:portno. No
+                                   trailing '/' */
 
 extern CLString *CLUserAgent, *CLBrowserType;
 
@@ -122,5 +122,5 @@ extern CLPage *CLMainPage;
 extern void CLInit();
 extern void CLRun(CLString *mainObjectName);
 extern CLUInteger CLHandleRequest(CLString *mainObjectName, CLStream *htmlStream,
-				  CLStream *headerStream, CLStream *inputStream);
+                                  CLStream *headerStream, CLStream *inputStream);
 extern void CLInitializeQuery(CLString *aString);

@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -43,11 +43,11 @@
     identifier = [[number substringToIndex:6] intValue];
 
     if ((identifier >= 300000 && identifier <= 305999) ||
-	(identifier >= 360000 && identifier <= 369999) ||
-	(identifier >= 380000 && identifier <= 389999))
+        (identifier >= 360000 && identifier <= 369999) ||
+        (identifier >= 380000 && identifier <= 389999))
       return CLDinersClubIssuer; /* Diner's Club/Carte Blanche */
     else if ((identifier >= 340000 && identifier <= 349999) ||
-	     (identifier >= 370000 && identifier <= 379999))
+             (identifier >= 370000 && identifier <= 379999))
       return CLAmericanExpressIssuer;
     else if (identifier >= 400000 && identifier <= 499999)
       return CLVISAIssuer;
@@ -120,7 +120,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -165,7 +165,7 @@
   }
   return;
 }
-  
+
 -(void) setNumber:(CLString *) aString
 {
   unichar *buf;
@@ -219,7 +219,7 @@
 
   [cvv release];
   cvv = [aString retain];
-  
+
   return;
 }
 
@@ -255,7 +255,7 @@
   len = [aNumber length];
   aRange.location = 0;
   aRange.length = len;
-  
+
   va_start(ap, aNumber);
   while ((aRange.length = va_arg(ap, int))) {
     if (CLMaxRange(aRange) > len)
@@ -263,7 +263,7 @@
     aString = [aNumber substringWithRange:aRange];
     if (![aString length])
       break;
-    
+
     if ([mString length])
       [mString appendString:@" "];
     [mString appendString:aString];
@@ -278,15 +278,15 @@
       [mString appendString:@" "];
     [mString appendString:[aNumber substringFromIndex:aRange.location]];
   }
-    
+
   return mString;
 }
-  
+
 -(CLString *) prettyNumber
 {
   CLString *aString;
 
-  
+
   switch ([self issuer]) {
   case CLAmericanExpressIssuer:
     aString = [self formatNumber:number, 4, 6, 5, 0];
@@ -324,8 +324,8 @@
   if (!(aDate = expiration))
     aDate = [CLDatetime now];
   [self setExpiration:[CLDatetime dateWithYear:[aDate yearOfCommonEra]
-				      month:[aNumber intValue] + 1
-				      day:0 hour:0 minute:0 second:0 timeZone:nil]];
+                                      month:[aNumber intValue] + 1
+                                      day:0 hour:0 minute:0 second:0 timeZone:nil]];
   return;
 }
 
@@ -337,8 +337,8 @@
   if (!(aDate = expiration))
     aDate = [CLDatetime now];
   [self setExpiration:[CLDatetime dateWithYear:[aNumber intValue]
-				      month:[aDate monthOfYear] + 1
-				      day:0 hour:0 minute:0 second:0 timeZone:nil]];
+                                      month:[aDate monthOfYear] + 1
+                                      day:0 hour:0 minute:0 second:0 timeZone:nil]];
   return;
 }
 

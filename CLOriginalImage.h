@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -36,7 +36,7 @@
 +(CLOriginalImage *) imageFromFile:(CLString *) aFilename table:(CLString *) aTable;
 +(CLOriginalImage *) imageFromData:(CLData *) aData table:(CLString *) aTable;
 +(CLOriginalImage *) imageFromPath:(CLString *) aPath table:(CLString *) aTable
-			  hardlink:(BOOL) hardlink;
+                          hardlink:(BOOL) hardlink;
 +(Class) imageClass;
 -(CLCachedImage *) cachedImageForEffects:(CLString *) aString;
 -(void) didDeleteFromDatabase;

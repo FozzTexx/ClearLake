@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -167,7 +167,7 @@ CLNumber *CLTrueObject, *CLFalseObject;
   value.d = aValue;
   type = 'd';
   return self;
-}  
+}
 
 /* 1 DIM V(26): FOR I = 0 to 1: READ A$,B:A = A + 1:C$(A) = A$:P = ASC
    (A$) - 64:V(P) = B:A(A) = B:I = P = 0: NEXT : INPUT "R/A?";A$: ON
@@ -196,7 +196,7 @@ CLNumber *CLTrueObject, *CLFalseObject;
   int i, len;
   unsigned int b, c;
 
-  
+
   [self init];
 
   aString = [aString uppercaseString];
@@ -219,9 +219,9 @@ CLNumber *CLTrueObject, *CLFalseObject;
       value.ul += b;
   }
   free(buf);
-  
+
   type = 'u';
-  return self;  
+  return self;
 }
 
 -(id) read:(CLStream *) stream
@@ -316,16 +316,16 @@ CLNumber *CLTrueObject, *CLFalseObject;
     }
     for (j = i+1; romanNumerals[j].value; j++) {
       if (romanNumerals[i].value - romanNumerals[j].value == romanNumerals[j].value)
-	continue;
+        continue;
       if (val >= romanNumerals[i].value - romanNumerals[j].value) {
-	[mString appendCharacter:romanNumerals[j].letter];
-	[mString appendCharacter:romanNumerals[i].letter];
-	val -= romanNumerals[i].letter - romanNumerals[j].letter;
-	break;
+        [mString appendCharacter:romanNumerals[j].letter];
+        [mString appendCharacter:romanNumerals[i].letter];
+        val -= romanNumerals[i].letter - romanNumerals[j].letter;
+        break;
       }
     }
   }
-  
+
   return [mString autorelease];
 }
 
@@ -395,13 +395,13 @@ CLNumber *CLTrueObject, *CLFalseObject;
 {
   if (self == anObject)
     return YES;
-  
+
   if (![anObject isKindOfClass:CLNumberClass])
     return NO;
 
   return ![self compare:anObject];
 }
-  
+
 -(CLComparisonResult) compareLong:(long) aLong
 {
   switch (type) {
@@ -411,14 +411,14 @@ CLNumber *CLTrueObject, *CLFalseObject;
     if (value.l > aLong)
       return CLOrderedDescending;
     return CLOrderedSame;
-      
+
   case 'u':
     if (value.ul < aLong)
       return CLOrderedAscending;
     if (value.ul > aLong)
       return CLOrderedDescending;
     return CLOrderedSame;
-      
+
   case 'd':
     if (value.d < aLong)
       return CLOrderedAscending;
@@ -442,14 +442,14 @@ CLNumber *CLTrueObject, *CLFalseObject;
     if (value.l > anUnsignedLong)
       return CLOrderedDescending;
     return CLOrderedSame;
-      
+
   case 'u':
     if (value.ul < anUnsignedLong)
       return CLOrderedAscending;
     if (value.ul > anUnsignedLong)
       return CLOrderedDescending;
     return CLOrderedSame;
-      
+
   case 'd':
     if (value.d < anUnsignedLong)
       return CLOrderedAscending;
@@ -473,14 +473,14 @@ CLNumber *CLTrueObject, *CLFalseObject;
     if (value.l > aDouble)
       return CLOrderedDescending;
     return CLOrderedSame;
-      
+
   case 'u':
     if (value.ul < aDouble)
       return CLOrderedAscending;
     if (value.ul > aDouble)
       return CLOrderedDescending;
     return CLOrderedSame;
-      
+
   case 'd':
     if (value.d < aDouble)
       return CLOrderedAscending;
@@ -535,23 +535,23 @@ CLNumber *CLTrueObject, *CLFalseObject;
     switch (type) {
     case 'i':
       if (value.l < aNumber->value.l)
-	return CLOrderedAscending;
+        return CLOrderedAscending;
       if (value.l > aNumber->value.l)
-	return CLOrderedDescending;
+        return CLOrderedDescending;
       return CLOrderedSame;
-      
+
     case 'u':
       if (value.ul < aNumber->value.ul)
-	return CLOrderedAscending;
+        return CLOrderedAscending;
       if (value.ul > aNumber->value.ul)
-	return CLOrderedDescending;
+        return CLOrderedDescending;
       return CLOrderedSame;
-      
+
     case 'd':
       if (value.d < aNumber->value.d)
-	return CLOrderedAscending;
+        return CLOrderedAscending;
       if (value.d > aNumber->value.d)
-	return CLOrderedDescending;
+        return CLOrderedDescending;
       return CLOrderedSame;
 
     default:
@@ -559,7 +559,7 @@ CLNumber *CLTrueObject, *CLFalseObject;
     }
   }
 
-  
+
   return CLOrderedSame;
 }
 

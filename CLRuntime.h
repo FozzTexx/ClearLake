@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -61,19 +61,19 @@ typedef struct {
 #import <objc/objc-api.h>
 #import <objc/encoding.h>
 
-#define class_createInstance		class_create_instance
-#define class_getClassMethod		class_get_class_method
-#define class_getInstanceMethod		class_get_instance_method
-#define class_getSuperclass		class_get_super_class
-#define class_isMetaClass		class_is_meta_class
-#define method_getImplementation	method_get_imp
-#define method_getTypeEncoding		method_get_type_encoding
-//#define objc_lookUpClass		objc_lookup_class
-#define object_getClass			object_get_class
-#define object_getClassName		object_get_class_name
-#define sel_getName			sel_get_name
-#define sel_getUid			sel_get_uid
-#define method_getNumberOfArguments	method_get_number_of_arguments
+#define class_createInstance            class_create_instance
+#define class_getClassMethod            class_get_class_method
+#define class_getInstanceMethod         class_get_instance_method
+#define class_getSuperclass             class_get_super_class
+#define class_isMetaClass               class_is_meta_class
+#define method_getImplementation        method_get_imp
+#define method_getTypeEncoding          method_get_type_encoding
+//#define objc_lookUpClass              objc_lookup_class
+#define object_getClass                 object_get_class
+#define object_getClassName             object_get_class_name
+#define sel_getName                     sel_get_name
+#define sel_getUid                      sel_get_uid
+#define method_getNumberOfArguments     method_get_number_of_arguments
 
 #define CLClassDef (struct objc_class)
 

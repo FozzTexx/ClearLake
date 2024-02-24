@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -47,39 +47,39 @@ typedef struct CLDecimalMPZ {
 
 extern void CLCreateMPZ(CLDecimalMPZ *num, const CLDecimal *decimal);
 extern CLCalculationError CLReleaseMPZ(CLDecimalMPZ *num, CLDecimal *decimal,
-				       CLRoundingMode mode);
+                                       CLRoundingMode mode);
 extern void CLRoundMPZ(CLDecimalMPZ *res, const CLDecimalMPZ *num,
-		       CLInteger truncate, CLRoundingMode mode);
+                       CLInteger truncate, CLRoundingMode mode);
 extern int CLCompactMPZ(CLDecimalMPZ *num);
 extern void CLAddMPZ(CLDecimalMPZ *result,
-		     CLDecimalMPZ *leftOperand,
-		     CLDecimalMPZ *rightOperand);
+                     CLDecimalMPZ *leftOperand,
+                     CLDecimalMPZ *rightOperand);
 extern void CLSubtractMPZ(CLDecimalMPZ *result,
-			  CLDecimalMPZ *leftOperand,
-			  CLDecimalMPZ *rightOperand);
+                          CLDecimalMPZ *leftOperand,
+                          CLDecimalMPZ *rightOperand);
 extern void CLMultiplyMPZ(CLDecimalMPZ *result,
-			  CLDecimalMPZ *leftOperand,
-			  CLDecimalMPZ *rightOperand);
+                          CLDecimalMPZ *leftOperand,
+                          CLDecimalMPZ *rightOperand);
 extern void CLDivideMPZ(CLDecimalMPZ *result,
-			CLDecimalMPZ *leftOperand,
-			CLDecimalMPZ *rightOperand,
-			int precision);
+                        CLDecimalMPZ *leftOperand,
+                        CLDecimalMPZ *rightOperand,
+                        int precision);
 extern void CLModuloMPZ(CLDecimalMPZ *result,
-			CLDecimalMPZ *leftOperand,
-			CLDecimalMPZ *rightOperand,
-			int precision);
+                        CLDecimalMPZ *leftOperand,
+                        CLDecimalMPZ *rightOperand,
+                        int precision);
 extern void CLPowerMPZ(CLDecimalMPZ *result,
-		       const CLDecimalMPZ *number,
-		       CLUInteger power);
+                       const CLDecimalMPZ *number,
+                       CLUInteger power);
 extern void CLMultiplyByPowerOf10MPZ(CLDecimalMPZ *result,
-				     const CLDecimalMPZ *number,
-				     short power);
+                                     const CLDecimalMPZ *number,
+                                     short power);
 extern CLString *CLStringMPZ(CLDecimalMPZ *num);
 
 #if 0
 extern CLDecimalMPZ *CLNormalizeMPZ(CLDecimalMPZ *number1, CLDecimalMPZ *number2);
 extern CLComparisonResult CLCompareMPZ(CLDecimalMPZ *leftOperand,
-				       CLDecimalMPZ *rightOperand);
+                                       CLDecimalMPZ *rightOperand);
 #else
 CL_INLINE CLDecimalMPZ *CLNormalizeMPZ(CLDecimalMPZ *number1, CLDecimalMPZ *number2)
 {
@@ -96,7 +96,7 @@ CL_INLINE CLDecimalMPZ *CLNormalizeMPZ(CLDecimalMPZ *number1, CLDecimalMPZ *numb
     number2->exponent = number1->exponent;
     return number2;
   }
-  
+
   /* x*10^n + y*10^m = 10^n*(x + y*10^(m-n)) */
   i = number1->exponent - number2->exponent;
   if (i < 0) {
@@ -116,21 +116,21 @@ CL_INLINE CLDecimalMPZ *CLNormalizeMPZ(CLDecimalMPZ *number1, CLDecimalMPZ *numb
 }
 
 CL_INLINE CLComparisonResult CLCompareMPZ(CLDecimalMPZ *leftOperand,
-				CLDecimalMPZ *rightOperand)
+                                CLDecimalMPZ *rightOperand)
 {
   int res;
 
 
   CLNormalizeMPZ(leftOperand, rightOperand);
   res = mpz_cmp(leftOperand->mantissa, rightOperand->mantissa);
-    
+
   /* GMP docs just say negative/positive and the CLOrdered is exactly -1 and 1 */
   if (res < 0)
     return CLOrderedAscending;
   if (res > 0)
     return CLOrderedDescending;
 
-  return CLOrderedSame;  
+  return CLOrderedSame;
 }
 
 #endif

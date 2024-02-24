@@ -26,8 +26,8 @@ static int CLFormBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&", kwlist,
-				   CLPythonConvert, &string,
-				   CLPythonConvert, &page))
+                                   CLPythonConvert, &string,
+                                   CLPythonConvert, &page))
     return -1;
 
   self->bridgeObject = [[CLForm alloc] initFromString:string onPage:page];
@@ -43,14 +43,14 @@ static void CLFormBridge_dealloc(CLObjectLink *self)
 
 #if 0
 static PyObject *CLFormBridge_valueOfFieldNamed(CLObjectLink *self,
-						PyObject *args, PyObject *kwds)
+                                                PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"name", NULL};
   CLString *name = nil;
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&", kwlist,
-				   CLPythonConvert, &name))
+                                   CLPythonConvert, &name))
     return NULL;
 
   return [[self->bridgeObject valueOfFieldNamed:name] pythonObject];
@@ -101,7 +101,7 @@ static int CLFormBridge_setItem(CLObjectLink *self, PyObject *key, PyObject *val
     [self->bridgeObject setValue:nil forFieldNamed:aString];
   else
     [self->bridgeObject setValue:[CLObjectBridge objectWithPythonObject:value]
-		   forFieldNamed:aString];
+                   forFieldNamed:aString];
 
   return 0;
 }
@@ -142,4 +142,3 @@ PyTypeObject CLFormBridgeType = {
   .tp_getset = CLFormBridge_getsetters,
   .tp_as_mapping = &CLFormBridge_mapping,
 };
-

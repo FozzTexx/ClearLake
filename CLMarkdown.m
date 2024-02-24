@@ -12,7 +12,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -41,7 +41,7 @@ struct hoedown_hack {
 };
 
 void CLLinkAttributesCallback(hoedown_buffer *ob, const hoedown_buffer *url,
-			      const hoedown_renderer_data *data)
+                              const hoedown_renderer_data *data)
 {
   hoedown_html_renderer_state *state;
   CLDictionary *linkAttributes;
@@ -62,12 +62,12 @@ void CLLinkAttributesCallback(hoedown_buffer *ob, const hoedown_buffer *url,
     if (aValue) {
       hoedown_buffer_puts(ob, [[CLString stringWithFormat:@" %@", aKey] UTF8String]);
       if (aValue != CLNullObject)
-	hoedown_buffer_puts(ob, [[CLString stringWithFormat:@"=\"%@\"",
-					   [[aValue description] entityEncodedString]]
-				  UTF8String]);
+        hoedown_buffer_puts(ob, [[CLString stringWithFormat:@"=\"%@\"",
+                                           [[aValue description] entityEncodedString]]
+                                  UTF8String]);
     }
   }
-  
+
   return;
 }
 
@@ -103,7 +103,7 @@ void CLLinkAttributesCallback(hoedown_buffer *ob, const hoedown_buffer *url,
   [super dealloc];
   return;
 }
-  
+
 -(CLString *) html
 {
   hoedown_buffer B;
@@ -113,24 +113,24 @@ void CLLinkAttributesCallback(hoedown_buffer *ob, const hoedown_buffer *url,
   const char *str;
   hoedown_html_renderer_state *state;
   struct hoedown_hack *hack;
-  
-  
+
+
   hoedown_buffer_init(&B, 1024, realloc, free, free);
   R = hoedown_html_renderer_new(HOEDOWN_HTML_ESCAPE, 0);
   /* HOEDOWN_AUTOLINK_NORMAL */
   D = hoedown_document_new(R, HOEDOWN_EXT_STRIKETHROUGH
-			   | HOEDOWN_EXT_UNDERLINE
-			   | HOEDOWN_EXT_SUPERSCRIPT
-			   | HOEDOWN_EXT_AUTOLINK, 16);
+                           | HOEDOWN_EXT_UNDERLINE
+                           | HOEDOWN_EXT_SUPERSCRIPT
+                           | HOEDOWN_EXT_AUTOLINK, 16);
   hack = (struct hoedown_hack *) D;
   state = hack->data.opaque;
   state->opaque = self;
   state->link_attributes = CLLinkAttributesCallback;
-  
+
   str = [mdstr UTF8String];
   hoedown_document_render(D, &B, (const uint8_t *) str, strlen(str));
   aString = [CLString stringWithBytes:(const char *) B.data length:B.size
-			     encoding:CLUTF8StringEncoding];
+                             encoding:CLUTF8StringEncoding];
   hoedown_document_free(D);
   hoedown_html_renderer_free(R);
   hoedown_buffer_uninit(&B);

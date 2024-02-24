@@ -15,7 +15,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -29,7 +29,7 @@
 @class CLInfoMessage, CLForm;
 
 typedef enum CLInputType {
-  CLTextInputType =	1,
+  CLTextInputType =     1,
   CLRadioInputType,
   CLSubmitInputType,
   CLResetInputType,
@@ -61,7 +61,7 @@ typedef enum CLInputType {
 -(id) initWithTitle:(CLString *) aTitle;
 -(id) initWithTitle:(CLString *) aTitle cols:(int) aCols;
 -(id) initWithTitle:(CLString *) aTitle cols:(int) aCols rows:(int) aRows
-	      value:(id) aValue type:(CLInputType) aType onPage:(CLPage *) aPage;
+              value:(id) aValue type:(CLInputType) aType onPage:(CLPage *) aPage;
 -(void) dealloc;
 
 -(id) value;

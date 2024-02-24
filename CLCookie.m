@@ -15,7 +15,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -62,7 +62,7 @@ BOOL CLCookiesEnabled = NO;
 
 
   aCopy = [super copy:file :line: retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
   aCopy->key = [key copy];
   aCopy->value = [value copy];
   aCopy->expires = [expires copy];
@@ -128,19 +128,19 @@ BOOL CLCookiesEnabled = NO;
 -(CLString *) cookieString
 {
   CLMutableString *mString;
-  
-  
+
+
   if (!key || !value)
     return nil;
 
   mString = [[CLMutableString alloc] init];
   [mString appendFormat:@"%@=%@", [[key description] stringByAddingPercentEscapes],
-	   [[value description] stringByAddingPercentEscapes]];
-  
+           [[value description] stringByAddingPercentEscapes]];
+
   if (expires)
     [mString appendFormat:@"; expires=%@",
-	     [expires descriptionWithFormat:@"%a, %d-%b-%Y %H:%M:%S GMT"
-				   timeZone:[CLTimeZone UTCTimeZone]]];
+             [expires descriptionWithFormat:@"%a, %d-%b-%Y %H:%M:%S GMT"
+                                   timeZone:[CLTimeZone UTCTimeZone]]];
 
   [mString appendFormat:@"; path=%@", path ? path : CLWebName];
 
@@ -151,7 +151,7 @@ BOOL CLCookiesEnabled = NO;
 
   return [mString autorelease];
 }
-  
+
 -(void) setKey:(CLString *) aKey
 {
   [key release];
@@ -215,13 +215,13 @@ void CLAddCookie(CLCookie *aCookie)
     [CLCookies addObject:aCookie];
     if ([aCookie isFromBrowser]) {
       if (!CLBrowserCookies) {
-	CLBrowserCookies = [[CLMutableArray alloc] init];
-	CLAddToCleanup(CLBrowserCookies);
+        CLBrowserCookies = [[CLMutableArray alloc] init];
+        CLAddToCleanup(CLBrowserCookies);
       }
       [CLBrowserCookies addObject:aCookie];
     }
   }
-  
+
   return;
 }
 
@@ -254,7 +254,7 @@ CLArray *CLCookiesWithKey(CLString *aKey, BOOL onlyFromBrowser)
 
   if (onlyFromBrowser)
     cookies = CLBrowserCookies;
-  
+
 #if DEBUG_RETAIN
     id self = nil;
 #endif
@@ -262,7 +262,7 @@ CLArray *CLCookiesWithKey(CLString *aKey, BOOL onlyFromBrowser)
     aCookie = [cookies objectAtIndex:i];
     if ([[aCookie key] isEqualToString:aKey]) {
       if (!mArray)
-	mArray = [[CLMutableArray alloc] init];
+        mArray = [[CLMutableArray alloc] init];
       [mArray addObject:aCookie];
     }
   }

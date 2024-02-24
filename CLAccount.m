@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -53,8 +53,8 @@
 #define PAGE_RESET              @"resetPassword"
 #define PAGE_RESETEXP           @"resetExpired"
 
-#define PAGE_CONFIRMACCT	@"accountConfirmThanks"
-#define PAGE_CONFIRMEXP		@"accountConfirmExpired"
+#define PAGE_CONFIRMACCT        @"accountConfirmThanks"
+#define PAGE_CONFIRMEXP         @"accountConfirmExpired"
 
 #define TOKEN_LEN       32
 static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
@@ -67,7 +67,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   CLUInteger len;
   int i;
   CLString *newString;
-  
+
 
   len = [aString length];
   buf = calloc(len, sizeof(unichar));
@@ -82,7 +82,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
 
   if (len == [aString length])
     newString = aString;
-  else 
+  else
     newString = [CLString stringWithCharacters:buf length:len];
   free(buf);
 
@@ -113,12 +113,12 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
 {
   id anObject;
 
-  
+
   [super read:stream];
   [stream readTypes:@"i", &objectID];
   if ((anObject = [CLDefaultContext registerInstance:self inTable:[CLEditingContext
-								    tableForClass:[self class]]
-				      withPrimaryKey:[CLNumber numberWithInt:objectID]]) &&
+                                                                    tableForClass:[self class]]
+                                      withPrimaryKey:[CLNumber numberWithInt:objectID]]) &&
       anObject != self) {
     [anObject retain];
     [self release];
@@ -126,7 +126,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   }
   else
     CLBecomeFault(self, [CLDecimalNumber numberWithInt:objectID],
-		  [CLEditingContext recordDefinitionForClass:[self class]], NO);
+                  [CLEditingContext recordDefinitionForClass:[self class]], NO);
   return self;
 }
 
@@ -251,7 +251,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
 {
   return [self hasFlag:CLAccountFlagAdmin];
 }
-  
+
 -(BOOL) isLocked
 {
   return [self hasFlag:CLAccountFlagLocked];
@@ -285,14 +285,14 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   CLString *aString = *ioValue;
   CLString *errString = nil;
   int err = 0;
-  
+
 
   sawPlain = YES;
   if (sawVer &&
       ((!aString && _verPass) || (aString && !_verPass) ||
        (aString && _verPass && ![aString isEqual:_verPass]))) {
     errString = [CLString stringWithFormat:
-			    @"Mismatch between password and verify"];
+                            @"Mismatch between password and verify"];
     err++;
   }
 
@@ -305,14 +305,14 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   CLString *aString = *ioValue;
   CLString *errString = nil;
   int err = 0;
-  
+
 
   sawVer = YES;
   if (sawPlain &&
       ((!aString && _plainPass) || (aString && !_plainPass) ||
        (aString && _plainPass && ![aString isEqual:_plainPass]))) {
     errString = [CLString stringWithFormat:
-			    @"Mismatch between password and verify"];
+                            @"Mismatch between password and verify"];
     err++;
   }
 
@@ -326,22 +326,22 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   _plainPass = [aString copy];
   if (_plainPass && _verPass && [_plainPass isEqualToString:_verPass])
     [self setPassword:[CLString stringWithUTF8String:
-				  crypt([[_plainPass lowercaseString] UTF8String],
-					[[CLManager randomSalt] UTF8String])]];
+                                  crypt([[_plainPass lowercaseString] UTF8String],
+                                        [[CLManager randomSalt] UTF8String])]];
   return;
 }
-    
+
 -(void) setVerPass:(CLString *) aString
 {
   [_verPass release];
   _verPass = [aString copy];
   if (_plainPass && _verPass && [_plainPass isEqualToString:_verPass])
     [self setPassword:[CLString stringWithUTF8String:
-				  crypt([[_plainPass lowercaseString] UTF8String],
-					[[CLManager randomSalt] UTF8String])]];
+                                  crypt([[_plainPass lowercaseString] UTF8String],
+                                        [[CLManager randomSalt] UTF8String])]];
   return;
 }
-    
+
 -(void) sendEmail:(CLDictionary *) aDict usingTemplate:(CLString *) aFilename
 {
   CLMutableDictionary *mDict;
@@ -381,7 +381,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
 
   recordDef = [CLEditingContext recordDefinitionForClass:self];
   query = [CLString stringWithFormat:@"email = '%@'",
-		    [[recordDef database] defangString:anEmail escape:NULL]];
+                    [[recordDef database] defangString:anEmail escape:NULL]];
   rows = [CLDefaultContext loadTableWithClass:self qualifier:query];
   if ([rows count])
     return [rows objectAtIndex:0];
@@ -442,8 +442,8 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
 
     if (!err) {
       [self setPassword:[CLString stringWithUTF8String:
-					 crypt([[pass lowercaseString] UTF8String],
-					       [[CLManager randomSalt] UTF8String])]];
+                                         crypt([[pass lowercaseString] UTF8String],
+                                               [[CLManager randomSalt] UTF8String])]];
       [self setResetToken:0];
       [self setResetExpires:nil];
       [self removeFlag:CLAccountFlagUnconfirmed];
@@ -455,7 +455,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
       CLRedirectBrowserToPage(@"index", NO);
     }
   }
-  
+
   return;
 }
 
@@ -485,7 +485,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
     token = random() % CLIntegerMax;
   [self setResetToken:token];
   [self setResetExpires:[[CLDatetime now] dateByAddingYears:0 months:0 days:0
-							   hours:8 minutes:0 seconds:0]];
+                                                           hours:8 minutes:0 seconds:0]];
   [CLDefaultContext saveChanges];
 
   anEmail = [[CLEmailMessage alloc] initFromFile:@"cl_reset-msg" owner:self];
@@ -520,7 +520,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   }
   for (i = 0; i < TOKEN_LEN; i++)
     tkn[i] = tokenset[(int) tkn[i]];
-  
+
   return [CLString stringWithUTF8String:(char *) tkn];
 }
 
@@ -586,7 +586,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
     token = random() % CLIntegerMax;
   [self setResetToken:token];
   [self setResetExpires:[[CLDatetime now] dateByAddingYears:0 months:0 days:0
-							   hours:8 minutes:0 seconds:0]];
+                                                           hours:8 minutes:0 seconds:0]];
   [CLDefaultContext saveChanges];
 
   anEmail = [[CLEmailMessage alloc] initFromFile:@"cl_confirm-msg" owner:self];

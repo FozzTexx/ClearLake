@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -29,7 +29,7 @@ void CLCreateMPZ(CLDecimalMPZ *num, const CLDecimal *decimal)
 {
   mpz_init(num->mantissa);
   mpz_import(num->mantissa, decimal->_length, -1, sizeof(decimal->_mantissa[0]),
-	     0, 0, decimal->_mantissa);
+             0, 0, decimal->_mantissa);
   if (decimal->_isNegative)
     mpz_neg(num->mantissa, num->mantissa);
   num->exponent = decimal->_exponent;
@@ -38,7 +38,7 @@ void CLCreateMPZ(CLDecimalMPZ *num, const CLDecimal *decimal)
 }
 
 CLCalculationError CLReleaseMPZ(CLDecimalMPZ *num, CLDecimal *decimal,
-				CLRoundingMode mode)
+                                CLRoundingMode mode)
 {
   int numbytes, numbits, size, exp;
   size_t countp, countn;
@@ -64,7 +64,7 @@ CLCalculationError CLReleaseMPZ(CLDecimalMPZ *num, CLDecimal *decimal,
     CLRoundMPZ(&res, num, exp, mode);
     err = CLCalculationLossOfPrecision;
   }
-  
+
   mpz_export(decimal->_mantissa, &countp, -1, size, 0, 0, res.mantissa);
   decimal->_exponent = res.exponent;
   decimal->_length = countp;
@@ -76,7 +76,7 @@ CLCalculationError CLReleaseMPZ(CLDecimalMPZ *num, CLDecimal *decimal,
 }
 
 void CLRoundMPZ(CLDecimalMPZ *res, const CLDecimalMPZ *num,
-		       CLInteger truncate, CLRoundingMode mode)
+                       CLInteger truncate, CLRoundingMode mode)
 {
   mpz_t rem, exp;
   unsigned long ul;
@@ -90,13 +90,13 @@ void CLRoundMPZ(CLDecimalMPZ *res, const CLDecimalMPZ *num,
   res->exponent = num->exponent + truncate;
 
   mpz_tdiv_q_ui(exp, exp, 2);
-  
+
   switch (mode) {
   case CLRoundPlain:   // Round up on a tie
     if (mpz_sgn(res->mantissa) >= 0 && mpz_cmp(rem, exp) >= 0)
       mpz_add_ui(res->mantissa, res->mantissa, 1);
     break;
-    
+
   case CLRoundDown:    // Always down == truncate
     break;
 
@@ -110,7 +110,7 @@ void CLRoundMPZ(CLDecimalMPZ *res, const CLDecimalMPZ *num,
     if (!ord) {
       ul = mpz_fdiv_ui(res->mantissa, 10);
       if (ul % 2)
-	mpz_add_ui(res->mantissa, res->mantissa, 1);
+        mpz_add_ui(res->mantissa, res->mantissa, 1);
     }
     else if (ord > 0)
       mpz_add_ui(res->mantissa, res->mantissa, 1);
@@ -119,7 +119,7 @@ void CLRoundMPZ(CLDecimalMPZ *res, const CLDecimalMPZ *num,
 
   mpz_clear(rem);
   mpz_clear(exp);
-  
+
   return;
 }
 
@@ -139,13 +139,13 @@ int CLCompactMPZ(CLDecimalMPZ *num)
   }
 
   num->exponent += i;
-  
+
   return i;
 }
 
 void CLAddMPZ(CLDecimalMPZ *result,
-	      CLDecimalMPZ *leftOperand,
-	      CLDecimalMPZ *rightOperand)
+              CLDecimalMPZ *leftOperand,
+              CLDecimalMPZ *rightOperand)
 {
   CLNormalizeMPZ(leftOperand, rightOperand);
   mpz_add(result->mantissa, leftOperand->mantissa, rightOperand->mantissa);
@@ -154,8 +154,8 @@ void CLAddMPZ(CLDecimalMPZ *result,
 }
 
 void CLSubtractMPZ(CLDecimalMPZ *result,
-		   CLDecimalMPZ *leftOperand,
-		   CLDecimalMPZ *rightOperand)
+                   CLDecimalMPZ *leftOperand,
+                   CLDecimalMPZ *rightOperand)
 {
   CLNormalizeMPZ(leftOperand, rightOperand);
   mpz_sub(result->mantissa, leftOperand->mantissa, rightOperand->mantissa);
@@ -164,8 +164,8 @@ void CLSubtractMPZ(CLDecimalMPZ *result,
 }
 
 void CLMultiplyMPZ(CLDecimalMPZ *result,
-		   CLDecimalMPZ *leftOperand,
-		   CLDecimalMPZ *rightOperand)
+                   CLDecimalMPZ *leftOperand,
+                   CLDecimalMPZ *rightOperand)
 {
   CLNormalizeMPZ(leftOperand, rightOperand);
   mpz_mul(result->mantissa, leftOperand->mantissa, rightOperand->mantissa);
@@ -174,12 +174,12 @@ void CLMultiplyMPZ(CLDecimalMPZ *result,
 }
 
 void CLDivideMPZ(CLDecimalMPZ *result,
-		 CLDecimalMPZ *leftOperand,
-		 CLDecimalMPZ *rightOperand,
-		 int precision)
+                 CLDecimalMPZ *leftOperand,
+                 CLDecimalMPZ *rightOperand,
+                 int precision)
 {
   mpz_t exp;
-  
+
 
   CLNormalizeMPZ(leftOperand, rightOperand);
   mpz_init(exp);
@@ -192,9 +192,9 @@ void CLDivideMPZ(CLDecimalMPZ *result,
 }
 
 void CLModuloMPZ(CLDecimalMPZ *result,
-		 CLDecimalMPZ *leftOperand,
-		 CLDecimalMPZ *rightOperand,
-		 int precision)
+                 CLDecimalMPZ *leftOperand,
+                 CLDecimalMPZ *rightOperand,
+                 int precision)
 {
   CLNormalizeMPZ(leftOperand, rightOperand);
   mpz_tdiv_r(result->mantissa, leftOperand->mantissa, rightOperand->mantissa);
@@ -203,8 +203,8 @@ void CLModuloMPZ(CLDecimalMPZ *result,
 }
 
 void CLPowerMPZ(CLDecimalMPZ *result,
-		const CLDecimalMPZ *number,
-		CLUInteger power)
+                const CLDecimalMPZ *number,
+                CLUInteger power)
 {
   mpz_pow_ui(result->mantissa, number->mantissa, power);
   result->exponent = number->exponent * power;
@@ -212,8 +212,8 @@ void CLPowerMPZ(CLDecimalMPZ *result,
 }
 
 void CLMultiplyByPowerOf10MPZ(CLDecimalMPZ *result,
-			      const CLDecimalMPZ *number,
-			      short power)
+                              const CLDecimalMPZ *number,
+                              short power)
 {
   mpz_set(result->mantissa, number->mantissa);
   result->exponent = number->exponent + power;
@@ -259,11 +259,11 @@ CLString *CLStringMPZ(CLDecimalMPZ *num)
       [mString insertString:@"-" atIndex:0];
     free(buf);
   }
-  else {    
+  else {
     gmp_asprintf(&buf, "%Zd", num->mantissa);
     aString = [CLString stringWithUTF8String:buf];
     free(buf);
   }
-  
+
   return aString;
 }

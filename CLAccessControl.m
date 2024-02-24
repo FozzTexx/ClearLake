@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -42,7 +42,7 @@
   CLCharacterSet *ws = [CLCharacterSet whitespaceAndNewlineCharacterSet];
   CLRange objRange, flagRange, trimRange;
 
-  
+
   [super init];
   object = nil;
   accountFlags = nil;
@@ -51,26 +51,26 @@
     objRange = [aString rangeOfCharacterFromSet:ws];
     if (objRange.length) {
       flagRange = [aString rangeOfCharacterNotFromSet:ws options:0
-			 range:CLMakeRange(CLMaxRange(objRange),
-					   [aString length] - CLMaxRange(objRange))];
+                         range:CLMakeRange(CLMaxRange(objRange),
+                                           [aString length] - CLMaxRange(objRange))];
       if (flagRange.length) {
-	trimRange = [aString rangeOfCharacterNotFromSet:ws options:0
-						  range:CLMakeRange(0, [aString length])];
-	object = [[aString substringWithRange:
-			    CLMakeRange(trimRange.location,
-					objRange.location - trimRange.location)] retain];
-	trimRange = [aString rangeOfCharacterNotFromSet:ws options:CLBackwardsSearch
-						  range:
-			       CLMakeRange(flagRange.location,
-					   [aString length] - flagRange.location)];
-	accountFlags = [[aString substringWithRange:
-				  CLMakeRange(flagRange.location,
-					      CLMaxRange(trimRange) - flagRange.location)]
-			 retain];
+        trimRange = [aString rangeOfCharacterNotFromSet:ws options:0
+                                                  range:CLMakeRange(0, [aString length])];
+        object = [[aString substringWithRange:
+                            CLMakeRange(trimRange.location,
+                                        objRange.location - trimRange.location)] retain];
+        trimRange = [aString rangeOfCharacterNotFromSet:ws options:CLBackwardsSearch
+                                                  range:
+                               CLMakeRange(flagRange.location,
+                                           [aString length] - flagRange.location)];
+        accountFlags = [[aString substringWithRange:
+                                  CLMakeRange(flagRange.location,
+                                              CLMaxRange(trimRange) - flagRange.location)]
+                         retain];
       }
     }
   }
-  
+
   return self;
 }
 
@@ -94,7 +94,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -143,9 +143,9 @@
     }
 
     if (([target isKindOfClass:CLClassFromString(aClass)] ||
-	 ([target isKindOfClass:CLGenericRecordClass] &&
-	  ([aClass isEqualToString:localClass] || [aClass isEqualToString:localTable]))) &&
-	([aMethod isEqualToString:@"*:"] || [action isEqualToString:aMethod]))
+         ([target isKindOfClass:CLGenericRecordClass] &&
+          ([aClass isEqualToString:localClass] || [aClass isEqualToString:localTable]))) &&
+        ([aMethod isEqualToString:@"*:"] || [action isEqualToString:aMethod]))
       objMatch = YES;
   }
   else if ([anObject isKindOfClass:CLPageClass] && aFilename) {
@@ -156,29 +156,29 @@
       aString = [aString stringByDeletingPathExtension];
 
       if ([CLDelegate respondsTo:@selector(additionalPageDirectories)]) {
-	CLArray *anArray;
-	int i, j;
-	CLString *aDir;
+        CLArray *anArray;
+        int i, j;
+        CLString *aDir;
 
 
-	anArray = [CLDelegate additionalPageDirectories];
-	for (i = 0, j = [anArray count]; i < j; i++) {
-	  aDir = [anArray objectAtIndex:i];
-	  if ([aString hasPathPrefix:aDir]) {
-	    aString = [aString substringFromIndex:[aDir length] + 1];
-	    break;
-	  }
-	}
+        anArray = [CLDelegate additionalPageDirectories];
+        for (i = 0, j = [anArray count]; i < j; i++) {
+          aDir = [anArray objectAtIndex:i];
+          if ([aString hasPathPrefix:aDir]) {
+            aString = [aString substringFromIndex:[aDir length] + 1];
+            break;
+          }
+        }
       }
     }
 
     if ([aString hasPrefix:[CLString stringWithFormat:@"%@/", [CLManager browserType]]])
       aString = [aString substringFromIndex:[[CLManager browserType] length] + 1];
-    
+
     if ([aString isEqualToString:aFilename])
       objMatch = YES;
     if ([aMethod isEqualToString:@"*:"] && [aString hasPrefix:aClass] &&
-	[aString characterAtIndex:[aClass length]] == '_')
+        [aString characterAtIndex:[aClass length]] == '_')
       objMatch = YES;
   }
 
@@ -198,11 +198,11 @@
       return YES;
     for (i = 0, j = [accountFlags length]; i < j; i++)
       if (![account hasFlag:[accountFlags characterAtIndex:i]])
-	break;
+        break;
     if (i == j)
       return YES;
   }
-  
+
   return NO;
 }
 

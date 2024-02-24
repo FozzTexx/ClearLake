@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -50,7 +50,7 @@
 }
 
 +(CLFileStream *) streamWithDescriptor:(int) fd mode:(int) aMode
-				atPath:(CLString *) aPath processID:(int) aPid
+                                atPath:(CLString *) aPath processID:(int) aPid
 {
   return [[[self alloc] initWithDescriptor:fd path:aPath processID:aPid] autorelease];
 }
@@ -118,7 +118,7 @@
 {
   int rlen;
 
-  
+
   rlen = read(fd, buffer, len);
   return rlen;
 }
@@ -147,7 +147,7 @@
 {
   int status = 0;
 
-  
+
   [self close];
   if (pid) {
     waitpid(pid, &status, 0);
@@ -156,7 +156,7 @@
 
   return status;
 }
-  
+
 -(void) remove
 {
   unlink([path UTF8String]);

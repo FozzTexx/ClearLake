@@ -14,7 +14,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -32,13 +32,13 @@
 +(id) defaultCenter;
 
 -(void) addObserver:(id) notificationObserver selector:(SEL) notificationSelector
-	       name:(CLString *) notificationName object:(id) notificationSender;
+               name:(CLString *) notificationName object:(id) notificationSender;
 -(void) postNotification:(CLNotification *) notification;
 -(void) postNotificationName:(CLString *) notificationName object:(id) notificationSender;
 -(void) postNotificationName:(CLString *) notificationName object:(id) notificationSender
-		    userInfo:(CLDictionary *) userInfo;
+                    userInfo:(CLDictionary *) userInfo;
 -(void) removeObserver:(id) notificationObserver;
 -(void) removeObserver:(id) notificationObserver name:(CLString *) notificationName
-		object:(id) notificationSender;
+                object:(id) notificationSender;
 
 @end

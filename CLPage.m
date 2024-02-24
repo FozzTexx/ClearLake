@@ -15,7 +15,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -66,8 +66,8 @@
 #include <wctype.h>
 #include <string.h>
 
-#define BUFSIZE		256
-#define QUERY_DEBUG	@"CLdbg"
+#define BUFSIZE         256
+#define QUERY_DEBUG     @"CLdbg"
 
 static CLArray *CLPageExtensions = nil;
 
@@ -131,7 +131,7 @@ void CLAllowFrom(CLString *aURL)
 {
   int i;
 
-  
+
   if (!validURLs)
     validURLs = [[CLMutableArray alloc] init];
   [validURLs addObject:aURL];
@@ -151,7 +151,7 @@ BOOL CLBrowserAcceptsGzip()
   CLString *aString;
   const char *p, *q;
 
-  
+
   if ((aString = [CLQuery objectForKey:@"htmlgz"]))
     return [aString boolValue];
 
@@ -197,7 +197,7 @@ void CLSetDelegate(id anObject)
 {
   if (!CLPageExtensions)
     CLPageExtensions = [[CLArray alloc]
-			 initWithObjects:@"html", @"shtml", @"htm", nil];
+                         initWithObjects:@"html", @"shtml", @"htm", nil];
   return CLPageExtensions;
 }
 
@@ -209,7 +209,7 @@ void CLSetDelegate(id anObject)
 
   if (!aFilename)
     return nil;
-  
+
   if (aDir) {
     dirs = [[CLMutableArray alloc] init];
     [dirs addObject:aDir];
@@ -226,7 +226,7 @@ void CLSetDelegate(id anObject)
   CLMutableArray *mArray;
   CLArray *anArray;
 
-  
+
   if (!CLPageExtensions)
     [self pageExtensions];
 
@@ -237,23 +237,23 @@ void CLSetDelegate(id anObject)
     [mArray addObjectsFromArray:anArray];
     dirs = mArray;
   }
-  
+
   path = CLFullPathForFile(aFilename, CLPageExtensions, dirs);
 
   if ((aString = [CLManager browserType])) {
     if (!path)
       path = CLFullPathForFile(aFilename, CLPageExtensions,
-			       [CLArray arrayWithObjects:aString, nil]);
+                               [CLArray arrayWithObjects:aString, nil]);
     else {
       aString = [[[path stringByDeletingLastPathComponent]
-		   stringByAppendingPathComponent:aString]
-		  stringByAppendingPathComponent:[path lastPathComponent]];
+                   stringByAppendingPathComponent:aString]
+                  stringByAppendingPathComponent:[path lastPathComponent]];
       if (!access([aString UTF8String], R_OK))
-	path = aString;
+        path = aString;
     }
   }
-  
-  
+
+
   if (path && (stat([path UTF8String], &st) || S_ISDIR(st.st_mode)))
     path = nil;
   return path;
@@ -271,114 +271,114 @@ void CLSetDelegate(id anObject)
     CLPageObjects = CLHashTableAlloc(CLHashTableDefaultSize);
 
     [self addPageObject:[CLPageObject objectForName:@"IMG" result:CL_APPEND
-					objectClass:CLImageElementClass]];
+                                        objectClass:CLImageElementClass]];
     [self addPageObject:[CLPageObject objectForName:@"FORM" result:CL_PUSH
-					objectClass:CLFormClass]];
+                                        objectClass:CLFormClass]];
     [self addPageObject:[CLPageObject objectForName:@"/FORM" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"A" result:CL_PUSH
-					objectClass:CLControlClass]];
+                                        objectClass:CLControlClass]];
     [self addPageObject:[CLPageObject objectForName:@"/A" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"SCRIPT" result:CL_PUSH
-					objectClass:CLScriptElementClass]];
+                                        objectClass:CLScriptElementClass]];
     [self addPageObject:[CLPageObject objectForName:@"/SCRIPT" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
 
     [self addPageObject:[CLPageObject objectForName:@"INPUT" result:CL_APPEND
-					objectClass:CLInputClass]];
+                                        objectClass:CLInputClass]];
     [self addPageObject:[CLPageObject objectForName:@"BUTTON" result:CL_PUSH
-					objectClass:CLButtonClass]];
+                                        objectClass:CLButtonClass]];
     [self addPageObject:[CLPageObject objectForName:@"/BUTTON" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"TEXTAREA" result:CL_PUSH
-					objectClass:CLTextAreaClass]];
+                                        objectClass:CLTextAreaClass]];
     [self addPageObject:[CLPageObject objectForName:@"/TEXTAREA" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"SELECT" result:CL_PUSH
-					objectClass:CLSelectClass]];
+                                        objectClass:CLSelectClass]];
     [self addPageObject:[CLPageObject objectForName:@"/SELECT" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
 
     /* FIXME - this one returns aTag instead of nil */
     [self addPageObject:[CLPageObject objectForName:@"OPTION" result:CL_APPEND
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/OPTION" result:CL_APPEND
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"BASE" result:CL_APPEND
-					objectClass:nil]];
-    
+                                        objectClass:nil]];
+
     [self addPageObject:[CLPageObject objectForName:@"LABEL" result:CL_PUSH
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/LABEL" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"DIV" result:CL_PUSH
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/DIV" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"SPAN" result:CL_PUSH
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/SPAN" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"STYLE" result:CL_PUSH
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/STYLE" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"TABLE" result:CL_PUSH
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/TABLE" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"TR" result:CL_PUSH
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/TR" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"TD" result:CL_PUSH
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/TD" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"TH" result:CL_PUSH
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/TH" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
 
     [self addPageObject:[CLPageObject objectForName:@"UL" result:CL_PUSH
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/UL" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"OL" result:CL_PUSH
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/OL" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"LI" result:CL_PUSHDIFF
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/LI" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
 
     /* ClearLake tags */
     [self addPageObject:[CLPageObject objectForName:@"CL_MARKER" result:CL_APPEND
-					objectClass:CLBlockClass]];
+                                        objectClass:CLBlockClass]];
     [self addPageObject:[CLPageObject objectForName:@"CL_RANGEVIEW" result:CL_APPEND
-					objectClass:CLRangeViewClass]];
+                                        objectClass:CLRangeViewClass]];
     [self addPageObject:[CLPageObject objectForName:@"CL_SPLITTER" result:CL_APPEND
-					objectClass:CLSplitterClass]];
+                                        objectClass:CLSplitterClass]];
     [self addPageObject:[CLPageObject objectForName:@"CL_PAGER" result:CL_PUSH
-					objectClass:CLPagerClass]];
+                                        objectClass:CLPagerClass]];
     [self addPageObject:[CLPageObject objectForName:@"/CL_PAGER" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
 
     [self addPageObject:[CLPageObject objectForName:@"CL_BLOCK" result:CL_PUSH
-					objectClass:nil]];
+                                        objectClass:nil]];
     [self addPageObject:[CLPageObject objectForName:@"/CL_BLOCK" result:CL_POP
-					objectClass:nil]];
-    
+                                        objectClass:nil]];
+
     [self addPageObject:[CLPageObject objectForName:@"CL_CHAINEDSELECT" result:CL_APPEND
-					objectClass:CLChainedSelectClass]];
+                                        objectClass:CLChainedSelectClass]];
 
     /* Legacy - we never use this anymore */
     [self addPageObject:[CLPageObject objectForName:@"CL_CONTROL" result:CL_PUSH
-					objectClass:CLControlClass]];
+                                        objectClass:CLControlClass]];
     [self addPageObject:[CLPageObject objectForName:@"/CL_CONTROL" result:CL_POP
-					objectClass:nil]];
+                                        objectClass:nil]];
   }
 
   return CLPageObjects;
@@ -408,7 +408,7 @@ void CLSetDelegate(id anObject)
 
   owner = datasource = nil;
   messages = nil;
-  
+
   return self;
 }
 
@@ -432,7 +432,7 @@ void CLSetDelegate(id anObject)
 
 -(void) popFile
 {
-  [fileStack removeLastObject];  
+  [fileStack removeLastObject];
   return;
 }
 
@@ -441,7 +441,7 @@ void CLSetDelegate(id anObject)
   CLPageStack *aBuffer;
   CLString *prefix = nil;
   CLString *aString;
-      
+
 
   aBuffer = [fileStack lastObject];
   if (![aPath isAbsolutePath]) {
@@ -453,11 +453,11 @@ void CLSetDelegate(id anObject)
   aPath = [CLPage findFile:aPath directory:prefix];
 
   if ((aString = [[CLString alloc] initWithContentsOfFile:aPath
-				   encoding:CLUTF8StringEncoding])) {
+                                   encoding:CLUTF8StringEncoding])) {
     [self pushString:aString withPath:aPath];
     [aString release];
   }
-      
+
   return;
 }
 
@@ -475,8 +475,8 @@ void CLSetDelegate(id anObject)
   if (flag)
     while (flgets(&buf, &buflen, file))
       if (buf[0] == '\n')
-	break;
-  
+        break;
+
   while (flgets(&buf, &buflen, file))
     strlcat(&buf2, buf);
 
@@ -487,7 +487,7 @@ void CLSetDelegate(id anObject)
     free(buf);
   if (buf2)
     free(buf2);
-  
+
   return [anObject autorelease];
 }
 #endif
@@ -503,7 +503,7 @@ void CLSetDelegate(id anObject)
   for (i = 0, j = [keys count]; i < j; i++) {
     aKey = [keys objectAtIndex:i];
     if ([aKey length] >= 3 && ![aKey compare:@"CL_" options:CLCaseInsensitiveSearch
-	       range:CLMakeRange(0, 3)])
+               range:CLMakeRange(0, 3)])
       return YES;
   }
 
@@ -511,7 +511,7 @@ void CLSetDelegate(id anObject)
 }
 
 -(id) objectForTag:(CLElement *) aTag result:(CLResult *) aResult
-	     stack:(CLMutableArray *) objStack
+             stack:(CLMutableArray *) objStack
 {
   CLString *aString;
   int result = CL_NOOBJECT;
@@ -519,8 +519,8 @@ void CLSetDelegate(id anObject)
   CLPageObject *pageObject;
   Class aClass;
   CLHashTable *poTable;
-  
-  
+
+
   aString = [aTag title];
   if (![aString caseInsensitiveCompare:@"BODY"]) {
     /* FIXME - eat all whitespace after this tag */
@@ -541,15 +541,15 @@ void CLSetDelegate(id anObject)
   else {
     if (![aString caseInsensitiveCompare:@"FRAMESET"])
       frames = YES;
-    
+
     poTable = [[self class] objectsForTags];
     if ((pageObject = CLHashTableDataForKey(poTable, aString, [aString hash],
-					    @selector(isEqualToCaseInsensitiveString:)))) {
+                                            @selector(isEqualToCaseInsensitiveString:)))) {
       result = [pageObject result];
       if ((aClass = [pageObject objectClass]))
-	anObject = [[[aClass alloc] initFromElement:aTag onPage:self] autorelease];
+        anObject = [[[aClass alloc] initFromElement:aTag onPage:self] autorelease];
       else if (result == CL_PUSH || result == CL_PUSHDIFF)
-	anObject = [[[CLBlock alloc] initFromElement:aTag onPage:self] autorelease];
+        anObject = [[[CLBlock alloc] initFromElement:aTag onPage:self] autorelease];
     }
   }
 
@@ -565,20 +565,20 @@ void CLSetDelegate(id anObject)
 
 
   wSet = [CLCharacterSet whitespaceAndNewlineCharacterSet];
-  
+
   do {
     anObject = [mArray objectAtIndex:index];
     if (![anObject isKindOfClass:CLStringClass])
       return;
     aRange = [anObject rangeOfCharacterNotFromSet:wSet options:0
-					    range:CLMakeRange(0, [anObject length])];
+                                            range:CLMakeRange(0, [anObject length])];
     if (!flag) {
       aRange2 = [anObject rangeOfString:@"\n"];
       if (aRange2.length &&
-	  ((aRange.length && CLMaxRange(aRange2) < aRange.location) ||
-	   !aRange.length)) {
-	aRange = aRange2;
-	aRange.location++;
+          ((aRange.length && CLMaxRange(aRange2) < aRange.location) ||
+           !aRange.length)) {
+        aRange = aRange2;
+        aRange.location++;
       }
     }
     if (!aRange.length)
@@ -599,10 +599,10 @@ void CLSetDelegate(id anObject)
   CLString *aString;
   id anObject;
 
-  
+
   if (!(aFilename = [CLPage findFile:aFilename directory:nil]) ||
       !(aString = [[CLString alloc] initWithContentsOfFile:aFilename
-				    encoding:CLUTF8StringEncoding])) {
+                                    encoding:CLUTF8StringEncoding])) {
     [self initFromTitle:nil];
     [self release];
     return nil;
@@ -637,11 +637,11 @@ void CLSetDelegate(id anObject)
     mArray = [lastObject content];
   else if ([lastObject isKindOfClass:CLArrayClass])
     mArray = lastObject;
-  
+
   for (i = [mArray count] - 1; i >= 0; i--) {
     anObject = [mArray objectAtIndex:i];
     if ([anObject isMemberOfClass:CLElementClass] &&
-	![[((CLElement *) anObject) title] caseInsensitiveCompare:aTitle])
+        ![[((CLElement *) anObject) title] caseInsensitiveCompare:aTitle])
       break;
   }
 
@@ -658,7 +658,7 @@ void CLSetDelegate(id anObject)
     aRange.length = j - aRange.location;
     [mArray removeObjectsInRange:aRange];
     [lastObject addObject:newBlock];
-    [newBlock release];    
+    [newBlock release];
   }
 
   return;
@@ -678,15 +678,15 @@ void CLSetDelegate(id anObject)
   CLAutoreleasePool *pool;
   unichar *scriptBuf;
   CLString *scriptEnd = @"</SCRIPT";
-  
+
 
   pool = [[CLAutoreleasePool alloc] init];
-  
+
   [self initFromTitle:nil];
   filename = [aFilename copy];
-  
+
   owner = [anOwner retain];
-  
+
   if (!(b1 = malloc((l1 = BUFSIZE) * sizeof(unichar))))
     [self error:@"Unable to allocate memory"];
   if (!(b2 = malloc((l2 = BUFSIZE) * sizeof(unichar))))
@@ -694,7 +694,7 @@ void CLSetDelegate(id anObject)
 
   fileStack = [[CLMutableArray alloc] init];
   [self pushString:htmlString withPath:filename];
-  
+
   if (!(scriptBuf = malloc([scriptEnd length] * sizeof(unichar))))
     [self error:@"Unable to allocate memory"];
   [scriptEnd getCharacters:scriptBuf];
@@ -703,96 +703,96 @@ void CLSetDelegate(id anObject)
   while ([fileStack count]) {
     while ((c = [[fileStack lastObject] nextCharacter])) {
       if (c == '<') {
-	inString = inElement = inComment = commentCount = allowComment = 0;
-	anObject = [mArray lastObject];
-	inScript = [anObject isKindOfClass:CLElementClass] &&
-	  ![[(CLElement *) anObject title] caseInsensitiveCompare:@"SCRIPT"];
-	do {
-	  b1[p1++] = c;
+        inString = inElement = inComment = commentCount = allowComment = 0;
+        anObject = [mArray lastObject];
+        inScript = [anObject isKindOfClass:CLElementClass] &&
+          ![[(CLElement *) anObject title] caseInsensitiveCompare:@"SCRIPT"];
+        do {
+          b1[p1++] = c;
 
-	  if (inScript && p1 <= [scriptEnd length] &&
-	      towupper(b1[p1-1]) != scriptBuf[p1-1]) {
-	    c = 0;
-	    break;
-	  }
-	  
-	  if (c == '!' && p1 == 2)
-	    allowComment++;
-	  if (allowComment) {
-	    if (c == '-')
-	      commentCount++;
-	    else
-	      commentCount = 0;
-	    if (commentCount && !(commentCount % 2))
-	      inComment = !inComment;
-	  }
-	  else if (!inComment && (c == '"' || c == '\'')) {
-	    if (!inString)
-	      inString = c;
-	    else if (inString == c)
-	      inString = 0;
-	  }
-	  else if (!inComment && !inString && c == '<')
-	    inElement++;
-	  else if (!inComment && !inString && c == '>')
-	    inElement--;
-	  if (p1 >= l1)
-	    b1 = realloc(b1, (l1 += BUFSIZE) * sizeof(unichar));
-	} while ((c = [[fileStack lastObject] nextCharacter]) &&
-		 (c != '>' || inComment || inString || inElement > 1));
-	
-	if (c) {
-	  b1[p1++] = c;
-	  if (p1 >= l1)
-	    b1 = realloc(b1, (l1 += BUFSIZE) * sizeof(unichar));
-	}
+          if (inScript && p1 <= [scriptEnd length] &&
+              towupper(b1[p1-1]) != scriptBuf[p1-1]) {
+            c = 0;
+            break;
+          }
 
-	if (inScript && p1 <= [scriptEnd length]) {
-	  if (p2 + p1 >= l2) {
-	    while (p2 + p1 >= l2)
-	      l2 += BUFSIZE;
-	    b2 = realloc(b2, l2 * sizeof(unichar));
-	  }
-	  memcpy(&b2[p2], b1, p1 * sizeof(unichar));
-	  p2 += p1;
-	}
-	else {
-	  CLElement *aTag;
+          if (c == '!' && p1 == 2)
+            allowComment++;
+          if (allowComment) {
+            if (c == '-')
+              commentCount++;
+            else
+              commentCount = 0;
+            if (commentCount && !(commentCount % 2))
+              inComment = !inComment;
+          }
+          else if (!inComment && (c == '"' || c == '\'')) {
+            if (!inString)
+              inString = c;
+            else if (inString == c)
+              inString = 0;
+          }
+          else if (!inComment && !inString && c == '<')
+            inElement++;
+          else if (!inComment && !inString && c == '>')
+            inElement--;
+          if (p1 >= l1)
+            b1 = realloc(b1, (l1 += BUFSIZE) * sizeof(unichar));
+        } while ((c = [[fileStack lastObject] nextCharacter]) &&
+                 (c != '>' || inComment || inString || inElement > 1));
 
-	  
-	  if (p2) {
-	    [mArray addObject:[CLString stringWithCharacters:b2 length:p2]];
-	    p2 = 0;
-	  }
+        if (c) {
+          b1[p1++] = c;
+          if (p1 >= l1)
+            b1 = realloc(b1, (l1 += BUFSIZE) * sizeof(unichar));
+        }
 
-	  aTag = [[CLElement alloc]
-		   initFromString:[CLString stringWithCharacters:b1 length:p1]
-		   onPage:self];
+        if (inScript && p1 <= [scriptEnd length]) {
+          if (p2 + p1 >= l2) {
+            while (p2 + p1 >= l2)
+              l2 += BUFSIZE;
+            b2 = realloc(b2, l2 * sizeof(unichar));
+          }
+          memcpy(&b2[p2], b1, p1 * sizeof(unichar));
+          p2 += p1;
+        }
+        else {
+          CLElement *aTag;
 
-	  aString = [aTag title];
-	  if (![aString compare:@"!--#include"]) { /* NOT case insensitive on purpose */
-	    if ([[aTag attributes] objectForKey:@"virtual"])
-	      [self includeFile:[[aTag attributes] objectForKey:@"virtual"]];
-	    else if ([[aTag attributes] objectForKey:@"file"])
-	      [self includeFile:[[aTag attributes] objectForKey:@"file"]];
-	  }
-	  else if ([aString length] && [aString characterAtIndex:0] == '!') {
-	    [aTag release];
-	    aTag = [[CLElement alloc] init];
-	    [aTag setTitle:[CLString stringWithCharacters:b1+1 length:p1-2]];
-	    [mArray addObject:aTag];
-	  }
-	  else 
-	    [mArray addObject:aTag];
-	  [aTag release];	
-	}
 
-	p1 = 0;
+          if (p2) {
+            [mArray addObject:[CLString stringWithCharacters:b2 length:p2]];
+            p2 = 0;
+          }
+
+          aTag = [[CLElement alloc]
+                   initFromString:[CLString stringWithCharacters:b1 length:p1]
+                   onPage:self];
+
+          aString = [aTag title];
+          if (![aString compare:@"!--#include"]) { /* NOT case insensitive on purpose */
+            if ([[aTag attributes] objectForKey:@"virtual"])
+              [self includeFile:[[aTag attributes] objectForKey:@"virtual"]];
+            else if ([[aTag attributes] objectForKey:@"file"])
+              [self includeFile:[[aTag attributes] objectForKey:@"file"]];
+          }
+          else if ([aString length] && [aString characterAtIndex:0] == '!') {
+            [aTag release];
+            aTag = [[CLElement alloc] init];
+            [aTag setTitle:[CLString stringWithCharacters:b1+1 length:p1-2]];
+            [mArray addObject:aTag];
+          }
+          else
+            [mArray addObject:aTag];
+          [aTag release];
+        }
+
+        p1 = 0;
       }
       else {
-	b2[p2++] = c;
-	if (p2 >= l2)
-	  b2 = realloc(b2, (l2 += BUFSIZE) * sizeof(unichar));
+        b2[p2++] = c;
+        if (p2 >= l2)
+          b2 = realloc(b2, (l2 += BUFSIZE) * sizeof(unichar));
       }
     }
 
@@ -801,7 +801,7 @@ void CLSetDelegate(id anObject)
 
   [fileStack release];
   fileStack = nil;
-  
+
   if (p2) {
     [mArray addObject:[CLString stringWithCharacters:b2 length:p2]];
     p2 = 0;
@@ -822,104 +822,104 @@ void CLSetDelegate(id anObject)
     for (i = 0, j = [mArray count]; i < j; i++) {
       anObject = [mArray objectAtIndex:i];
       if ([anObject isKindOfClass:CLStringClass])
-	[[objStack lastObject] addObject:anObject];
+        [[objStack lastObject] addObject:anObject];
       else if ([anObject isKindOfClass:CLElementClass]) {
-	aString = [(CLElement *) anObject title];
+        aString = [(CLElement *) anObject title];
 
-	if (![aString caseInsensitiveCompare:@"HTML"]) {
-	  if ([body count]) {
-	    [preHeader addObjectsFromArray:body];
-	    [body removeAllObjects];
-	  }
-	  [self removeWhitespace:mArray index:i+1 all:YES];
-	  j = [mArray count];
-	}
-	else if (![aString caseInsensitiveCompare:@"/HTML"])
-	  /* Do Nothing */;
-	else if (![aString caseInsensitiveCompare:@"HEAD"]) {
-	  if ([body count]) {
-	    if (![preHeader count])
-	      [preHeader addObjectsFromArray:body];
-	    else
-	      [header addObjectsFromArray:body];
-	    [body removeAllObjects];
-	  }
-	  [objStack addObject:header];
-	  [self removeWhitespace:mArray index:i+1 all:NO];
-	  j = [mArray count];
-	}
-	else if (![aString caseInsensitiveCompare:@"/HEAD"]) {
-	  if ([objStack lastObject] == header)
-	    [objStack removeLastObject];
-	}
-	else if (![aString caseInsensitiveCompare:@"TITLE"]) {
-	  anObject = [[[CLBlock alloc] initFromElement:anObject onPage:self] autorelease];
-	  [objStack addObject:anObject];
-	}
-	else if (![aString caseInsensitiveCompare:@"/TITLE"]) {
-	  title = [[objStack lastObject] retain];
-	  [objStack removeLastObject];
-	}
-	else {
-	  CLResult result;
-	  id newObject;
+        if (![aString caseInsensitiveCompare:@"HTML"]) {
+          if ([body count]) {
+            [preHeader addObjectsFromArray:body];
+            [body removeAllObjects];
+          }
+          [self removeWhitespace:mArray index:i+1 all:YES];
+          j = [mArray count];
+        }
+        else if (![aString caseInsensitiveCompare:@"/HTML"])
+          /* Do Nothing */;
+        else if (![aString caseInsensitiveCompare:@"HEAD"]) {
+          if ([body count]) {
+            if (![preHeader count])
+              [preHeader addObjectsFromArray:body];
+            else
+              [header addObjectsFromArray:body];
+            [body removeAllObjects];
+          }
+          [objStack addObject:header];
+          [self removeWhitespace:mArray index:i+1 all:NO];
+          j = [mArray count];
+        }
+        else if (![aString caseInsensitiveCompare:@"/HEAD"]) {
+          if ([objStack lastObject] == header)
+            [objStack removeLastObject];
+        }
+        else if (![aString caseInsensitiveCompare:@"TITLE"]) {
+          anObject = [[[CLBlock alloc] initFromElement:anObject onPage:self] autorelease];
+          [objStack addObject:anObject];
+        }
+        else if (![aString caseInsensitiveCompare:@"/TITLE"]) {
+          title = [[objStack lastObject] retain];
+          [objStack removeLastObject];
+        }
+        else {
+          CLResult result;
+          id newObject;
 
 
-	  /* What? Close the head? We're awesome web designers, don't need to do that! */
-	  if (![aString caseInsensitiveCompare:@"BODY"] && [objStack lastObject] == header)
-	    [objStack removeLastObject];
-	  
-	  newObject = [self objectForTag:anObject result:&result stack:objStack];
-	  
-	  if (newObject)
-	    anObject = newObject;
-	  
-	  switch (result) {
-	  case CL_PUSHDIFF:
-	    if ([[objStack lastObject] isKindOfClass:CLBlockClass] &&
-		![[((CLElement *) [objStack lastObject]) title]
-		   caseInsensitiveCompare:[((CLElement *) anObject) title]])
-	      [objStack removeLastObject];
-	    /* Fall-through intentional */
-	  case CL_PUSH:
-	    [[objStack lastObject] addObject:anObject];
-	    [objStack addObject:anObject];
-	    break;
-	  case CL_POP:
-	    /* Compensate for mismatched tags */
-	    while ([[objStack lastObject] isKindOfClass:CLBlockClass] &&
-		   [[((CLElement *) [objStack lastObject]) title]
-					 caseInsensitiveCompare:
-		       [[((CLElement *) anObject) title]
-					      substringFromIndex:1]])
-	      [objStack removeLastObject];
-	    [objStack removeLastObject];
-	    break;
-	  case CL_DISCARD:
-	    [self removeWhitespace:mArray index:i+1 all:NO];
-	    j = [mArray count];
-	    break;
-	  case CL_APPEND:
-	  default:
-	    aString = [(CLElement *) anObject title];
-	    if ([aString length] && [aString characterAtIndex:0] == '/')
-	      [self closeObject:anObject in:[objStack lastObject]];
-	    else {
-	      /* FIXME - close objects that can't nest like P and LI
-		 and OPTION and TR/TD/TH */
-	      [[objStack lastObject] addObject:anObject];
-	    }
-	    break;
-	  }
-	}
+          /* What? Close the head? We're awesome web designers, don't need to do that! */
+          if (![aString caseInsensitiveCompare:@"BODY"] && [objStack lastObject] == header)
+            [objStack removeLastObject];
+
+          newObject = [self objectForTag:anObject result:&result stack:objStack];
+
+          if (newObject)
+            anObject = newObject;
+
+          switch (result) {
+          case CL_PUSHDIFF:
+            if ([[objStack lastObject] isKindOfClass:CLBlockClass] &&
+                ![[((CLElement *) [objStack lastObject]) title]
+                   caseInsensitiveCompare:[((CLElement *) anObject) title]])
+              [objStack removeLastObject];
+            /* Fall-through intentional */
+          case CL_PUSH:
+            [[objStack lastObject] addObject:anObject];
+            [objStack addObject:anObject];
+            break;
+          case CL_POP:
+            /* Compensate for mismatched tags */
+            while ([[objStack lastObject] isKindOfClass:CLBlockClass] &&
+                   [[((CLElement *) [objStack lastObject]) title]
+                                         caseInsensitiveCompare:
+                       [[((CLElement *) anObject) title]
+                                              substringFromIndex:1]])
+              [objStack removeLastObject];
+            [objStack removeLastObject];
+            break;
+          case CL_DISCARD:
+            [self removeWhitespace:mArray index:i+1 all:NO];
+            j = [mArray count];
+            break;
+          case CL_APPEND:
+          default:
+            aString = [(CLElement *) anObject title];
+            if ([aString length] && [aString characterAtIndex:0] == '/')
+              [self closeObject:anObject in:[objStack lastObject]];
+            else {
+              /* FIXME - close objects that can't nest like P and LI
+                 and OPTION and TR/TD/TH */
+              [[objStack lastObject] addObject:anObject];
+            }
+            break;
+          }
+        }
       }
       else
-	[self error:@"WTF is this?"];
+        [self error:@"WTF is this?"];
     }
   }
 
   [mArray release];
-  
+
   if ([[CLQuery objectForKey:QUERY_DEBUG] boolValue]) {
     const char *p;
 
@@ -933,9 +933,9 @@ void CLSetDelegate(id anObject)
 
       [self addObject:@"<!-- FILES:"];
       for (i = 0, j = [usedFiles count]; i < j; i++) {
-	if (i)
-	  [self addObject:@", "];
-	[self addObject:[[usedFiles objectAtIndex:i] lastPathComponent]];
+        if (i)
+          [self addObject:@", "];
+        [self addObject:[[usedFiles objectAtIndex:i] lastPathComponent]];
       }
       [self addObject:@" -->"];
     }
@@ -977,7 +977,7 @@ void CLSetDelegate(id anObject)
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -1036,7 +1036,7 @@ void CLSetDelegate(id anObject)
   owner = anObject;
   return;
 }
-  
+
 -(id) datasource
 {
   if (!datasource)
@@ -1067,17 +1067,17 @@ void CLSetDelegate(id anObject)
 #if 0
       /* See if there's any database tables that might match */
       if ((anObject = [CLDefaultContext tableForClassName:aString]))
-	anObject = [CLDefaultContext classForTable:anObject];
+        anObject = [CLDefaultContext classForTable:anObject];
 #endif
     }
   }
   else
     anObject = [[self datasource] objectValueForBinding:aString found:&found];
-    
+
   if (aRange.length)
     anObject = [anObject objectValueForBinding:
-			   [aBinding substringFromIndex:CLMaxRange(aRange)] found:&found];
-  
+                           [aBinding substringFromIndex:CLMaxRange(aRange)] found:&found];
+
   return anObject;
 }
 
@@ -1113,7 +1113,7 @@ void CLSetDelegate(id anObject)
 
 
   *found = NO;
-  
+
   aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
   if (!aRange.length)
     aString = aBinding;
@@ -1124,11 +1124,11 @@ void CLSetDelegate(id anObject)
     return [super objectValueForBinding:aBinding found:found];
 
   *found = YES;
-  
+
   if (aRange.length)
     anObject = [anObject objectValueForBinding:
-			   [aBinding substringFromIndex:CLMaxRange(aRange)] found:found];
-  
+                           [aBinding substringFromIndex:CLMaxRange(aRange)] found:found];
+
   return anObject;
 }
 
@@ -1174,7 +1174,7 @@ void CLSetDelegate(id anObject)
   [title setContent:aTitle];
   return;
 }
-       
+
 -(void) writeHTML:(CLStream *) stream
 {
   [self writeHTML:stream withHeaders:YES];
@@ -1193,11 +1193,11 @@ void CLSetDelegate(id anObject)
       return YES;
 
     if ([anObject respondsTo:@selector(content)] &&
-	[[anObject content] isKindOfClass:CLArrayClass] &&
-	[self needsLoadEvent:[anObject content]])
+        [[anObject content] isKindOfClass:CLArrayClass] &&
+        [self needsLoadEvent:[anObject content]])
       return YES;
   }
-  
+
   return NO;
 }
 
@@ -1208,7 +1208,7 @@ void CLSetDelegate(id anObject)
 }
 
 -(void) writeHTML:(CLStream *) stream withHeaders:(BOOL) showHeaders
-	   output:(CLData **) output
+           output:(CLData **) output
 {
   CLStream *headerStream = nil;
 
@@ -1226,7 +1226,7 @@ void CLSetDelegate(id anObject)
 }
 
 -(void) writeHTML:(CLStream *) htmlStream headers:(CLStream *) headerStream
-	   output:(CLData **) output
+           output:(CLData **) output
 {
   int j, k;
   CLStream *stream2;
@@ -1256,19 +1256,19 @@ void CLSetDelegate(id anObject)
        tag, not a relative one. */
 
     documentRoot = [CLEnvironment objectForKey:@"DOCUMENT_ROOT"];
-    
+
     if ([filename hasPathPrefix:documentRoot]) {
       baseDir = CLCopyStackString(@"/", [filename length]);
       [((CLMutableString *) &baseDir) appendPathComponent:filename];
       [((CLMutableString *) &baseDir) deleteLastPathComponent];
       [((CLMutableString *) &baseDir) deletePathPrefix:documentRoot];
       if ([CLDelegate respondsTo:@selector(page:willUseBaseDirectory:)] &&
-	  (aString = [CLDelegate page:self willUseBaseDirectory:(CLString *) &baseDir])) {
-	baseDir = CLCloneStackString(aString);
+          (aString = [CLDelegate page:self willUseBaseDirectory:(CLString *) &baseDir])) {
+        baseDir = CLCloneStackString(aString);
       }
       baseURL = CLCopyStackString(CLServerURL, baseDir.len + 2);
       if (baseDir.len)
-	[((CLMutableString *) &baseURL) appendPathComponent:(CLString *) &baseDir];
+        [((CLMutableString *) &baseURL) appendPathComponent:(CLString *) &baseDir];
     }
     else {
 #if 0
@@ -1280,25 +1280,25 @@ void CLSetDelegate(id anObject)
     }
     [((CLMutableString *) &baseURL) appendPathComponent:@"/"];
     [stream2 writeFormat:@"<BASE HREF=\"%@\">\n" usingEncoding:CLUTF8StringEncoding,
-	     (CLString *) &baseURL];
+             (CLString *) &baseURL];
   }
 
   CLWriteHTMLObject(stream2, header);
 
   if ([self needsLoadEvent:body])
     CLPrintf(stream2, @""
-	     "<SCRIPT LANGUAGE=JavaScript>\n"
-	     "function CLAddLoadEvent(func) {\n"
-	     "  var oldonload = window.onload;\n"
-	     "  if (typeof window.onload != 'function')\n"
-	     "    window.onload = func;\n"
-	     "  else\n"
-	     "    window.onload = function() {\n"
-	     "      oldonload();\n"
-	     "      func();\n"
-	     "    }\n"
-	     "}\n"
-	     "</SCRIPT>\n");
+             "<SCRIPT LANGUAGE=JavaScript>\n"
+             "function CLAddLoadEvent(func) {\n"
+             "  var oldonload = window.onload;\n"
+             "  if (typeof window.onload != 'function')\n"
+             "    window.onload = func;\n"
+             "  else\n"
+             "    window.onload = function() {\n"
+             "      oldonload();\n"
+             "      func();\n"
+             "    }\n"
+             "}\n"
+             "</SCRIPT>\n");
 
   CLPrintf(stream2, @"</HEAD>\n");
 
@@ -1327,14 +1327,14 @@ void CLSetDelegate(id anObject)
     CLPrintf(headerStream, @"Content-Type: text/html; charset=UTF-8\r\n");
     CLPrintf(headerStream, @"Cache-Control: must-revalidate\r\n");
   }
-  
+
   if (gz) {
     CLData *gzData;
 
 
     if (!CLDeflate([aData bytes], [aData length], 9, &gzData)) {
       if (headerStream)
-	CLPrintf(headerStream, @"Content-Encoding: gzip\r\n");
+        CLPrintf(headerStream, @"Content-Encoding: gzip\r\n");
       aData = gzData;
     }
     else
@@ -1347,11 +1347,11 @@ void CLSetDelegate(id anObject)
     //CLPrintf(headerStream, @"Expires: -1\r\n");
     for (j = 0, k = [CLCookies count]; j < k; j++)
       if (![[CLCookies objectAtIndex:j] isFromBrowser])
-	CLPrintf(headerStream, @"Set-Cookie: %@\r\n",
-		 [[CLCookies objectAtIndex:j] cookieString]);
+        CLPrintf(headerStream, @"Set-Cookie: %@\r\n",
+                 [[CLCookies objectAtIndex:j] cookieString]);
     CLPrintf(headerStream, @"\r\n");
   }
-    
+
   [htmlStream writeData:aData];
   [stream2 close];
   return;
@@ -1366,16 +1366,16 @@ void CLSetDelegate(id anObject)
 
 
   mArray = [[CLMutableArray alloc] init];
-  
+
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject respondsTo:@selector(attributes)] &&
-	(aString = [[anObject attributes] objectForCaseInsensitiveString:@"ID"]))
+        (aString = [[anObject attributes] objectForCaseInsensitiveString:@"ID"]))
       [mArray addObject:aString];
 
     if ([anObject respondsTo:@selector(content)] &&
-	[[anObject content] isKindOfClass:CLArrayClass] &&
-	(anObject = [self allIDs:[anObject content]]))
+        [[anObject content] isKindOfClass:CLArrayClass] &&
+        (anObject = [self allIDs:[anObject content]]))
       [mArray addObjectsFromArray:anObject];
   }
 
@@ -1383,7 +1383,7 @@ void CLSetDelegate(id anObject)
     [mArray release];
     mArray = nil;
   }
-  
+
   return [mArray autorelease];
 }
 
@@ -1406,7 +1406,7 @@ void CLSetDelegate(id anObject)
     [mArray release];
     mArray = nil;
   }
-  
+
   return [mArray autorelease];
 }
 
@@ -1420,11 +1420,11 @@ void CLSetDelegate(id anObject)
 {
   CLStream *htmlStream, *headerStream;
   BOOL disp;
-  
+
 
   if (output)
     *output = nil;
-  
+
   CLMainPage = self;
 
   if (!(disp = [[CLManager manager] checkPermission:self]) &&
@@ -1441,7 +1441,7 @@ void CLSetDelegate(id anObject)
       [owner pageWillDisplay:self];
     if (owner != CLDelegate && [CLDelegate respondsTo:@selector(pageWillDisplay:)])
       [CLDelegate pageWillDisplay:self];
-    
+
     [self updateBindings];
 
 #if 0
@@ -1453,15 +1453,15 @@ void CLSetDelegate(id anObject)
       anArray = [self allIDs:body];
       anArray = [self findDuplicates:anArray];
       if ([anArray count]) {
-	mString = [CLMutableString stringWithString:@"Duplicate IDs: "];
-	for (i = 0, j = [anArray count]; i < j; i++) {
-	  if (i)
-	    [mString appendString:@", "];
-	  [mString appendString:[anArray objectAtIndex:i]];
-	}
-	[body insertObject:mString atIndex:0];
+        mString = [CLMutableString stringWithString:@"Duplicate IDs: "];
+        for (i = 0, j = [anArray count]; i < j; i++) {
+          if (i)
+            [mString appendString:@", "];
+          [mString appendString:[anArray objectAtIndex:i]];
+        }
+        [body insertObject:mString atIndex:0];
       }
-    }  
+    }
 #endif
 
     htmlStream = CLPageDisplayHTML;
@@ -1481,7 +1481,7 @@ void CLSetDelegate(id anObject)
     fprintf(stderr, "Count: %i\n", mysqlCount);
   }
 #endif
-  
+
   return;
 }
 
@@ -1494,7 +1494,7 @@ void CLSetDelegate(id anObject)
   CLWriteHTMLObject(stream, body);
   [stream close];
   return [stream data];
-}  
+}
 
 -(CLDictionary *) bodyAttributes
 {
@@ -1530,33 +1530,33 @@ void CLSetDelegate(id anObject)
     anObject = [anArray objectAtIndex:idx];
     if ([anObject respondsTo:@selector(attributes)]) {
       if ([[[anObject attributes] objectForCaseInsensitiveString:@"ID"]
-	    isEqualToString:idString])
-	return anObject;
+            isEqualToString:idString])
+        return anObject;
       if ((aString = [[anObject attributes] objectForCaseInsensitiveString:@"CL_ID"])) {
-	aString = [[anObject expandBinding:aString success:&success] description];
-	if ([aString isEqualToString:idString])
-	  return anObject;
+        aString = [[anObject expandBinding:aString success:&success] description];
+        if ([aString isEqualToString:idString])
+          return anObject;
       }
     }
 
     if ([anObject respondsTo:@selector(content)] &&
-	[[anObject content] isKindOfClass:CLArrayClass] &&
-	(anObject = [self objectWithID:idString fromArray:[anObject content]]))
+        [[anObject content] isKindOfClass:CLArrayClass] &&
+        (anObject = [self objectWithID:idString fromArray:[anObject content]]))
       return anObject;
   }
-  
+
   return nil;
 }
 
 -(id) objectWithID:(CLString *) aString
 {
   id anObject;
- 
-  
+
+
   if (!(anObject = [self objectWithID:aString fromArray:body]))
     if (!(anObject = [self objectWithID:aString fromArray:header]))
       anObject = [self objectWithID:aString fromArray:preHeader];
-  
+
   return anObject;
 }
 
@@ -1598,17 +1598,17 @@ void CLRedirectBrowser(CLString *newURL, BOOL includeQuery, int status)
     for (c = '?', i = 0, j = [keys count]; i < j; i++) {
       aKey = [keys objectAtIndex:i];
       if ([aKey hasPrefix:@"CLurl"])
-	continue;
-      
+        continue;
+
       aValue = [CLQuery objectForKey:aKey];
       if (aValue && aValue != CLNullObject)
-	[mString appendFormat:@"%c%@=%@", c, [[aKey description]
-					       stringByAddingPercentEscapes],
-		 [[aValue description] stringByAddingPercentEscapes]];
+        [mString appendFormat:@"%c%@=%@", c, [[aKey description]
+                                               stringByAddingPercentEscapes],
+                 [[aValue description] stringByAddingPercentEscapes]];
       else
-	[mString appendFormat:@"%c%@", c, [[aKey description] stringByAddingPercentEscapes]];
+        [mString appendFormat:@"%c%@", c, [[aKey description] stringByAddingPercentEscapes]];
 
-      c = '&';      
+      c = '&';
     }
 #if DEBUG_RETAIN
     id self = nil;
@@ -1629,19 +1629,19 @@ void CLRedirectBrowser(CLString *newURL, BOOL includeQuery, int status)
   for (i = 0, j = [CLCookies count]; i < j; i++)
     if (![[CLCookies objectAtIndex:i] isFromBrowser])
       printf("Set-Cookie: %s\n",
-	     [[[CLCookies objectAtIndex:i] cookieString] UTF8String]);
+             [[[CLCookies objectAtIndex:i] cookieString] UTF8String]);
   printf("Content-Type: text/html\r\n");
   printf("\r\n");
   printf("<HTML><HEAD>"
-	 "<TITLE>%i", status);
+         "<TITLE>%i", status);
   if (statusString)
     printf(" %s", [statusString UTF8String]);
   printf("</TITLE>"
-	 "</HEAD><BODY>"
-	 "<H1>Moved Temporarily</H1>"
-	 "The document has moved <A HREF=\"%s\">here</A>.<P>"
-	 "</BODY></HTML>"
-	 "\r\n", [newURL UTF8String]);
+         "</HEAD><BODY>"
+         "<H1>Moved Temporarily</H1>"
+         "The document has moved <A HREF=\"%s\">here</A>.<P>"
+         "</BODY></HTML>"
+         "\r\n", [newURL UTF8String]);
 
   exit(0);
   return;

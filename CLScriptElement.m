@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -36,7 +36,7 @@
   if (!ignore)
     ignore = [CLMutableArray array];
   [ignore addObjects:@"CL_VARIABLES", @"CL_INCLUDE", @"CL_XSS", nil];
-  
+
   [super writeAttributes:stream ignore:ignore];
   return;
 }
@@ -55,13 +55,13 @@
 
   anArray = [aString componentsSeparatedByString:@" "];
   mDict = [CLMutableDictionary dictionary];
-  
+
   for (i = 0, j = [anArray count]; i < j; i++) {
     aValue = [anArray objectAtIndex:i];
     aRange = [aValue rangeOfString:@"="];
     if (aRange.location) {
       anExp = [[CLExpression alloc]
-		initFromString:[aValue substringFromIndex:CLMaxRange(aRange)]];
+                initFromString:[aValue substringFromIndex:CLMaxRange(aRange)]];
       anObject = [anExp evaluate:self success:&success];
       [anExp release];
 
@@ -71,14 +71,14 @@
 
   return mDict;
 }
-  
+
 -(void) readURL:(CLStream *) stream
 {
   CLString *filename;
   id anObject;
   CLPage *aPage;
 
-  
+
   [stream readTypes:@"@@@@", &attributes, &content, &filename, &anObject];
   aPage = [[CLPage alloc] initFromFile:filename owner:anObject];
   [self setPage:aPage];
@@ -91,7 +91,7 @@
   CLString *filename;
   id anObject;
 
-  
+
   filename = [page filename];
   anObject = [page owner];
   [stream writeTypes:@"@@@@", &attributes, &content, &filename, &anObject];
@@ -139,24 +139,24 @@
       aString = [anArray objectAtIndex:i];
       anObject = [aDict objectForKey:aString];
       if ([anObject respondsTo:@selector(json)])
-	aValue = [anObject json];
+        aValue = [anObject json];
       else if ([anObject isKindOfClass:CLBlockClass]) {
-	stream2 = [CLStream openMemoryForWriting];
-	[anObject updateBinding];
-	[anObject writeHTML:stream2];
-	/* FIXME - we should be using nocopy to move the stream buffer into the string */
-	aData = [stream2 data];
-	aValue = [[CLString stringWithData:aData encoding:CLUTF8StringEncoding] json];
-	[stream2 close];
+        stream2 = [CLStream openMemoryForWriting];
+        [anObject updateBinding];
+        [anObject writeHTML:stream2];
+        /* FIXME - we should be using nocopy to move the stream buffer into the string */
+        aData = [stream2 data];
+        aValue = [[CLString stringWithData:aData encoding:CLUTF8StringEncoding] json];
+        [stream2 close];
       }
       else
-	aValue = [[anObject description] json];
+        aValue = [[anObject description] json];
 
       [stream writeFormat:@"  var %@ = %@;\n" usingEncoding:CLUTF8StringEncoding,
-	      aString, aValue];
+              aString, aValue];
     }
   }
-  
+
   if ((aString = [attributes objectForCaseInsensitiveString:@"CL_INCLUDE"])) {
   }
 
@@ -165,12 +165,12 @@
 
   return;
 }
-  
+
 -(void) writeHTML:(CLStream *) stream
 {
   id xss;
 
-  
+
   if (![self isVisible])
     return;
 
@@ -178,14 +178,14 @@
   [self writeAttributes:stream ignore:nil];
   if ((xss = [attributes objectForCaseInsensitiveString:@"CL_XSS"]))
     [stream writeFormat:@" SRC=\"%@%@\"" usingEncoding:CLUTF8StringEncoding,
-	    CLServerURL, [[self generateURL] entityEncodedString]];
+            CLServerURL, [[self generateURL] entityEncodedString]];
   [stream writeString:@">" usingEncoding:CLUTF8StringEncoding];
 
   if (!xss)
     [self writeContents:stream];
-  
+
   [stream writeFormat:@"</%@>" usingEncoding:CLUTF8StringEncoding, title];
-  
+
   return;
 }
 

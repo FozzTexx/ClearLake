@@ -29,7 +29,7 @@
 
 
   PyDateTime_IMPORT;
-  
+
   if (!pyObject || pyObject == Py_None)
     value = nil;
   else if (PyLong_Check(pyObject))
@@ -66,7 +66,7 @@
 
 
   [super init];
-  
+
   hack = (CLClassDef *) [self class];
   className = [CLUTF8String stringWithUTF8String:hack->name];
   py_class = CLPythonClassFromString(className);
@@ -103,7 +103,7 @@
   [self init];
   return self;
 }
-  
+
 -(void) write:(CLStream *) stream
 {
   [super write:stream];
@@ -123,20 +123,20 @@
 
 
   value = [super objectValueForBinding:aBinding found:found];
-  
+
   if (!*found) {
     pyBinding = [aBinding pythonObject];
     if (PyObject_HasAttr(pythonObject, pyBinding)) {
       *found = YES;
       attr = PyObject_GetAttr(pythonObject, pyBinding);
       if (PyCallable_Check(attr)) {
-	result = PyObject_CallObject(attr, NULL);
+        result = PyObject_CallObject(attr, NULL);
       }
       else {
-	Py_INCREF(attr);
-	result = attr;
+        Py_INCREF(attr);
+        result = attr;
       }
-      
+
       //[self error:@"Unable to find value %@ %@", [self className], aBinding];
       Py_DECREF(attr);
       Py_DECREF(pyBinding);
@@ -144,7 +144,7 @@
       value = [CLObjectBridge objectWithPythonObject:result];
 
       if (result)
-	Py_DECREF(result);
+        Py_DECREF(result);
     }
   }
 
@@ -206,12 +206,12 @@
     for (idx = 0; idx < count; idx++) {
       arg = [anInvocation objectValueForArgumentAtIndex:idx + 2];
       if (PyTuple_SetItem(py_tuple, idx, [arg pythonObject]) != 0) {
-	PyErr_SetString(PyExc_Exception, "Failed to set tuple item");
-	[self error:@"Unable to forward %@", aBinding];
+        PyErr_SetString(PyExc_Exception, "Failed to set tuple item");
+        [self error:@"Unable to forward %@", aBinding];
       }
     }
   }
-  
+
   result = PyObject_CallObject(attr, py_tuple);
   if (result) {
     anObject = [[self class] objectWithPythonObject:result];
@@ -225,7 +225,7 @@
   Py_DECREF(attr);
 
   [anInvocation setReturnValue:&anObject];
-  
+
   return;
 }
 

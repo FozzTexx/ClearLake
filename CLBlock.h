@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -44,7 +44,7 @@
 -(void) writeContentTo:(CLStream *) stream;
 -(void) writeHTML:(CLStream *) stream;
 -(void) autonumber:(id) anObject position:(int) index
-	  replaced:(CLMutableDictionary *) replaced;
+          replaced:(CLMutableDictionary *) replaced;
 -(void) autonumber:(id) anObject newIDs:(CLDictionary *) replaced;
 -(void) autonumber:(CLArray *) anArray;
 -(void) updateBindingFor:(id) anObject;

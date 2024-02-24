@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -39,18 +39,18 @@
 -(void) addOption:(CLString *) aString withValue:(id) aValue
 {
   aString = [aString stringByTrimmingCharactersInSet:
-		       [CLCharacterSet whitespaceAndNewlineCharacterSet]];
+                       [CLCharacterSet whitespaceAndNewlineCharacterSet]];
   if (![aString length])
     aString = nil;
   if (!aString && !aValue)
     return;
-  
+
   if (!aValue && [value count] && ![[value lastObject] string])
     [[value lastObject] setString:aString];
   else
     [value addObject:[[[CLOption alloc]
-			initWithString:aString andValue:aValue] autorelease]];
-  
+                        initWithString:aString andValue:aValue] autorelease]];
+
   return;
 }
 
@@ -64,10 +64,10 @@
 {
   if ([anObject isKindOfClass:CLElementClass]) {
     [self addOption:nil withValue:[[anObject attributes]
-				    objectForCaseInsensitiveString:@"VALUE"]];
+                                    objectForCaseInsensitiveString:@"VALUE"]];
     if ([[anObject attributes] objectForCaseInsensitiveString:@"SELECTED"])
       [self selectOptionWithValue:[[anObject attributes]
-				    objectForCaseInsensitiveString:@"VALUE"]];
+                                    objectForCaseInsensitiveString:@"VALUE"]];
   }
   else
     [self addOption:anObject withValue:nil];
@@ -81,7 +81,7 @@
   CLOption *anOption;
   id optionValue;
 
-  
+
   if (!aValue)
     return;
 
@@ -93,7 +93,7 @@
     for (idx = 0; idx < count; idx++) {
       anOption = [value objectAtIndex:idx];
       if (!(optionValue = [anOption value]))
-	optionValue = [anOption string];
+        optionValue = [anOption string];
       optionValue = [optionValue description];
       [anOption setSelected:[optionValue isEqual:aValue]];
     }
@@ -107,7 +107,7 @@
   int i, j;
   CLOption *anOption;
 
-  
+
   if (!aString)
     return;
 
@@ -124,7 +124,7 @@
   int i, j;
   CLOption *anOption;
 
-  
+
   for (i = 0, j = [value count]; i < j; i++) {
     anOption = [value objectAtIndex:i];
     [anOption setSelected:i == index];
@@ -138,7 +138,7 @@
   int i, j;
   CLOption *anOption;
 
-  
+
   for (i = 0, j = [value count]; i < j; i++) {
     anOption = [value objectAtIndex:i];
     if ([anOption selected])
@@ -165,7 +165,7 @@
 
   if ((aValue = [attributes objectForCaseInsensitiveString:@"CL_SELECTED"])) {
     aValue = [self objectValueForSpecialBinding:[aValue substringFromIndex:1] allowConstant:NO
-					  found:&found wasConstant:NULL];
+                                          found:&found wasConstant:NULL];
     [self selectOptionWithValue:aValue];
   }
   else if (_deferSelected)

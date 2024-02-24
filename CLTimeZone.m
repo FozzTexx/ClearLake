@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -41,7 +41,7 @@ static CLTimeZone *CLSystemTimeZone = nil, *CLUTCTimeZone = nil;
 {
   CLString *aName;
 
-  
+
   seconds /= 60;
   if (seconds >= 0)
     aName = [CLString stringWithFormat:@"UTC-%02i:%02i", seconds / 60, seconds % 60];
@@ -85,7 +85,7 @@ static CLTimeZone *CLSystemTimeZone = nil, *CLUTCTimeZone = nil;
 {
   int offset;
 
-  
+
   [super init];
 
   if ([aName characterAtIndex:0] == '+' ||
@@ -164,7 +164,7 @@ static CLTimeZone *CLSystemTimeZone = nil, *CLUTCTimeZone = nil;
 
   if (_isUTC)
     return 0;
-  
+
   [self set];
   tl = time(NULL);
   tp = gmtime(&tl);
@@ -175,7 +175,7 @@ static CLTimeZone *CLSystemTimeZone = nil, *CLUTCTimeZone = nil;
 
   if (!strcmp(tm.tm_zone, "UTC"))
     _isUTC = YES;
-  
+
   return tl - tg;
 }
 
@@ -196,7 +196,7 @@ static CLTimeZone *CLSystemTimeZone = nil, *CLUTCTimeZone = nil;
   tm.tm_isdst = -1;
   tg = mktime(&tm);
   [self unset];
-  
+
   if (!strcmp(tm.tm_zone, "UTC"))
     _isUTC = YES;
 

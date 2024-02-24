@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -44,8 +44,8 @@
   const char *error;
   int erroffset;
   int pcreOptions;
-  
-  
+
+
   [super init];
 
   pcreOptions = PCRE_UTF8;
@@ -53,10 +53,10 @@
     pcreOptions |= PCRE_ANCHORED;
   if (options & CLCaseInsensitiveSearch)
     pcreOptions |= PCRE_CASELESS;
-  
+
   if (!(comp = pcre_compile([aString UTF8String], pcreOptions, &error, &erroffset, NULL)))
     [self error:@"Invalid regular expression: \"%@\" %s", aString, error];
-  
+
   return self;
 }
 
@@ -74,8 +74,8 @@
 -(id) copy:(const char *) file :(int) line :(id) retainer
 {
   return [self retain:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
-#define retain		retain:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
+#define retain          retain:__FILE__ :__LINE__ :self
 }
 #else
 -(id) copy
@@ -87,15 +87,15 @@
 -(BOOL) matchesString:(CLString *) aString
 {
   return [self matchesString:aString range:CLMakeRange(0, [aString length])
-	       substringRanges:NULL];
+               substringRanges:NULL];
 }
 
 -(BOOL) matchesString:(CLString *) aString substringRanges:(CLArray **) ranges
 {
   return [self matchesString:aString range:CLMakeRange(0, [aString length])
-	       substringRanges:ranges];
+               substringRanges:ranges];
 }
-  
+
 -(BOOL) matchesString:(CLString *) aString range:(CLRange) aRange
       substringRanges:(CLArray **) ranges
 {
@@ -113,10 +113,10 @@
 
 
   aString = [aString substringWithRange:aRange];
-  
+
   if (!aString)
     return NO;
-  
+
   p = [aString UTF8String];
   len = strlen(p);
   if ((err = pcre_fullinfo(comp, NULL, PCRE_INFO_CAPTURECOUNT, &ns)))
@@ -132,26 +132,26 @@
     up = (unsigned char *) p;
     for (bpos = cpos = 0; bpos <= len; bpos++, cpos++) {
       for (i = 0; i < res; i++) {
-	if (ovector[i*2] == bpos)
-	  ovector[i*2] = cpos;
-	if (ovector[i*2+1] == bpos)
-	  ovector[i*2+1] = cpos;
+        if (ovector[i*2] == bpos)
+          ovector[i*2] = cpos;
+        if (ovector[i*2+1] == bpos)
+          ovector[i*2+1] = cpos;
       }
-      
+
       if (up[bpos] == 192 || up[bpos] == 193 ||
-	  (up[bpos] >= 194 && up[bpos] <= 223))
-	bpos++;
+          (up[bpos] >= 194 && up[bpos] <= 223))
+        bpos++;
       else if (up[bpos] >= 224 && up[bpos] <= 239)
-	bpos += 2;
+        bpos += 2;
       else if ((up[bpos] >= 240 && up[bpos] <= 244) ||
-	       (up[bpos] >= 245 && up[bpos] <= 247))
-	bpos += 3;
+               (up[bpos] >= 245 && up[bpos] <= 247))
+        bpos += 3;
       else if (up[bpos] >= 248 && up[bpos] <= 251)
-	bpos += 4;
+        bpos += 4;
       else if (up[bpos] == 252 || up[bpos] == 253)
-	bpos += 5;
+        bpos += 5;
     }
-      
+
     for (i = 0; i < res; i++) {
       subRange = CLMakeRange(ovector[i*2], ovector[i*2+1] - ovector[i*2]);
       subRange.location += aRange.location;
@@ -159,7 +159,7 @@
     }
     *ranges = [mArray autorelease];
   }
-  
+
   free(ovector);
 
   if (res > 0)

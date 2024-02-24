@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -93,7 +93,7 @@ CL_INLINE void CLHashTableFree(CLHashTable *ht)
       aBucket = aBucket2;
     }
   }
-  
+
   free(ht->table);
   free(ht);
   return;
@@ -146,7 +146,7 @@ CL_INLINE void CLHashTableSetData(CLHashTable *ht, void *data, id aKey, CLUInteg
   aBucket = calloc(1, sizeof(CLBucket));
   aBucket->key = aKey;
   aBucket->data = data;
-  
+
   if (!ht->table[val]) {
     ht->table[val] = aBucket;
     CLHashTableLinkBucket(ht, aBucket, val);
@@ -199,7 +199,7 @@ CL_INLINE CLBucket *CLHashTableBucketForIdenticalKey(CLHashTable *ht, id aKey, C
 CL_INLINE void *CLHashTableDataForKey(CLHashTable *ht, id aKey, CLUInteger hash, SEL selector)
 {
   CLBucket *aBucket;
-  
+
 
   if ((aBucket = CLHashTableBucketForKey(ht, aKey, hash, selector)))
     return aBucket->data;
@@ -209,7 +209,7 @@ CL_INLINE void *CLHashTableDataForKey(CLHashTable *ht, id aKey, CLUInteger hash,
 CL_INLINE void *CLHashTableDataForIdenticalKey(CLHashTable *ht, id aKey, CLUInteger hash)
 {
   CLBucket *aBucket;
-  
+
 
   if ((aBucket = CLHashTableBucketForIdenticalKey(ht, aKey, hash)))
     return aBucket->data;
@@ -242,15 +242,15 @@ CL_INLINE void *CLHashTableRemoveDataForKey(CLHashTable *ht, id aKey, CLUInteger
     imp = objc_msg_lookup(aBucket->key, selector);
     if (aBucket->key == aKey || ((BOOL (*) (id,SEL,id)) imp)(aBucket->key, selector, aKey)) {
       if (pBucket)
-	pBucket->next = aBucket->next;
+        pBucket->next = aBucket->next;
       else {
-	ht->table[val] = aBucket->next;
-	if (!ht->table[val])
-	  CLHashTableUnlinkBucket(ht, aBucket, val);
-	else {
-	  aBucket->next->pv = aBucket->pv;
-	  aBucket->next->nv = aBucket->nv;
-	}
+        ht->table[val] = aBucket->next;
+        if (!ht->table[val])
+          CLHashTableUnlinkBucket(ht, aBucket, val);
+        else {
+          aBucket->next->pv = aBucket->pv;
+          aBucket->next->nv = aBucket->nv;
+        }
       }
       data = aBucket->data;
       free(aBucket);
@@ -276,15 +276,15 @@ CL_INLINE void *CLHashTableRemoveDataForIdenticalKey(CLHashTable *ht, id aKey, C
        pBucket = aBucket, aBucket = aBucket->next)
     if (aBucket->key == aKey) {
       if (pBucket)
-	pBucket->next = aBucket->next;
+        pBucket->next = aBucket->next;
       else {
-	ht->table[val] = aBucket->next;
-	if (!ht->table[val])
-	  CLHashTableUnlinkBucket(ht, aBucket, val);
-	else {
-	  aBucket->next->pv = aBucket->pv;
-	  aBucket->next->nv = aBucket->nv;
-	}
+        ht->table[val] = aBucket->next;
+        if (!ht->table[val])
+          CLHashTableUnlinkBucket(ht, aBucket, val);
+        else {
+          aBucket->next->pv = aBucket->pv;
+          aBucket->next->nv = aBucket->nv;
+        }
       }
       data = aBucket->data;
       free(aBucket);
@@ -305,8 +305,8 @@ CL_INLINE void CLHashTableGetKeys(CLHashTable *ht, id *buf)
     aBucket = ht->table[i];
     while (aBucket) {
       if (j >= ht->count) {
-	fprintf(stderr, "Corrupted hash table\n");
-	abort();
+        fprintf(stderr, "Corrupted hash table\n");
+        abort();
       }
       buf[j++] = aBucket->key;
       aBucket = aBucket->next;
@@ -329,7 +329,7 @@ CL_INLINE void CLHashTableGetData(CLHashTable *ht, void **buf)
       aBucket = aBucket->next;
     }
   }
-  
+
   return;
 }
 #endif /* INLINE */
@@ -338,6 +338,6 @@ typedef u_int32_t CLUInteger32;
 #define CLUInteger32Max   UINT32_MAX
 
 extern CLUInteger32 CLHashBytes(const void *buf, register CLUInteger32 length,
-				register CLUInteger32 initval);
+                                register CLUInteger32 initval);
 
 #endif /* _CLHASHTABLE_H */

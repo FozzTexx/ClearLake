@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -24,7 +24,7 @@
 @interface CLMutableData:CLData <CLCopying>
 
 +(id) dataWithLength:(CLUInteger) length;
-  
+
 -(id) initWithLength:(CLUInteger) length;
 
 -(void *) mutableBytes;
@@ -33,5 +33,5 @@
 -(void) appendBytes:(const void *) bytes length:(CLUInteger) length;
 -(void) appendByte:(unsigned char) byte;
 -(void) appendData:(CLData *) aData;
-  
+
 @end

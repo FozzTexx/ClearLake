@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -47,7 +47,7 @@
   CLOriginalFile *aFile = nil;
   int oid;
 
-  
+
   if ((oid = [[self fileID] intValue]))
     aFile = [CLDefaultContext loadObjectWithClass:CLOriginalFileClass objectID:oid];
   return [aFile autorelease];
@@ -67,7 +67,7 @@
 
   if ((oid = [[self fileID] intValue]))
     unlink([CLPathForFileID(oid) UTF8String]);
-    
+
   aData = [[aField value] data];
   if ((oid = CLStoreFile(aData, nil, nil))) {
     [[aField value] setObjectID:oid];

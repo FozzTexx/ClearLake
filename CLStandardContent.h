@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -21,8 +21,8 @@
 
 #import <ClearLake/CLGenericRecord.h>
 
-#define CLSCDashMode		1
-#define CLSCCamelCaseMode	2
+#define CLSCDashMode            1
+#define CLSCCamelCaseMode       2
 
 @class CLDatetime, CLCategory, CLWikiString;
 

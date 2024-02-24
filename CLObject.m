@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -112,7 +112,7 @@ static IMP CLFindForwardFunction(SEL sel);
       aType = *enc;
     }
   }
-  
+
   return aType;
 }
 #endif
@@ -126,65 +126,65 @@ static IMP CLFindForwardFunction(SEL sel);
   case _C_ID:
     anObject = imp(self, aSel);
     break;
-    
+
   case _C_CHR:
     anObject = [CLNumber numberWithInt:((char (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_UCHR:
     anObject = [CLNumber numberWithUnsignedInt:
-			   ((unsigned char (*) (id,SEL)) imp)(self, aSel)];
+                           ((unsigned char (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_SHT:
     anObject = [CLNumber numberWithInt:((short (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_USHT:
     anObject = [CLNumber numberWithUnsignedInt:
-			   ((unsigned short (*) (id,SEL)) imp)(self, aSel)];
+                           ((unsigned short (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_INT:
     anObject = [CLNumber numberWithInt:((int (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_UINT:
     anObject = [CLNumber numberWithUnsignedInt:
-			   ((unsigned int (*) (id,SEL)) imp)(self, aSel)];
+                           ((unsigned int (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_LNG:
     anObject = [CLNumber numberWithLong:((long (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_ULNG:
     anObject = [CLNumber numberWithUnsignedLong:
-			   ((unsigned long (*) (id,SEL)) imp)(self, aSel)];
+                           ((unsigned long (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_LNG_LNG:
     anObject = [CLNumber numberWithLongLong:
-			   ((long long (*) (id,SEL)) imp)(self, aSel)];
+                           ((long long (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_ULNG_LNG:
     anObject = [CLNumber numberWithUnsignedLongLong:
-			   ((unsigned long long (*) (id,SEL)) imp)(self, aSel)];
+                           ((unsigned long long (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_FLT:
     anObject = [CLNumber numberWithFloat:((float (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_DBL:
     anObject = [CLNumber numberWithDouble:((double (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_CHARPTR:
     anObject = [CLString stringWithUTF8String:((char * (*) (id,SEL)) imp)(self, aSel)];
     break;
-    
+
   case _C_CLASS:
   case _C_SEL:
   case _C_BFLD:
@@ -201,7 +201,7 @@ static IMP CLFindForwardFunction(SEL sel);
   case _C_VECTOR:
     break;
   }
-  
+
   return anObject;
 }
 
@@ -214,11 +214,11 @@ static IMP CLFindForwardFunction(SEL sel);
 
 
   *found = NO;
-  
+
   aSel = sel_getUid([aMethod UTF8String]);
   if (![self respondsTo:aSel])
     return nil;
-  
+
   md = [self descriptionForMethod:aSel];
   aType = *md->types;
   imp = [self methodFor:aSel];
@@ -258,16 +258,16 @@ static IMP CLFindForwardFunction(SEL sel);
     ivarList = aClass->ivars;
     if (ivarList && ivarList->ivar_count > 0) {
       for (i = 0; i < ivarList->ivar_count; i++) {
-	rtIvar = ivarList->ivar_list + i;
-	if (!strcmp(anIvar, rtIvar->ivar_name)) {
-	  *aType = *rtIvar->ivar_type;
-	  var = ((void *) self) + rtIvar->ivar_offset;
-	  break;
-	}
+        rtIvar = ivarList->ivar_list + i;
+        if (!strcmp(anIvar, rtIvar->ivar_name)) {
+          *aType = *rtIvar->ivar_type;
+          var = ((void *) self) + rtIvar->ivar_offset;
+          break;
+        }
       }
 
       if (i < ivarList->ivar_count)
-	break;
+        break;
     }
 
     aClass = aClass->super_class;
@@ -286,59 +286,59 @@ static IMP CLFindForwardFunction(SEL sel);
   case _C_ID:
     anObject = *(id *) var;
     break;
-    
+
   case _C_CHR:
     anObject = [CLNumber numberWithInt:*(char *) var];
     break;
-    
+
   case _C_UCHR:
     anObject = [CLNumber numberWithUnsignedInt:*(unsigned char *) var];
     break;
-    
+
   case _C_SHT:
     anObject = [CLNumber numberWithInt:*(short *) var];
     break;
-    
+
   case _C_USHT:
     anObject = [CLNumber numberWithUnsignedInt:*(unsigned short *) var];
     break;
-    
+
   case _C_INT:
     anObject = [CLNumber numberWithInt:*(int *) var];
     break;
-    
+
   case _C_UINT:
     anObject = [CLNumber numberWithUnsignedInt:*(unsigned int *) var];
     break;
-    
+
   case _C_LNG:
     anObject = [CLNumber numberWithLong:*(long *) var];
     break;
-    
+
   case _C_ULNG:
     anObject = [CLNumber numberWithUnsignedLong:*(unsigned long *) var];
     break;
-    
+
   case _C_LNG_LNG:
     anObject = [CLNumber numberWithLongLong:*(long long *) var];
     break;
-    
+
   case _C_ULNG_LNG:
     anObject = [CLNumber numberWithUnsignedLongLong:*(unsigned long long *) var];
     break;
-    
+
   case _C_FLT:
     anObject = [CLNumber numberWithFloat:*(float *) var];
     break;
-    
+
   case _C_DBL:
     anObject = [CLNumber numberWithDouble:*(double *) var];
     break;
-    
+
   case _C_CHARPTR:
     anObject = [CLString stringWithUTF8String:*(char **) var];
     break;
-    
+
   case _C_CLASS:
   case _C_SEL:
   case _C_BFLD:
@@ -355,7 +355,7 @@ static IMP CLFindForwardFunction(SEL sel);
   case _C_VECTOR:
     break;
   }
-  
+
   return anObject;
 }
 
@@ -366,7 +366,7 @@ static IMP CLFindForwardFunction(SEL sel);
 
 
   *found = NO;
-  
+
   if (!(var = [self pointerForIvar:[anIvar UTF8String] type:&aType]))
     return nil;
 
@@ -409,7 +409,7 @@ static IMP CLFindForwardFunction(SEL sel);
       [((CLMutableString *) pstr) upperCamelCase];
       tname = (CLString *) pstr;
       if (len < [tname length])
-	len = [tname length];
+        len = [tname length];
     }
 
     len += 1 + [aKey length];
@@ -426,10 +426,10 @@ static IMP CLFindForwardFunction(SEL sel);
       [evilStack appendString:aKey];
       aFilename = [CLPage findFile:evilStack directory:aDir];
       if (!aFilename) {
-	[evilStack setString:tname];
-	[evilStack appendString:@"_"];
-	[evilStack appendString:aKey];
-	aFilename = [CLPage findFile:evilStack directory:aDir];
+        [evilStack setString:tname];
+        [evilStack appendString:@"_"];
+        [evilStack appendString:aKey];
+        aFilename = [CLPage findFile:evilStack directory:aDir];
       }
     }
   }
@@ -437,12 +437,12 @@ static IMP CLFindForwardFunction(SEL sel);
   if (!aFilename) {
     aClass = [self class];
     while (aClass && !(aFilename = [CLPage findFile:
-					     [CLString stringWithFormat:@"%@_%@",
-						       [aClass className], aKey]
-					  directory:nil]))
+                                             [CLString stringWithFormat:@"%@_%@",
+                                                       [aClass className], aKey]
+                                          directory:nil]))
       aClass = [aClass superClass];
   }
-  
+
   return aFilename;
 }
 
@@ -465,7 +465,7 @@ static IMP CLFindForwardFunction(SEL sel);
   cname = [((CLMutableString *) &ustr) UTF8String];
   clen = strlen(cname);
   pages = [[CLMutableArray alloc] init];
-  
+
   extensions = [CLPage pageExtensions];
   mArray = [[CLMutableArray alloc] init];
   if ([CLDelegate respondsTo:@selector(additionalPageDirectories)]) {
@@ -482,24 +482,24 @@ static IMP CLFindForwardFunction(SEL sel);
 
     for (dp = readdir(dir); dp; dp = readdir(dir)) {
       if (!strncmp(dp->d_name, cname, clen)) {
-	/* FIXME - don't convert every string just to check extensions */
-	aString = [CLString stringWithUTF8String:dp->d_name];
-	for (k = 0, l = [extensions count]; k < l; k++) {
-	  if ([[aString pathExtension] isEqualToString:[extensions objectAtIndex:k]]) {
-	    [pages addObject:[aDir stringByAppendingPathComponent:aString]];
-	    break;
-	  }
-	}
+        /* FIXME - don't convert every string just to check extensions */
+        aString = [CLString stringWithUTF8String:dp->d_name];
+        for (k = 0, l = [extensions count]; k < l; k++) {
+          if ([[aString pathExtension] isEqualToString:[extensions objectAtIndex:k]]) {
+            [pages addObject:[aDir stringByAppendingPathComponent:aString]];
+            break;
+          }
+        }
       }
     }
 
     closedir(dir);
   }
   [mArray release];
-  
+
   return [pages autorelease];
 }
-  
+
 -(void *) cacheBindings
 {
   CLMethodInfo *methods, *aMethod;
@@ -516,66 +516,66 @@ static IMP CLFindForwardFunction(SEL sel);
   aClass = [self class];
 #if 0
   fprintf(stderr, "Caching bindings for %s 0x%08x\n",
-	  [[aClass className] UTF8String], (size_t) aClass);
+          [[aClass className] UTF8String], (size_t) aClass);
 #endif
   cache = CLHashTableAlloc(64);
-  
+
   methods = CLGetMethods(aClass, &count);
   for (i = 0; i < count; i++) {
     aMethod = &methods[i];
     new = NO;
     if (aMethod->returnType == _C_VOID && aMethod->numArguments == 1 &&
-	!strncmp(aMethod->name, "set", 3)) {
+        !strncmp(aMethod->name, "set", 3)) {
       /* This is probably a setter */
       aString = [[CLMutableString alloc] initWithUTF8String:aMethod->name+3];
       ustr = (unistr *) aString;
       ustr->str[0] = towlower(ustr->str[0]);
 
       if (!(aBinding =
-	    CLHashTableDataForKey(cache, aString, [aString hash], @selector(isEqual:)))) {
-	aBinding = malloc(sizeof(CLCachedBinding));
-	aBinding->getter = NULL;
-	aBinding->returnType = 0;
-	aBinding->getType = aBinding->setType = 0;
-	new = YES;
+            CLHashTableDataForKey(cache, aString, [aString hash], @selector(isEqual:)))) {
+        aBinding = malloc(sizeof(CLCachedBinding));
+        aBinding->getter = NULL;
+        aBinding->returnType = 0;
+        aBinding->getType = aBinding->setType = 0;
+        new = YES;
       }
-      
+
       if (!aBinding->setType) {
-	aBinding->setter = aMethod->imp;
-	aBinding->setSel = aMethod->selector;
-	aBinding->argumentType = aMethod->returnType;
-	aBinding->setType = CLMethodBinding;
+        aBinding->setter = aMethod->imp;
+        aBinding->setSel = aMethod->selector;
+        aBinding->argumentType = aMethod->returnType;
+        aBinding->setType = CLMethodBinding;
       }
 
       if (new)
-	CLHashTableSetData(cache, aBinding, aString, [aString hash]);
+        CLHashTableSetData(cache, aBinding, aString, [aString hash]);
       else
-	[aString release];
+        [aString release];
     }
     else if (aMethod->returnType != _C_VOID && aMethod->numArguments == 0) {
       /* This is probably a getter */
       aString = [[CLString alloc] initWithUTF8String:aMethod->name];
 
       if (!(aBinding =
-	    CLHashTableDataForKey(cache, aString, [aString hash], @selector(isEqual:)))) {
-	aBinding = malloc(sizeof(CLCachedBinding));
-	aBinding->setter = NULL;
-	aBinding->argumentType = 0;
-	aBinding->getType = aBinding->setType = 0;
-	new = YES;
+            CLHashTableDataForKey(cache, aString, [aString hash], @selector(isEqual:)))) {
+        aBinding = malloc(sizeof(CLCachedBinding));
+        aBinding->setter = NULL;
+        aBinding->argumentType = 0;
+        aBinding->getType = aBinding->setType = 0;
+        new = YES;
       }
-      
+
       if (!aBinding->getType) {
-	aBinding->getter = aMethod->imp;
-	aBinding->getSel = aMethod->selector;
-	aBinding->returnType = aMethod->returnType;
-	aBinding->getType = CLMethodBinding;
+        aBinding->getter = aMethod->imp;
+        aBinding->getSel = aMethod->selector;
+        aBinding->returnType = aMethod->returnType;
+        aBinding->getType = CLMethodBinding;
       }
 
       if (new)
-	CLHashTableSetData(cache, aBinding, aString, [aString hash]);
+        CLHashTableSetData(cache, aBinding, aString, [aString hash]);
       else
-	[aString release];
+        [aString release];
     }
   }
   free(methods);
@@ -585,8 +585,8 @@ static IMP CLFindForwardFunction(SEL sel);
     anIvar = &ivars[i];
     new = NO;
     aString = [[CLString alloc] initWithUTF8String:anIvar->name];
-    if (!(aBinding = 
-	  CLHashTableDataForKey(cache, aString, [aString hash], @selector(isEqual:)))) {
+    if (!(aBinding =
+          CLHashTableDataForKey(cache, aString, [aString hash], @selector(isEqual:)))) {
       aBinding = malloc(sizeof(CLCachedBinding));
       aBinding->getter = aBinding->setter = NULL;
       aBinding->getSel = aBinding->setSel = NULL;
@@ -613,7 +613,7 @@ static IMP CLFindForwardFunction(SEL sel);
       [aString release];
   }
   free(ivars);
-  
+
   {
     CLMutableArray *mArray;
     CLRecordDefinition *recordDef;
@@ -633,13 +633,13 @@ static IMP CLFindForwardFunction(SEL sel);
     }
 
     if (([self isKindOfClass:CLGenericRecordClass] &&
-	 (recordDef = [((CLGenericRecord *) self) recordDef])) ||
-	(recordDef = [CLEditingContext recordDefinitionForClass:[self class]])) {
+         (recordDef = [((CLGenericRecord *) self) recordDef])) ||
+        (recordDef = [CLEditingContext recordDefinitionForClass:[self class]])) {
       anArray = [self pagesForPrefix:[[recordDef databaseTable] upperCamelCaseString]];
       for (i = 0, j = [anArray count]; i < j; i++) {
-	aString = [anArray objectAtIndex:i];
-	if (![mArray containsObject:aString])
-	  [mArray addObject:aString];
+        aString = [anArray objectAtIndex:i];
+        if (![mArray containsObject:aString])
+          [mArray addObject:aString];
       }
     }
 
@@ -654,26 +654,26 @@ static IMP CLFindForwardFunction(SEL sel);
       binding.len = aRange.location;
 
       new = NO;
-      if (!(aBinding = 
-	    CLHashTableDataForKey(cache, (CLString *) &binding,
-				  [((CLString *) &binding) hash], @selector(isEqual:)))) {
-	aBinding = malloc(sizeof(CLCachedBinding));
-	aBinding->getter = aBinding->setter = NULL;
-	aBinding->getSel = aBinding->setSel = NULL;
-	aBinding->getType = aBinding->setType = 0;
-	aBinding->returnType = aBinding->argumentType = 0;
-	new = YES;
+      if (!(aBinding =
+            CLHashTableDataForKey(cache, (CLString *) &binding,
+                                  [((CLString *) &binding) hash], @selector(isEqual:)))) {
+        aBinding = malloc(sizeof(CLCachedBinding));
+        aBinding->getter = aBinding->setter = NULL;
+        aBinding->getSel = aBinding->setSel = NULL;
+        aBinding->getType = aBinding->setType = 0;
+        aBinding->returnType = aBinding->argumentType = 0;
+        new = YES;
       }
 
       if (!aBinding->getType) {
-	aBinding->getter = [aString retain];
-	aBinding->returnType = _C_ID;
-	aBinding->getType = CLPageBinding;
+        aBinding->getter = [aString retain];
+        aBinding->returnType = _C_ID;
+        aBinding->getType = CLPageBinding;
       }
 
       if (new) {
-	aString = [((CLString *) &binding) copy];
-	CLHashTableSetData(cache, aBinding, aString, [aString hash]);
+        aString = [((CLString *) &binding) copy];
+        CLHashTableSetData(cache, aBinding, aString, [aString hash]);
       }
     }
 
@@ -683,10 +683,10 @@ static IMP CLFindForwardFunction(SEL sel);
   if (!CLCachedClasses)
     CLCachedClasses = CLHashTableAlloc(100);
   CLHashTableSetData(CLCachedClasses, cache, aClass, (size_t) aClass);
-  
+
   return cache;
 }
-  
+
 -(id) objectValueForBinding:(CLString *) aBinding
 {
   BOOL found;
@@ -708,7 +708,7 @@ static IMP CLFindForwardFunction(SEL sel);
 
 
   *found = NO;
-  
+
   aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
   if (!aRange.length)
     aString = aBinding;
@@ -724,23 +724,23 @@ static IMP CLFindForwardFunction(SEL sel);
     cache = [self cacheBindings];
 
   if ((cachedBinding = CLHashTableDataForKey(cache, aString, [aString hash],
-					     @selector(isEqual:)))) {
+                                             @selector(isEqual:)))) {
     switch (cachedBinding->getType) {
     case CLNoBinding:
       break;
-      
+
     case CLMethodBinding:
       anObject = [self objectForIMP:cachedBinding->getter selector:cachedBinding->getSel
-			 returnType:cachedBinding->returnType];
+                         returnType:cachedBinding->returnType];
       *found = YES;
       break;
 
     case CLIvarBinding:
       anObject = [self objectForIvarPointer:((void *) self) + ((size_t) cachedBinding->getter)
-				       type:cachedBinding->returnType];
+                                       type:cachedBinding->returnType];
       *found = YES;
       break;
-      
+
     case CLPageBinding:
       aPage = [[CLPage alloc] initFromFile:cachedBinding->getter owner:self];
       anObject = [[CLBlock alloc] init];
@@ -749,39 +749,39 @@ static IMP CLFindForwardFunction(SEL sel);
       [anObject autorelease];
       *found = YES;
       break;
-      
+
     case CLFieldBinding:
       anObject = [((CLGenericRecord *) self) objectForCachedBinding:cachedBinding];
       *found = YES;
       break;
-      
+
     case CLRelationshipBinding:
       anObject = [((CLGenericRecord *) self) objectForCachedBinding:cachedBinding];
       if (anObject && ![anObject isKindOfClass:[CLArray class]]
-	  && ![[self editingContext] instanceIsRegistered:anObject]) {
-	CLArray *anArray;
-	CLRelationship *aRel;
-	CLString *qual;
+          && ![[self editingContext] instanceIsRegistered:anObject]) {
+        CLArray *anArray;
+        CLRelationship *aRel;
+        CLString *qual;
 
 
-	aRel = [[[((CLGenericRecord *) self) recordDef] relationships] objectForKey:aString];
-	qual = [aRel constructQualifier:self];
-	if (qual) {
-	  anArray = [[self editingContext]
-		      loadTableWithRecordDefinition:
-			[CLEditingContext recordDefinitionForTable:[aRel theirTable]]
-					  qualifier:qual];
-	  /* Leaving it to auto release hoping that shouldDeferRelease will do its magic */
-	  if ([anArray count])
-	    anObject = [anArray objectAtIndex:0];
-	  else
-	    anObject = nil;
-	  [self setObjectValue:anObject forBinding:aString];
-	}
+        aRel = [[[((CLGenericRecord *) self) recordDef] relationships] objectForKey:aString];
+        qual = [aRel constructQualifier:self];
+        if (qual) {
+          anArray = [[self editingContext]
+                      loadTableWithRecordDefinition:
+                        [CLEditingContext recordDefinitionForTable:[aRel theirTable]]
+                                          qualifier:qual];
+          /* Leaving it to auto release hoping that shouldDeferRelease will do its magic */
+          if ([anArray count])
+            anObject = [anArray objectAtIndex:0];
+          else
+            anObject = nil;
+          [self setObjectValue:anObject forBinding:aString];
+        }
       }
       *found = YES;
       break;
-      
+
     default:
       [self error:@"Unknown binding type\n"];
       break;
@@ -794,7 +794,7 @@ static IMP CLFindForwardFunction(SEL sel);
     stackStr.len -= CLMaxRange(aRange);
     anObject = [anObject objectValueForBinding:(CLString *) &stackStr found:found];
   }
-  
+
   return anObject;
 }
 
@@ -836,7 +836,7 @@ static IMP CLFindForwardFunction(SEL sel);
     else
       *(unsigned long long *) var = 0;
     break;
-      
+
   case _C_FLT:
     *(float *) var = [anObject doubleValue];
     break;
@@ -858,7 +858,7 @@ static IMP CLFindForwardFunction(SEL sel);
     [self setObjectValue:anObject atLocation:var type:aType];
   return;
 }
-  
+
 -(void) setObjectValue:(id) anObject forBinding:(CLString *) aBinding
 {
   CLRange aRange;
@@ -892,38 +892,38 @@ static IMP CLFindForwardFunction(SEL sel);
       imp = [self methodFor:sel];
       switch (*[aSig getArgumentTypeAtIndex:2]) {
       case _C_ID:
-	imp(self, sel, anObject);
-	break;
+        imp(self, sel, anObject);
+        break;
 
       case _C_CHR:
       case _C_SHT:
       case _C_INT:
-	imp(self, sel, [anObject intValue]);
-	break;
+        imp(self, sel, [anObject intValue]);
+        break;
       case _C_UCHR:
       case _C_USHT:
       case _C_UINT:
-	imp(self, sel, [anObject unsignedIntValue]);
-	break;
+        imp(self, sel, [anObject unsignedIntValue]);
+        break;
       case _C_LNG:
-	imp(self, sel, [anObject longValue]);
-	break;
+        imp(self, sel, [anObject longValue]);
+        break;
       case _C_ULNG:
-	imp(self, sel, [anObject unsignedLongValue]);
-	break;
+        imp(self, sel, [anObject unsignedLongValue]);
+        break;
       case _C_LNG_LNG:
-	imp(self, sel, [anObject longLongValue]);
-	break;
+        imp(self, sel, [anObject longLongValue]);
+        break;
       case _C_ULNG_LNG:
-	imp(self, sel, [anObject unsignedLongLongValue]);
-	break;
-      
+        imp(self, sel, [anObject unsignedLongLongValue]);
+        break;
+
       case _C_FLT:
-	imp(self, sel, [anObject doubleValue]);
-	break;
+        imp(self, sel, [anObject doubleValue]);
+        break;
       case _C_DBL:
-	imp(self, sel, [anObject doubleValue]);
-	break;
+        imp(self, sel, [anObject doubleValue]);
+        break;
       }
       [aSig release];
     }
@@ -940,7 +940,7 @@ static IMP CLFindForwardFunction(SEL sel);
   int aType;
   void *buf;
   id oldObject;
-  
+
 
   if ((buf = [self pointerForIvar:[aKey UTF8String] type:&aType])) {
     oldObject = *(id *) buf;
@@ -956,7 +956,7 @@ static IMP CLFindForwardFunction(SEL sel);
     if ([self respondsTo:sel]) {
       aSig = [self newMethodSignatureForSelector:sel];
       if ((*[aSig getArgumentTypeAtIndex:2]) == _C_ID)
-	[self perform:sel with:anObject];
+        [self perform:sel with:anObject];
       [aSig release];
     }
   }
@@ -990,7 +990,7 @@ static IMP CLFindForwardFunction(SEL sel);
   fieldName[0] = tolower(fieldName[0]);
   var = [self pointerForIvar:fieldName type:&aType];
   free(fieldName);
-  
+
   if (!var)
     return NO;
 
@@ -1000,12 +1000,12 @@ static IMP CLFindForwardFunction(SEL sel);
     switch (aType) {
     case _C_ID:
       {
-	[anInvocation getArgument:var atIndex:2];
+        [anInvocation getArgument:var atIndex:2];
 #if 0 /* FIXME - how do we know if it should be retained? */
-	if ([self shouldRetain:fieldName]) {
-	  [*(id *) var retain];
-	  [anObject release];
-	}
+        if ([self shouldRetain:fieldName]) {
+          [*(id *) var retain];
+          [anObject release];
+        }
 #endif
       }
       break;
@@ -1044,7 +1044,7 @@ static IMP CLFindForwardFunction(SEL sel);
   }
   else
     [self error:@"Type mismatch in %@ method %s", [[self class] className],
-	  sel_getName([anInvocation selector])];
+          sel_getName([anInvocation selector])];
 
   return YES;
 }
@@ -1066,24 +1066,24 @@ static IMP CLFindForwardFunction(SEL sel);
     [anInvocation invoke];
     return;
   }
-  
+
   aBinding = CLSelGetName([anInvocation selector]);
   aRange = [aBinding rangeOfString:@":" options:0 range:CLMakeRange(0, [aBinding length])];
   if (aRange.length && [[anInvocation methodSignature] numberOfArguments] == 3) {
     if ([aBinding hasPrefix:@"set"]) {
       if ([self setIvarFromInvocation:anInvocation]) {
-	anObject = nil;
-	[anInvocation setReturnValue:&anObject];
-	return;
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
       }
     }
     else if (*[[anInvocation methodSignature] getArgumentTypeAtIndex:2] == _C_ID) {
       [anInvocation getArgument:&anObject atIndex:2];
       if ([anObject isKindOfClass:CLControlClass] &&
-	  [self replacePage:anObject selector:[anInvocation selector]]) {
-	anObject = nil;
-	[anInvocation setReturnValue:&anObject];
-	return;
+          [self replacePage:anObject selector:[anInvocation selector]]) {
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
       }
     }
   }
@@ -1091,7 +1091,7 @@ static IMP CLFindForwardFunction(SEL sel);
     [anInvocation setReturnValue:var];
     return;
   }
-  
+
   [self doesNotRecognize:[anInvocation selector]];
   return;
 }
@@ -1099,13 +1099,13 @@ static IMP CLFindForwardFunction(SEL sel);
 -(CLString *) description
 {
   return [CLString stringWithFormat:@"<%@: 0x%08lx>", [[self class] className],
-		   (unsigned long) self];
+                   (unsigned long) self];
 }
 
 -(CLString *) json
 {
   return [CLString stringWithFormat:@"\"<%@: 0x%08lx>\"", [[self class] className],
-		   (unsigned long) self];
+                   (unsigned long) self];
 }
 
 -(id) read:(CLStream *) stream
@@ -1148,7 +1148,7 @@ static IMP CLFindForwardFunction(SEL sel);
     [self replacePage:sender filename:aFilename];
     return YES;
   }
-  
+
   return NO;
 }
 
@@ -1165,7 +1165,7 @@ static IMP CLFindForwardFunction(SEL sel);
 
   oldTarget = [sender target];
   oldSel = [sender action];
-  
+
   aString = CLSelGetName(aSel);
   ustr = CLCloneStackString(aString);
   ustr.len--;
@@ -1176,14 +1176,14 @@ static IMP CLFindForwardFunction(SEL sel);
     [aControl setTarget:self];
     [aControl setAction:aSel];
 
-    if (CLDelegate && 
-	[CLDelegate respondsTo:@selector(delegateEncodeSimpleURL:localQuery:)] &&
-	(aString = [CLDelegate delegateEncodeSimpleURL:aControl localQuery:nil])) {
+    if (CLDelegate &&
+        [CLDelegate respondsTo:@selector(delegateEncodeSimpleURL:localQuery:)] &&
+        (aString = [CLDelegate delegateEncodeSimpleURL:aControl localQuery:nil])) {
       aString = [CLWebName stringByAppendingFormat:@"/%@", aString];
       aString = [CLControl rewriteURL:aString];
-      
+
       CLRedirectBrowser(aString, YES, 303);
-      
+
       /* FIXME - should we really do an exit here? */
       exit(0);
     }
@@ -1214,7 +1214,7 @@ static IMP CLFindForwardFunction(SEL sel);
   CLControl *aControl;
   CLString *aURL;
   CLRange aRange;
-  
+
 
   aControl = [[CLControl alloc] init];
   [aControl setTarget:self];
@@ -1284,7 +1284,7 @@ CLInvocation *CLCreateInvocation(id receiver, SEL sel, va_list ap)
 #if 0
   if (![receiver respondsTo:@selector(methodSignatureForSelector:)]) {
     fprintf(stderr, "Unknown object <%s> that does not inherit from CLObject\n",
-	    [[[receiver class] className] UTF8String]);
+            [[[receiver class] className] UTF8String]);
     abort();
   }
 #endif
@@ -1295,127 +1295,127 @@ CLInvocation *CLCreateInvocation(id receiver, SEL sel, va_list ap)
     id self = nil;
 #endif
   [sig release];
-  
+
   [anInvocation setTarget:receiver];
   [anInvocation setSelector:sel];
   j = [sig numberOfArguments];
   [anInvocation setArgument:&receiver atIndex:0];
   [anInvocation setArgument:&sel atIndex:1];
-  
+
   for (i = 2; i < j; i++) {
     type = [sig getArgumentTypeAtIndex:i];
     switch (*type) {
     case _C_ID:
       {
-	id anObject = va_arg(ap, id);
-	[anInvocation setArgument:&anObject atIndex:i];
+        id anObject = va_arg(ap, id);
+        [anInvocation setArgument:&anObject atIndex:i];
       }
       break;
-      
+
     case _C_CLASS:
       break;
-      
+
     case _C_SEL:
       {
-	SEL aSel = va_arg(ap, SEL);
-	[anInvocation setArgument:&aSel atIndex:i];
+        SEL aSel = va_arg(ap, SEL);
+        [anInvocation setArgument:&aSel atIndex:i];
       }
       break;
-      
+
     case _C_CHR:
       {
-	int aChar = va_arg(ap, int);
-	[anInvocation setArgument:&aChar atIndex:i];
+        int aChar = va_arg(ap, int);
+        [anInvocation setArgument:&aChar atIndex:i];
       }
       break;
-      
+
     case _C_UCHR:
       {
-	int aChar = va_arg(ap, int);
-	[anInvocation setArgument:&aChar atIndex:i];
+        int aChar = va_arg(ap, int);
+        [anInvocation setArgument:&aChar atIndex:i];
       }
       break;
-      
+
     case _C_SHT:
       {
-	int aShort = va_arg(ap, int);
-	[anInvocation setArgument:&aShort atIndex:i];
+        int aShort = va_arg(ap, int);
+        [anInvocation setArgument:&aShort atIndex:i];
       }
       break;
-      
+
     case _C_USHT:
       {
-	int aShort = va_arg(ap, int);
-	[anInvocation setArgument:&aShort atIndex:i];
+        int aShort = va_arg(ap, int);
+        [anInvocation setArgument:&aShort atIndex:i];
       }
       break;
-      
+
     case _C_INT:
       {
-	int anInt = va_arg(ap, int);
-	[anInvocation setArgument:&anInt atIndex:i];
+        int anInt = va_arg(ap, int);
+        [anInvocation setArgument:&anInt atIndex:i];
       }
       break;
-      
+
     case _C_UINT:
       {
-	unsigned int anInt = va_arg(ap, unsigned int);
-	[anInvocation setArgument:&anInt atIndex:i];
+        unsigned int anInt = va_arg(ap, unsigned int);
+        [anInvocation setArgument:&anInt atIndex:i];
       }
       break;
-      
+
     case _C_LNG:
       {
-	long int anInt = va_arg(ap, long int);
-	[anInvocation setArgument:&anInt atIndex:i];
+        long int anInt = va_arg(ap, long int);
+        [anInvocation setArgument:&anInt atIndex:i];
       }
       break;
-      
+
     case _C_ULNG:
       {
-	unsigned long int anInt = va_arg(ap, unsigned long int);
-	[anInvocation setArgument:&anInt atIndex:i];
+        unsigned long int anInt = va_arg(ap, unsigned long int);
+        [anInvocation setArgument:&anInt atIndex:i];
       }
       break;
-      
+
     case _C_LNG_LNG:
       {
-	long long int anInt = va_arg(ap, long long int);
-	[anInvocation setArgument:&anInt atIndex:i];
+        long long int anInt = va_arg(ap, long long int);
+        [anInvocation setArgument:&anInt atIndex:i];
       }
       break;
-      
+
     case _C_ULNG_LNG:
       {
-	unsigned long long int anInt = va_arg(ap, unsigned long long int);
-	[anInvocation setArgument:&anInt atIndex:i];
+        unsigned long long int anInt = va_arg(ap, unsigned long long int);
+        [anInvocation setArgument:&anInt atIndex:i];
       }
       break;
-      
+
     case _C_FLT:
       {
-	double aFloat = va_arg(ap, double);
-	[anInvocation setArgument:&aFloat atIndex:i];
+        double aFloat = va_arg(ap, double);
+        [anInvocation setArgument:&aFloat atIndex:i];
       }
       break;
-      
+
     case _C_DBL:
       {
-	double aDouble = va_arg(ap, double);
-	[anInvocation setArgument:&aDouble atIndex:i];
+        double aDouble = va_arg(ap, double);
+        [anInvocation setArgument:&aDouble atIndex:i];
       }
       break;
-      
+
     case _C_PTR:
     case _C_CHARPTR:
       {
-	void *aPointer = va_arg(ap, void *);
-	[anInvocation setArgument:&aPointer atIndex:i];
+        void *aPointer = va_arg(ap, void *);
+        [anInvocation setArgument:&aPointer atIndex:i];
       }
       break;
     }
   }
-  
+
   return anInvocation;
 }
 
@@ -1480,7 +1480,7 @@ static IMP CLFindForwardFunction(SEL sel)
 
   if (t && (*t == _C_LNG_LNG || *t == _C_ULNG_LNG))
     return (IMP) CLForwardLongLongPointerMethod;
-  
+
   return (IMP) CLForwardPointerMethod;
 }
 
@@ -1499,9 +1499,9 @@ void CLShowIvars(Class klass)
     if (ivarList!= NULL && (ivarList->ivar_count>0)) {
       printf ("  Instance Variabes:\n");
       for ( i = 0; i < ivarList->ivar_count; ++i ) {
-	rtIvar = (ivarList->ivar_list + i);
-	printf ("    name: '%s'  encodedType: '%s'  offset: %d\n",
-		rtIvar->ivar_name, rtIvar->ivar_type, rtIvar->ivar_offset);
+        rtIvar = (ivarList->ivar_list + i);
+        printf ("    name: '%s'  encodedType: '%s'  offset: %d\n",
+                rtIvar->ivar_name, rtIvar->ivar_type, rtIvar->ivar_offset);
       }
     }
 
@@ -1520,7 +1520,7 @@ void CLShowMethodGroups(Class klass)
     for ( j = 0; j < mlist->method_count; ++j ) {
       currMethod = mlist->method_list[j];
       printf ("    method: '%s'  encodedReturnTypeAndArguments: '%s'\n",
-	      sel_get_name(currMethod.method_name), sel_get_type(currMethod.method_name));
+              sel_get_name(currMethod.method_name), sel_get_type(currMethod.method_name));
     }
   }
 }
@@ -1539,7 +1539,7 @@ const char *_NSPrintForDebugger(id anObject)
     str = [[anObject description] UTF8String];
   else
     str = [[CLString stringWithFormat:@"<%s: 0x%08lx>", [[anObject class] className],
-		     (unsigned long) anObject] UTF8String];
+                     (unsigned long) anObject] UTF8String];
   return str;
 }
 
@@ -1547,7 +1547,7 @@ CLString *_NSNewStringFromCString(const char *cString)
 {
   CLString *aString;
 
-  
+
   aString = [CLString stringWithUTF8String:cString];
   return aString;
 }

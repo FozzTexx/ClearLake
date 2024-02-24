@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -48,7 +48,7 @@
   CLOriginalImage *anImage = nil;
   int oid;
 
-  
+
   if ((oid = [[self imageID] intValue]))
     anImage = [CLDefaultContext loadObjectWithClass:[CLOriginalImage imageClass] objectID:oid];
   return [anImage autorelease];
@@ -68,7 +68,7 @@
 
   if ((oid = [[self imageID] intValue]))
     unlink([CLPathForImageID(oid) UTF8String]);
-    
+
   aData = [[aField value] data];
   if ((oid = CLStoreImage(aData))) {
     [[aField value] setObjectID:oid];

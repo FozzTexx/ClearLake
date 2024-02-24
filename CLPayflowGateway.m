@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -45,11 +45,11 @@
 
 
   mString = [[CLMutableString alloc] initWithString:
-				       @"/usr/local/bin/pfpro payflow.verisign.com 443 '"];
+                                       @"/usr/local/bin/pfpro payflow.verisign.com 443 '"];
   [mString appendFormat:@"PWD=%@&USER=%@&PARTNER=%@",
-	   [credentials objectForKey:CLGatewayPassword],
-	   [credentials objectForKey:CLGatewayUser],
-	   [credentials objectForKey:CLGatewayPartner]];
+           [credentials objectForKey:CLGatewayPassword],
+           [credentials objectForKey:CLGatewayUser],
+           [credentials objectForKey:CLGatewayPartner]];
 
   [mString appendString:@"&TRXTYPE="];
   switch ([[aDict objectForKey:CLGatewayTransactionType] intValue]) {
@@ -72,7 +72,7 @@
   if ((cc = [aDict objectForKey:CLGatewayCreditCard])) {
     [mString appendFormat:@"&ACCT=%@", [cc number]];
     [mString appendFormat:@"&EXPDATE=%02i%02i",
-	     [[cc expirationMonth] intValue], [[cc expirationYear] intValue] % 100];
+             [[cc expirationMonth] intValue], [[cc expirationYear] intValue] % 100];
     if ((address = [cc address]) && [address zip])
       [mString appendFormat:@"&ZIP=%@", [address zip]];
   }
@@ -87,7 +87,7 @@
     [mString appendFormat:@"&ORIGID=%@", anObject];
 
   [mString appendString:@"'"];
-  
+
   file = popen([mString UTF8String], "r");
   aString = CLGets(file, CLUTF8StringEncoding);
   pclose(file);
@@ -100,7 +100,7 @@
     aString = [anArray objectAtIndex:i];
     aRange = [aString rangeOfString:@"="];
     [mDict setObject:[aString substringFromIndex:CLMaxRange(aRange)]
-	   forKey:[aString substringToIndex:aRange.location]];
+           forKey:[aString substringToIndex:aRange.location]];
   }
 
   if ((aString = [mDict objectForKey:@"RESULT"])) {
@@ -111,7 +111,7 @@
     [mDict setObject:aString forKey:CLGatewayTransactionID];
     [mDict removeObjectForKey:@"PNREF"];
   }
-  
+
   return [mDict autorelease];
 }
 

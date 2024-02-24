@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -40,7 +40,7 @@
 #include <fcntl.h>
 #include <string.h>
 
-#define BUFSIZE	256
+#define BUFSIZE 256
 
 /* FIXME - don't declare this both here and in CLString */
 static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
@@ -74,7 +74,7 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   len = 0;
   return self;
 }
-  
+
 -(id) initWithBytes:(const void *) bytes length:(CLUInteger) length
 {
   [self init];
@@ -163,7 +163,7 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   char *q;
   char *r;
   CLString *aString;
-  
+
 
   if (!(q = malloc(len*2+3))) /* It's gonna be less than or equal to that */
     [self error:@"Unable to allocate memory"];
@@ -199,7 +199,7 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   }
 
   *r = 0;
-  
+
   aString = [CLString stringWithUTF8String:q];
   free(q);
   return aString;
@@ -213,16 +213,16 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   long long ll;
   BOOL neg;
 
-  
+
   switch (data[i]) {
   case 'i':
     i++;
     for (ll = 0, neg = NO; i < len && data[i] != 'e'; i++) {
       if (data[i] == '-')
-	neg = YES;
+        neg = YES;
       else {
-	ll *= 10;
-	ll += data[i] - '0';
+        ll *= 10;
+        ll += data[i] - '0';
       }
     }
     if (neg)
@@ -263,13 +263,13 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
       i++;
     if (i + ll < len) {
       for (j = i; j < i+ll; j++)
-	if (data[j] < ' ' || data[j] > '~')
-	  break;
+        if (data[j] < ' ' || data[j] > '~')
+          break;
       if (j < i+ll)
-	anObject = [CLData dataWithBytes:&data[i] length:ll];
+        anObject = [CLData dataWithBytes:&data[i] length:ll];
       else
-	anObject = [CLString stringWithBytes:(char *) &data[i] length:ll
-			     encoding:CLUTF8StringEncoding];
+        anObject = [CLString stringWithBytes:(char *) &data[i] length:ll
+                             encoding:CLUTF8StringEncoding];
       i += ll;
     }
     break;
@@ -296,7 +296,7 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   CLUInteger i;
   CLMutableString *mString;
 
-  
+
   mString = [CLMutableString string];
   for (i = 0; i < len; i++)
     [mString appendFormat:@"%02x", data[i]];
@@ -346,7 +346,7 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   unsigned long crc32;
   unsigned long inCrc32 = 0;
   CLUInteger i;
-  
+
 
   /** accumulate crc32 for buffer **/
   crc32 = inCrc32 ^ 0xFFFFFFFF;
@@ -361,7 +361,7 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   unsigned int mdlen;
   EVP_MD_CTX *mdctx;
   const EVP_MD *md;
-  
+
 
   md = EVP_md5();
   mdlen = EVP_MD_size(md);
@@ -394,21 +394,21 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   DIR *dir;
   struct dirent *dirp;
   const char *fn;
-  
+
 
   directory = [path stringByDeletingLastPathComponent];
   filename = [path lastPathComponent];
   fn = [filename UTF8String];
-  
+
   if ((dir = opendir([directory UTF8String]))) {
     fnLen = strlen(fn);
     while ((dirp = readdir(dir))) {
       deLen = strlen(dirp->d_name);
       if (deLen > fnLen && dirp->d_name[fnLen] == '.' && dirp->d_name[fnLen+1] == '~' &&
-	  dirp->d_name[deLen-1] == '~' && !strncmp(fn, dirp->d_name, fnLen)) {
-	if (!backups)
-	  backups = [CLMutableArray array];
-	[backups addObject:[CLString stringWithUTF8String:dirp->d_name]];
+          dirp->d_name[deLen-1] == '~' && !strncmp(fn, dirp->d_name, fnLen)) {
+        if (!backups)
+          backups = [CLMutableArray array];
+        [backups addObject:[CLString stringWithUTF8String:dirp->d_name]];
       }
     }
   }
@@ -443,20 +443,20 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
   CLArray *backups;
   struct stat st;
   int fd;
-  
+
 
   if (numBackups)
     atomic = YES;
-  
+
   if (!atomic)
     writePath = path;
   else
     writePath = [path stringByAppendingPathExtension:
-			[CLString stringWithFormat:@"%i", getpid()]];
+                        [CLString stringWithFormat:@"%i", getpid()]];
 
   if ((fd = open([writePath UTF8String], O_WRONLY | O_TRUNC | O_CREAT, 0644)) < 0)
     return NO;
-  
+
   written = write(fd, data, len);
   close(fd);
 
@@ -464,27 +464,27 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
     if (numBackups) {
       backups = [self enumerateDirectory:path];
       if ([backups count] > numBackups - 1) {
-	for (i = 2, j = [backups count] - 1; i < j; i++)
-	  unlink([[backups objectAtIndex:i] UTF8String]);
+        for (i = 2, j = [backups count] - 1; i < j; i++)
+          unlink([[backups objectAtIndex:i] UTF8String]);
       }
 
       backupPath = [path stringByAppendingPathExtension:
-			   [CLString stringWithFormat:@"~%i~",
-				     [self highestBackup:backups] + 1]];
+                           [CLString stringWithFormat:@"~%i~",
+                                     [self highestBackup:backups] + 1]];
       unlink([backupPath UTF8String]);
     }
-    
+
     if (stat([path UTF8String], &st) ||
-	(!numBackups || (!link([path UTF8String], [backupPath UTF8String]) &&
-			  !unlink([path UTF8String])))) {
+        (!numBackups || (!link([path UTF8String], [backupPath UTF8String]) &&
+                          !unlink([path UTF8String])))) {
       if (!link([writePath UTF8String], [path UTF8String]))
-	err = 0;
+        err = 0;
     }
   }
 
   if (atomic)
     unlink([writePath UTF8String]);
-  
+
   return !err && written == len;
 }
 

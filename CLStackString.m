@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -33,7 +33,7 @@
   CLStringStorage *stor;
   CLUInteger newlen;
 
-  
+
   stor = CLStorageForString(self);
   newlen = len - aRange.length;
   if (aString) {
@@ -83,8 +83,8 @@
 
   ustr = (unistr *) self;
   CLStringConvertEncoding((char *) ustr->str, ustr->len * sizeof(unichar),
-			  CLUnicodeStringEncoding,
-			  &buf, &blen, CLUTF8StringEncoding, NO);
+                          CLUnicodeStringEncoding,
+                          &buf, &blen, CLUTF8StringEncoding, NO);
   buf[blen] = 0;
   return buf;
 }
@@ -144,8 +144,8 @@
 
   ustr = (unistr *) self;
   CLStringConvertEncoding((char *) ustr->str, ustr->len * sizeof(unichar),
-			  CLUnicodeStringEncoding,
-			  &buf, &blen, CLUTF8StringEncoding, NO);
+                          CLUnicodeStringEncoding,
+                          &buf, &blen, CLUTF8StringEncoding, NO);
   buf[blen] = 0;
   return buf;
 }

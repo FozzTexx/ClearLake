@@ -15,7 +15,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -57,7 +57,7 @@
 -(CLBlock *) parentBlock;
 -(void) setParentBlock:(id) aParent;
 -(id) objectValueForSpecialBinding:(CLString *) aBinding allowConstant:(BOOL) flag
-			     found:(BOOL *) found wasConstant:(BOOL *) wasConst;
+                             found:(BOOL *) found wasConstant:(BOOL *) wasConst;
 -(id) expandBinding:(id) aBinding success:(BOOL *) success;
 -(BOOL) expandBoolean:(id) aBinding;
 -(void) writeAttributes:(CLDictionary *) aDict to:(CLStream *) stream;

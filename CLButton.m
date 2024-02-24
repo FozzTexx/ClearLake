@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -39,7 +39,7 @@
 {
   CLMutableArray *mArray;
 
-  
+
   if (![content isKindOfClass:CLMutableArrayClass]) {
     mArray = [[CLMutableArray alloc] init];
     if (content)
@@ -47,13 +47,13 @@
     [content release];
     content = mArray;
   }
-  
+
   [content addObject:anObject];
   if ([anObject respondsTo:@selector(setPage:)])
     [anObject setPage:page];
   if ([anObject respondsTo:@selector(setParentBlock:)])
     [anObject setParentBlock:self];
-  
+
   return;
 }
 
@@ -65,7 +65,7 @@
   [stream writeFormat:@"<%@" usingEncoding:CLUTF8StringEncoding, title];
   if (value)
     [stream writeFormat:@" VALUE=\"%@\"" usingEncoding:CLUTF8StringEncoding,
-	    [[value description] entityEncodedString]];
+            [[value description] entityEncodedString]];
   [self writeAttributes:stream ignore:nil];
   [stream writeString:@">" usingEncoding:CLUTF8StringEncoding];
   if (content)
@@ -83,7 +83,7 @@
 {
   int i, j;
 
-  
+
   if ([anObject isKindOfClass:CLArrayClass]) {
     for (i = 0, j = [anObject count]; i < j; i++)
       [self setPageFor:[anObject objectAtIndex:i]];
@@ -92,7 +92,7 @@
     [anObject setPage:page];
   return;
 }
-    
+
 -(void) setContent:(id) anObject
 {
   [content autorelease];
@@ -113,12 +113,12 @@
     content = [anObject retain];
 
   [self setPageFor:content];
-  
+
   return;
 }
 
 -(void) autonumber:(id) anObject position:(int) index
-	  replaced:(CLMutableDictionary *) replaced
+          replaced:(CLMutableDictionary *) replaced
 {
   int i, j;
   CLMutableDictionary *mDict;
@@ -132,25 +132,25 @@
   else if ([anObject isKindOfClass:CLElementClass]) {
     if ((mDict = [anObject attributes])) {
       if ((aString = [mDict objectForCaseInsensitiveString:@"NAME"]) &&
-	  (![anObject isKindOfClass:CLInputClass] ||
-	   [anObject type] != CLRadioInputType ||
-	   [attributes objectForCaseInsensitiveString:@"CL_AUTORADIO"])) {
-	aString = [aString stringByAppendingFormat:@"_%i", index];
-	[mDict setObject:aString forCaseInsensitiveString:@"NAME"];
+          (![anObject isKindOfClass:CLInputClass] ||
+           [anObject type] != CLRadioInputType ||
+           [attributes objectForCaseInsensitiveString:@"CL_AUTORADIO"])) {
+        aString = [aString stringByAppendingFormat:@"_%i", index];
+        [mDict setObject:aString forCaseInsensitiveString:@"NAME"];
       }
       if ((aString = [mDict objectForCaseInsensitiveString:@"ID"])) {
-	newString = [aString stringByAppendingFormat:@"_%i", index];
-	[replaced setObject:newString forKey:aString];
-	[mDict setObject:newString forCaseInsensitiveString:@"ID"];
+        newString = [aString stringByAppendingFormat:@"_%i", index];
+        [replaced setObject:newString forKey:aString];
+        [mDict setObject:newString forCaseInsensitiveString:@"ID"];
       }
       if ((aString = [mDict objectForCaseInsensitiveString:@"FOR"])) {
-	aString = [aString stringByAppendingFormat:@"_%i", index];
-	[mDict setObject:aString forCaseInsensitiveString:@"FOR"];
+        aString = [aString stringByAppendingFormat:@"_%i", index];
+        [mDict setObject:aString forCaseInsensitiveString:@"FOR"];
       }
     }
-	
+
     if ([anObject isKindOfClass:CLBlockClass] &&
-	[[anObject content] isKindOfClass:CLArrayClass])
+        [[anObject content] isKindOfClass:CLArrayClass])
       [self autonumber:[anObject content] position:index replaced:replaced];
   }
 
@@ -185,8 +185,8 @@
     for (i = 0, j = [anArray count]; i < j; i++) {
       aKey = [anArray objectAtIndex:i];
       if ([aKey isEqualToString:subString]) {
-	subString = [aDict objectForKey:aKey];
-	break;
+        subString = [aDict objectForKey:aKey];
+        break;
       }
     }
 
@@ -217,19 +217,19 @@
     if ((mDict = [anObject attributes])) {
       anArray = [mDict allKeys];
       for (i = 0, j = [anArray count]; i < j; i++) {
-	aKey = [anArray objectAtIndex:i];
-	if ([aKey hasPrefix:@"cl_"]) {
-	  aString = [mDict objectForKey:aKey];
-	  if ([aString isKindOfClass:CLStringClass]) {
-	    aString = [self fixIDs:aString newIDs:replaced];
-	    [mDict setObject:aString forKey:aKey];
-	  }
-	}
+        aKey = [anArray objectAtIndex:i];
+        if ([aKey hasPrefix:@"cl_"]) {
+          aString = [mDict objectForKey:aKey];
+          if ([aString isKindOfClass:CLStringClass]) {
+            aString = [self fixIDs:aString newIDs:replaced];
+            [mDict setObject:aString forKey:aKey];
+          }
+        }
       }
     }
-	
+
     if ([anObject isKindOfClass:CLBlockClass] &&
-	[[anObject content] isKindOfClass:CLArrayClass])
+        [[anObject content] isKindOfClass:CLArrayClass])
       [self autonumber:[anObject content] newIDs:replaced];
   }
 
@@ -251,9 +251,9 @@
     if ([mDict count])
       [self autonumber:anObject newIDs:mDict];
   }
-  
+
   [mDict release];
-  
+
   return;
 }
 
@@ -294,39 +294,39 @@
 
   if ((aString = [attributes objectForCaseInsensitiveString:@"CL_BINDING"])) {
     aRange = [aString rangeOfString:@".objects." options:0
-		      range:CLMakeRange(0, [aString length])];
+                      range:CLMakeRange(0, [aString length])];
     if (aRange.length && ![attributes objectForCaseInsensitiveString:@"CL_AUTONUMBER"])
       [attributes setObject:CLTrueObject forCaseInsensitiveString:@"CL_AUTONUMBER"];
-    
+
     if (aRange.length &&
-	(sortString = [attributes objectForCaseInsensitiveString:@"CL_SORT"])) {
+        (sortString = [attributes objectForCaseInsensitiveString:@"CL_SORT"])) {
       sortString = [self expandBinding:sortString success:&success];
       anObject = [self expandBinding:[aString substringToIndex:aRange.location]
-			     success:&found];
+                             success:&found];
       anObject = [anObject sortedArrayUsingDescriptors:
-			     [CLSortDescriptor sortDescriptorsFromString:sortString]];
+                             [CLSortDescriptor sortDescriptorsFromString:sortString]];
       anObject = [anObject objectValueForBinding:
-			     [aString substringFromIndex:aRange.location+1]];
+                             [aString substringFromIndex:aRange.location+1]];
     }
     else {
       anObject = [self expandBinding:aString success:&found];
       if ([anObject isKindOfClass:CLArrayClass] &&
-	  (sortString = [attributes objectForCaseInsensitiveString:@"CL_SORT"])) {
-	sortString = [self expandBinding:sortString success:&success];
-	anObject = [anObject sortedArrayUsingDescriptors:
-			       [CLSortDescriptor sortDescriptorsFromString:sortString]];
+          (sortString = [attributes objectForCaseInsensitiveString:@"CL_SORT"])) {
+        sortString = [self expandBinding:sortString success:&success];
+        anObject = [anObject sortedArrayUsingDescriptors:
+                               [CLSortDescriptor sortDescriptorsFromString:sortString]];
       }
     }
-      
+
     if ((aString = [attributes objectForCaseInsensitiveString:@"CL_FORMAT"])) {
       if ([anObject isKindOfClass:CLNumberClass]) {
-	aFormatter = [CLNumberFormatter numberFormatterFromFormat:
-					      [self expandBinding:aString success:&success]];
-	anObject = [aFormatter stringForObjectValue:anObject];
+        aFormatter = [CLNumberFormatter numberFormatterFromFormat:
+                                              [self expandBinding:aString success:&success]];
+        anObject = [aFormatter stringForObjectValue:anObject];
       }
       else if ([anObject isKindOfClass:CLDatetimeClass]) {
-	aFormatter = [CLDateFormatter dateFormatterFromFormat:aString];
-	anObject = [aFormatter stringForObjectValue:anObject];
+        aFormatter = [CLDateFormatter dateFormatterFromFormat:aString];
+        anObject = [aFormatter stringForObjectValue:anObject];
       }
     }
 
@@ -338,13 +338,13 @@
      we update the bindings before the autonumber then cl_bindings
      that reference an ID won't get fixed. If we do the update after
      the autonumber, then the double autonumber doesn't happen. */
-  
+
   [self updateBindingFor:content];
 
   if ([content isKindOfClass:CLArrayClass] &&
       (anObject = [attributes objectForCaseInsensitiveString:@"CL_AUTONUMBER"]) &&
       (anObject == CLNullObject || [self expandBoolean:anObject]))
-    [self autonumber:content]; 
+    [self autonumber:content];
 
   return;
 }

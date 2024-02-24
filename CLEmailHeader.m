@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -64,13 +64,13 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
   aCopy->headers = [headers copy];
   aCopy->values = [values copy];
-  
+
   return aCopy;
 }
 
@@ -84,10 +84,10 @@
 
 
   pool = [[CLAutoreleasePool alloc] init];
-  
+
   [headers removeAllObjects];
   [values removeAllObjects];
-  
+
   mString = [aString mutableCopy];
   [mString replaceOccurrencesOfString:@"\r\n" withString:@"\n"];
   [mString replaceOccurrencesOfString:@"\r" withString:@"\n"];
@@ -99,7 +99,7 @@
     end = aRange.location + 1;
   else
     end = [mString length];
-  
+
   pos = 0;
   while (pos < end) {
     aRange = [mString rangeOfString:@"\n" options:0 range:CLMakeRange(pos, end - pos)];
@@ -107,16 +107,16 @@
       aRange.location = end;
 
     if (!pos && [[mString substringWithRange:CLMakeRange(pos, aRange.location-pos)]
-		  hasPrefix:@"From "]) {
+                  hasPrefix:@"From "]) {
       aRange2.location = 5;
       aRange2.length = 0;
     }
     else {
       aRange2 = [mString rangeOfString:@":" options:0
-				 range:CLMakeRange(pos, aRange.location-pos)];
+                                 range:CLMakeRange(pos, aRange.location-pos)];
       if (!aRange2.length) {
-	/* Bail-out, invalid header */
-	break;
+        /* Bail-out, invalid header */
+        break;
       }
     }
 
@@ -126,15 +126,15 @@
     if (!aRange3.length)
       aRange3.location = CLMaxRange(aRange2);
     [self appendHeader:[mString substringWithRange:CLMakeRange(pos, aRange2.location - pos)]
-	  withValue:[mString substringWithRange:
-			       CLMakeRange(aRange3.location,
-					   aRange.location - aRange3.location)]];
+          withValue:[mString substringWithRange:
+                               CLMakeRange(aRange3.location,
+                                           aRange.location - aRange3.location)]];
     pos = CLMaxRange(aRange);
   }
-  
+
   [mString release];
   [pool release];
-  
+
   return;
 }
 
@@ -196,7 +196,7 @@
 -(void) removeHeader:(CLString *) aHeader
 {
   CLUInteger delIndex;
-  
+
 
   while ((delIndex = [self indexOfHeader:aHeader startingIndex:0]) != CLNotFound) {
     [headers removeObjectAtIndex:delIndex];

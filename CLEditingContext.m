@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -47,9 +47,9 @@
 
 #include <stdlib.h>
 
-#define DONE		0
-#define PREPARING	1
-#define SAVING		2
+#define DONE            0
+#define PREPARING       1
+#define SAVING          2
 
 static id _model = nil;
 /* For CLRecordDefinition category */
@@ -77,7 +77,7 @@ static int _modelInitState = MODEL_UNINIT;
   Class aClass;
   CLMutableDictionary *fields, *relations;
 
-  
+
   keys = [aSchema allKeys];
   for (i = 0, j = [keys count]; i < j; i++) {
     aTable = [keys objectAtIndex:i];
@@ -87,10 +87,10 @@ static int _modelInitState = MODEL_UNINIT;
       aString = [aTable upperCamelCaseString];
     if (!(aClass = CLClassFromString(aString))) {
       if ([aDict objectForKey:@"class"])
-	[self error:@"Unable to find class \"%@\"", aString];
+        [self error:@"Unable to find class \"%@\"", aString];
       aClass = CLGenericRecordClass;
     }
-    
+
     {
       id anObject;
       CLArray *anArray;
@@ -102,22 +102,22 @@ static int _modelInitState = MODEL_UNINIT;
       fields = [[CLMutableDictionary alloc] init];
       anObject = [aDict objectForKey:@"fields"];
       if ([anObject isKindOfClass:CLArrayClass]) {
-	anArray = CLAttributesFromArray(anObject);
-	for (k = 0, l = [anArray count]; k < l; k++) {
-	  anAttr = [anArray objectAtIndex:k];
-	  aKey = [[anAttr column] lowerCamelCaseString];
-	  [anAttr setKey:aKey];
-	  [fields setObject:anAttr forKey:aKey];
-	}
+        anArray = CLAttributesFromArray(anObject);
+        for (k = 0, l = [anArray count]; k < l; k++) {
+          anAttr = [anArray objectAtIndex:k];
+          aKey = [[anAttr column] lowerCamelCaseString];
+          [anAttr setKey:aKey];
+          [fields setObject:anAttr forKey:aKey];
+        }
       }
       else {
-	anArray = [anObject allKeys];
-	for (k = 0, l = [anArray count]; k < l; k++) {
-	  aKey = [anArray objectAtIndex:k];
-	  anAttr = [CLAttribute attributeFromString:[anObject objectForKey:aKey]];
-	  [anAttr setKey:aKey];
-	  [fields setObject:anAttr forKey:aKey];
-	}
+        anArray = [anObject allKeys];
+        for (k = 0, l = [anArray count]; k < l; k++) {
+          aKey = [anArray objectAtIndex:k];
+          anAttr = [CLAttribute attributeFromString:[anObject objectForKey:aKey]];
+          [anAttr setKey:aKey];
+          [fields setObject:anAttr forKey:aKey];
+        }
       }
     }
 
@@ -132,18 +132,18 @@ static int _modelInitState = MODEL_UNINIT;
       anObject = [aDict objectForKey:@"relationships"];
       anArray = [anObject allKeys];
       for (k = 0, l = [anArray count]; k < l; k++) {
-	aString = [anArray objectAtIndex:k];
-	[relations setObject:[[[CLRelationship alloc]
-				initFromString:[anObject objectForKey:aString]
-				databaseName:aDatabase] autorelease]
-		   forKey:[aString lowerCamelCaseString]];
+        aString = [anArray objectAtIndex:k];
+        [relations setObject:[[[CLRelationship alloc]
+                                initFromString:[anObject objectForKey:aString]
+                                databaseName:aDatabase] autorelease]
+                   forKey:[aString lowerCamelCaseString]];
       }
     }
 
     recordDef = [[CLRecordDefinition alloc] initFromTable:[CLString stringWithFormat:@"%@.%@",
-								    aDatabase, aTable]
-						    class:aClass fields:fields
-					    relationships:relations];
+                                                                    aDatabase, aTable]
+                                                    class:aClass fields:fields
+                                            relationships:relations];
     [aSchema setObject:recordDef forKey:aTable];
     [fields release];
     [relations release];
@@ -179,61 +179,61 @@ static int _modelInitState = MODEL_UNINIT;
       anArray = [relations allKeys];
       pool = [[CLAutoreleasePool alloc] init];
       for (k = 0, l = [anArray count]; k < l; k++) {
-	relName = [anArray objectAtIndex:k];
-	aRel = [relations objectForKey:relName];
-	if (![aRel toMany]) {
-	  CLDictionary *aDict;
-	  CLRecordDefinition *theirDef;
-	  CLAttribute *anAttr;
-	  CLString *fieldName;
-	  CLArray *theirFields, *theirKeys;
-	  int m, n, nk;
+        relName = [anArray objectAtIndex:k];
+        aRel = [relations objectForKey:relName];
+        if (![aRel toMany]) {
+          CLDictionary *aDict;
+          CLRecordDefinition *theirDef;
+          CLAttribute *anAttr;
+          CLString *fieldName;
+          CLArray *theirFields, *theirKeys;
+          int m, n, nk;
 
 
-	  theirDef = [CLEditingContext recordDefinitionForTable:[aRel theirTable]];
-	  aDict = [theirDef fields];
-	  theirFields = [aDict allKeys];
-	  theirKeys = [aRel theirKeys];
-	  for (m = 0, n = [theirKeys count]; m < n; m++)
-	    if (![theirFields containsObject:[theirKeys objectAtIndex:m]])
-	      [aRel error:[CLString stringWithFormat:
-				      @"No matching keys found for relationship %@.%@",
-				    aTable, relName]];
+          theirDef = [CLEditingContext recordDefinitionForTable:[aRel theirTable]];
+          aDict = [theirDef fields];
+          theirFields = [aDict allKeys];
+          theirKeys = [aRel theirKeys];
+          for (m = 0, n = [theirKeys count]; m < n; m++)
+            if (![theirFields containsObject:[theirKeys objectAtIndex:m]])
+              [aRel error:[CLString stringWithFormat:
+                                      @"No matching keys found for relationship %@.%@",
+                                    aTable, relName]];
 
-	  theirFields = [aRel theirKeys];
-	  for (m = 0, n = [theirFields count]; m < n; m++) {
-	    fieldName = [theirFields objectAtIndex:m];
-	    anAttr = [aDict objectForKey:fieldName];
-	    if ([anAttr isPrimaryKey])
-	      break;
-	  }
+          theirFields = [aRel theirKeys];
+          for (m = 0, n = [theirFields count]; m < n; m++) {
+            fieldName = [theirFields objectAtIndex:m];
+            anAttr = [aDict objectForKey:fieldName];
+            if ([anAttr isPrimaryKey])
+              break;
+          }
 
-	  /* Can't be dependent on objects with mismatched number of
-	     keys. Can't generate a key for it when we want to save
-	     and there's no way it can be a to-one either. */
-	  if (m < n) {
-	    theirFields = [aDict allKeys];
-	    for (m = nk = 0, n = [theirFields count]; m < n; m++) {
-	      fieldName = [theirFields objectAtIndex:m];
-	      anAttr = [aDict objectForKey:fieldName];
-	      if ([anAttr isPrimaryKey])
-		nk++;
-	    }
+          /* Can't be dependent on objects with mismatched number of
+             keys. Can't generate a key for it when we want to save
+             and there's no way it can be a to-one either. */
+          if (m < n) {
+            theirFields = [aDict allKeys];
+            for (m = nk = 0, n = [theirFields count]; m < n; m++) {
+              fieldName = [theirFields objectAtIndex:m];
+              anAttr = [aDict objectForKey:fieldName];
+              if ([anAttr isPrimaryKey])
+                nk++;
+            }
 
-	    if (nk != [[aRel ourKeys] count])
-	      [aRel error:[CLString stringWithFormat:
-				       @"To-one relationship from \"%@.%@\""
-				    " to multi-key object \"%@\"",
-				    aTable, relName, [aRel theirTable]]];
+            if (nk != [[aRel ourKeys] count])
+              [aRel error:[CLString stringWithFormat:
+                                       @"To-one relationship from \"%@.%@\""
+                                    " to multi-key object \"%@\"",
+                                    aTable, relName, [aRel theirTable]]];
 
 #if 0
-	    /* FIXME - Just because we are the owner doesn't mean we
-	       don't need its primary key as our foreign key */
-	    if (![aRel isOwner])
+            /* FIXME - Just because we are the owner doesn't mean we
+               don't need its primary key as our foreign key */
+            if (![aRel isOwner])
 #endif
-	      [aRel setDependent:YES];
-	  }
-	}
+              [aRel setDependent:YES];
+          }
+        }
       }
       [pool release];
     }
@@ -257,61 +257,61 @@ static int _modelInitState = MODEL_UNINIT;
       anArray = [relations allKeys];
       pool = [[CLAutoreleasePool alloc] init];
       for (k = 0, l = [anArray count]; k < l; k++) {
-	relName = [anArray objectAtIndex:k];
-	aRel = [relations objectForKey:relName];
-	if ([aRel isDependent]) {
-	  CLDictionary *aDict;
-	  CLRecordDefinition *theirDef;
-	  CLString *fieldName, *ourTable;
-	  CLArray *theirFields;
-	  CLRelationship *theirRel;
-	  int m, n;
+        relName = [anArray objectAtIndex:k];
+        aRel = [relations objectForKey:relName];
+        if ([aRel isDependent]) {
+          CLDictionary *aDict;
+          CLRecordDefinition *theirDef;
+          CLString *fieldName, *ourTable;
+          CLArray *theirFields;
+          CLRelationship *theirRel;
+          int m, n;
 
 
-	  theirDef = [CLEditingContext recordDefinitionForTable:[aRel theirTable]];
-	  aDict = [theirDef relationships];
-	  theirFields = [aDict allKeys];
-	  for (m = 0, n = [theirFields count]; m < n; m++) {
-	    fieldName = [theirFields objectAtIndex:m];
-	    theirRel = [aDict objectForKey:fieldName];
-	    ourTable = [theirRel theirTable];
-	    if ([ourTable isEqualToString:aTable] &&
-		[[aRel ourKeys] isEqual:[theirRel theirKeys]] && [theirRel isDependent]) {
-	      if ([aRel isOwner]) /* FIXME - we own them so we can't be dependent, right? */
-		[aRel setDependent:NO];
-	      else if ([theirRel isOwner])
-		[theirRel setDependent:NO];
-	      else
-		[aRel error:[CLString stringWithFormat:
-					@"Mutual dependency between \"%@.%@\" and \"%@\"",
-				      aTable, relName, [aRel theirTable]]];
-	    }
-	  }
-	}
+          theirDef = [CLEditingContext recordDefinitionForTable:[aRel theirTable]];
+          aDict = [theirDef relationships];
+          theirFields = [aDict allKeys];
+          for (m = 0, n = [theirFields count]; m < n; m++) {
+            fieldName = [theirFields objectAtIndex:m];
+            theirRel = [aDict objectForKey:fieldName];
+            ourTable = [theirRel theirTable];
+            if ([ourTable isEqualToString:aTable] &&
+                [[aRel ourKeys] isEqual:[theirRel theirKeys]] && [theirRel isDependent]) {
+              if ([aRel isOwner]) /* FIXME - we own them so we can't be dependent, right? */
+                [aRel setDependent:NO];
+              else if ([theirRel isOwner])
+                [theirRel setDependent:NO];
+              else
+                [aRel error:[CLString stringWithFormat:
+                                        @"Mutual dependency between \"%@.%@\" and \"%@\"",
+                                      aTable, relName, [aRel theirTable]]];
+            }
+          }
+        }
 #if 0 /* FIXME - is a to-one relationship that isn't linked with a primary key really ok? */
-	else if (![aRel toMany]) {
-	  CLDictionary *aDict, *theirDef;
-	  CLString *fieldName, *ourTable;
-	  CLArray *theirFields;
-	  CLRelationship *theirRel;
-	  int m, n;
+        else if (![aRel toMany]) {
+          CLDictionary *aDict, *theirDef;
+          CLString *fieldName, *ourTable;
+          CLArray *theirFields;
+          CLRelationship *theirRel;
+          int m, n;
 
 
-	  theirDef = [[self class] recordDefForTable:[aRel theirTable]];
-	  aDict = [theirDef objectForKey:@"relationships"];
-	  theirFields = [aDict allKeys];
-	  for (m = 0, n = [theirFields count]; m < n; m++) {
-	    fieldName = [theirFields objectAtIndex:m];
-	    theirRel = [aDict objectForKey:fieldName];
-	    ourTable = [theirRel theirTable];
-	    if ([ourTable isEqualToString:aTable] && [theirRel isDependent])
-	      break;
-	  }
-	  if (m == n)
-	    [aRel error:[CLString stringWithFormat:
-				    @"No dependency between \"%@\" and \"%@\"",
-				  aTable, [aRel theirTable]]];
-	}
+          theirDef = [[self class] recordDefForTable:[aRel theirTable]];
+          aDict = [theirDef objectForKey:@"relationships"];
+          theirFields = [aDict allKeys];
+          for (m = 0, n = [theirFields count]; m < n; m++) {
+            fieldName = [theirFields objectAtIndex:m];
+            theirRel = [aDict objectForKey:fieldName];
+            ourTable = [theirRel theirTable];
+            if ([ourTable isEqualToString:aTable] && [theirRel isDependent])
+              break;
+          }
+          if (m == n)
+            [aRel error:[CLString stringWithFormat:
+                                    @"No dependency between \"%@\" and \"%@\"",
+                                  aTable, [aRel theirTable]]];
+        }
 #endif
       }
       [pool release];
@@ -328,7 +328,7 @@ static int _modelInitState = MODEL_UNINIT;
   int i, j;
   CLString *aString;
 
-  
+
   if (_model || _modelInitState > MODEL_INITIALIZING)
     return _model;
 
@@ -341,12 +341,12 @@ static int _modelInitState = MODEL_UNINIT;
   _tableDefs = CLHashTableAlloc(CLHashTableDefaultSize);
   _classTable = CLHashTableAlloc(CLHashTableDefaultSize);
   _tableClass = CLHashTableAlloc(CLHashTableDefaultSize);
-  
+
   if ((aString = [CLManager configOption:@"Model"]) &&
       (aString = [CLString stringWithContentsOfFile:
-			     [[CLManager configurationDirectory]
-			       stringByAppendingPathComponent:aString]
-			   encoding:CLASCIIStringEncoding]))
+                             [[CLManager configurationDirectory]
+                               stringByAppendingPathComponent:aString]
+                           encoding:CLASCIIStringEncoding]))
     _model = [[aString decodePropertyList] mutableCopy];
   else {
     if (![CLManager configOption:@"Database"]) {
@@ -354,7 +354,7 @@ static int _modelInitState = MODEL_UNINIT;
       return nil;
     }
 
-    _model = [[CLMutableDictionary alloc] init];    
+    _model = [[CLMutableDictionary alloc] init];
     mDict = [[CLMutableDictionary alloc] init];
     mDict2 = [[CLMutableDictionary alloc] init];
     if ((aString = [CLManager configOption:@"Database"]))
@@ -370,10 +370,10 @@ static int _modelInitState = MODEL_UNINIT;
     [mDict setObject:mDict2 forKey:@"connection"];
 
     if ((aString = [CLManager configOption:@"Schema"]) &&
-	(aString = [CLString stringWithContentsOfFile:
-			       [[CLManager configurationDirectory]
-				 stringByAppendingPathComponent:aString]
-			     encoding:CLASCIIStringEncoding]))
+        (aString = [CLString stringWithContentsOfFile:
+                               [[CLManager configurationDirectory]
+                                 stringByAppendingPathComponent:aString]
+                             encoding:CLASCIIStringEncoding]))
       mDict3 = [[aString decodePropertyList] mutableCopy];
     else
       mDict3 = [[CLMutableDictionary alloc] init];
@@ -394,14 +394,14 @@ static int _modelInitState = MODEL_UNINIT;
   for (i = 0, j = [anArray count]; i < j; i++) {
     aString = [anArray objectAtIndex:i];
     [self decodeSchema:[[_model objectForKey:aString]
-			 objectForKey:@"schema"] databaseName:aString];
+                         objectForKey:@"schema"] databaseName:aString];
   }
 
   /* Find relationship dependencies */
   for (i = 0, j = [anArray count]; i < j; i++) {
     aString = [anArray objectAtIndex:i];
     [self findDependencies:[[_model objectForKey:aString]
-			     objectForKey:@"schema"] databaseName:aString];
+                             objectForKey:@"schema"] databaseName:aString];
   }
 
   _modelInitState = MODEL_INITCOMPLETE;
@@ -431,27 +431,27 @@ static int _modelInitState = MODEL_UNINIT;
     format = [aDict objectForKey:@"dateformat"];
     if (![interface caseInsensitiveCompare:@"mysql"])
       db = [[CLMySQLDatabase alloc]
-	     initWithDatabase:database user:user password:password host:host];
+             initWithDatabase:database user:user password:password host:host];
     else if (![interface caseInsensitiveCompare:@"sybase"])
       db = [[CLSybaseDatabase alloc]
-	     initWithDatabase:database user:user password:password host:host];
+             initWithDatabase:database user:user password:password host:host];
 
     if (encoding) {
       if (![encoding caseInsensitiveCompare:@"UTF8"])
-	[db setEncoding:CLUTF8StringEncoding];
+        [db setEncoding:CLUTF8StringEncoding];
       else if (![encoding caseInsensitiveCompare:@"ISO-8859-1"] ||
-	       ![encoding caseInsensitiveCompare:@"ISO-1"] ||
-	       ![encoding caseInsensitiveCompare:@"ISOLatin1"])
-	[db setEncoding:CLISOLatin1StringEncoding];
+               ![encoding caseInsensitiveCompare:@"ISO-1"] ||
+               ![encoding caseInsensitiveCompare:@"ISOLatin1"])
+        [db setEncoding:CLISOLatin1StringEncoding];
       else if (![encoding caseInsensitiveCompare:@"NeXTSTEP"] ||
-	       ![encoding caseInsensitiveCompare:@"OPENSTEP"])
-	[db setEncoding:CLNEXTSTEPStringEncoding];
+               ![encoding caseInsensitiveCompare:@"OPENSTEP"])
+        [db setEncoding:CLNEXTSTEPStringEncoding];
     }
     if (zone)
       [db setTimeZone:[CLTimeZone timeZoneWithName:zone]];
     if (format)
       [db setDateFormat:format];
-    
+
     [mDict setObject:db forKey:@"database"];
   }
 
@@ -489,15 +489,15 @@ static int _modelInitState = MODEL_UNINIT;
 
       anArray = [[self model] allValues];
       for (i = 0, j = [anArray count]; i < j; i++)
-	if ((recordDef = [[[anArray objectAtIndex:i] objectForKey:@"schema"]
-			   objectForKey:@"session"])) {
-	  _sessionClass = [recordDef recordClass];
-	  break;
-	}
+        if ((recordDef = [[[anArray objectAtIndex:i] objectForKey:@"schema"]
+                           objectForKey:@"session"])) {
+          _sessionClass = [recordDef recordClass];
+          break;
+        }
     }
     else
       fprintf(stderr, "Warning: unable to parse model for session class"
-	      " during initialization.\n");
+              " during initialization.\n");
 
     if (!_sessionClass)
       _sessionClass = CLSessionClass;
@@ -545,7 +545,7 @@ static int _modelInitState = MODEL_UNINIT;
 }
 
 +(CLString *) qualifierForObject:(id) aRecord fromDatabase:(BOOL) fromDB
-		recordDefinition:(CLRecordDefinition *) recordDef
+                recordDefinition:(CLRecordDefinition *) recordDef
 {
   CLArray *pKeys;
   CLAttribute *anAttr;
@@ -574,7 +574,7 @@ static int _modelInitState = MODEL_UNINIT;
 }
 
 +(id) constructPrimaryKey:(id) record recordDef:(CLRecordDefinition *) recordDef
-	     fromDatabase:(BOOL) fromDB asDictionary:(BOOL) asDict
+             fromDatabase:(BOOL) fromDB asDictionary:(BOOL) asDict
 {
   CLMutableDictionary *mDict;
   CLArray *primaryKeys;
@@ -597,11 +597,11 @@ static int _modelInitState = MODEL_UNINIT;
     for (i = 0, j = [primaryKeys count]; i < j; i++) {
       anAttr = [primaryKeys objectAtIndex:i];
       if ([record isKindOfClass:CLDictionaryClass] && fromDB)
-	value = [record objectForKey:[anAttr column]];
+        value = [record objectForKey:[anAttr column]];
       else
-	value = [record objectValueForBinding:[anAttr key]];
+        value = [record objectValueForBinding:[anAttr key]];
       if (!value)
-	break;
+        break;
       [mDict setObject:value forKey:[anAttr key]];
     }
 
@@ -609,7 +609,7 @@ static int _modelInitState = MODEL_UNINIT;
       [mDict release];
       mDict = nil;
     }
-    
+
     pk = mDict;
   }
 
@@ -666,7 +666,7 @@ static int _modelInitState = MODEL_UNINIT;
     anAttr = [pKeys objectAtIndex:i];
     aValue = [mDict objectForKey:[anAttr column]];
     if (!aValue || aValue == CLNullObject ||
-	([aValue isKindOfClass:CLNumberClass] && !(tid = [aValue intValue])))
+        ([aValue isKindOfClass:CLNumberClass] && !(tid = [aValue intValue])))
       k++;
     else
       oid = tid;
@@ -682,10 +682,10 @@ static int _modelInitState = MODEL_UNINIT;
       anAttr = [pKeys objectAtIndex:i];
       aValue = [mDict objectForKey:[anAttr column]];
       if (aValue == CLNullObject || ![aValue intValue]) {
-	/* FIXME - should we be doing it this way and bypassing willChange? */
-	[aRecord setPrimitiveValue:[CLNumber numberWithInt:oid] forKey:[anAttr key]];
-	[mDict setObject:[CLNumber numberWithInt:oid] forKey:[anAttr column]];
-	break;
+        /* FIXME - should we be doing it this way and bypassing willChange? */
+        [aRecord setPrimitiveValue:[CLNumber numberWithInt:oid] forKey:[anAttr key]];
+        [mDict setObject:[CLNumber numberWithInt:oid] forKey:[anAttr column]];
+        break;
       }
     }
   }
@@ -737,7 +737,7 @@ static int _modelInitState = MODEL_UNINIT;
   CLHashTableFree(instancesTable);
 
   /* primaryKeys doesn't retain anything since it is just an alternate
-     lookup for the data in instancesTable */  
+     lookup for the data in instancesTable */
   CLHashTableFree(primaryKeys);
 
   [super dealloc];
@@ -753,7 +753,7 @@ static int _modelInitState = MODEL_UNINIT;
   if (!(pk = CLHashTableDataForIdenticalKey(primaryKeys, aRecord, (size_t) aRecord))) {
     recordDef = [CLEditingContext recordDefinitionForClass:[aRecord class]];
     pk = [[self class] constructPrimaryKey:aRecord recordDef:recordDef
-			      fromDatabase:NO asDictionary:NO];
+                              fromDatabase:NO asDictionary:NO];
   }
 
   return pk;
@@ -763,13 +763,13 @@ static int _modelInitState = MODEL_UNINIT;
 {
   CLDictionary *pk;
 
-  
+
   if (!(pk = [self primaryKeyForRecord:anObject]))
     return nil;
 
   return [self registerInstance:anObject
-			inTable:[CLEditingContext tableForClass:[anObject class]]
-		 withPrimaryKey:pk];
+                        inTable:[CLEditingContext tableForClass:[anObject class]]
+                 withPrimaryKey:pk];
 }
 
 -(id) registerInstance:(id) anObject inTable:(CLString *) table withPrimaryKey:(id) primaryKey
@@ -779,13 +779,13 @@ static int _modelInitState = MODEL_UNINIT;
 
 
   if (!(insTable = CLHashTableDataForKey(instancesTable, table, [table hash],
-					 @selector(isEqual:)))) {
+                                         @selector(isEqual:)))) {
     insTable = CLHashTableAlloc(CLHashTableDefaultSize);
     CLHashTableSetData(instancesTable, insTable, [table copy], [table hash]);
   }
-  
+
   if (!(realObject = CLHashTableDataForKey(insTable, primaryKey, [primaryKey hash],
-					   @selector(isEqual:)))) {
+                                           @selector(isEqual:)))) {
     realObject = anObject;
     /* Could be a mutable dictionary */
     primaryKey = [primaryKey copy];
@@ -794,7 +794,7 @@ static int _modelInitState = MODEL_UNINIT;
     [realObject setEditingContext:self];
 #if 0
     fprintf(stderr, "Registered 0x%08lx %s %s %u\n", (size_t) realObject, [table UTF8String],
-	    [[primaryKey description] UTF8String], [primaryKey hash]);
+            [[primaryKey description] UTF8String], [primaryKey hash]);
 #endif
   }
 
@@ -836,19 +836,19 @@ static int _modelInitState = MODEL_UNINIT;
 
 #if 0
   fprintf(stderr, "Looking for %s %s...", [table UTF8String],
-	  [[primaryKey description] UTF8String]);
+          [[primaryKey description] UTF8String]);
 #endif
   if ((insTable = CLHashTableDataForKey(instancesTable, table, [table hash],
-					@selector(isEqual:))))
+                                        @selector(isEqual:))))
     anObject = CLHashTableDataForKey(insTable, primaryKey, [primaryKey hash],
-				     @selector(isEqual:));
+                                     @selector(isEqual:));
 #if 0
   if (anObject)
     fprintf(stderr, "found\n");
   else
     fprintf(stderr, "not found\n");
 #endif
-  
+
   return anObject;
 }
 
@@ -881,7 +881,7 @@ static int _modelInitState = MODEL_UNINIT;
 {
   if (!anObject)
     return;
-  
+
   if (![delete containsObjectIdenticalTo:anObject]) {
     if (_savingChanges == SAVING)
       [self error:@"Tried to delete object during save"];
@@ -910,9 +910,9 @@ static int _modelInitState = MODEL_UNINIT;
 
 
   aString = [CLString stringWithFormat:@"select count(*) from %@ where %@",
-		      [recordDef databaseTable],
-		      [[self class] qualifierForObject:aRecord fromDatabase:NO
-				      recordDefinition:recordDef]];
+                      [recordDef databaseTable],
+                      [[self class] qualifierForObject:aRecord fromDatabase:NO
+                                      recordDefinition:recordDef]];
   results = [[recordDef database] runQuery:aString];
   anArray = [results objectForKey:@"rows"];
   if ([anArray count] && [[[anArray objectAtIndex:0] objectAtIndex:0] intValue])
@@ -939,14 +939,14 @@ static int _modelInitState = MODEL_UNINIT;
 
   if ([aRecord isFault])
     [self error:@"Why are we saving a fault?"];
-  
+
   mDict = [[CLMutableDictionary alloc] init];
   saveFields = [[CLMutableArray alloc] init];
   skipped = [[CLMutableArray alloc] init];
 
   recordDef = [CLEditingContext recordDefinitionForClass:[aRecord class]];
   db = [recordDef database];
-  
+
   fields = [recordDef fields];
   relationships = [recordDef relationships];
 
@@ -958,29 +958,29 @@ static int _modelInitState = MODEL_UNINIT;
       /* FIXME - don't fault in relationships */
       anObject = [aRecord objectValueForBinding:aKey];
       if (0 && [anObject isFault]) {
-	[self error:@"Cannot fault object in while saving,"
-	      " cannot save record without adding object to dictionary.\n"];
-	/* FIXME - what if they are primary keys or cannot be null? */
-	[skipped addObjectsFromArray:[aRelationship ourKeys]];
-	fprintf(stderr, "Skipped %s.%s\n", [[aRecord className] UTF8String],
-		[aKey UTF8String]);
+        [self error:@"Cannot fault object in while saving,"
+              " cannot save record without adding object to dictionary.\n"];
+        /* FIXME - what if they are primary keys or cannot be null? */
+        [skipped addObjectsFromArray:[aRelationship ourKeys]];
+        fprintf(stderr, "Skipped %s.%s\n", [[aRecord className] UTF8String],
+                [aKey UTF8String]);
       }
       else {
-	if (anObject && ![self primaryKeyForRecord:anObject]) {
-	  [CLEditingContext generatePrimaryKey:nil forRecord:anObject];
-	  [self registerInstance:anObject];
-	}
-	[aRelationship setDictionary:mDict andRecord:aRecord
-			 usingObject:anObject fieldDefinition:fields];
+        if (anObject && ![self primaryKeyForRecord:anObject]) {
+          [CLEditingContext generatePrimaryKey:nil forRecord:anObject];
+          [self registerInstance:anObject];
+        }
+        [aRelationship setDictionary:mDict andRecord:aRecord
+                         usingObject:anObject fieldDefinition:fields];
       }
     }
   }
-  
+
   anArray = [fields allKeys];
   for (i = 0, j = [anArray count]; i < j; i++) {
     aKey = [anArray objectAtIndex:i];
     anAttr = [fields objectForKey:aKey];
-    
+
     if ((anObject = [aRecord objectValueForBinding:aKey]))
       [mDict setObject:anObject forKey:[anAttr column]];
 
@@ -988,21 +988,21 @@ static int _modelInitState = MODEL_UNINIT;
        Ah of course, because it might be a relationship field and I
        skipped it above for some reason. */
     if ([mDict objectForKey:[anAttr column]] || [anAttr isPrimaryKey] ||
-	![skipped containsObject:[anAttr key]])
+        ![skipped containsObject:[anAttr key]])
       [saveFields addObject:anAttr];
   }
 
   if (![self primaryKeyForRecord:aRecord] || ![self recordExists:aRecord
-						 recordDefinition:recordDef]) {
+                                                 recordDefinition:recordDef]) {
     [CLEditingContext generatePrimaryKey:mDict forRecord:aRecord];
     [db insertDictionary:mDict withAttributes:saveFields into:[recordDef databaseTable]
-		  withID:0 errors:&errors];
+                  withID:0 errors:&errors];
     if (errors)
       [self error:@"Shouldn't be errors! %@\nTable: %@", errors, [recordDef databaseTable]];
     if ((anObject = [self registerInstance:aRecord]) && anObject != aRecord) {
       CLString *errString = [CLString stringWithFormat:@"Saved second instance of %@:%@",
-				      [recordDef table], [[self primaryKeyForRecord:aRecord]
-					       description]];
+                                      [recordDef table], [[self primaryKeyForRecord:aRecord]
+                                               description]];
 #if 0
       [aRecord error:errString];
 #else
@@ -1014,17 +1014,17 @@ static int _modelInitState = MODEL_UNINIT;
   }
   else {
     aString = [[self class] qualifierForObject:aRecord fromDatabase:NO
-			      recordDefinition:recordDef];
+                              recordDefinition:recordDef];
     [db updateTable:[recordDef databaseTable] withDictionary:mDict
       andAttributes:saveFields forRow:aString errors:&errors];
     if (!errors)
       [self didUpdate:aRecord];
   }
-  
+
   [mDict release];
   [saveFields release];
   [skipped release];
-  
+
   return errors;
 }
 
@@ -1047,12 +1047,12 @@ static int _modelInitState = MODEL_UNINIT;
     aRelationship = [aDict objectForKey:aKey];
     if ([aRelationship isOwner]) {
       if ((aValue = [aRecord objectValueForBinding:aKey])) {
-	if ([aRelationship toMany]) {
-	  for (k = 0, l = [aValue count]; k < l; k++)
-	    [self deleteObject:[aValue objectAtIndex:k]];
-	}	
-	else
-	  [self deleteObject:aValue];
+        if ([aRelationship toMany]) {
+          for (k = 0, l = [aValue count]; k < l; k++)
+            [self deleteObject:[aValue objectAtIndex:k]];
+        }
+        else
+          [self deleteObject:aValue];
       }
     }
   }
@@ -1078,19 +1078,19 @@ static int _modelInitState = MODEL_UNINIT;
   if (![pk isKindOfClass:CLDictionaryClass]) {
     /* Must be a single primary key */
     mString = [CLMutableString stringWithFormat:@"%@ = ",
-			       [[[recordDef primaryKeys] objectAtIndex:0] column]];
+                               [[[recordDef primaryKeys] objectAtIndex:0] column]];
     if ([pk isKindOfClass:CLStringClass])
       [mString appendFormat:@"'%@'", [db defangString:pk escape:NULL]];
     else if ([pk isKindOfClass:CLDatetimeClass])
       [mString appendFormat:@"'%@'",
-	       [pk descriptionWithFormat:[db dateFormat] timeZone:[db timeZone]]];
+               [pk descriptionWithFormat:[db dateFormat] timeZone:[db timeZone]]];
     else
       [mString appendString:[pk description]];
     pk = mString;
   }
   else
     pk = [[self class] qualifierForObject:pk fromDatabase:NO recordDefinition:recordDef];
-        
+
   [db deleteRowsFromTable:[recordDef databaseTable] qualifier:pk errors:&errors];
   return errors;
 }
@@ -1115,7 +1115,7 @@ static int _modelInitState = MODEL_UNINIT;
 
   if (_savingChanges == PREPARING)
     return nil;
-  
+
   if (_savingChanges)
     [self error:@"Already saving changes!"];
 
@@ -1130,7 +1130,7 @@ static int _modelInitState = MODEL_UNINIT;
   spos = dpos = 0;
 
   do {
-    
+
     for (; spos < [saving count]; spos++) {
       anObject = [saving objectAtIndex:spos];
       [anObject willSaveToDatabase];
@@ -1156,7 +1156,7 @@ static int _modelInitState = MODEL_UNINIT;
   } while (spos < [saving count] || dpos < [deleting count]);
 
   _savingChanges = SAVING;
-  
+
   model = [CLEditingContext model];
   databases = [[CLMutableArray alloc] init];
   anArray = [model allValues];
@@ -1168,7 +1168,7 @@ static int _modelInitState = MODEL_UNINIT;
   if (!noTransaction)
     for (i = 0, j = [databases count]; i < j; i++)
       [[databases objectAtIndex:i] beginTransaction];
-  
+
   for (i = ((int) [saving count]) - 1; i >= 0; i--) {
     /* FIXME - check if object needs others to be saved first */
     anObject = [saving objectAtIndex:i];
@@ -1177,7 +1177,7 @@ static int _modelInitState = MODEL_UNINIT;
     result = [self saveRecord:anObject];
     if (result) {
       if (!errors)
-	errors = [CLMutableArray array];
+        errors = [CLMutableArray array];
       [errors addObject:result];
     }
   }
@@ -1187,15 +1187,15 @@ static int _modelInitState = MODEL_UNINIT;
     result = [self deleteRecord:anObject];
     if (result) {
       if (!errors)
-	errors = [CLMutableArray array];
+        errors = [CLMutableArray array];
       [errors addObject:result];
     }
   }
-  
+
   if (!errors) {
     if (!noTransaction)
       for (i = 0, j = [databases count]; i < j; i++)
-	[[databases objectAtIndex:i] commitTransaction];
+        [[databases objectAtIndex:i] commitTransaction];
     for (i = 0, j = [inserted count]; i < j; i++)
       [[inserted objectAtIndex:i] didInsertIntoDatabase];
     for (i = 0, j = [updated count]; i < j; i++)
@@ -1213,13 +1213,13 @@ static int _modelInitState = MODEL_UNINIT;
     for (i = 0, j = [databases count]; i < j; i++)
       [[databases objectAtIndex:i] rollbackTransaction];
   }
-  
+
   [databases release];
   [saving release];
   [deleting release];
-  
+
   _savingChanges = DONE;
-  
+
   return errors;
 }
 
@@ -1231,7 +1231,7 @@ static int _modelInitState = MODEL_UNINIT;
 -(id) loadExistingObjectWithClass:(Class) aClass objectID:(CLUInteger) anID
 {
   return [self loadExistingObjectWithClass:aClass
-				primaryKey:[CLNumber numberWithUnsignedInt:anID]];
+                                primaryKey:[CLNumber numberWithUnsignedInt:anID]];
 }
 
 -(id) loadObjectWithClass:(Class) aClass primaryKey:(id) pk
@@ -1271,20 +1271,20 @@ static int _modelInitState = MODEL_UNINIT;
     if (![pk isKindOfClass:CLDictionaryClass]) {
       /* Must be a single primary key */
       mString = [CLMutableString stringWithFormat:@"%@ = ",
-				 [[[recordDef primaryKeys] objectAtIndex:0] column]];
+                                 [[[recordDef primaryKeys] objectAtIndex:0] column]];
       db = [recordDef database];
       if ([pk isKindOfClass:CLStringClass])
-	[mString appendFormat:@"'%@'", [db defangString:pk escape:NULL]];
+        [mString appendFormat:@"'%@'", [db defangString:pk escape:NULL]];
       else if ([pk isKindOfClass:CLDatetimeClass])
-	[mString appendFormat:@"'%@'",
-		 [pk descriptionWithFormat:[db dateFormat] timeZone:[db timeZone]]];
+        [mString appendFormat:@"'%@'",
+                 [pk descriptionWithFormat:[db dateFormat] timeZone:[db timeZone]]];
       else
-	[mString appendString:[pk description]];
+        [mString appendString:[pk description]];
       pk = mString;
     }
     else
       pk = [[self class] qualifierForObject:pk fromDatabase:NO recordDefinition:recordDef];
-        
+
     anArray = [self loadTableWithRecordDefinition:recordDef qualifier:pk];
     if ([anArray count])
       anObject = [anArray objectAtIndex:0];
@@ -1295,7 +1295,7 @@ static int _modelInitState = MODEL_UNINIT;
 }
 
 -(CLArray *) loadTableWithRecordDefinition:(CLRecordDefinition *) recordDef
-				     array:(CLArray *) anArray
+                                     array:(CLArray *) anArray
 {
   int i, j;
   CLMutableArray *mArray;
@@ -1310,7 +1310,7 @@ static int _modelInitState = MODEL_UNINIT;
   for (i = 0, j = [anArray count]; i < j; i++) {
     aDict = [anArray objectAtIndex:i];
     pk = [CLEditingContext constructPrimaryKey:aDict recordDef:recordDef
-				  fromDatabase:YES asDictionary:NO];
+                                  fromDatabase:YES asDictionary:NO];
     if (!(anObject = [self recordForPrimaryKey:pk inTable:[recordDef table]])) {
       anObject = CLNewFault(aDict, recordDef, YES);
       [self registerInstance:anObject inTable:[recordDef table] withPrimaryKey:pk];
@@ -1326,13 +1326,13 @@ static int _modelInitState = MODEL_UNINIT;
 }
 
 -(CLArray *) loadTableWithRecordDefinition:(CLRecordDefinition *) recordDef
-				 qualifier:(id) qual
+                                 qualifier:(id) qual
 {
   return [self loadTableWithRecordDefinition:recordDef qualifier:qual orderBy:nil];
 }
 
 -(CLArray *) loadTableWithRecordDefinition:(CLRecordDefinition *) recordDef
-				 qualifier:(id) qual orderBy:(CLString *) order
+                                 qualifier:(id) qual orderBy:(CLString *) order
 {
   CLArray *rows;
   CLArray *anArray = nil;
@@ -1358,11 +1358,11 @@ static int _modelInitState = MODEL_UNINIT;
     [mString appendFormat:@" where %@", qual];
   if (order)
     [mString appendFormat:@" order by %@", order];
-      
+
   rows = [[recordDef database] read:attr qualifier:mString errors:&errors];
   if (errors)
     fprintf(stderr, "Errors loading table: \"%s\"\n%s\n", [mString UTF8String],
-	    [[errors description] UTF8String]);
+            [[errors description] UTF8String]);
   [mString release];
   [attr release];
 
@@ -1376,13 +1376,13 @@ static int _modelInitState = MODEL_UNINIT;
 -(CLArray *) loadTableWithClass:(Class) aClass qualifier:(id) qual
 {
   return [self loadTableWithRecordDefinition:[CLEditingContext recordDefinitionForClass:aClass]
-				   qualifier:qual orderBy:nil];
+                                   qualifier:qual orderBy:nil];
 }
 
 -(CLArray *) loadTableWithClass:(Class) aClass qualifier:(id) qual orderBy:(CLString *) order
 {
   return [self loadTableWithRecordDefinition:[CLEditingContext recordDefinitionForClass:aClass]
-				   qualifier:qual orderBy:order];
+                                   qualifier:qual orderBy:order];
 }
 
 -(CLArray *) loadTableWithClass:(Class) aClass array:(CLArray *) anArray
@@ -1412,9 +1412,9 @@ static int _modelInitState = MODEL_UNINIT;
 
   if (!_classTable)
     [self model];
-  
+
   if (!(aClass = CLHashTableDataForKey(_classTable, aTable, [aTable hash],
-				       @selector(isEqual:)))) {
+                                       @selector(isEqual:)))) {
     pool = [[CLAutoreleasePool alloc] init];
     aClass = [[self recordDefinitionForTable:aTable] recordClass];
 
@@ -1437,7 +1437,7 @@ static int _modelInitState = MODEL_UNINIT;
   CLDictionary *schema;
   CLString *aString;
   CLAutoreleasePool *pool;
-  
+
 
   if (!aClass)
     [self error:@"Cannot lookup table for nonexistant class"];
@@ -1446,46 +1446,46 @@ static int _modelInitState = MODEL_UNINIT;
 
   if (!_tableClass)
     [self model];
-  
+
   if (!(aTable = CLHashTableDataForIdenticalKey(_tableClass, aClass, (size_t) aClass))) {
     pool = [[CLAutoreleasePool alloc] init];
     model = [CLEditingContext model];
-    
+
     anArray = [model allKeys];
     for (k = 0, l = [anArray count]; k < l; k++) {
       schema = [[model objectForKey:[anArray objectAtIndex:k]] objectForKey:@"schema"];
       keys = [schema allKeys];
       for (i = 0, j = [keys count]; i < j; i++) {
-	if ([[schema objectForKey:[keys objectAtIndex:i]] recordClass] == aClass) {
-	  aTable = [CLString stringWithFormat:@"%@.%@",
-			[anArray objectAtIndex:k], [keys objectAtIndex:i]];
-	  break;
-	}
+        if ([[schema objectForKey:[keys objectAtIndex:i]] recordClass] == aClass) {
+          aTable = [CLString stringWithFormat:@"%@.%@",
+                        [anArray objectAtIndex:k], [keys objectAtIndex:i]];
+          break;
+        }
       }
 
       if (i < j)
-	break;
+        break;
     }
 
     if (k == l) {
       CLString *className = [aClass className];
 
-      
-      for (k = 0, l = [anArray count]; k < l; k++) {
-	schema = [[model objectForKey:[anArray objectAtIndex:k]] objectForKey:@"schema"];
-	keys = [schema allKeys];
-	for (i = 0, j = [keys count]; i < j; i++) {
-	  aString = [keys objectAtIndex:i];
-	  if ([className isEqualToString:aString] ||
-	      [[className underscore_case_string] isEqualToString:aString]) {
-	    aTable = [CLString stringWithFormat:@"%@.%@",
-			 [anArray objectAtIndex:k], aString];
-	    break;
-	  }
-	}
 
-	if (i < j)
-	  break;
+      for (k = 0, l = [anArray count]; k < l; k++) {
+        schema = [[model objectForKey:[anArray objectAtIndex:k]] objectForKey:@"schema"];
+        keys = [schema allKeys];
+        for (i = 0, j = [keys count]; i < j; i++) {
+          aString = [keys objectAtIndex:i];
+          if ([className isEqualToString:aString] ||
+              [[className underscore_case_string] isEqualToString:aString]) {
+            aTable = [CLString stringWithFormat:@"%@.%@",
+                         [anArray objectAtIndex:k], aString];
+            break;
+          }
+        }
+
+        if (i < j)
+          break;
       }
     }
 
@@ -1493,7 +1493,7 @@ static int _modelInitState = MODEL_UNINIT;
       CLHashTableSetData(_classTable, aClass, [aTable retain], [aTable hash]);
       CLHashTableSetData(_tableClass, aTable, aClass, (size_t) aClass);
     }
-    
+
     [pool release];
   }
 
@@ -1507,7 +1507,7 @@ static int _modelInitState = MODEL_UNINIT;
 
   if (!_classDefs)
     [self model];
-  
+
   if (!(recordDef = CLHashTableDataForIdenticalKey(_classDefs, aClass, (size_t) aClass)) &&
       (recordDef = [self recordDefinitionForTable:[self tableForClass:aClass]]))
     CLHashTableSetData(_classDefs, recordDef, aClass, (size_t) aClass);
@@ -1516,7 +1516,7 @@ static int _modelInitState = MODEL_UNINIT;
   if (![recordDef isKindOfClass:CLRecordDefinitionClass])
     [self error:@"WTF"];
 #endif
-  
+
   return recordDef;
 }
 
@@ -1531,9 +1531,9 @@ static int _modelInitState = MODEL_UNINIT;
 
   if (!_tableDefs)
     [self model];
-  
+
   if (!(recordDef = CLHashTableDataForKey(_tableDefs, aTable, [aTable hash],
-					  @selector(isEqual:)))) {
+                                          @selector(isEqual:)))) {
     pool = [[CLAutoreleasePool alloc] init];
     model = [CLEditingContext model];
 
@@ -1550,7 +1550,7 @@ static int _modelInitState = MODEL_UNINIT;
   if (![recordDef isKindOfClass:CLRecordDefinitionClass])
     [self error:@"WTF"];
 #endif
-  
+
   return recordDef;
 }
 

@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   CLRecordDefinition *recordDef;
   CLArray *keys, *classes;
   int i, j, k, l;
-  
+
 
 #if DEBUG_LEAK || DEBUG_RETAIN
   {
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
       printInterface(recordDef, model);
     }
   }
-  
+
   [pool release];
 
   exit(0);
@@ -94,7 +94,7 @@ void printFields(CLRecordDefinition *recordDef, CLDictionary *model)
     aName = [anArray objectAtIndex:i];
     if ([aName isEqualToString:@"id"])
       continue;
-    
+
     anAttribute = [aDict objectForKey:aName];
     switch ([anAttribute externalType]) {
     case CLVarcharAttributeType:
@@ -116,17 +116,17 @@ void printFields(CLRecordDefinition *recordDef, CLDictionary *model)
       aType = @"CLDecimalNumber *";
       break;
     }
-    
+
     printf("-(%s) %s;\n", [aType UTF8String], [aName UTF8String]);
   }
 
   printf("\n");
-  
+
   for (i = 0, j = [anArray count]; i < j; i++) {
     aName = [anArray objectAtIndex:i];
     if ([aName isEqualToString:@"id"])
       continue;
-    
+
     anAttribute = [aDict objectForKey:aName];
     switch ([anAttribute externalType]) {
     case CLVarcharAttributeType:
@@ -148,11 +148,11 @@ void printFields(CLRecordDefinition *recordDef, CLDictionary *model)
       aType = @"(CLDecimalNumber *) aNumber";
       break;
     }
-    
+
     printf("-(void) set%s:%s;\n", [[aName upperCamelCaseString] UTF8String],
-	   [aType UTF8String]);
+           [aType UTF8String]);
   }
-  
+
   return;
 }
 
@@ -174,10 +174,10 @@ void printRelationships(CLRecordDefinition *recordDef, CLDictionary *model)
       printf("-(CLArray *) %s;\n", [aName UTF8String]);
     else {
       printf("-(%s *) %s;\n",
-	     [[[CLEditingContext classForTable:[aRelationship theirTable]] className]
-	       UTF8String], [aName UTF8String]);
+             [[[CLEditingContext classForTable:[aRelationship theirTable]] className]
+               UTF8String], [aName UTF8String]);
     }
   }
-  
+
   return;
 }

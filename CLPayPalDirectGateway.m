@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -57,7 +57,7 @@
   [mDict setObject:[credentials objectForKey:CLGatewayPassword] forKey:@"PWD"];
   [mDict setObject:[credentials objectForKey:CLGatewaySignature] forKey:@"SIGNATURE"];
   [mDict setObject:@"56.0" forKey:@"VERSION"];
-  
+
   switch ([[aDict objectForKey:CLGatewayTransactionType] intValue]) {
   case CLTransactionCapture:
     if ((anObject = [aDict objectForKey:CLGatewayTransactionID])) {
@@ -86,14 +86,14 @@
   case CLTransactionVoid:
     [mDict setObject:@"DoVoid" forKey:@"METHOD"];
     [mDict setObject:[aDict objectForKey:CLGatewayTransactionID]
-	   forKey:@"AUTHORIZATIONID"];
+           forKey:@"AUTHORIZATIONID"];
     break;
   }
 
   [mDict setObject:[format stringForObjectValue:[aDict objectForKey:CLGatewayAmount]]
-	    forKey:@"AMT"];
+            forKey:@"AMT"];
   [mDict setObject:[aDict objectForKey:CLGatewayIPAddress] forKey:@"IPADDRESS"];
-  
+
   if ((cc = [aDict objectForKey:CLGatewayCreditCard])) {
     switch ([cc issuer]) {
     case CLVISAIssuer:
@@ -114,14 +114,14 @@
     }
     [mDict setObject:[cc number] forKey:@"ACCT"];
     [mDict setObject:[CLString stringWithFormat:@"%02i%04i",
-			       [[cc expirationMonth] intValue],
-			       [[cc expirationYear] intValue]] forKey:@"EXPDATE"];
+                               [[cc expirationMonth] intValue],
+                               [[cc expirationYear] intValue]] forKey:@"EXPDATE"];
     [mDict setObject:[cc cvv] forKey:@"CVV2"];
 
     if ((address = [cc address])) {
       [mDict setObject:[address address1] forKey:@"STREET"];
       if ((anObject = [address address2]))
-	[mDict setObject:anObject forKey:@"STREET2"];
+        [mDict setObject:anObject forKey:@"STREET2"];
       [mDict setObject:[address city] forKey:@"CITY"];
       [mDict setObject:[address state] forKey:@"STATE"];
       [mDict setObject:@"US" forKey:@"COUNTRYCODE"];
@@ -131,8 +131,8 @@
       aString = [address name];
       anArray = [aString componentsSeparatedByString:@" "];
       if ([anArray count]) {
-	[mDict setObject:[anArray objectAtIndex:0] forKey:@"FIRSTNAME"];
-	[mDict setObject:[anArray lastObject] forKey:@"LASTNAME"];
+        [mDict setObject:[anArray objectAtIndex:0] forKey:@"FIRSTNAME"];
+        [mDict setObject:[anArray lastObject] forKey:@"LASTNAME"];
       }
     }
   }
@@ -143,7 +143,7 @@
     [mDict setObject:anObject forKey:@"CUSTOM"];
   if ((anObject = [aDict objectForKey:CLGatewayInvoiceNumber]))
     [mDict setObject:[CLString stringWithFormat:@"%i-%@", time(NULL), anObject]
-	   forKey:@"INVNUM"];
+           forKey:@"INVNUM"];
 
   mString = [[CLMutableString alloc] init];
   anArray = [mDict allKeys];
@@ -152,15 +152,15 @@
     if (i)
       [mString appendString:@"&"];
     [mString appendFormat:@"%@=%@",
-	     [aString stringByAddingPercentEscapes],
-	     [[[mDict objectForKey:aString] description] stringByAddingPercentEscapes]];
+             [aString stringByAddingPercentEscapes],
+             [[[mDict objectForKey:aString] description] stringByAddingPercentEscapes]];
   }
   [mDict release];
 
   [mString appendString:@"\n"];
-  
+
   aString = [CLString stringWithFormat:@"/usr/bin/curl -s -d @- %@",
-		      [credentials objectForKey:CLGatewayURL]];
+                      [credentials objectForKey:CLGatewayURL]];
 
   pStream = [CLStream openPipe:aString mode:CLReadWrite];
   [pStream writeString:mString usingEncoding:CLUTF8StringEncoding];
@@ -178,9 +178,9 @@
     aString = [anArray objectAtIndex:i];
     aRange = [aString rangeOfString:@"="];
     [mDict setObject:[[aString substringFromIndex:CLMaxRange(aRange)]
-		       stringByReplacingPercentEscapes]
-	   forKey:[[aString substringToIndex:aRange.location]
-		    stringByReplacingPercentEscapes]];
+                       stringByReplacingPercentEscapes]
+           forKey:[[aString substringToIndex:aRange.location]
+                    stringByReplacingPercentEscapes]];
   }
 
   if ((anObject = [mDict objectForKey:@"TRANSACTIONID"]))
@@ -189,15 +189,15 @@
   anObject = [mDict objectForKey:@"ACK"];
   if ([anObject hasPrefix:@"Success"])
     [mDict setObject:[CLNumber numberWithInt:CLTransactionApproved]
-	   forKey:CLGatewayResultCode];
+           forKey:CLGatewayResultCode];
   else if ([anObject hasPrefix:@"Failure"])
     [mDict setObject:[CLNumber numberWithInt:CLTransactionDeclined]
-	   forKey:CLGatewayResultCode];
+           forKey:CLGatewayResultCode];
   else
     [mDict setObject:[CLNumber numberWithInt:CLTransactionError]
-	   forKey:CLGatewayResultCode];
+           forKey:CLGatewayResultCode];
 
-  return [mDict autorelease];  
+  return [mDict autorelease];
 }
 
 @end

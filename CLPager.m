@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -29,9 +29,9 @@
 #import "CLMutableArray.h"
 #import "CLClassConstants.h"
 
-#define QUERY_START	@"start"
-#define STRING_PREV	@"prev"
-#define STRING_NEXT	@"next"
+#define QUERY_START     @"start"
+#define STRING_PREV     @"prev"
+#define STRING_NEXT     @"next"
 
 @implementation CLPager
 
@@ -40,7 +40,7 @@
   CLString *aString;
   BOOL success;
 
-  
+
   [super initFromElement:anElement onPage:aPage];
   maxPages = 9;
 
@@ -48,7 +48,7 @@
     maxPages = [[self expandBinding:aString success:&success] intValue];
     [attributes removeObjectForCaseInsensitiveString:@"CL_MAXPAGES"];
   }
-  
+
   return self;
 }
 
@@ -64,20 +64,20 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
   aCopy->maxPages = maxPages;
   return aCopy;
 }
-      
+
 -(id) read:(CLStream *) stream
 {
   CLString *aString;
   CLUInteger start;
 
-  
+
   [super read:stream];
   [stream readTypes:@"@ii", &aString, &maxPages, &start];
   if (![CLQuery objectForKey:QUERY_START])
@@ -91,7 +91,7 @@
   CLString *aString;
   CLRange aRange;
 
-  
+
   [super write:stream];
   aRange = [[self datasource] range];
   aString = [attributes objectForCaseInsensitiveString:@"CL_DATASOURCE"];
@@ -105,7 +105,7 @@
   CLRange aRange;
   id aView;
 
-  
+
   aView = [self datasource];
   aRange = [aView range];
   count = [aView count];
@@ -253,12 +253,12 @@
   if ([aValue isKindOfClass:CLArrayClass]) {
     for (i = 0, j = [aValue count]; i < j; i++)
       if ((anObject = [self templateNamed:aString in:[aValue objectAtIndex:i]]))
-	return anObject;
+        return anObject;
   }
 
   if ([aValue isKindOfClass:CLBlockClass] &&
       [[[aValue attributes] objectForCaseInsensitiveString:@"name"]
-	isEqualToString:aString])
+        isEqualToString:aString])
     return aValue;
 
   if ([aValue respondsTo:@selector(content)] &&
@@ -295,7 +295,7 @@
 
   if ([anObject isKindOfClass:CLArrayClass])
       for (i = 0, j = [anObject count]; i < j; i++)
-	[self setTargetFor:[anObject objectAtIndex:i]];
+        [self setTargetFor:[anObject objectAtIndex:i]];
 
   if ([anObject isKindOfClass:CLControlClass])
     [anObject setTarget:self];
@@ -313,18 +313,18 @@
   id aBlock;
   CLString *aString;
 
-  
+
   if ([aValue isKindOfClass:CLArrayClass]) {
     for (i = k = nf = 0, j = [aValue count]; i < j && nf < 2; i++) {
       aBlock = [aValue objectAtIndex:i];
       if ([aBlock isKindOfClass:CLBlockClass]) {
-	aString = [[aBlock attributes] objectForCaseInsensitiveString:@"name"];
-	if ([aString isEqualToString:@"cl_active"] ||
-	    [aString isEqualToString:@"cl_inactive"]) {
-	  if (!nf)
-	    k = i;
-	  nf++;
-	}
+        aString = [[aBlock attributes] objectForCaseInsensitiveString:@"name"];
+        if ([aString isEqualToString:@"cl_active"] ||
+            [aString isEqualToString:@"cl_inactive"]) {
+          if (!nf)
+            k = i;
+          nf++;
+        }
       }
     }
 
@@ -365,7 +365,7 @@
   if ([anObject isKindOfClass:CLControlClass])
     [[anObject localQuery] addEntriesFromDictionary:[[self datasource] extraQuery]];
   [super updateBindingFor:anObject];
-  
+
   return;
 }
 
@@ -379,14 +379,14 @@
   int i, j;
   id anObject;
 
-  
+
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLControlClass])
       [[anObject localQuery] setObject:[CLNumber numberWithInt:[datasource range].location]
-				forKey:QUERY_START];
+                                forKey:QUERY_START];
     else if ([anObject respondsTo:@selector(content)] &&
-	     [(anObject = [anObject content]) isKindOfClass:CLArrayClass])
+             [(anObject = [anObject content]) isKindOfClass:CLArrayClass])
       [self setStart:anObject];
   }
 
@@ -411,13 +411,13 @@
   mArray = [[CLMutableArray alloc] init];
   if ([[self datasource] respondsTo:@selector(extraQuery)])
     extraQuery = [[self datasource] extraQuery];
-  
+
   aRange = [self calculateRange];
   start = aRange.location;
   end = CLMaxRange(aRange);
   aRange = [[self datasource] range];
   maxItems = [[self datasource] maxItems];
-  
+
   for (i = start; i < end; i += maxItems) {
     aString = [CLString stringWithFormat:@"%i", (i + maxItems - 1) / maxItems + 1];
     aControl = [[[CLControl alloc] init] autorelease];
@@ -427,24 +427,24 @@
     [[aControl localQuery] addEntriesFromDictionary:extraQuery];
     [aControl addObject:aString];
     [aControl setPage:page];
-    
+
     if (i < aRange.location || i >= CLMaxRange(aRange)) {
       if ((aBlock = [self templateNamed:@"cl_active" in:content])) {
-	aBlock = [aBlock copy];
-	[mArray addObject:aBlock];
-	[self setDatasource:aControl for:aBlock];
+        aBlock = [aBlock copy];
+        [mArray addObject:aBlock];
+        [self setDatasource:aControl for:aBlock];
       }
       else
-	[mArray addObject:aControl];
+        [mArray addObject:aControl];
     }
     else {
       if ((aBlock = [self templateNamed:@"cl_inactive" in:content])) {
-	aBlock = [aBlock copy];
-	[mArray addObject:aBlock];
-	[self setDatasource:aControl for:aBlock];
+        aBlock = [aBlock copy];
+        [mArray addObject:aBlock];
+        [self setDatasource:aControl for:aBlock];
       }
       else
-	[mArray addObject:aString];
+        [mArray addObject:aString];
     }
   }
 
@@ -460,7 +460,7 @@
   [self setDatasource:self for:aValue];
   [self setTargetFor:aValue];
   [self setStart:content];
-  
+
   if (![self replaceTemplates:aValue with:mArray])
     [aValue addObject:mArray];
 
@@ -471,7 +471,7 @@
   CLWriteHTMLObject(stream, aValue);
   [mArray release];
   [aValue release];
-  
+
   return;
 }
 

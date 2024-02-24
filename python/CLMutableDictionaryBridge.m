@@ -35,8 +35,8 @@
 -(id) objectForKey:(id) aKey
 {
   return [CLObjectBridge objectWithPythonObject:
-			   PyDict_GetItemString(dictionaryData,
-						[[aKey description] UTF8String])];
+                           PyDict_GetItemString(dictionaryData,
+                                                [[aKey description] UTF8String])];
 }
 
 @end

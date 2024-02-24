@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -53,7 +53,7 @@
 }
 
 +(CLOriginalImage *) imageFromPath:(CLString *) aPath table:(CLString *) aTable
-			 hardlink:(BOOL) hardlink
+                         hardlink:(BOOL) hardlink
 {
   return [self fileFromPath:aPath table:aTable hardlink:hardlink];
 }
@@ -64,7 +64,7 @@
     return [CLDelegate originalImageClass];
   return CLOriginalImageClass;
 }
-  
+
 -(void) dealloc
 {
   [imageRep release];
@@ -104,7 +104,7 @@
       anImage = nil;
     }
   }
-  
+
   return anImage;
 }
 
@@ -112,7 +112,7 @@
 {
   CLString *aString;
 
-  
+
   if (!imageRep && (aString = [self path]))
     imageRep = [[CLImageRep alloc] initFromFile:aString];
   return imageRep;
@@ -145,7 +145,7 @@
 
   return cImage;
 }
-  
+
 -(CLData *) representationUsingFormat:(CLString *) format
 {
   CLImageRep *aRep;

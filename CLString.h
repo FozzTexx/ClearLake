@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -81,9 +81,9 @@ typedef enum {
 }
 
 -(id) initWithBytes:(const char *) bytes length:(CLUInteger) length
-	   encoding:(CLStringEncoding) encoding;
+           encoding:(CLStringEncoding) encoding;
 -(id) initWithBytesNoCopy:(const char *) bytes length:(CLUInteger) length
-		 encoding:(CLStringEncoding) encoding;
+                 encoding:(CLStringEncoding) encoding;
 -(void) dealloc;
 
 /* Basic functionality */
@@ -106,9 +106,9 @@ typedef enum {
 +(id) stringWithUTF8String:(const char *) bytes;
 +(id) stringWithString:(CLString *) aString;
 +(id) stringWithBytes:(const char *) bytes length:(CLUInteger) length
-	     encoding:(CLStringEncoding) encoding;
+             encoding:(CLStringEncoding) encoding;
 +(id) stringWithBytesNoCopy:(const char *) bytes length:(CLUInteger) length
-	     encoding:(CLStringEncoding) encoding;
+             encoding:(CLStringEncoding) encoding;
 +(id) stringWithData:(CLData *) aData encoding:(CLStringEncoding) encoding;
 +(id) stringWithContentsOfFile:(CLString *) path encoding:(CLStringEncoding) enc;
 
@@ -124,22 +124,22 @@ typedef enum {
 -(CLComparisonResult) compare:(CLString *) aString;
 -(CLComparisonResult) compare:(CLString *) aString options:(CLStringCompareOptions) mask;
 -(CLComparisonResult) compare:(CLString *) aString options:(CLStringCompareOptions) mask
-			range:(CLRange) range;
+                        range:(CLRange) range;
 -(CLComparisonResult) caseInsensitiveCompare:(CLString *) aString;
 -(BOOL) hasPrefix:(CLString *) prefix;
 -(BOOL) hasSuffix:(CLString *) suffix;
 -(CLRange) rangeOfString:(CLString *) aString;
 -(CLRange) rangeOfString:(CLString *) aString options:(CLStringCompareOptions) mask;
 -(CLRange) rangeOfString:(CLString *) aString options:(CLStringCompareOptions) mask
-		   range:(CLRange) range;
+                   range:(CLRange) range;
 -(CLRange) rangeOfCharacter:(unichar) aChar options:(CLStringCompareOptions) mask
-		   range:(CLRange) range;
+                   range:(CLRange) range;
 -(CLRange) rangeOfCharacterFromSet:(CLCharacterSet *) aSet;
 -(CLRange) rangeOfCharacterFromSet:(CLCharacterSet *) aSet
-			   options:(CLStringCompareOptions) mask range:(CLRange) aRange;
+                           options:(CLStringCompareOptions) mask range:(CLRange) aRange;
 -(CLRange) rangeOfCharacterNotFromSet:(CLCharacterSet *) aSet;
 -(CLRange) rangeOfCharacterNotFromSet:(CLCharacterSet *) aSet
-			      options:(CLStringCompareOptions) mask range:(CLRange) aRange;
+                              options:(CLStringCompareOptions) mask range:(CLRange) aRange;
 -(BOOL) isEqual:(id) anObject;
 -(BOOL) isEqualToString:(CLString *) aString;
 -(BOOL) isEqualToCaseInsensitiveString:(CLString *) aString;
@@ -147,11 +147,11 @@ typedef enum {
 -(CLRange) rangeOfTag:(CLString *) aTag inRange:(CLRange) aRange;
 -(CLRange) rangeOfTag:(CLString *) aTag inRange:(CLRange) aRange allowCDATA:(BOOL) cdataFlag;
 -(BOOL) getRangeOfBlock:(CLString *) startTag end:(CLString *) endTag
-	     outerRange:(CLRange *) outerRange innerRange:(CLRange *) innerRange
-		inRange:(CLRange) aRange;
+             outerRange:(CLRange *) outerRange innerRange:(CLRange *) innerRange
+                inRange:(CLRange) aRange;
 -(BOOL) getRangeOfBlock:(CLString *) startTag end:(CLString *) endTag
-	     outerRange:(CLRange *) outerRange innerRange:(CLRange *) innerRange
-		inRange:(CLRange) aRange allowCDATA:(BOOL) cdataFlag;
+             outerRange:(CLRange *) outerRange innerRange:(CLRange *) innerRange
+                inRange:(CLRange) aRange allowCDATA:(BOOL) cdataFlag;
 @end
 
 @interface CLString (CLStringPaths)
@@ -203,13 +203,13 @@ typedef enum {
 
 @interface CLString (CLStringReplacing)
 -(CLString *) stringByReplacingOccurrencesOfString:(CLString *) target
-					withString:(CLString *) replacement;
+                                        withString:(CLString *) replacement;
 -(CLString *) stringByReplacingOccurrencesOfString:(CLString *) target
-					withString:(CLString *) replacement
-					   options:(CLStringCompareOptions) options
-					     range:(CLRange) searchRange;
+                                        withString:(CLString *) replacement
+                                           options:(CLStringCompareOptions) options
+                                             range:(CLRange) searchRange;
 -(CLString *) stringByReplacingCharactersInRange:(CLRange) range
-				      withString:(CLString *) replacement;
+                                      withString:(CLString *) replacement;
 -(CLString *) propertyListString;
 -(CLString *) reversePropertyListString;
 -(CLString *) shellEscaped;

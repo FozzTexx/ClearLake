@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -56,12 +56,12 @@
 
   buffer = buf;
   length = len;
-  
+
   switch (mode) {
   case CLReadOnly:
     file = fmemopen((void *) buf, length, "r");
     break;
-      
+
   case CLWriteOnly:
   case CLReadWrite:
     if (!buf)

@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -65,7 +65,7 @@ void *CLStringAllocateBuffer(void *old, CLUInteger length, char *utf8, id self)
     buf = realloc(old - sizeof(CLStringStorage), blen);
   else
     buf = calloc(blen, 1);
-    
+
   stor = buf;
   stor->maxLen = length;
   if (utf8)
@@ -100,12 +100,12 @@ const char *CLUTF8ForString(CLString *aString)
 
   if (!(stor = CLStorageForString(aString)))
     return "";
-  
+
   ustr = (unistr *) aString;
   if (!stor->utf8) {
     CLStringConvertEncoding((char *) ustr->str, ustr->len * sizeof(unichar),
-			    CLUnicodeStringEncoding,
-			    &buf, &blen, CLUTF8StringEncoding, NO);
+                            CLUnicodeStringEncoding,
+                            &buf, &blen, CLUTF8StringEncoding, NO);
     buf[blen] = 0;
     stor->utf8 = buf;
   }
@@ -114,7 +114,7 @@ const char *CLUTF8ForString(CLString *aString)
 }
 
 CLRange CLStringRangeOfString(CLString *inString, CLString *searchString,
-			      CLStringCompareOptions mask, CLRange range)
+                              CLStringCompareOptions mask, CLRange range)
 {
   CLUInteger ssLen;
   unichar *myBuf, *myPos, *myEnd, *ssBuf, *ssPos, *ssEnd;
@@ -125,7 +125,7 @@ CLRange CLStringRangeOfString(CLString *inString, CLString *searchString,
   istr = (unistr *) inString;
   if (CLMaxRange(range) > istr->len)
     [inString error:@"Range exceeds length"];
-    
+
   CLCheckStringClass(searchString);
   sstr = (unistr *) searchString;
   ssLen = sstr->len;
@@ -141,50 +141,50 @@ CLRange CLStringRangeOfString(CLString *inString, CLString *searchString,
       myEnd += ssLen;
       myBuf += ssLen;
       if (mask & CLCaseInsensitiveSearch) {
-	for (; myBuf <= myEnd; myEnd--) {
-	  for (myPos = myEnd - ssLen, ssPos = ssBuf;
-	       ssPos < ssEnd && towlower(*myPos) == towlower(*ssPos);
-	       myPos++, ssPos++)
-	    ;
-	  if (!(ssEnd - ssPos))
-	    return CLMakeRange(myEnd - istr->str - ssLen, ssLen);
-	}
+        for (; myBuf <= myEnd; myEnd--) {
+          for (myPos = myEnd - ssLen, ssPos = ssBuf;
+               ssPos < ssEnd && towlower(*myPos) == towlower(*ssPos);
+               myPos++, ssPos++)
+            ;
+          if (!(ssEnd - ssPos))
+            return CLMakeRange(myEnd - istr->str - ssLen, ssLen);
+        }
       }
       else {
-	for (; myBuf <= myEnd; myEnd--) {
-	  for (myPos = myEnd - ssLen, ssPos = ssBuf;
-	       ssPos < ssEnd && *myPos == *ssPos;
-	       myPos++, ssPos++)
-	    ;
-	  if (!(ssEnd - ssPos))
-	    return CLMakeRange(myEnd - istr->str - ssLen, ssLen);
-	}
+        for (; myBuf <= myEnd; myEnd--) {
+          for (myPos = myEnd - ssLen, ssPos = ssBuf;
+               ssPos < ssEnd && *myPos == *ssPos;
+               myPos++, ssPos++)
+            ;
+          if (!(ssEnd - ssPos))
+            return CLMakeRange(myEnd - istr->str - ssLen, ssLen);
+        }
       }
     }
     else {
       if (mask & CLCaseInsensitiveSearch) {
-	for (; myBuf <= myEnd; myBuf++) {
-	  for (myPos = myBuf, ssPos = ssBuf;
-	       ssPos < ssEnd && towlower(*myPos) == towlower(*ssPos);
-	       myPos++, ssPos++)
-	    ;
-	  if (!(ssEnd - ssPos))
-	    return CLMakeRange(myBuf - istr->str, ssLen);
-	}
+        for (; myBuf <= myEnd; myBuf++) {
+          for (myPos = myBuf, ssPos = ssBuf;
+               ssPos < ssEnd && towlower(*myPos) == towlower(*ssPos);
+               myPos++, ssPos++)
+            ;
+          if (!(ssEnd - ssPos))
+            return CLMakeRange(myBuf - istr->str, ssLen);
+        }
       }
       else {
-	for (; myBuf <= myEnd; myBuf++) {
-	  for (myPos = myBuf, ssPos = ssBuf;
-	       ssPos < ssEnd && *myPos == *ssPos;
-	       myPos++, ssPos++)
-	    ;
-	  if (!(ssEnd - ssPos))
-	    return CLMakeRange(myBuf - istr->str, ssLen);
-	}
+        for (; myBuf <= myEnd; myBuf++) {
+          for (myPos = myBuf, ssPos = ssBuf;
+               ssPos < ssEnd && *myPos == *ssPos;
+               myPos++, ssPos++)
+            ;
+          if (!(ssEnd - ssPos))
+            return CLMakeRange(myBuf - istr->str, ssLen);
+        }
       }
     }
   }
-  
+
   return CLMakeRange(CLNotFound, 0);
 }
 
@@ -266,21 +266,21 @@ const char *CLStringEncodingForIconv(CLStringEncoding encoding)
 }
 
 CLComparisonResult CLStringCompare(CLString *string1, CLString *string2,
-				   CLStringCompareOptions options, CLRange range)
+                                   CLStringCompareOptions options, CLRange range)
 {
   if (string1 == string2)
     return CLOrderedSame;
-  
+
   if (!string1 && string2)
     return CLOrderedAscending;
   if (string1 && !string2)
     return CLOrderedDescending;
   if ((!string1 && !string2) || (string1 == string2))
     return CLOrderedSame;
-  
+
   if (CLMaxRange(range) > ((unistr *) string1)->len)
     [string1 error:@"%s range beyond length of string\n", [[string1 class] className]];
-  
+
   if (!CLCheckStringClass(string1) || !CLCheckStringClass(string2))
     /* FIXME - deal with it */
     return 0;
@@ -289,8 +289,8 @@ CLComparisonResult CLStringCompare(CLString *string1, CLString *string2,
 }
 
 BOOL CLStringFindCharacterFromSet(CLString *aString, CLCharacterSet *aSet,
-				  CLStringCompareOptions options, CLRange searchRange,
-				  CLRange *resultRange)
+                                  CLStringCompareOptions options, CLRange searchRange,
+                                  CLRange *resultRange)
 {
   CLUInteger i;
   unistr *ustr;
@@ -305,11 +305,11 @@ BOOL CLStringFindCharacterFromSet(CLString *aString, CLCharacterSet *aSet,
     return 0;
 
   CLStorageForString(aString);
-  
+
   if (options & CLBackwardsSearch) {
     for (i = searchRange.location + searchRange.length; i > searchRange.location; i--)
       if ([aSet characterIsMember:ustr->str[i-1]] ^ (!!(options & CLInvertedSearch)))
-	break;
+        break;
     if (i > searchRange.location) {
       *resultRange = CLMakeRange(i-1, 1);
       return YES;
@@ -318,7 +318,7 @@ BOOL CLStringFindCharacterFromSet(CLString *aString, CLCharacterSet *aSet,
   else {
     for (i = searchRange.location; i < searchRange.location + searchRange.length; i++)
       if ([aSet characterIsMember:ustr->str[i]] ^ (!!(options & CLInvertedSearch)))
-	break;
+        break;
     if (i < searchRange.location + searchRange.length) {
       *resultRange = CLMakeRange(i, 1);
       return YES;
@@ -333,8 +333,8 @@ BOOL CLStringFindCharacterFromSet(CLString *aString, CLCharacterSet *aSet,
    used as a null terminated string. Does *not* actually append the
    null though! */
 int CLStringConvertEncoding(const char *source, CLUInteger slen, CLStringEncoding sEncoding,
-			    char **dest, CLUInteger *dlen, CLStringEncoding dEncoding,
-			    BOOL allowLossy)
+                            char **dest, CLUInteger *dlen, CLStringEncoding dEncoding,
+                            BOOL allowLossy)
 {
   iconv_t cd;
   size_t ilen, olen;
@@ -346,7 +346,7 @@ int CLStringConvertEncoding(const char *source, CLUInteger slen, CLStringEncodin
   id self = nil;
 #endif
 
-  
+
   ilen = slen;
   olen = ilen * sizeof(unichar);
   ibuf = (char *) source;
@@ -363,24 +363,24 @@ int CLStringConvertEncoding(const char *source, CLUInteger slen, CLStringEncodin
   if ((cd = iconv_open(denc, senc)) != (iconv_t) -1) {
     while ((iconv(cd, &ibuf, &ilen, &obuf, &olen)) == (size_t) -1) {
       if (errno == EILSEQ) {
-	err++;
-	if (sEncoding == CLUnicodeStringEncoding) {
-	  ibuf += 4;
-	  ilen -= 4;
-	}
-	else {
-	  ibuf++;
-	  ilen--;
-	}
+        err++;
+        if (sEncoding == CLUnicodeStringEncoding) {
+          ibuf += 4;
+          ilen -= 4;
+        }
+        else {
+          ibuf++;
+          ilen--;
+        }
       }
       else if (errno == E2BIG) {
-	olen = obuf - bbuf;
-	bbuf = realloc(bbuf, olen + 256 + sizeof(unichar));
-	obuf = bbuf + olen;
-	olen = 256;
+        olen = obuf - bbuf;
+        bbuf = realloc(bbuf, olen + 256 + sizeof(unichar));
+        obuf = bbuf + olen;
+        olen = 256;
       }
       else
-	break;
+        break;
     }
     *dlen = obuf - bbuf;
     *dest = bbuf;
@@ -399,26 +399,26 @@ int CLStringConvertEncoding(const char *source, CLUInteger slen, CLStringEncodin
     buf = (unichar *) bbuf;
     for (i = 0, j = *dlen / 4; i < j; i++)
       if (buf[i] >= 0x80 && buf[i] < 0xa0)
-	break;
+        break;
     if (i < j) {
       //fprintf(stderr, "Likely double UTF8 encoded\n");
 
       newbuf = malloc(j);
       for (i = 0; i < j; i++) {
-	if (buf[i] > 0xff)
-	  break;
-	newbuf[i] = buf[i];
+        if (buf[i] > 0xff)
+          break;
+        newbuf[i] = buf[i];
       }
       if (i == j) {
-	CLStringConvertEncoding(newbuf, j, CLUTF8StringEncoding,
-				dest, dlen, CLUnicodeStringEncoding, allowLossy);
-	free(bbuf);
+        CLStringConvertEncoding(newbuf, j, CLUTF8StringEncoding,
+                                dest, dlen, CLUnicodeStringEncoding, allowLossy);
+        free(bbuf);
       }
       free(newbuf);
     }
   }
 #endif
-  
+
   return err;
 }
 
@@ -434,7 +434,7 @@ BOOL CLStringReplaceCharacters(CLString *dest, CLRange aRange, unichar *src, CLU
 
   if (CLMaxRange(aRange) > ((unistr *) dest)->len)
     [dest error:@"%@ range beyond length of string", [[dest class] className]];
-  
+
   if (!CLCheckStringClass(dest))
     /* FIXME - deal with it */
     return 0;
@@ -444,7 +444,7 @@ BOOL CLStringReplaceCharacters(CLString *dest, CLRange aRange, unichar *src, CLU
     [dest error:@"Cannot replace characters in constant string"];
 
   destStor = CLStorageForString(dest);
-  
+
   newlen = udest->len - aRange.length + slen;
   if (!destStor || newlen > destStor->maxLen) {
     if (destStor)
@@ -456,13 +456,13 @@ BOOL CLStringReplaceCharacters(CLString *dest, CLRange aRange, unichar *src, CLU
   }
 
   CLUnistrReplaceCharacters((unistr *) dest, aRange, src, slen);
-  
+
   if (destStor->utf8)
     free(destStor->utf8);
   destStor->utf8 = NULL;
 
   destStor->hashSet = NO;
-  
+
   return YES;
 }
 
@@ -470,14 +470,14 @@ BOOL CLStringReplaceString(CLString *dest, CLRange aRange, CLString *source)
 {
   unistr *usrc;
 
-  
+
   if (source && !CLCheckStringClass(source))
     /* FIXME - deal with it */
     return 0;
 
   usrc = (unistr *) source;
   return CLStringReplaceCharacters(dest, aRange,
-				   source ? usrc->str : NULL, source ? usrc->len : 0);
+                                   source ? usrc->str : NULL, source ? usrc->len : 0);
 }
 
 CLUInteger CLStringHash(CLString *aString)
@@ -510,7 +510,7 @@ CLUInteger CLStringHash(CLString *aString)
     for (i = 0; i < ustr->len; i++)
       buf[i] = towlower(buf[i]);
     hash = CLHashBytes(buf, sizeof(unichar) * ustr->len, 0);
-    
+
     if (stor) {
       stor->hash = hash;
       stor->hashSet = YES;
@@ -521,12 +521,12 @@ CLUInteger CLStringHash(CLString *aString)
 }
 
 extern CLComparisonResult CLUnistrCompare(unistr *string1, unistr *string2,
-					  CLStringCompareOptions options, CLRange range)
+                                          CLStringCompareOptions options, CLRange range)
 {
   CLUInteger max;
   int cmp = 0;
 
-  
+
   max = range.length < string2->len ? range.length : string2->len;
 
   if (max) {
@@ -561,7 +561,7 @@ void CLUnistrReplaceCharacters(unistr *dest, CLRange aRange, unichar *src, CLUIn
     fprintf(stderr, "CLUnistrReplaceCharacters: range beyond length");
     abort();
   }
-  
+
   newlen = dest->len - aRange.length + slen;
 
 #if 0
@@ -577,8 +577,8 @@ void CLUnistrReplaceCharacters(unistr *dest, CLRange aRange, unichar *src, CLUIn
 
   if (dest->len - CLMaxRange(aRange))
     wmemmove(&dest->str[aRange.location + slen],
-	     &dest->str[CLMaxRange(aRange)],
-	     dest->len - CLMaxRange(aRange));
+             &dest->str[CLMaxRange(aRange)],
+             dest->len - CLMaxRange(aRange));
   if (slen)
     wmemmove(&dest->str[aRange.location], src, slen);
   dest->len = newlen;

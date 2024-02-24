@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -42,8 +42,8 @@
 -(id) initFromString:(CLString *) aString
 {
   CLRange aRange, aRange2;
-  
-  
+
+
   [super init];
 
   primaryKey = NO;
@@ -54,7 +54,7 @@
     aRange2.location++;
     aRange2.length--;
   }
-  
+
   aRange = [aString rangeOfString:@":" options:0 range:aRange2];
   if (!aRange.length)
     externalType = CLVarcharAttributeType;
@@ -65,7 +65,7 @@
 
   column = [[aString substringWithRange:aRange2] retain];
   key = nil;
-  
+
   return self;
 }
 
@@ -89,7 +89,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -177,7 +177,7 @@ CLArray *CLAttributes(CLString *name, ...)
   va_list ap;
   CLMutableArray *mArray;
 
-  
+
 #if DEBUG_RETAIN
     id self = nil;
 #endif
@@ -188,7 +188,7 @@ CLArray *CLAttributes(CLString *name, ...)
   while ((name = va_arg(ap, CLString *)))
     [mArray addObject:[CLAttribute attributeFromString:name]];
   va_end(ap);
-  
+
   return [mArray autorelease];
 }
 
@@ -197,13 +197,13 @@ CLArray *CLAttributesFromArray(CLArray *anArray)
   CLMutableArray *mArray;
   int i, j;
 
-  
+
 #if DEBUG_RETAIN
     id self = nil;
 #endif
   mArray = [[CLMutableArray alloc] init];
   for (i = 0, j = [anArray count]; i < j; i++)
     [mArray addObject:[CLAttribute attributeFromString:[anArray objectAtIndex:i]]];
-  
+
   return [mArray autorelease];
 }

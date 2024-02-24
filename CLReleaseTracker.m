@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -71,9 +71,9 @@
   }
 
   fprintf(stderr, "error: %s (%s)\n%s\n",
-	  object_getClassName(self),
-	  [self isInstance] ? "instance" : "class",
-	  str);
+          object_getClassName(self),
+          [self isInstance] ? "instance" : "class",
+          str);
   abort();
   return;
 }
@@ -89,7 +89,7 @@
 
   isa = reserved->faultData;
   [self error:@"Trying to send \"%s\" to already released \"0x%lu\"\n",
-	sel_getName(aSel), (unsigned long) self];
+        sel_getName(aSel), (unsigned long) self];
   return NULL;
 }
 

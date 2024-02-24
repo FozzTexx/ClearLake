@@ -5,16 +5,16 @@ BUILD_DIR=build
 
 MODULE_LIB=$(BUILD_DIR)/lib.$(PLATFORM)-$(PYTHON_VERSION)/ClearLake.$(ABI_TAG).so
 
-CLASSES_M=CLObjectBridge.m CLPageBridge.m CLStreamBridge.m	\
-	  CLStringBridge.m CLOptionBridge.m CLArrayBridge.m	\
-	  CLMutableArrayBridge.m CLMutableDictionaryBridge.m	\
-	  CLNumberBridge.m CLDataBridge.m CLFormBridge.m CLControlBridge.m
+CLASSES_M=CLObjectBridge.m CLPageBridge.m CLStreamBridge.m      \
+          CLStringBridge.m CLOptionBridge.m CLArrayBridge.m     \
+          CLMutableArrayBridge.m CLMutableDictionaryBridge.m    \
+          CLNumberBridge.m CLDataBridge.m CLFormBridge.m CLControlBridge.m
 CLASSES_H=$(CLASSES_M:.m=.h)
 
 $(MODULE_LIB): CLPythonModule.m $(CLASSES_M) $(CLASSES_H) setup.py pyproject.toml
-	python3 setup.py clean --all
-	python3 -m pip install .
-	python3 -c 'import ClearLake'
+        python3 setup.py clean --all
+        python3 -m pip install .
+        python3 -c 'import ClearLake'
 
 clean:
-	rm -rf $(BUILD_DIR)
+        rm -rf $(BUILD_DIR)

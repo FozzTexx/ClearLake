@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -70,15 +70,15 @@
 #endif
 #endif /* le32toh */
 
-#define BUFSIZE		256
-#define FILE_DIR	@"filedb"
-#define FILE_SEQ	@"sequence"
-#define IMAGE_DIR	@"imagedb"
-#define IMAGE_SEQ	@"sequence"
+#define BUFSIZE         256
+#define FILE_DIR        @"filedb"
+#define FILE_SEQ        @"sequence"
+#define IMAGE_DIR       @"imagedb"
+#define IMAGE_SEQ       @"sequence"
 
-#define FILE_CMD	"/usr/local/bin/file"
-#define ALTFILE_CMD	"/usr/bin/file"
-#define MIME_TYPES	@"/etc/mime.types"
+#define FILE_CMD        "/usr/local/bin/file"
+#define ALTFILE_CMD     "/usr/bin/file"
+#define MIME_TYPES      @"/etc/mime.types"
 
 static CLString *CLFileDirectory = nil;
 
@@ -100,12 +100,12 @@ static CLString *CLFileDirectory = nil;
   if ((file = popen([aString UTF8String], "r"))) {
     while ((aString = CLGets(file, CLUTF8StringEncoding)))
       if (!mimeType)
-	mimeType = aString;
+        mimeType = aString;
     pclose(file);
 
     aRange = [mimeType rangeOfString:@":"];
     mimeType = [[mimeType substringFromIndex:CLMaxRange(aRange)]
-		     stringByTrimmingCharactersInSet:ws];
+                     stringByTrimmingCharactersInSet:ws];
   }
 
   return mimeType;
@@ -130,15 +130,15 @@ static CLString *CLFileDirectory = nil;
   BOOL success = NO;
   int byte;
 
-  
+
   mData = [[CLMutableData alloc] init];
-  
+
   for (;;) {
     byte = [self readByte];
     if (byte == CLEOF)
       break;
 
-    [mData appendByte:byte];    
+    [mData appendByte:byte];
     aString = [CLString stringWithData:mData encoding:enc];
 
     /* Don't process partial multi-byte characters */
@@ -167,7 +167,7 @@ static CLString *CLFileDirectory = nil;
   free(buf);
   return nil;
 }
- 
+
 -(int) writeData:(CLData *) aData
 {
   return [self write:[aData bytes] length:[aData length]];
@@ -188,12 +188,12 @@ static CLString *CLFileDirectory = nil;
     for (;;) {
       byte = [self readByte];
       if (byte == CLEOF)
-	break;
+        break;
       if (pos == buflen)
-	buf = realloc(buf, buflen *= 2);
+        buf = realloc(buf, buflen *= 2);
       buf[pos++] = byte;
       if (byte == '\n')
-	break;
+        break;
     }
 
     if (pos)
@@ -206,7 +206,7 @@ static CLString *CLFileDirectory = nil;
     do {
       byte = [self readByte];
       if (byte == CLEOF)
-	break;
+        break;
       [aString release];
       [mData appendByte:byte];
       aString = [[CLString alloc] initWithData:mData encoding:enc];
@@ -214,7 +214,7 @@ static CLString *CLFileDirectory = nil;
 
     [mData release];
   }
-  
+
   return [aString autorelease];
 }
 
@@ -227,12 +227,12 @@ static CLString *CLFileDirectory = nil;
 
   if (![aString length])
     return;
-  
+
   CLCheckStringClass(aString);
   ustr = (unistr *) aString;
   CLStringConvertEncoding((char *) ustr->str, ustr->len * sizeof(unichar),
-			  CLUnicodeStringEncoding,
-			  &buf, &blen, enc, NO);
+                          CLUnicodeStringEncoding,
+                          &buf, &blen, enc, NO);
   [self write:buf length:blen];
   free(buf);
   return;
@@ -250,7 +250,7 @@ static CLString *CLFileDirectory = nil;
 }
 
 -(void) writeFormat:(CLString *) format usingEncoding:(CLStringEncoding) enc
-	  arguments:(va_list) argList
+          arguments:(va_list) argList
 {
   char *str;
   char *buf;
@@ -260,7 +260,7 @@ static CLString *CLFileDirectory = nil;
   vasprintf(&str, [format UTF8String], argList);
   if (enc != CLUTF8StringEncoding)
     CLStringConvertEncoding(str, strlen(str), CLUTF8StringEncoding,
-			    &buf, &blen, enc, NO);
+                            &buf, &blen, enc, NO);
   else {
     buf = str;
     blen = strlen(str);
@@ -271,7 +271,7 @@ static CLString *CLFileDirectory = nil;
   if (buf != str)
     free(buf);
   free(str);
-  
+
   return;
 }
 
@@ -306,7 +306,7 @@ static CLString *CLFileDirectory = nil;
   if (fd < 0 && (p = getenv("TMPDIR"))) {
     free(tbuf);
     tbuf = strdup([[[CLString stringWithUTF8String:p]
-		     stringByAppendingPathComponent:template] UTF8String]);
+                     stringByAppendingPathComponent:template] UTF8String]);
     fd = mkstemp(tbuf);
   }
 
@@ -319,11 +319,11 @@ static CLString *CLFileDirectory = nil;
   if (fd < 0) {
     CLString *aString;
 
-    
+
     /* Try to make a temp file in our home */
     pw = getpwuid(getuid());
     aString = [[CLString stringWithUTF8String:pw->pw_dir]
-		stringByAppendingPathComponent:@"tmp"];
+                stringByAppendingPathComponent:@"tmp"];
     if (!mkdir([aString UTF8String], 0700))
       setenv("TMPDIR", [aString UTF8String], 1);
     free(tbuf);
@@ -333,9 +333,9 @@ static CLString *CLFileDirectory = nil;
 
   if (fd >= 0)
     oFile = [CLFileStream streamWithDescriptor:fd mode:CLReadWrite
-					atPath:[CLString stringWithUTF8String:tbuf]
-				     processID:0];
-  
+                                        atPath:[CLString stringWithUTF8String:tbuf]
+                                     processID:0];
+
   if (tbuf)
     free(tbuf);
 
@@ -358,7 +358,7 @@ static CLString *CLFileDirectory = nil;
 }
 
 +(CLStream *) openPty:(CLString *) aCommand termios:(struct termios *) termp
-	   windowSize:(struct winsize *) winp environment:(CLDictionary *) newEnv
+           windowSize:(struct winsize *) winp environment:(CLDictionary *) newEnv
 {
   pid_t pid;
   char pty[MAXPATHLEN+1];
@@ -373,23 +373,23 @@ static CLString *CLFileDirectory = nil;
   pid = forkpty(&master, pty, termp, winp);
   if (pid > 0) {
     oFile = [[CLFileStream alloc] initWithDescriptor:master
-						path:[CLString stringWithUTF8String:pty]
-					   processID:pid];
+                                                path:[CLString stringWithUTF8String:pty]
+                                           processID:pid];
   }
   else if (pid == 0) { /* child */
     if (newEnv) {
       env = calloc([newEnv count] + 1, sizeof(char *));
       anArray = [newEnv allKeys];
       for (i = 0, j = [anArray count]; i < j; i++) {
-	aKey = [anArray objectAtIndex:i];
-	env[i] = [[CLString stringWithFormat:@"%@=%@", [aKey description],
-		      [[newEnv objectForKey:aKey] description]] UTF8String];
+        aKey = [anArray objectAtIndex:i];
+        env[i] = [[CLString stringWithFormat:@"%@=%@", [aKey description],
+                      [[newEnv objectForKey:aKey] description]] UTF8String];
       }
     }
     else
       env = NULL;
     execle("/bin/sh", "/bin/sh", "-c",
-	   [[@"exec " stringByAppendingString:aCommand] UTF8String], NULL, env);
+           [[@"exec " stringByAppendingString:aCommand] UTF8String], NULL, env);
   }
 
   return [oFile autorelease];
@@ -418,7 +418,7 @@ static CLString *CLFileDirectory = nil;
    more compact. Maybe use the absolute value to determine size then
    convert back to twos complement before writing.
 
-   
+
 */
 
 -(int64_t) readInteger
@@ -443,7 +443,7 @@ static CLString *CLFileDirectory = nil;
 {
   uint64_t val;
   int num;
-  
+
 
   /* FIXME - do something better about negative values */
 
@@ -479,24 +479,24 @@ static CLString *CLFileDirectory = nil;
 
       [self readType:@"i" data:&len];
       if (len) {
-	buf = calloc(1, len + 1);
-	[self read:buf length:len];
-	className = [[CLUTF8String alloc] initWithBytesNoCopy:buf length:len
-						     encoding:CLUTF8StringEncoding];
-	objHash = [self readInteger];
+        buf = calloc(1, len + 1);
+        [self read:buf length:len];
+        className = [[CLUTF8String alloc] initWithBytesNoCopy:buf length:len
+                                                     encoding:CLUTF8StringEncoding];
+        objHash = [self readInteger];
 
-	if (!streamObjects)
-	  streamObjects = CLHashTableAlloc(100);
-	if (!(anObject = CLHashTableDataForIdenticalKey(streamObjects,
-							(id) objHash, objHash))) {
-	  anObject = [CLClassFromString(className) alloc];
-	  if ([anObject respondsTo:@selector(read:)])
-	    anObject = [anObject read:self];
-	  CLHashTableSetData(streamObjects, anObject, (id) objHash, objHash);
-	}
-	else
-	  [anObject retain];
-	[className release];
+        if (!streamObjects)
+          streamObjects = CLHashTableAlloc(100);
+        if (!(anObject = CLHashTableDataForIdenticalKey(streamObjects,
+                                                        (id) objHash, objHash))) {
+          anObject = [CLClassFromString(className) alloc];
+          if ([anObject respondsTo:@selector(read:)])
+            anObject = [anObject read:self];
+          CLHashTableSetData(streamObjects, anObject, (id) objHash, objHash);
+        }
+        else
+          [anObject retain];
+        [className release];
       }
 
       *(id *) data = anObject;
@@ -552,9 +552,9 @@ static CLString *CLFileDirectory = nil;
 
       [self readType:@"i" data:&len];
       if (len > -1) {
-	str = calloc(1, len + 1);
-	if (len)
-	  [self read:str length:len];
+        str = calloc(1, len + 1);
+        if (len)
+          [self read:str length:len];
       }
       *(char **) data = str;
     }
@@ -568,9 +568,9 @@ static CLString *CLFileDirectory = nil;
 
       [self readType:@"i" data:&len];
       if (len > -1) {
-	str = calloc(1, len + 1);
-	if (len)
-	  [self read:str length:len];
+        str = calloc(1, len + 1);
+        if (len)
+          [self read:str length:len];
       }
       *(SEL *) data = sel_getUid(str);
     }
@@ -593,7 +593,7 @@ static CLString *CLFileDirectory = nil;
 
 
   ustr = CLStringToUnistr(type);
-  
+
   switch (*ustr->str) {
   case _C_ID:
     /* FIXME - don't write the same object to the stream multiple times */
@@ -604,20 +604,20 @@ static CLString *CLFileDirectory = nil;
 
 
       if (anObject) {
-	className = [[anObject className] UTF8String];
-	len = strlen(className);
+        className = [[anObject className] UTF8String];
+        len = strlen(className);
       }
       [self writeType:@"i" data:&len];
       if (len) {
-	[self write:className length:len];
-	[self writeInteger:(size_t) anObject];
-	if (!streamObjects)
-	  streamObjects = CLHashTableAlloc(100);
-	if ([anObject respondsTo:@selector(write:)] &&
-	    !CLHashTableDataForIdenticalKey(streamObjects, anObject, (size_t) anObject)) {
-	  [anObject write:self];
-	  CLHashTableSetData(streamObjects, anObject, anObject, (size_t) anObject);
-	}
+        [self write:className length:len];
+        [self writeInteger:(size_t) anObject];
+        if (!streamObjects)
+          streamObjects = CLHashTableAlloc(100);
+        if ([anObject respondsTo:@selector(write:)] &&
+            !CLHashTableDataForIdenticalKey(streamObjects, anObject, (size_t) anObject)) {
+          [anObject write:self];
+          CLHashTableSetData(streamObjects, anObject, anObject, (size_t) anObject);
+        }
       }
     }
     break;
@@ -668,14 +668,14 @@ static CLString *CLFileDirectory = nil;
 
 
       /* FIXME - find a better way to write out NULL pointers or maybe
-	 disallow them entirely? */
+         disallow them entirely? */
       if (!str)
-	len = -1;
+        len = -1;
       else
-	len = strlen(str);
+        len = strlen(str);
       [self writeType:@"i" data:&len];
       if (len > 0)
-	[self write:str length:len];
+        [self write:str length:len];
     }
     break;
 
@@ -690,7 +690,7 @@ static CLString *CLFileDirectory = nil;
       [self write:str length:len];
     }
     break;
-    
+
   default:
     [self error:@"Unknown type %c", *ustr->str];
     break;
@@ -715,7 +715,7 @@ static CLString *CLFileDirectory = nil;
     [self readType:(CLString *) &tstr data:va_arg(args, void *)];
   }
   va_end(args);
-  
+
   return;
 }
 
@@ -735,7 +735,7 @@ static CLString *CLFileDirectory = nil;
     [self writeType:(CLString *) &tstr data:va_arg(args, void *)];
   }
   va_end(args);
-  
+
   return;
 }
 
@@ -826,7 +826,7 @@ void CLFindFileDirectory()
       CLFileDirectory = [[CLDelegate delegateGetFileDirectory] copy];
     else
       CLFileDirectory = [[[CLString stringWithUTF8String:getenv("DOCUMENT_ROOT")]
-			   stringByAppendingPathComponent:FILE_DIR] retain];
+                           stringByAppendingPathComponent:FILE_DIR] retain];
   }
 
   return;
@@ -842,10 +842,10 @@ CLString *CLPathForFileID(int file_id)
 
 
   CLFindFileDirectory();
-  
+
   aPath = [CLFileDirectory stringByAppendingPathComponent:
-			       [CLString stringWithFormat:@"%i/%i",
-					 file_id % 10, (file_id / 10) % 10]];
+                               [CLString stringWithFormat:@"%i/%i",
+                                         file_id % 10, (file_id / 10) % 10]];
   sprintf(buf, "%i", file_id);
 
   if (!(dir = opendir([aPath UTF8String])))
@@ -854,10 +854,10 @@ CLString *CLPathForFileID(int file_id)
   i = strlen(buf);
   for (dp = readdir(dir); dp; dp = readdir(dir))
     if (dp->d_name[0] != '.' &&
-	(strlen(dp->d_name) == i || (strlen(dp->d_name) > i && dp->d_name[i] == '.')) &&
-	!strncmp(buf, dp->d_name, i)) {
+        (strlen(dp->d_name) == i || (strlen(dp->d_name) > i && dp->d_name[i] == '.')) &&
+        !strncmp(buf, dp->d_name, i)) {
       aPath = [aPath stringByAppendingPathComponent:
-		       [CLString stringWithUTF8String:dp->d_name]];
+                       [CLString stringWithUTF8String:dp->d_name]];
       break;
     }
   closedir(dir);
@@ -870,7 +870,7 @@ CLString *CLPathForFileID(int file_id)
 void CLCreateWorldWritableDirectory(CLString *aPath)
 {
   struct stat st;
-  
+
 
   mkdir([aPath UTF8String], 0777);
   stat([aPath UTF8String], &st);
@@ -888,14 +888,14 @@ BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint
   CLCharacterSet *ws = [CLCharacterSet whitespaceAndNewlineCharacterSet];
   int i, j;
 
-  
+
   CLFindFileDirectory();
-  
+
   aPath = [CLFileDirectory stringByAppendingPathComponent:
-			       [CLString stringWithFormat:@"%i", seq % 10]];
+                               [CLString stringWithFormat:@"%i", seq % 10]];
   CLCreateWorldWritableDirectory(aPath);
   aPath = [aPath stringByAppendingPathComponent:
-		     [CLString stringWithFormat:@"%i", (seq / 10) % 10]];
+                     [CLString stringWithFormat:@"%i", (seq / 10) % 10]];
   CLCreateWorldWritableDirectory(aPath);
   aPath = [aPath stringByAppendingPathComponent:[CLString stringWithFormat:@"%i", seq]];
   if ((file = fopen([aPath UTF8String], "w"))) {
@@ -906,29 +906,29 @@ BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint
     if (!extension) {
       mimeType = [CLStream mimeTypeForFile:aPath];
       if (mimeType && (file = fopen([MIME_TYPES UTF8String], "r"))) {
-	while ((aString = CLGets(file, CLUTF8StringEncoding))) {
-	  aString = [aString stringByTrimmingCharactersInSet:ws];
-	  if (![aString length] || [aString characterAtIndex:0] == '#')
-	    continue;
-	  aRange = [aString rangeOfCharacterFromSet:ws];
-	  if (aRange.length &&
-	      [[aString substringToIndex:aRange.location] isEqualToString:mimeType]) {
-	    anArray = [[[aString substringFromIndex:CLMaxRange(aRange)]
-			   stringByTrimmingCharactersInSet:ws]
-			  componentsSeparatedByString:@" "];
-	    
-	    for (i = 0, j = [anArray count]; extensionHint && i < j; i++)
-	      if (![[anArray objectAtIndex:i] caseInsensitiveCompare:extensionHint]) {
-		extension = [anArray objectAtIndex:i];
-		break;
-	      }
-	    
-	    if (!extension)
-	      extension = [anArray objectAtIndex:0];
-	    break;
-	  }
-	}
-	fclose(file);
+        while ((aString = CLGets(file, CLUTF8StringEncoding))) {
+          aString = [aString stringByTrimmingCharactersInSet:ws];
+          if (![aString length] || [aString characterAtIndex:0] == '#')
+            continue;
+          aRange = [aString rangeOfCharacterFromSet:ws];
+          if (aRange.length &&
+              [[aString substringToIndex:aRange.location] isEqualToString:mimeType]) {
+            anArray = [[[aString substringFromIndex:CLMaxRange(aRange)]
+                           stringByTrimmingCharactersInSet:ws]
+                          componentsSeparatedByString:@" "];
+
+            for (i = 0, j = [anArray count]; extensionHint && i < j; i++)
+              if (![[anArray objectAtIndex:i] caseInsensitiveCompare:extensionHint]) {
+                extension = [anArray objectAtIndex:i];
+                break;
+              }
+
+            if (!extension)
+              extension = [anArray objectAtIndex:0];
+            break;
+          }
+        }
+        fclose(file);
       }
     }
 
@@ -955,7 +955,7 @@ int CLNextFileSequence()
 
   /* FIXME - chmod the new dirs to the same permissions as the
      parent. Fix owner too if possible */
-  
+
   p = getenv("DOCUMENT_ROOT");
   aPath = [CLString stringWithFormat:@"%s/%@/%@", p, IMAGE_DIR, IMAGE_SEQ];
   if ((file = fopen([aPath UTF8String], "r"))) {
@@ -965,18 +965,18 @@ int CLNextFileSequence()
   }
 
   CLFindFileDirectory();
-  
+
   aPath = CLFileDirectory;
   CLCreateWorldWritableDirectory(aPath);
   aPath = [aPath stringByAppendingPathComponent:FILE_SEQ];
   if ((fd = open([aPath UTF8String], O_RDWR | O_CREAT, 0644)) >= 0) {
     if (!flock(fd, LOCK_EX) && (file = fdopen(fd, "r+"))) {
       if ((aString = CLGets(file, CLUTF8StringEncoding)))
-	seq = [aString intValue];
+        seq = [aString intValue];
       if (!seq)
-	seq = 1;
+        seq = 1;
       if (iseq > seq)
-	seq = iseq;
+        seq = iseq;
       rewind(file);
       fprintf(file, "%i\n", seq + 1);
       fclose(file);
@@ -996,7 +996,7 @@ int CLStoreFile(CLData *aData, CLString *extension, CLString *extensionHint)
   seq = CLNextFileSequence();
   if (!CLStoreFileAsID(aData, extension, extensionHint, seq))
     seq = 0;
-  
+
   return seq;
 }
 
@@ -1005,7 +1005,7 @@ void CLWriteHTMLObject(CLStream *stream, id anObject)
 {
   int i, j;
 
-  
+
   if ([anObject isKindOfClass:CLArrayClass]) {
     for (i = 0, j = [anObject count]; i < j; i++)
       CLWriteHTMLObject(stream, [anObject objectAtIndex:i]);
@@ -1026,17 +1026,17 @@ static CLString *CLTryExtensions(CLString *aFilename, CLArray *extensions)
   id self = nil;
 #endif
 
-  
+
   if (access([aFilename UTF8String], R_OK)) {
     aString = [aFilename pathExtension];
     if ([aString length]) {
       for (i = 0, j = [extensions count]; i < j; i++)
-	if (![aString isEqualToString:[extensions objectAtIndex:i]])
-	  break;
+        if (![aString isEqualToString:[extensions objectAtIndex:i]])
+          break;
       if (i < j)
-	aString = [aFilename stringByDeletingPathExtension];
+        aString = [aFilename stringByDeletingPathExtension];
       else
-	aString = aFilename;
+        aString = aFilename;
     }
     else
       aString = aFilename;
@@ -1049,18 +1049,18 @@ static CLString *CLTryExtensions(CLString *aFilename, CLArray *extensions)
 
       aString2 = nil;
       for (i = max = 0, j = [extensions count]; i < j; i++)
-	if ([[extensions objectAtIndex:i] length] > max)
-	  max = [[extensions objectAtIndex:i] length];
-      
+        if ([[extensions objectAtIndex:i] length] > max)
+          max = [[extensions objectAtIndex:i] length];
+
       evil = CLCopyStackString(aString, max + 1);
       evilStack = (CLMutableStackString *) &evil;
       for (i = 0, j = [extensions count]; i < j; i++) {
-	[evilStack setString:aString];
-	[evilStack appendPathExtension:[extensions objectAtIndex:i]];
-	if (!access([evilStack UTF8String], R_OK)) {
-	  aString2 = [evilStack copy];
-	  break;
-	}
+        [evilStack setString:aString];
+        [evilStack appendPathExtension:[extensions objectAtIndex:i]];
+        if (!access([evilStack UTF8String], R_OK)) {
+          aString2 = [evilStack copy];
+          break;
+        }
       }
     }
   }
@@ -1071,7 +1071,7 @@ static CLString *CLTryExtensions(CLString *aFilename, CLArray *extensions)
 }
 
 CLString *CLFullPathForFile(CLString *aFilename, CLArray *extensions,
-			    CLArray *directories)
+                            CLArray *directories)
 {
   CLString *aString = nil, *newFilename;
   int i, j;
@@ -1081,12 +1081,12 @@ CLString *CLFullPathForFile(CLString *aFilename, CLArray *extensions,
     for (i = 0, j = [directories count]; i < j; i++) {
       newFilename = [[directories objectAtIndex:i] stringByAppendingPathComponent:aFilename];
       if (!(aString = CLTryExtensions(newFilename, extensions)) &&
-	  ![newFilename isAbsolutePath]) {
-	newFilename = [CLAppPath stringByAppendingPathComponent:newFilename];
-	aString = CLTryExtensions(newFilename, extensions);
+          ![newFilename isAbsolutePath]) {
+        newFilename = [CLAppPath stringByAppendingPathComponent:newFilename];
+        aString = CLTryExtensions(newFilename, extensions);
       }
       if (aString)
-	break;
+        break;
     }
   }
 
@@ -1101,7 +1101,7 @@ CLString *CLFullPathForFile(CLString *aFilename, CLArray *extensions,
       [evilStack setString:CLAppPath];
       [evilStack appendPathComponent:aFilename];
       if (!(aString = CLTryExtensions(evilStack, extensions)))
-	aString = CLTryExtensions(aFilename, extensions);
+        aString = CLTryExtensions(aFilename, extensions);
     }
     else
       aString = CLTryExtensions(aFilename, extensions);
@@ -1110,7 +1110,7 @@ CLString *CLFullPathForFile(CLString *aFilename, CLArray *extensions,
   if (aString && ![aString isAbsolutePath]) {
     char *buf;
 
-  
+
     buf = get_current_dir_name();
     aString = [[CLString stringWithUTF8String:buf] stringByAppendingPathComponent:aString];
   }
@@ -1125,9 +1125,9 @@ int CLDeflate(const void *data, int len, int level, CLData **aData)
   z_stream strm;
   unsigned char out[16384];
   CLMutableData *mData;
-  
 
-  
+
+
   strm.zalloc = Z_NULL;
   strm.zfree = Z_NULL;
   strm.opaque = Z_NULL;
@@ -1141,7 +1141,7 @@ int CLDeflate(const void *data, int len, int level, CLData **aData)
 
   do {
     flush = strm.avail_in ? Z_NO_FLUSH : Z_FINISH;
-  
+
     strm.avail_out = sizeof(out);
     strm.next_out = out;
     if ((ret = deflate(&strm, flush)) != Z_OK && ret != Z_STREAM_END)
@@ -1153,7 +1153,7 @@ int CLDeflate(const void *data, int len, int level, CLData **aData)
 
   if (ret == Z_STREAM_END)
     ret = Z_OK;
-  
+
   deflateEnd(&strm);
 
   *aData = mData;

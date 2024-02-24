@@ -187,8 +187,8 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx copy %s - 0x%lx %s:%i %i\n",
-	    (unsigned long) self, className, (unsigned long) retainer,
-	    file, line, [self retainCount] + 1);
+            (unsigned long) self, className, (unsigned long) retainer,
+            file, line, [self retainCount] + 1);
     CLLeakPrint = pl;
   }
 
@@ -209,21 +209,21 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 {
   if ([self class] == CLArrayClass)
     [self error:@"%s: %s must be implemented by subclass",
-	  object_getClassName(self), sel_getName(_cmd)];
+          object_getClassName(self), sel_getName(_cmd)];
   return [super init];
 }
 
 -(void) insertObject:(id) anObject atIndex:(CLUInteger) index
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return;
 }
 
 -(void) removeObjectsInRange:(CLRange) aRange
 {
   [self error:@"%s: %s must be implemented by subclass",
-	object_getClassName(self), sel_getName(_cmd)];
+        object_getClassName(self), sel_getName(_cmd)];
   return;
 }
 
@@ -299,7 +299,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
     [self grow];
   if (storage->numElements - index)
     memmove(&storage->dataPtr[index+1], &storage->dataPtr[index],
-	    (storage->numElements - index) * sizeof(id));
+            (storage->numElements - index) * sizeof(id));
   storage->dataPtr[index] = anObject;
   storage->numElements++;
   [anObject retain];
@@ -340,10 +340,10 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
     pos = [longer indexOfObject:[shorter objectAtIndex:idx]];
     if (pos != CLNotFound) {
       if (longer == self)
-	[self removeObjectsInRange:CLMakeRange(pos, 1)];
+        [self removeObjectsInRange:CLMakeRange(pos, 1)];
       else {
-	[self removeObjectsInRange:CLMakeRange(idx, 1)];
-	idx--;
+        [self removeObjectsInRange:CLMakeRange(idx, 1)];
+        idx--;
       }
     }
   }
@@ -367,7 +367,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
   if (storage->numElements - CLMaxRange(aRange))
     memmove(&storage->dataPtr[aRange.location], &storage->dataPtr[CLMaxRange(aRange)],
-	    (storage->numElements - CLMaxRange(aRange)) * sizeof(id));
+            (storage->numElements - CLMaxRange(aRange)) * sizeof(id));
   storage->numElements -= aRange.length;
 
   for (idx = 0; idx < aRange.length; idx++)

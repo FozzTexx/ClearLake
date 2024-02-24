@@ -15,7 +15,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -59,19 +59,19 @@ static CLString *CLInputTypes[] = {
 +(CLInput *) hiddenFieldNamed:(CLString *) aString withValue:(id) aValue
 {
   return [[[self alloc] initWithTitle:aString cols:0 rows:0 value:aValue
-			type:CLHiddenInputType onPage:nil] autorelease];
+                        type:CLHiddenInputType onPage:nil] autorelease];
 }
 
 +(CLInput *) checkboxNamed:(CLString *) aString withValue:(id) aValue
 {
   return [[[self alloc] initWithTitle:aString cols:0 rows:0 value:aValue
-			type:CLCheckboxInputType onPage:nil] autorelease];
+                        type:CLCheckboxInputType onPage:nil] autorelease];
 }
 
 +(CLInput *) textFieldNamed:(CLString *) aString withValue:(id) aValue
 {
   return [[[self alloc] initWithTitle:aString cols:0 rows:0 value:aValue
-			type:CLTextInputType onPage:nil] autorelease];
+                        type:CLTextInputType onPage:nil] autorelease];
 }
 
 -(id) init
@@ -147,8 +147,8 @@ static CLString *CLInputTypes[] = {
 }
 
 -(id) initWithTitle:(CLString *) aTitle cols:(int) aCols rows:(int) aRows
-	      value:(id) aValue type:(CLInputType) aType
-	     onPage:(CLPage *) aPage
+              value:(id) aValue type:(CLInputType) aType
+             onPage:(CLPage *) aPage
 {
   [self initFromString:NULL onPage:aPage];
   type = aType;
@@ -182,7 +182,7 @@ static CLString *CLInputTypes[] = {
 
   if (aTitle)
     [attributes setObject:aTitle forCaseInsensitiveString:@"NAME"];
-  
+
   return self;
 }
 
@@ -205,11 +205,11 @@ static CLString *CLInputTypes[] = {
 
   [originalValue release];
   originalValue = nil;
-  
+
   if ([aValue isKindOfClass:CLStringClass]) {
     originalValue = [aValue copy];
     value = [[aValue stringByTrimmingCharactersInSet:
-			      [CLCharacterSet whitespaceAndNewlineCharacterSet]] retain];
+                              [CLCharacterSet whitespaceAndNewlineCharacterSet]] retain];
     if (![value length]) {
       [value release];
       value = nil;
@@ -217,7 +217,7 @@ static CLString *CLInputTypes[] = {
   }
   else
     value = [aValue copy];
-  
+
   return;
 }
 
@@ -233,16 +233,16 @@ static CLString *CLInputTypes[] = {
       val = YES;
     else {
       if (type == CLRadioInputType)
-	val = [[aValue description] isEqual:[value description]];
+        val = [[aValue description] isEqual:[value description]];
       else if ([aValue isKindOfClass:CLNumberClass])
-	val = [aValue boolValue];
+        val = [aValue boolValue];
       else
-	val = !!aValue;
+        val = !!aValue;
     }
   }
   else if ([attributes objectForCaseInsensitiveString:@"CHECKED"])
     val = YES;
-  
+
   return val;
 }
 
@@ -270,7 +270,7 @@ static CLString *CLInputTypes[] = {
 -(void) setDisabled:(BOOL) flag
 {
   [attributes setObject:[CLNumber numberWithBool:flag]
-	      forCaseInsensitiveString:@"CL_DISABLED"];
+              forCaseInsensitiveString:@"CL_DISABLED"];
   return;
 }
 
@@ -302,12 +302,12 @@ static CLString *CLInputTypes[] = {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLElementClass]) {
       if ([[[anObject attributes] objectForCaseInsensitiveString:@"FOR"]
-	    isEqualToString:aString])
-	return anObject;
+            isEqualToString:aString])
+        return anObject;
       if ([anObject respondsTo:@selector(content)] &&
-	  [[anObject content] isKindOfClass:CLArrayClass] &&
-	  (anObject = [self labelFor:aString inArray:[anObject content]]))
-	return anObject;
+          [[anObject content] isKindOfClass:CLArrayClass] &&
+          (anObject = [self labelFor:aString inArray:[anObject content]]))
+        return anObject;
     }
   }
 
@@ -324,13 +324,13 @@ static CLString *CLInputTypes[] = {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLElementClass]) {
       if ([anObject isKindOfClass:CLInputClass] &&
-	  [[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
-	    isEqualToString:aString])
-	return anObject;
+          [[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
+            isEqualToString:aString])
+        return anObject;
       if ([anObject respondsTo:@selector(content)] &&
-	  [[anObject content] isKindOfClass:CLArrayClass] &&
-	  (anObject = [self inputNamed:aString inArray:[anObject content]]))
-	return anObject;
+          [[anObject content] isKindOfClass:CLArrayClass] &&
+          (anObject = [self inputNamed:aString inArray:[anObject content]]))
+        return anObject;
     }
   }
 
@@ -356,8 +356,8 @@ static CLString *CLInputTypes[] = {
   [page addInfoMessage:message];
 
   pageInput = [[page objectWithID:[[[self form] attributes]
-				    objectForCaseInsensitiveString:@"ID"]]
-		      fieldNamed:[attributes objectForCaseInsensitiveString:@"NAME"]];
+                                    objectForCaseInsensitiveString:@"ID"]]
+                      fieldNamed:[attributes objectForCaseInsensitiveString:@"NAME"]];
   idString = [[pageInput attributes] objectForCaseInsensitiveString:@"ID"];
 
   /* FIXME - let the label find the field */
@@ -368,7 +368,7 @@ static CLString *CLInputTypes[] = {
     aString = [aString stringByAppendingString:@" "];
   aString = [aString stringByAppendingString:@"cl_error"];
   [[anObject attributes] setObject:aString forCaseInsensitiveString:@"CLASS"];
-  
+
   anObject = [self inputNamed:idString inArray:[page body]];
   [anObject setMessage:message];
   [anObject setIgnoreBinding:flag];
@@ -380,7 +380,7 @@ static CLString *CLInputTypes[] = {
   id anObject;
   CLString *idString;
 
-  
+
   [page removeInfoMessage:message];
   [message release];
   message = [[CLInfoMessage alloc] initWithMessage:aString isError:NO];
@@ -449,7 +449,7 @@ static CLString *CLInputTypes[] = {
 
   if (setVal)
     [super setObjectValue:anObject forBinding:aBinding];
-  
+
   return;
 }
 
@@ -458,7 +458,7 @@ static CLString *CLInputTypes[] = {
   if (!ignore)
     ignore = [CLMutableArray array];
   [ignore addObjects:@"CL_CHECKED", @"CL_DISABLED", @"CL_SELECTED", nil];
-  
+
   [super writeAttributes:stream ignore:ignore];
   return;
 }
@@ -480,9 +480,9 @@ static CLString *CLInputTypes[] = {
     [attributes setObject:CLNullObject forCaseInsensitiveString:@"DISABLED"];
   else
     [attributes removeObjectForCaseInsensitiveString:@"DISABLED"];
-  
+
   aValue = [self originalValue];
-  
+
   switch (type) {
   case CLTextInputType:
   case CLPasswordInputType:
@@ -494,14 +494,14 @@ static CLString *CLInputTypes[] = {
   case CLImageInputType:
   case CLButtonInputType:
     [stream writeFormat:@"<%@ TYPE=%@" usingEncoding:CLUTF8StringEncoding,
-	    title, CLInputTypes[type]];
+            title, CLInputTypes[type]];
     if (aValue)
       [stream writeFormat:@" VALUE=\"%@\"" usingEncoding:CLUTF8StringEncoding,
-	      [[aValue description] entityEncodedString]];
+              [[aValue description] entityEncodedString]];
     [self writeAttributes:stream ignore:nil];
     [stream writeString:@" />" usingEncoding:CLUTF8StringEncoding];
     break;
-    
+
   case CLTextareaInputType:
     CLPrintf(stream, @"<TEXTAREA");
     [self writeAttributes:stream ignore:nil];
@@ -531,19 +531,19 @@ static CLString *CLInputTypes[] = {
 
   if (ignoreBinding)
     return;
-  
+
   if ((aString = [attributes objectForCaseInsensitiveString:@"CL_BINDING"])) {
     anObject = [self expandBinding:aString success:&found];
-      
+
     if ((aString = [attributes objectForCaseInsensitiveString:@"CL_FORMAT"])) {
       if ([anObject isKindOfClass:CLNumberClass]) {
-	aFormatter = [CLNumberFormatter numberFormatterFromFormat:
-					      [self expandBinding:aString success:&success]];
-	anObject = [aFormatter stringForObjectValue:anObject];
+        aFormatter = [CLNumberFormatter numberFormatterFromFormat:
+                                              [self expandBinding:aString success:&success]];
+        anObject = [aFormatter stringForObjectValue:anObject];
       }
       else if ([anObject isKindOfClass:CLDatetimeClass]) {
-	aFormatter = [CLDateFormatter dateFormatterFromFormat:aString];
-	anObject = [aFormatter stringForObjectValue:anObject];
+        aFormatter = [CLDateFormatter dateFormatterFromFormat:aString];
+        anObject = [aFormatter stringForObjectValue:anObject];
       }
     }
 
@@ -562,10 +562,10 @@ static CLString *CLInputTypes[] = {
 
 
   aCopy = [super copy:file :line: retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
   aCopy->type = type;
   aCopy->value = [value copy];
-  
+
   return aCopy;
 }
 #else
@@ -577,7 +577,7 @@ static CLString *CLInputTypes[] = {
   aCopy = [super copy];
   aCopy->type = type;
   aCopy->value = [value copy];
-  
+
   return aCopy;
 }
 #endif

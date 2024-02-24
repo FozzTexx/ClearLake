@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -45,7 +45,7 @@
 /* FIXME - see NSManagedObject docs and make this just as awesome */
 
 void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
-			     CLDictionary *keyData);
+                             CLDictionary *keyData);
 
 @class Message;
 
@@ -71,7 +71,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   /* Just here to make the compiler warning go away */
   if (0)
     [super dealloc];
-  
+
   return;
 }
 
@@ -104,8 +104,8 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   data = reserved->faultData;
 
   return data && !!([self isInstance] ?
-		    class_getInstanceMethod(data->original, aSel) :
-		    class_getClassMethod(data->original, aSel));
+                    class_getInstanceMethod(data->original, aSel) :
+                    class_getClassMethod(data->original, aSel));
 }
 
 -(struct objc_method_description *) descriptionForMethod:(SEL) aSel
@@ -121,8 +121,8 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
   return (struct objc_method_description *)
            ([self isInstance] ?
-	    class_getInstanceMethod(data->original, aSel) :
-	    class_getClassMethod(data->original, aSel));
+            class_getInstanceMethod(data->original, aSel) :
+            class_getClassMethod(data->original, aSel));
 }
 
 -(BOOL) isMemberOfClass:(Class) aClassObject
@@ -216,9 +216,9 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
   if (![data->info.faultData.primaryKey isKindOfClass:CLDictionaryClass]) {
     fields = [[CLDictionary alloc] initWithObjectsAndKeys:
-				     data->info.faultData.primaryKey,
-				   [[[data->info.faultData.recordDef primaryKeys]
-						       objectAtIndex:0] column], nil];
+                                     data->info.faultData.primaryKey,
+                                   [[[data->info.faultData.recordDef primaryKeys]
+                                                       objectAtIndex:0] column], nil];
     [data->info.faultData.primaryKey release];
     data->info.faultData.primaryKey = fields;
   }
@@ -232,7 +232,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
     for (i = 0, j = [need count]; i < j; i++) {
       anAttr = [need objectAtIndex:i];
       if (![have containsObject:[anAttr column]])
-	break;
+        break;
     }
 
     if (i < j) {
@@ -241,38 +241,38 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
       id errors = nil;
       CLMutableArray *attr;
       CLArray *rows;
-    
+
 
       [CLEditingContext createSelect:&mString andAttributes:&attr
-		 forRecordDefinition:data->info.faultData.recordDef];
+                 forRecordDefinition:data->info.faultData.recordDef];
       aString = [CLEditingContext qualifierForObject:data->info.faultData.primaryKey
-					      fromDatabase:data->info.faultData.fromDB
-				    recordDefinition:data->info.faultData.recordDef];
+                                              fromDatabase:data->info.faultData.fromDB
+                                    recordDefinition:data->info.faultData.recordDef];
       [mString appendFormat:@" where %@", aString];
       rows = [[data->info.faultData.recordDef database] read:attr qualifier:mString
-						      errors:&errors];
+                                                      errors:&errors];
       if (errors)
-	[self error:@"Errors loading table: %s\n", [[errors description] UTF8String]];
+        [self error:@"Errors loading table: %s\n", [[errors description] UTF8String]];
       [mString release];
       [attr release];
 
       if ([rows count]) {
-	[data->info.faultData.primaryKey release];
-	data->info.faultData.primaryKey = [[rows objectAtIndex:0] retain];
+        [data->info.faultData.primaryKey release];
+        data->info.faultData.primaryKey = [[rows objectAtIndex:0] retain];
       }
       else if (data->info.faultData.fromDB) {
-	CLMutableDictionary *mDict;
+        CLMutableDictionary *mDict;
 
 
-	mDict = [[CLMutableDictionary alloc] init];
-	anArray = [data->info.faultData.recordDef primaryKeys];
-	for (i = 0, j = [anArray count]; i < j; i++) {
-	  anAttr = [anArray objectAtIndex:i];
-	  [mDict setObject:[data->info.faultData.primaryKey objectForKey:[anAttr key]]
-		    forKey:[anAttr column]];
-	}
-	[data->info.faultData.primaryKey release];
-	data->info.faultData.primaryKey = mDict;
+        mDict = [[CLMutableDictionary alloc] init];
+        anArray = [data->info.faultData.recordDef primaryKeys];
+        for (i = 0, j = [anArray count]; i < j; i++) {
+          anAttr = [anArray objectAtIndex:i];
+          [mDict setObject:[data->info.faultData.primaryKey objectForKey:[anAttr key]]
+                    forKey:[anAttr column]];
+        }
+        [data->info.faultData.primaryKey release];
+        data->info.faultData.primaryKey = mDict;
       }
     }
   }
@@ -304,7 +304,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
   if ([self respondsTo:@selector(didFault)])
     [((id) self) didFault]; /* Cast to id to stop warning about not responding to didFault */
-  
+
   return;
 }
 
@@ -313,7 +313,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   [self fault];
   [anInvocation invoke];
   return;
-}  
+}
 
 -(BOOL) isFault
 {
@@ -386,7 +386,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 @end
 
 void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
-			     CLDictionary *keyData)
+                             CLDictionary *keyData)
 {
   CLString *qual = nil;
   id pk;
@@ -407,27 +407,27 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
 #if 0
   fprintf(stderr, "Loading relationship: %s:%s %s\n", [[anObject className] UTF8String],
-	  [aKey UTF8String], [qual UTF8String]);
+          [aKey UTF8String], [qual UTF8String]);
 #endif
   aValue = nil;
   if (![aRelationship toMany]) {
     if (pk) {
       aValue = [[[anObject editingContext] recordForPrimaryKey:pk
-					      inTable:[aRelationship theirTable]] retain];
+                                              inTable:[aRelationship theirTable]] retain];
       if (!aValue) {
 #if 0
-	/* FIXME - I don't want to go hit the db but if it doesn't
-	   exist I need it to be nil and not a fault */
-	aValue = CLNewFault(pk, [CLDefaultContext
-				  recordDefinitionForTable:[aRelationship theirTable]], YES);
+        /* FIXME - I don't want to go hit the db but if it doesn't
+           exist I need it to be nil and not a fault */
+        aValue = CLNewFault(pk, [CLDefaultContext
+                                  recordDefinitionForTable:[aRelationship theirTable]], YES);
 #else
-	anArray = [[anObject editingContext]
-		    loadTableWithRecordDefinition:
-		      [CLEditingContext recordDefinitionForTable:
-					  [aRelationship theirTable]]
-			     qualifier:qual];
-	if ([anArray count])
-	  aValue = [[anArray objectAtIndex:0] retain];
+        anArray = [[anObject editingContext]
+                    loadTableWithRecordDefinition:
+                      [CLEditingContext recordDefinitionForTable:
+                                          [aRelationship theirTable]]
+                             qualifier:qual];
+        if ([anArray count])
+          aValue = [[anArray objectAtIndex:0] retain];
 #endif
       }
     }
@@ -447,13 +447,13 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 #if 0
     if (isatty(2))
       fprintf(stderr, "Leaking! %s.%s\n", [[anObject className] UTF8String],
-	      [aKey UTF8String]);
+              [aKey UTF8String]);
   //[anObject error:@"Why did we just load this then?"];
 #endif
   }
   else
     [aValue release];
-  
+
   return;
 }
 
@@ -469,7 +469,7 @@ id CLNewFault(id info, CLRecordDefinition *recordDef, BOOL fromDB)
 #if 0
   if ([anObject isKindOfClass:[Message class]])
     fprintf(stderr, "NewFault Message %lx %i\n", (unsigned long) anObject,
-	    [[info objectForKey:@"id"] intValue]);
+            [[info objectForKey:@"id"] intValue]);
 #endif
   CLBecomeFault(anObject, info, recordDef, fromDB);
   return anObject;
@@ -497,8 +497,8 @@ void CLBecomeFault(id anObject, id info, CLRecordDefinition *recordDef, BOOL fro
 
 #if 0
   fprintf(stderr, "0x%08lx 0x%08lx 0x%08lx 0x%08lx\n", (long unsigned int) newFault,
-	  (long unsigned int) data->original,
-	  (long unsigned int) data->val1, (long unsigned int) data->val2);
+          (long unsigned int) data->original,
+          (long unsigned int) data->val1, (long unsigned int) data->val2);
 #endif
 
   return;

@@ -10,7 +10,7 @@
 
 
   obj = (CLObjectLink *) CLControlBridgeType.tp_new(&CLControlBridgeType,
-						    PyTuple_New(0), NULL);
+                                                    PyTuple_New(0), NULL);
   obj->bridgeObject = [self retain];
   return (PyObject *) obj;
 }
@@ -25,8 +25,8 @@ static int CLControlBridge_init(CLObjectLink *self, PyObject *args, PyObject *kw
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&", kwlist,
-				   CLPythonConvert, &string,
-				   CLPythonConvert, &page))
+                                   CLPythonConvert, &string,
+                                   CLPythonConvert, &page))
     return -1;
 
   self->bridgeObject = [[CLControl alloc] initFromString:string onPage:page];
@@ -69,4 +69,3 @@ PyTypeObject CLControlBridgeType = {
   .tp_dealloc = (destructor) CLControlBridge_dealloc,
   .tp_getset = CLControlBridge_getsetters,
 };
-

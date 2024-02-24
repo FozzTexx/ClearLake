@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -32,7 +32,7 @@
 }
 
 +(CLOption *) optionWithString:(CLString *) aString andValue:(id) aValue
-		      selected:(BOOL) flag
+                      selected:(BOOL) flag
 {
   return [[[self alloc] initWithString:aString andValue:aValue selected:flag] autorelease];
 }
@@ -120,14 +120,14 @@
     [stream writeString:@" SELECTED" usingEncoding:CLUTF8StringEncoding];
   if (value)
     [stream writeFormat:@" VALUE=\"%@\"" usingEncoding:CLUTF8StringEncoding,
-	    [[value description] entityEncodedString]];
+            [[value description] entityEncodedString]];
   [self writeAttributes:attributes to:stream];
   [stream writeString:@">" usingEncoding:CLUTF8StringEncoding];
   [stream writeString:[title entityEncodedString] usingEncoding:CLUTF8StringEncoding];
   [stream writeString:@"</OPTION>" usingEncoding:CLUTF8StringEncoding];
   return;
 }
-  
+
 #if DEBUG_RETAIN
 #undef copy
 -(id) copy:(const char *) file :(int) line :(id) retainer
@@ -136,7 +136,7 @@
 
 
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
   aCopy->value = [value retain];
   aCopy->subOptions = [subOptions copy];
   return aCopy;

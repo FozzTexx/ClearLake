@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -38,7 +38,7 @@
     [string setString:aString];
   return self;
 }
-  
+
 -(void) addCharactersInString:(CLString *) aString
 {
   [string appendString:aString];
@@ -85,8 +85,8 @@
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx copy %s - 0x%lx %s:%i %i\n",
-	    (unsigned long) self, className, (unsigned long) retainer,
-	    file, line, [self retainCount] + 1);
+            (unsigned long) self, className, (unsigned long) retainer,
+            file, line, [self retainCount] + 1);
     CLLeakPrint = pl;
   }
 

@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -59,7 +59,7 @@
 -(CLString *) propertyList;
 -(CLString *) description;
 -(void) setFieldsFromDictionary:(CLDictionary *) aDict seen:(CLMutableDictionary *) seen
-		  updateChanged:(BOOL) flag;
+                  updateChanged:(BOOL) flag;
 -(void) setFieldsFromDictionary:(CLDictionary *) aDict updateChanged:(BOOL) flag;
 -(BOOL) hasChanges:(CLMutableArray *) ignoreList;
 -(BOOL) allowZeroPrimaryKey;

@@ -98,9 +98,9 @@ static PyObject* CLRun_bridge(PyObject *self, PyObject *args, PyObject *kwds)
 
   pool = [[CLAutoreleasePool alloc] init];
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&|O&", kwlist,
-				   CLPythonConvert, &mainObjectName,
-				   CLPythonConvert, &environment,
-				   CLPythonConvertStream, &inputStream)) {
+                                   CLPythonConvert, &mainObjectName,
+                                   CLPythonConvert, &environment,
+                                   CLPythonConvertStream, &inputStream)) {
     [pool release];
     return NULL;
   }
@@ -119,15 +119,15 @@ static PyObject* CLRun_bridge(PyObject *self, PyObject *args, PyObject *kwds)
   //   * SERVER_PORT
   //   * SERVER_URL
 
-  htmlStream = [CLStream openMemoryForWriting];  
-  headerStream = [CLStream openMemoryForWriting];  
+  htmlStream = [CLStream openMemoryForWriting];
+  headerStream = [CLStream openMemoryForWriting];
   status = CLHandleRequest(mainObjectName, htmlStream, headerStream, inputStream);
 
   result = [CLArray arrayWithObjects:[CLNumber numberWithUnsignedInt:status],
-		    [htmlStream data], [headerStream data], nil];
+                    [htmlStream data], [headerStream data], nil];
   pyResult = [result pythonObject];
   [pool release];
-  
+
   return pyResult;
 }
 
@@ -182,9 +182,9 @@ PyMODINIT_FUNC PyInit_ClearLake(void)
 
   state = (ClearLake_python_state *) PyModule_GetState(m);
   state->pool = [[CLAutoreleasePool alloc] init];
-  
+
   CLClassFromString_python_orig = CLClassFromString;
   CLClassFromString = CLClassFromString_python;
-  
+
   return m;
 }

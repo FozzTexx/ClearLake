@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -33,9 +33,9 @@
 
 CLString *CLSybaseErrorsFor(CS_CONTEXT *context);
 CS_RETCODE CLSybaseClientError(CS_CONTEXT *context, CS_CONNECTION *connection,
-			       CS_CLIENTMSG *errmsg);
+                               CS_CLIENTMSG *errmsg);
 CS_RETCODE CLSybaseServerError(CS_CONTEXT *context, CS_CONNECTION *connection,
-			       CS_SERVERMSG *srvmsg);
+                               CS_SERVERMSG *srvmsg);
 
 @implementation CLSybaseDatabase
 
@@ -45,60 +45,60 @@ CS_RETCODE CLSybaseServerError(CS_CONTEXT *context, CS_CONNECTION *connection,
 }
 
 -(id) initWithDatabase:(CLString *) aDatabase user:(CLString *) user
-	      password:(CLString *) password host:(CLString *) aHost
+              password:(CLString *) password host:(CLString *) aHost
 {
   CS_RETCODE retcode;
   CS_INT netio_type = CS_SYNC_IO;
 
-  
+
   [super init];
-  
+
   context = NULL;
   conn = NULL;
 
   if (aDatabase && user && password) {
     if (cs_ctx_alloc(CS_VERSION_100, &context) == CS_SUCCEED) {
       if (ct_init(context, CS_VERSION_100) != CS_SUCCEED) {
-	cs_ctx_drop(context);
-	context = NULL;
+        cs_ctx_drop(context);
+        context = NULL;
       }
       else {
-	retcode = ct_callback(context, NULL, CS_SET, CS_CLIENTMSG_CB,
-			      (CS_VOID *) CLSybaseClientError);
+        retcode = ct_callback(context, NULL, CS_SET, CS_CLIENTMSG_CB,
+                              (CS_VOID *) CLSybaseClientError);
 
-	if (retcode == CS_SUCCEED)
-	  retcode = ct_callback(context, NULL, CS_SET, CS_SERVERMSG_CB,
-				(CS_VOID *) CLSybaseServerError);
+        if (retcode == CS_SUCCEED)
+          retcode = ct_callback(context, NULL, CS_SET, CS_SERVERMSG_CB,
+                                (CS_VOID *) CLSybaseServerError);
 
-	if (retcode == CS_SUCCEED)
-	  retcode = ct_config(context, CS_SET, CS_NETIO, &netio_type, 
-			      CS_UNUSED, NULL);
+        if (retcode == CS_SUCCEED)
+          retcode = ct_config(context, CS_SET, CS_NETIO, &netio_type,
+                              CS_UNUSED, NULL);
 
-	if (retcode != CS_SUCCEED) {
-	  ct_exit(context, CS_FORCE_EXIT);
-	  cs_ctx_drop(context);
-	  context = NULL;
-	}
-	else {
-	  retcode = ct_con_alloc(context, &conn);
-	  if (retcode == CS_SUCCEED)
-	    retcode = ct_con_props(conn, CS_SET, CS_USERNAME, 
-				   (char *) [user UTF8String], CS_NULLTERM, NULL);
-	  if (retcode == CS_SUCCEED)
-	    retcode = ct_con_props(conn, CS_SET, CS_PASSWORD, 
-				   (char *) [password UTF8String], CS_NULLTERM, NULL);
-	  if (retcode == CS_SUCCEED)
-	    retcode = ct_connect(conn, (char *) [aHost UTF8String], CS_NULLTERM);
-	  if (retcode != CS_SUCCEED) {
-	    ct_con_drop(conn);
-	    conn = NULL;
-	    ct_exit(context, CS_FORCE_EXIT);
-	    cs_ctx_drop(context);
-	    context = NULL;
-	  }
-	  else
-	    [self runQuery:[CLString stringWithFormat:@"use %@", aDatabase]];
-	}
+        if (retcode != CS_SUCCEED) {
+          ct_exit(context, CS_FORCE_EXIT);
+          cs_ctx_drop(context);
+          context = NULL;
+        }
+        else {
+          retcode = ct_con_alloc(context, &conn);
+          if (retcode == CS_SUCCEED)
+            retcode = ct_con_props(conn, CS_SET, CS_USERNAME,
+                                   (char *) [user UTF8String], CS_NULLTERM, NULL);
+          if (retcode == CS_SUCCEED)
+            retcode = ct_con_props(conn, CS_SET, CS_PASSWORD,
+                                   (char *) [password UTF8String], CS_NULLTERM, NULL);
+          if (retcode == CS_SUCCEED)
+            retcode = ct_connect(conn, (char *) [aHost UTF8String], CS_NULLTERM);
+          if (retcode != CS_SUCCEED) {
+            ct_con_drop(conn);
+            conn = NULL;
+            ct_exit(context, CS_FORCE_EXIT);
+            cs_ctx_drop(context);
+            context = NULL;
+          }
+          else
+            [self runQuery:[CLString stringWithFormat:@"use %@", aDatabase]];
+        }
       }
     }
   }
@@ -184,7 +184,7 @@ CS_RETCODE CLSybaseServerError(CS_CONTEXT *context, CS_CONNECTION *connection,
 
 
   mString = [[CLMutableString alloc] init];
-  
+
   if (aType & CS_FMT_UNUSED)
     [mString appendString:@"unused"];
   if (aType & CS_FMT_NULLTERM) {
@@ -264,145 +264,145 @@ CS_RETCODE CLSybaseServerError(CS_CONTEXT *context, CS_CONNECTION *connection,
     case CS_ROW_RESULT:
       ct_res_info(cmd, CS_NUMDATA, &cols, CS_UNUSED, NULL);
       if (!(values = malloc(sizeof(void *) * cols)))
-	[self error:@"Unable to allocate memory"];	
+        [self error:@"Unable to allocate memory"];
       if (!(dataFmt = calloc(cols, sizeof(CS_DATAFMT))))
-	[self error:@"Unable to allocate memory"];
+        [self error:@"Unable to allocate memory"];
       if (!(copied = malloc(sizeof(CS_INT) * cols)))
-	[self error:@"Unable to allocate memory"];
+        [self error:@"Unable to allocate memory"];
       if (!(indicator = malloc(sizeof(CS_INT) * cols)))
-	[self error:@"Unable to allocate memory"];
+        [self error:@"Unable to allocate memory"];
       for (i = 0; i < cols; i++) {
-	ct_describe(cmd, i+1, &dataFmt[i]);
+        ct_describe(cmd, i+1, &dataFmt[i]);
 #if 0
-	fprintf(stderr, "name:      %s\n", dataFmt[i].name);
-	fprintf(stderr, "nameLen:   %i\n", dataFmt[i].namelen);
-	fprintf(stderr, "datatype:  %s\n", [[self sybaseTypeString:dataFmt[i].datatype]
-					     UTF8String]);
-	fprintf(stderr, "maxlength: %i\n", dataFmt[i].maxlength);
-	fprintf(stderr, "\n");
+        fprintf(stderr, "name:      %s\n", dataFmt[i].name);
+        fprintf(stderr, "nameLen:   %i\n", dataFmt[i].namelen);
+        fprintf(stderr, "datatype:  %s\n", [[self sybaseTypeString:dataFmt[i].datatype]
+                                             UTF8String]);
+        fprintf(stderr, "maxlength: %i\n", dataFmt[i].maxlength);
+        fprintf(stderr, "\n");
 #endif
 
-	/* For some reason if I use sum() to get a numeric/decimal
-	   when I fetch the row it fails, so make them into string
-	   types instead. */
-	if (dataFmt[i].datatype == CS_NUMERIC_TYPE || dataFmt[i].datatype == CS_NUMERIC_TYPE) {
-	  dataFmt[i].maxlength = dataFmt[i].precision + 2;
-	  dataFmt[i].datatype = CS_CHAR_TYPE;
-	  dataFmt[i].format = CS_FMT_NULLTERM;
-	  dataFmt[i].scale = 0;
-	  dataFmt[i].precision = 0;
-	  dataFmt[i].status = 0;
-	  dataFmt[i].count = 1;
-	  dataFmt[i].usertype = 0;
-	  dataFmt[i].locale = 0;
-	}
+        /* For some reason if I use sum() to get a numeric/decimal
+           when I fetch the row it fails, so make them into string
+           types instead. */
+        if (dataFmt[i].datatype == CS_NUMERIC_TYPE || dataFmt[i].datatype == CS_NUMERIC_TYPE) {
+          dataFmt[i].maxlength = dataFmt[i].precision + 2;
+          dataFmt[i].datatype = CS_CHAR_TYPE;
+          dataFmt[i].format = CS_FMT_NULLTERM;
+          dataFmt[i].scale = 0;
+          dataFmt[i].precision = 0;
+          dataFmt[i].status = 0;
+          dataFmt[i].count = 1;
+          dataFmt[i].usertype = 0;
+          dataFmt[i].locale = 0;
+        }
 
-	if (!(values[i] = calloc(dataFmt[i].maxlength+1, 1)))
-	  [self error:@"Unable to allocate memory"];
-	ret = ct_bind(cmd, i+1, &dataFmt[i], values[i], &copied[i], &indicator[i]);
+        if (!(values[i] = calloc(dataFmt[i].maxlength+1, 1)))
+          [self error:@"Unable to allocate memory"];
+        ret = ct_bind(cmd, i+1, &dataFmt[i], values[i], &copied[i], &indicator[i]);
 
-	if (!mArray)
-	  mArray = [[CLMutableArray alloc] init];
-	[mArray addObject:
-		  [CLDictionary dictionaryWithObjectsAndKeys:
-				  [CLString stringWithBytes:dataFmt[i].name
-					    length:strlen(dataFmt[i].name)
-					    encoding:[self encoding]], @"name",
-				nil]];
+        if (!mArray)
+          mArray = [[CLMutableArray alloc] init];
+        [mArray addObject:
+                  [CLDictionary dictionaryWithObjectsAndKeys:
+                                  [CLString stringWithBytes:dataFmt[i].name
+                                            length:strlen(dataFmt[i].name)
+                                            encoding:[self encoding]], @"name",
+                                nil]];
       }
 
       if (mArray) {
-	if (!mDict)
-	  mDict = [[CLMutableDictionary alloc] init];
-	[mDict setObject:mArray forKey:@"columns"];
-	[mArray release];
-	mArray = nil;
+        if (!mDict)
+          mDict = [[CLMutableDictionary alloc] init];
+        [mDict setObject:mArray forKey:@"columns"];
+        [mArray release];
+        mArray = nil;
       }
-      
+
       while ((ret = ct_fetch(cmd, CS_UNUSED, CS_UNUSED, CS_UNUSED, &rows_read)) ==
-	     CS_SUCCEED || ret == CS_ROW_FAIL) {
-	CLMutableArray *aRow;
+             CS_SUCCEED || ret == CS_ROW_FAIL) {
+        CLMutableArray *aRow;
 
 
-	aRow = [[CLMutableArray alloc] init];
-	for (i = 0; i < cols; i++) {
-	  if (indicator[i] < 0 || !copied[i])
-	    [aRow addObject:CLNullObject];
-	  else if (dataFmt[i].datatype != CS_CHAR_TYPE &&
-	      dataFmt[i].datatype != CS_VARCHAR_TYPE &&
-		   dataFmt[i].datatype != CS_TEXT_TYPE) {
-	    memcpy(&strFmt, &dataFmt[i], sizeof(CS_DATAFMT));
-	    strFmt.datatype = CS_CHAR_TYPE;
-	    strFmt.format = CS_FMT_NULLTERM;
-	    strFmt.status = 0;
-	    for (;;) {
-	      strFmt.maxlength = buflen - 1;
-	      outlen = 0;
-	      memset(buf, 0, buflen);
-	      ret = cs_convert(context, &dataFmt[i], values[i], &strFmt, buf, &outlen);
-	      if (ret == CS_SUCCEED && outlen < strFmt.maxlength)
-		break;
-	    
-	      buflen *= 2;
-	      if (!(buf = realloc(buf, buflen)))
-		[self error:@"Unable to allocate memory"];
-	    }
+        aRow = [[CLMutableArray alloc] init];
+        for (i = 0; i < cols; i++) {
+          if (indicator[i] < 0 || !copied[i])
+            [aRow addObject:CLNullObject];
+          else if (dataFmt[i].datatype != CS_CHAR_TYPE &&
+              dataFmt[i].datatype != CS_VARCHAR_TYPE &&
+                   dataFmt[i].datatype != CS_TEXT_TYPE) {
+            memcpy(&strFmt, &dataFmt[i], sizeof(CS_DATAFMT));
+            strFmt.datatype = CS_CHAR_TYPE;
+            strFmt.format = CS_FMT_NULLTERM;
+            strFmt.status = 0;
+            for (;;) {
+              strFmt.maxlength = buflen - 1;
+              outlen = 0;
+              memset(buf, 0, buflen);
+              ret = cs_convert(context, &dataFmt[i], values[i], &strFmt, buf, &outlen);
+              if (ret == CS_SUCCEED && outlen < strFmt.maxlength)
+                break;
 
-	    [aRow addObject:[CLString stringWithBytes:buf
-				      length:strlen(buf) encoding:[self encoding]]];
-	  }
-	  else
-	    [aRow addObject:[CLString stringWithBytes:values[i] length:copied[i]
-				      encoding:[self encoding]]];
-	  memset(values[i], 0, dataFmt[i].maxlength);
-	}
-	if (!mArray)
-	  mArray = [[CLMutableArray alloc] init];
-	[mArray addObject:aRow];
-	[aRow release];
+              buflen *= 2;
+              if (!(buf = realloc(buf, buflen)))
+                [self error:@"Unable to allocate memory"];
+            }
+
+            [aRow addObject:[CLString stringWithBytes:buf
+                                      length:strlen(buf) encoding:[self encoding]]];
+          }
+          else
+            [aRow addObject:[CLString stringWithBytes:values[i] length:copied[i]
+                                      encoding:[self encoding]]];
+          memset(values[i], 0, dataFmt[i].maxlength);
+        }
+        if (!mArray)
+          mArray = [[CLMutableArray alloc] init];
+        [mArray addObject:aRow];
+        [aRow release];
       }
-      
+
       if (mArray) {
-	if (!mDict)
-	  mDict = [[CLMutableDictionary alloc] init];
-	[mDict setObject:mArray forKey:@"rows"];
-	[mArray release];
-	mArray = nil;
+        if (!mDict)
+          mDict = [[CLMutableDictionary alloc] init];
+        [mDict setObject:mArray forKey:@"rows"];
+        [mArray release];
+        mArray = nil;
       }
-      
+
       for (i = 0; i < cols; i++)
-	free(values[i]);
+        free(values[i]);
       free(values);
       free(dataFmt);
       free(copied);
       free(indicator);
       break;
-      
+
     case CS_STATUS_RESULT:
       ct_cancel(NULL, cmd, CS_CANCEL_CURRENT);
       break;
 
     case CS_CMD_DONE:
       if ((aString = CLSybaseErrorsFor(context))) {
-	if (!mDict)
-	  mDict = [[CLMutableDictionary alloc] init];
-	[mDict setObject:aString forKey:@"errors"];
+        if (!mDict)
+          mDict = [[CLMutableDictionary alloc] init];
+        [mDict setObject:aString forKey:@"errors"];
       }
-      
+
       if (mDict) {
-	[results addObject:mDict];
-	[mDict release];
-	mDict = nil;
+        [results addObject:mDict];
+        [mDict release];
+        mDict = nil;
       }
       break;
-      
+
     default:
       break;
     }
   }
 
   free(buf);
-  
+
   ct_cmd_drop(cmd);
   [pool release];
 
@@ -415,7 +415,7 @@ CS_RETCODE CLSybaseServerError(CS_CONTEXT *context, CS_CONNECTION *connection,
     [results release];
     results = mDict;
   }
-  
+
   return [results autorelease];
 }
 
@@ -445,12 +445,12 @@ void CLSybaseAddErrorFor(CS_CONTEXT *context, CLString *error)
 {
   CLString *newString, *oldString;
 
-  
+
   if (!CLSybaseErrors)
     CLSybaseErrors = CLHashTableAlloc(CLHashTableDefaultSize);
 
   if ((oldString = CLHashTableDataForIdenticalKey(CLSybaseErrors, (id) context,
-						  (size_t) context)))
+                                                  (size_t) context)))
     newString = [oldString stringByAppendingString:error];
   else
     newString = error;
@@ -472,7 +472,7 @@ CLString *CLSybaseErrorsFor(CS_CONTEXT *context)
 
   if (CLSybaseErrors &&
       (aString = CLHashTableDataForIdenticalKey(CLSybaseErrors, (id) context,
-						(size_t) context)))
+                                                (size_t) context)))
     CLHashTableRemoveDataForIdenticalKey(CLSybaseErrors, (id) context, (size_t) context);
 
 #if DEBUG_RETAIN
@@ -482,31 +482,31 @@ CLString *CLSybaseErrorsFor(CS_CONTEXT *context)
 }
 
 CS_RETCODE CLSybaseClientError(CS_CONTEXT *context, CS_CONNECTION *connection,
-			       CS_CLIENTMSG *errmsg)
+                               CS_CLIENTMSG *errmsg)
 {
   CLSybaseAddErrorFor(context,
-		      [CLString stringWithFormat:
-				  @"Open Client Message:\n"
-				"Message number: LAYER = (%d) ORIGIN = (%d) "
-				"SEVERITY = (%d) NUMBER = (%d)\n"
-				"Message String: %s\n",
-				CS_LAYER(errmsg->msgnumber), CS_ORIGIN(errmsg->msgnumber),
-				CS_SEVERITY(errmsg->msgnumber), CS_NUMBER(errmsg->msgnumber),
-				errmsg->msgstring]);
+                      [CLString stringWithFormat:
+                                  @"Open Client Message:\n"
+                                "Message number: LAYER = (%d) ORIGIN = (%d) "
+                                "SEVERITY = (%d) NUMBER = (%d)\n"
+                                "Message String: %s\n",
+                                CS_LAYER(errmsg->msgnumber), CS_ORIGIN(errmsg->msgnumber),
+                                CS_SEVERITY(errmsg->msgnumber), CS_NUMBER(errmsg->msgnumber),
+                                errmsg->msgstring]);
   return CS_SUCCEED;
 }
 
 CS_RETCODE CLSybaseServerError(CS_CONTEXT *context, CS_CONNECTION *connection,
-			       CS_SERVERMSG *srvmsg)
+                               CS_SERVERMSG *srvmsg)
 {
   if (srvmsg->severity && srvmsg->severity != 10)
     CLSybaseAddErrorFor(context,
-			[CLString stringWithFormat:
-				    @"Server message:\n"
-				  "Message number: %d, Severity %d, "
-				  "State %d, Line %d\n"
-				  "Message String: %s\n",
-				  srvmsg->msgnumber, srvmsg->severity,
-				  srvmsg->state, srvmsg->line, srvmsg->text]);
+                        [CLString stringWithFormat:
+                                    @"Server message:\n"
+                                  "Message number: %d, Severity %d, "
+                                  "State %d, Line %d\n"
+                                  "Message String: %s\n",
+                                  srvmsg->msgnumber, srvmsg->severity,
+                                  srvmsg->state, srvmsg->line, srvmsg->text]);
   return CS_SUCCEED;
 }

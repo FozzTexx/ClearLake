@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -43,7 +43,7 @@
     /* FIXME - this is just so totally wrong to have to do this */
     for (j = 0, p = sel_getName(aSel); p && *p; p++)
       if (*p == ':')
-	j++;
+        j++;
 
     offset = sizeof(id);
     mString = [CLMutableString stringWithFormat:@"@0@0:%u", offset];
@@ -52,8 +52,8 @@
       [mString appendFormat:@"@%u", offset];
 
     types = [mString UTF8String];
-  }    
-    
+  }
+
   return [[self alloc] initFromTypes:types];
 }
 
@@ -68,7 +68,7 @@
   const char *p, *q;
   CLUInteger i, j;
 
-  
+
   [super init];
 
   args = NULL;
@@ -86,14 +86,14 @@
   q = [self getNextType:types offset:&j];
   args[0] = strndup(types, q - types);
   offsets[0] = j;
-    
+
   for (i = 1, p = q; p && *p; i++) {
     q = [self getNextType:p offset:&j];
     args[i] = strndup(p, q-p);
     offsets[i] = j;
     p = q;
   }
-  
+
   return self;
 }
 
@@ -123,7 +123,7 @@
 
 #if DEBUG_RETAIN
   aCopy = [super copy:file :line :retainer];
-#define copy		copy:__FILE__ :__LINE__ :self
+#define copy            copy:__FILE__ :__LINE__ :self
 #else
   aCopy = [super copy];
 #endif
@@ -139,7 +139,7 @@
 
   return aCopy;
 }
-      
+
 -(const char *) getNextType:(const char *) types offset:(CLUInteger *) offset
 {
   CLUInteger i;
@@ -210,6 +210,6 @@
 -(CLUInteger) sizeOfReturnValue
 {
   return [self sizeOfType:args[0]];
-}  
+}
 
 @end

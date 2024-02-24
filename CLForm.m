@@ -13,7 +13,7 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with ClearLake; see the file COPYING. If not see
  * <http://www.gnu.org/licenses/>.
@@ -46,7 +46,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define FIELD_PLIST	@"cl_plist"
+#define FIELD_PLIST     @"cl_plist"
 
 #define hexval(c) ({int _c = c; toupper(_c) - '0' - (_c > '9' ? 7 : 0);})
 
@@ -91,21 +91,21 @@ typedef struct ContentInfo {
 {
   int i, j;
   id anObject;
-  
+
 
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-	[[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
-	  isEqualToString:aField] &&
-	(!aValue || [[anObject value] isEqual:aValue]))
+        [[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
+          isEqualToString:aField] &&
+        (!aValue || [[anObject value] isEqual:aValue]))
       return anObject;
     if ([anObject respondsTo:@selector(content)] &&
-	[[anObject content] isKindOfClass:CLArrayClass] &&
-	(anObject = [self fieldNamed:aField withValue:aValue inArray:[anObject content]]))
+        [[anObject content] isKindOfClass:CLArrayClass] &&
+        (anObject = [self fieldNamed:aField withValue:aValue inArray:[anObject content]]))
       return anObject;
   }
-  
+
   return nil;
 }
 
@@ -124,19 +124,19 @@ typedef struct ContentInfo {
   int i, j;
   id anObject;
   CLMutableArray *anArray2;
-  
+
 
   anArray2 = [[CLMutableArray alloc] init];
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-	[[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
-	  isEqualToString:field])
+        [[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
+          isEqualToString:field])
       [anArray2 addObject:anObject];
 
     if ([anObject respondsTo:@selector(content)] &&
-	[[anObject content] isKindOfClass:CLArrayClass] &&
-	(anObject = [self fieldsNamed:field inArray:[anObject content]]))
+        [[anObject content] isKindOfClass:CLArrayClass] &&
+        (anObject = [self fieldsNamed:field inArray:[anObject content]]))
       [anArray2 addObjectsFromArray:anObject];
   }
 
@@ -144,7 +144,7 @@ typedef struct ContentInfo {
     [anArray2 release];
     anArray2 = nil;
   }
-  
+
   return [anArray2 autorelease];
 }
 
@@ -162,15 +162,15 @@ typedef struct ContentInfo {
 
 
   mArray = [[CLMutableArray alloc] init];
-  
+
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-	(aString = [[anObject attributes] objectForCaseInsensitiveString:@"NAME"]))
+        (aString = [[anObject attributes] objectForCaseInsensitiveString:@"NAME"]))
       [mArray addObject:aString];
 
     if ([anObject respondsTo:@selector(content)] &&
-	[[anObject content] isKindOfClass:CLArrayClass])
+        [[anObject content] isKindOfClass:CLArrayClass])
       [mArray addObjectsFromArray:[self fieldNamesInArray:[anObject content]]];
   }
 
@@ -178,7 +178,7 @@ typedef struct ContentInfo {
     [mArray release];
     mArray = nil;
   }
-  
+
   return [mArray autorelease];
 }
 
@@ -195,14 +195,14 @@ typedef struct ContentInfo {
 
 
   mArray = [[CLMutableArray alloc] init];
-  
+
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass])
       [mArray addObject:anObject];
 
     if ([anObject respondsTo:@selector(content)] &&
-	[[anObject content] isKindOfClass:CLArrayClass])
+        [[anObject content] isKindOfClass:CLArrayClass])
       [mArray addObjectsFromArray:[self allFieldsInArray:[anObject content]]];
   }
 
@@ -210,7 +210,7 @@ typedef struct ContentInfo {
     [mArray release];
     mArray = nil;
   }
-  
+
   return [mArray autorelease];
 }
 
@@ -223,25 +223,25 @@ typedef struct ContentInfo {
 {
   int i, j;
   id anObject;
-  
+
 
   if (!field)
     return NO;
-  
+
   for (i = 0, j = [anArray count]; i < j; i++) {
-    anObject = [anArray objectAtIndex:i];    
+    anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-	[[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
-	  isEqualToString:field]) {
+        [[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
+          isEqualToString:field]) {
       [anArray removeObjectAtIndex:i];
       return YES;
     }
     if ([anObject respondsTo:@selector(content)] &&
-	[[anObject content] isKindOfClass:CLMutableArrayClass] &&
-	[self removeFieldNamed:field fromArray:[anObject content]])
+        [[anObject content] isKindOfClass:CLMutableArrayClass] &&
+        [self removeFieldNamed:field fromArray:[anObject content]])
       return YES;
   }
-  
+
   return NO;
 }
 
@@ -256,19 +256,19 @@ typedef struct ContentInfo {
   CLInput *anObject;
   CLMutableString *mString;
   CLString *aString;
-  
+
 
   mString = [[CLMutableString alloc] init];
-  
+
   for (i = 0, j = [content count]; i < j; i++)
     if ([(anObject = [content objectAtIndex:i]) isKindOfClass:CLInputClass] &&
-	(aString = [[anObject attributes] objectForCaseInsensitiveString:@"NAME"])) {
+        (aString = [[anObject attributes] objectForCaseInsensitiveString:@"NAME"])) {
       if ([mString length])
-	[mString appendString:@"&"];
+        [mString appendString:@"&"];
       [mString appendString:[[aString description] stringByAddingPercentEscapes]];
       [mString appendString:@"="];
       if ((aString = [anObject value]))
-	[mString appendString:[[aString description] stringByAddingPercentEscapes]];
+        [mString appendString:[[aString description] stringByAddingPercentEscapes]];
     }
 
   if (![mString length]) {
@@ -278,13 +278,13 @@ typedef struct ContentInfo {
 
   return [mString autorelease];
 }
-  
+
 -(void) setQuery:(const char *) str
 {
   char *q, *r, *s, *t, *v;
   const char *w;
   CLString *val;
-  
+
 
   q = strdup(str);
   for (r = q; r && *r; ) {
@@ -299,20 +299,20 @@ typedef struct ContentInfo {
        pushes RETURN. It then also stuffs in a \n after that. Stupid. */
     for (v = s; *v; v++) {
       if (*v == '+')
-	*v = ' ';
+        *v = ' ';
       else if (*v == '%') {
-	*v = hexval(*(v+1)) << 4 | hexval(*(v+2));
-	memmove(v+1, v+3, strlen(v+3) + 1);
+        *v = hexval(*(v+1)) << 4 | hexval(*(v+2));
+        memmove(v+1, v+3, strlen(v+3) + 1);
       }
       else if (*v == '\r') {
-	if (*(v+1) == '\n') {
-	  if (*(v+2) == '\n')
-	    memmove(v, v+2, strlen(v+2) + 1);
-	  else
-	    memmove(v, v+1, strlen(v+1) + 1);
-	}
-	else
-	  *v = '\n';
+        if (*(v+1) == '\n') {
+          if (*(v+2) == '\n')
+            memmove(v, v+2, strlen(v+2) + 1);
+          else
+            memmove(v, v+1, strlen(v+1) + 1);
+        }
+        else
+          *v = '\n';
       }
     }
     if (s && *s)
@@ -320,9 +320,9 @@ typedef struct ContentInfo {
     else
       val = nil;
     [self addObject:[[[CLInput alloc] initWithTitle:[CLString stringWithUTF8String:w]
-				      cols:0 rows:0
-				      value:val type:CLTextInputType onPage:page]
-		      autorelease]];
+                                      cols:0 rows:0
+                                      value:val type:CLTextInputType onPage:page]
+                      autorelease]];
     r = t;
   }
   free(q);
@@ -334,27 +334,27 @@ typedef struct ContentInfo {
 {
   int i, j;
   id anObject;
-  
+
 
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-	[anObject type] == CLRadioInputType &&
-	[[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
-	  isEqualToString:aName] &&
-	([anObject value] ||
-	 ![[anObject attributes] objectForCaseInsensitiveString:@"CL_BINDING"])) {
+        [anObject type] == CLRadioInputType &&
+        [[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
+          isEqualToString:aName] &&
+        ([anObject value] ||
+         ![[anObject attributes] objectForCaseInsensitiveString:@"CL_BINDING"])) {
       if ([[anObject value] isEqual:aValue])
-	[anObject setChecked:YES];
+        [anObject setChecked:YES];
       else
-	[anObject setChecked:NO];
+        [anObject setChecked:NO];
     }
 
     if ([anObject respondsTo:@selector(content)] &&
-	[[anObject content] isKindOfClass:CLArrayClass])
+        [[anObject content] isKindOfClass:CLArrayClass])
       [self selectRadioNamed:aName withValue:aValue inArray:[anObject content]];
   }
-  
+
   return;
 }
 
@@ -387,7 +387,7 @@ typedef struct ContentInfo {
 
 
   *found = NO;
-  
+
   aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
   if (!aRange.length)
     aString = aBinding;
@@ -402,9 +402,9 @@ typedef struct ContentInfo {
 
   if (aRange.length)
     anObject = [anObject objectValueForBinding:
-			   [aBinding substringFromIndex:CLMaxRange(aRange)]
-			 found:found];
-  
+                           [aBinding substringFromIndex:CLMaxRange(aRange)]
+                         found:found];
+
   return anObject;
 }
 
@@ -414,7 +414,7 @@ typedef struct ContentInfo {
   int is, st;
   char **r;
   char *s;
-  
+
 
   p = str;
   for (q = p; *q && *q != '/' && *q != ';'; q++);
@@ -448,7 +448,7 @@ typedef struct ContentInfo {
   if (info->options)
     free(info->options);
   info->options = NULL;
-  
+
   st = 0;
   while (*q) {
     p = q + 1;
@@ -456,7 +456,7 @@ typedef struct ContentInfo {
       p++;
     for (q = p, is = 0; *q && (is || *q != ';'); q++)
       if (*q == '"')
-	is = !is;
+        is = !is;
     if (!(info->options = realloc(info->options, sizeof(char *) * (st + 2))))
       [self error:@"Unable to allocate memory"];
     if (!(info->options[st] = malloc(q - p + 1)))
@@ -467,7 +467,7 @@ typedef struct ContentInfo {
     s = info->options[st];
     while (isspace(s[strlen(s) - 1]))
       s[strlen(s)-1] = 0;
-    
+
     if ((s = strchr(info->options[st], '=')) && *(s+1) == '"') {
       memmove(s+1, s+2, strlen(s+2)+1);
       s[strlen(s) - 1] = 0;
@@ -485,7 +485,7 @@ typedef struct ContentInfo {
   int is, st;
   char **r;
   char *s;
-  
+
 
   p = str;
   for (q = p; *q && *q != ';'; q++);
@@ -499,7 +499,7 @@ typedef struct ContentInfo {
   if (info->options)
     free(info->options);
   info->options = NULL;
-  
+
   st = 0;
   while (*q) {
     p = q + 1;
@@ -507,7 +507,7 @@ typedef struct ContentInfo {
       p++;
     for (q = p, is = 0; *q && (is || *q != ';'); q++)
       if (*q == '"')
-	is = !is;
+        is = !is;
     if (!(info->options = realloc(info->options, sizeof(char *) * (st + 2))))
       [self error:@"Unable to allocate memory"];
     if (!(info->options[st] = malloc(q - p + 1)))
@@ -518,7 +518,7 @@ typedef struct ContentInfo {
     s = info->options[st];
     while (isspace(s[strlen(s) - 1]))
       s[strlen(s)-1] = 0;
-    
+
     if ((s = strchr(info->options[st], '=')) && *(s+1) == '"') {
       strcpy(s+1, s+2);
       s[strlen(s) - 1] = 0;
@@ -546,7 +546,7 @@ typedef struct ContentInfo {
   if (info->options)
     free(info->options);
   info->options = NULL;
-  
+
   return;
 }
 
@@ -554,14 +554,14 @@ typedef struct ContentInfo {
 {
   char **r;
   const char *p;
-  
-  
+
+
   for (r = options; r && *r && (strncasecmp(*r, str, strlen(str)) || ((*r)[strlen(str)] != '=')); r++);
   if (!r || !*r)
     return NULL;
 
   p = *r + strlen(str) + 1;
-  
+
   return p;
 }
 
@@ -573,13 +573,13 @@ typedef struct ContentInfo {
   while (len) {
     if (*str == '-' && *(str+1) == '-' && !strncmp(str+2, pos, plen)) {
       if ((len - plen - 2 >= 0 && *(str+2+plen) == '\n') ||
-	  (len - plen - 3 >= 0 && *(str+2+plen) == '\r' && *(str+3+plen) == '\n'))
-	break;
+          (len - plen - 3 >= 0 && *(str+2+plen) == '\r' && *(str+3+plen) == '\n'))
+        break;
       if (!strncmp(str+2+plen, "--", 2) &&
-	  (len - plen - 4 == 0 ||
-	   (len - plen - 5 >= 0 && *(str+4+plen) == '\n') ||
-	   (len - plen - 6 >= 0 && *(str+4+plen) == '\r' && *(str+5+plen) == '\n')))
-	break;
+          (len - plen - 4 == 0 ||
+           (len - plen - 5 >= 0 && *(str+4+plen) == '\n') ||
+           (len - plen - 6 >= 0 && *(str+4+plen) == '\r' && *(str+5+plen) == '\n')))
+        break;
     }
     str++;
     len--;
@@ -599,7 +599,7 @@ typedef struct ContentInfo {
   int len;
   char **r;
   CLMutableDictionary *aDict;
-  
+
 
   if (!(b = [self getOption:info->options named:"boundary"]))
     return;
@@ -621,92 +621,92 @@ typedef struct ContentInfo {
     len = length - (q - body2);
     if (len) {
       if (len - strlen(b) - 2 > 0) {
-	q += strlen(b);
-	if (!strncmp(q, "--\r\n", 4))
-	  break;
-	q += 2;
-	if (*q == '\n')
-	  q++;
-	else if (*q == '\r' && *(q+1) == '\n')
-	  q += 2;
-	s = q-1;
-	while (*s && strncmp(s, "\r\n\r\n", 4)) /* FIXME - check for \n\n *and* \r\n\r\n */
-	  s++;
-	if (!(len - (s - q)))
-	  s = q;
-	[aHeader setHeaders:q length:s - q + 1];
-	if ((p = [aHeader valueOf:"Content-Type"]))
-	  [self getContentInfo:&info2 for:p];
-	else {
-	  [self freeContentInfo:&info2];
-	  info2.type = strdup("Text");
-	  info2.subtype = strdup("Plain");
-	}
-	if ((p = [aHeader valueOf:"Content-Disposition"]))
-	  [self getContentInfo:&disp2 for:p];
-	else {
-	  [self freeContentInfo:&disp2];
-	  disp2.type = disp2.subtype = NULL;
-	  disp2.options = NULL;
-	}	  
+        q += strlen(b);
+        if (!strncmp(q, "--\r\n", 4))
+          break;
+        q += 2;
+        if (*q == '\n')
+          q++;
+        else if (*q == '\r' && *(q+1) == '\n')
+          q += 2;
+        s = q-1;
+        while (*s && strncmp(s, "\r\n\r\n", 4)) /* FIXME - check for \n\n *and* \r\n\r\n */
+          s++;
+        if (!(len - (s - q)))
+          s = q;
+        [aHeader setHeaders:q length:s - q + 1];
+        if ((p = [aHeader valueOf:"Content-Type"]))
+          [self getContentInfo:&info2 for:p];
+        else {
+          [self freeContentInfo:&info2];
+          info2.type = strdup("Text");
+          info2.subtype = strdup("Plain");
+        }
+        if ((p = [aHeader valueOf:"Content-Disposition"]))
+          [self getContentInfo:&disp2 for:p];
+        else {
+          [self freeContentInfo:&disp2];
+          disp2.type = disp2.subtype = NULL;
+          disp2.options = NULL;
+        }
 
-	q = s + 4; /* FIXME - could be \n\n, not just \r\n\r\n */
-	if (q >= body2 + length)
-	  break;
-	
-	aField = [[CLInput alloc] init];
-	aDict = [aField attributes];
-	for (r = disp2.options; r && *r; r++) {
-	  a = strchr(*r, '=');
-	  *a = 0;
-	  a++;
-	  [aDict setObject:[CLString stringWithUTF8String:a]
-		 forCaseInsensitiveString:[CLString stringWithUTF8String:*r]];
-	}
+        q = s + 4; /* FIXME - could be \n\n, not just \r\n\r\n */
+        if (q >= body2 + length)
+          break;
 
-	s = [self seek:q length:len to:b];
-	s -= 2; /* FIXME - could be \n, not just \r\n */
-	if (!(a = malloc((s - q) + 1)))
-	  [self error:@"Unable to allocate memory"];
-	memcpy(a, q, s - q);
-	a[s-q] = 0;
+        aField = [[CLInput alloc] init];
+        aDict = [aField attributes];
+        for (r = disp2.options; r && *r; r++) {
+          a = strchr(*r, '=');
+          *a = 0;
+          a++;
+          [aDict setObject:[CLString stringWithUTF8String:a]
+                 forCaseInsensitiveString:[CLString stringWithUTF8String:*r]];
+        }
 
-	if (s-q) {
-	  CLString *aString;
+        s = [self seek:q length:len to:b];
+        s -= 2; /* FIXME - could be \n, not just \r\n */
+        if (!(a = malloc((s - q) + 1)))
+          [self error:@"Unable to allocate memory"];
+        memcpy(a, q, s - q);
+        a[s-q] = 0;
 
-	  
-	  if ((aString = [aDict objectForCaseInsensitiveString:@"filename"])) {
-	    CLOriginalFile *aFile;
-	    CLData *aData;
+        if (s-q) {
+          CLString *aString;
 
 
-	    aData = [CLData dataWithBytes:a length:s-q];
-	    aFile = [CLOriginalFile fileFromData:aData table:nil];
-	    if ([aFile isImage] && [CLEditingContext
-				     tableForClass:[CLOriginalImage imageClass]])
-	      aFile = [[CLOriginalImage imageClass] imageFromData:aData table:nil];
+          if ((aString = [aDict objectForCaseInsensitiveString:@"filename"])) {
+            CLOriginalFile *aFile;
+            CLData *aData;
 
-	    /* Strip off full path that IE6 puts in */
-	    aString = [[aString componentsSeparatedByString:@"\\"] lastObject];
-	    aString = [aString lastPathComponent];
-	    
-	    [aFile setFilename:aString];
-	    [aField setValue:aFile];
-	  }
-	  else
-	    [aField setValue:[CLString stringWithBytes:a length:s - q
-				       encoding:CLUTF8StringEncoding]];
-	}
-	free(a);
-	
-	[self addObject:aField];
-	[aField release];
-	
-	q = s;
-	len = length - (body2 - q);
+
+            aData = [CLData dataWithBytes:a length:s-q];
+            aFile = [CLOriginalFile fileFromData:aData table:nil];
+            if ([aFile isImage] && [CLEditingContext
+                                     tableForClass:[CLOriginalImage imageClass]])
+              aFile = [[CLOriginalImage imageClass] imageFromData:aData table:nil];
+
+            /* Strip off full path that IE6 puts in */
+            aString = [[aString componentsSeparatedByString:@"\\"] lastObject];
+            aString = [aString lastPathComponent];
+
+            [aFile setFilename:aString];
+            [aField setValue:aFile];
+          }
+          else
+            [aField setValue:[CLString stringWithBytes:a length:s - q
+                                       encoding:CLUTF8StringEncoding]];
+        }
+        free(a);
+
+        [self addObject:aField];
+        [aField release];
+
+        q = s;
+        len = length - (body2 - q);
       }
       else
-	break;
+        break;
     }
 
     while (*q && *q != '\n')
@@ -720,7 +720,7 @@ typedef struct ContentInfo {
   [self freeContentInfo:&disp2];
 
   free(body2);
-  
+
   return;
 }
 
@@ -744,7 +744,7 @@ typedef struct ContentInfo {
   [CLFormInputStream read:body length:length];
   [self handleMultipart:body length:length content:&info];
   free(body);
-  
+
   return;
 }
 
@@ -753,17 +753,17 @@ typedef struct ContentInfo {
   CLString *aString;
   CLRange aRange;
   CLRecordDefinition *recordDef;
-  
+
 
   if (!anObject)
     return 0;
-  
+
   aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
   if (aRange.length) {
     aString = [aBinding substringToIndex:aRange.location];
     anObject = [anObject objectValueForBinding:aString];
     return [self databaseTypeOfBinding:[aBinding substringFromIndex:CLMaxRange(aRange)]
-		 forObject:anObject];
+                 forObject:anObject];
   }
 
   if (![CLEditingContext tableForClass:[anObject class]] ||
@@ -774,7 +774,7 @@ typedef struct ContentInfo {
 }
 
 -(BOOL) validateValue:(id *) aValue object:(id) anObject forBinding:(CLString *) aBinding
-		error:(CLString **) errString field:(CLInput *) aField
+                error:(CLString **) errString field:(CLInput *) aField
 {
   CLRange aRange;
   CLString *aString, *format;
@@ -790,39 +790,39 @@ typedef struct ContentInfo {
     aString = [aBinding substringToIndex:aRange.location];
     anObject2 = [anObject objectValueForBinding:aString];
     valid = [self validateValue:aValue object:anObject2
-		     forBinding:[aBinding substringFromIndex:CLMaxRange(aRange)]
-			  error:errString field:aField];
+                     forBinding:[aBinding substringFromIndex:CLMaxRange(aRange)]
+                          error:errString field:aField];
   }
   else {
     if (*aValue) {
       aType = [self databaseTypeOfBinding:aBinding forObject:anObject];
       if ((format = [[aField attributes] objectForCaseInsensitiveString:@"CL_FORMAT"])) {
-	format = [self expandBinding:format success:&success];
-	if ([format isKindOfClass:[CLArray class]])
-	  format = [((CLArray *) format) componentsJoinedByString:@" "];
+        format = [self expandBinding:format success:&success];
+        if ([format isKindOfClass:[CLArray class]])
+          format = [((CLArray *) format) componentsJoinedByString:@" "];
       }
       switch (aType) {
       case CLDatetimeAttributeType:
-	if (!format)
-	  format = @"%Y-%m-%d %H:%M:%S %z";
-	*aValue = [CLDatetime dateWithString:[(*aValue) description] format:format];
-	break;
+        if (!format)
+          format = @"%Y-%m-%d %H:%M:%S %z";
+        *aValue = [CLDatetime dateWithString:[(*aValue) description] format:format];
+        break;
 
       case CLIntAttributeType:
       case CLMoneyAttributeType:
       case CLNumericAttributeType:
-	if (!format)
-	  format = @"0.00";
-	*aValue = [CLDecimalNumber decimalNumberWithString:[(*aValue) description]];
-	break;
-      
+        if (!format)
+          format = @"0.00";
+        *aValue = [CLDecimalNumber decimalNumberWithString:[(*aValue) description]];
+        break;
+
       default:
-	break;
+        break;
       }
     }
-    
+
     aString = [CLString stringWithFormat:@"validate%@:error:",
-			[aBinding upperCamelCaseString]];
+                        [aBinding upperCamelCaseString]];
     aSel = sel_getUid([aString UTF8String]);
     if ((imp = [anObject methodFor:aSel]))
       valid = ((BOOL (*) (id,SEL,id*,CLString**)) imp)(anObject, aSel, aValue, errString);
@@ -853,7 +853,7 @@ typedef struct ContentInfo {
 
   if (aRange.length && (anObject = [anObject objectValueForBinding:aString]))
     return [self bindingIsPrimaryKey:[aBinding substringFromIndex:CLMaxRange(aRange)]
-			   forObject:anObject];
+                           forObject:anObject];
 
   return NO;
 }
@@ -864,61 +864,61 @@ typedef struct ContentInfo {
   id aField, anObject, aValue;
   CLMutableArray *updated;
   CLString *aBinding, *fName, *errString;
-  
+
 
   updated = [[CLMutableArray alloc] init];
   for (i = 0, j = [anArray count]; i < j; i++) {
     aField = [anArray objectAtIndex:i];
     if ([aField isKindOfClass:CLInputClass] &&
-	(fName = [[aField attributes] objectForCaseInsensitiveString:@"NAME"])) {
+        (fName = [[aField attributes] objectForCaseInsensitiveString:@"NAME"])) {
       if ([aField isKindOfClass:CLSelectClass])
-	aBinding = [[aField attributes] objectForCaseInsensitiveString:@"CL_SELECTED"];
+        aBinding = [[aField attributes] objectForCaseInsensitiveString:@"CL_SELECTED"];
       else {
-	switch ([aField type]) {
-	case CLCheckboxInputType:
-	case CLRadioInputType:
-	  if ((aBinding = [[aField attributes]
-			    objectForCaseInsensitiveString:@"CL_CHECKED"]) &&
-	      ![aBinding isKindOfClass:CLStringClass])
-	    aBinding = nil;
-	  break;
+        switch ([aField type]) {
+        case CLCheckboxInputType:
+        case CLRadioInputType:
+          if ((aBinding = [[aField attributes]
+                            objectForCaseInsensitiveString:@"CL_CHECKED"]) &&
+              ![aBinding isKindOfClass:CLStringClass])
+            aBinding = nil;
+          break;
 
-	default:
-	  aBinding = [[aField attributes] objectForCaseInsensitiveString:@"CL_BINDING"];
-	  break;
-	}
+        default:
+          aBinding = [[aField attributes] objectForCaseInsensitiveString:@"CL_BINDING"];
+          break;
+        }
       }
-      
+
       if ([aBinding length] > 1 && (anObject = [aField datasource])) {
-	aValue = [self valueOfFieldNamed:fName];
-	/* All bindings must begin with = and it doesn't make sense to
-	   use constants here, so start with second character in
-	   aBinding */
-	aBinding = [aBinding substringFromIndex:1];
-	if ([self validateValue:&aValue object:anObject forBinding:aBinding
-			  error:&errString field:aField]) {
-	  if (![self bindingIsPrimaryKey:aBinding forObject:anObject]) {
-	    if (aValue || ![[anObject objectValueForBinding:aBinding]
-			     isKindOfClass:CLOriginalFileClass])
-	      [anObject setObjectValue:aValue forBinding:aBinding];
-	    if (anObject && ![updated containsObject:anObject])
-	      [updated addObject:anObject];
-	  }
-	}
-	else {
-	  [[[self pageForm] fieldNamed:fName] setErrorString:errString ignoreBinding:YES];
-	  [errors setObject:errString forKey:fName];
-	  *err = *err + 1;
-	}
+        aValue = [self valueOfFieldNamed:fName];
+        /* All bindings must begin with = and it doesn't make sense to
+           use constants here, so start with second character in
+           aBinding */
+        aBinding = [aBinding substringFromIndex:1];
+        if ([self validateValue:&aValue object:anObject forBinding:aBinding
+                          error:&errString field:aField]) {
+          if (![self bindingIsPrimaryKey:aBinding forObject:anObject]) {
+            if (aValue || ![[anObject objectValueForBinding:aBinding]
+                             isKindOfClass:CLOriginalFileClass])
+              [anObject setObjectValue:aValue forBinding:aBinding];
+            if (anObject && ![updated containsObject:anObject])
+              [updated addObject:anObject];
+          }
+        }
+        else {
+          [[[self pageForm] fieldNamed:fName] setErrorString:errString ignoreBinding:YES];
+          [errors setObject:errString forKey:fName];
+          *err = *err + 1;
+        }
       }
     }
 
     if ([aField respondsTo:@selector(content)] &&
-	[[aField content] isKindOfClass:CLArrayClass] &&
-	(aField = [self setBindings:[aField content] error:err])) {
+        [[aField content] isKindOfClass:CLArrayClass] &&
+        (aField = [self setBindings:[aField content] error:err])) {
       for (k = 0, l = [aField count]; k < l; k++)
-	if (![updated containsObject:(anObject = [aField objectAtIndex:k])])
-	  [updated addObject:anObject];
+        if (![updated containsObject:(anObject = [aField objectAtIndex:k])])
+          [updated addObject:anObject];
     }
   }
 
@@ -926,7 +926,7 @@ typedef struct ContentInfo {
     [updated release];
     updated = nil;
   }
-  
+
   return [updated autorelease];
 }
 
@@ -939,7 +939,7 @@ typedef struct ContentInfo {
 
 
   aControl = [[CLControl alloc] init];
-  
+
   if ((aString = [[aForm attributes] objectForCaseInsensitiveString:@"CL_VTARGET"]))
     [aControl setTarget:[self expandBinding:aString success:&success]];
 
@@ -949,12 +949,12 @@ typedef struct ContentInfo {
       aString = [aString stringByAppendingString:@":"];
     else if (aRange.location < [aString length] - 1) {
       [aControl setTarget:[self expandBinding:[aString substringToIndex:aRange.location]
-				      success:&success]];
+                                      success:&success]];
       aString = [aString substringFromIndex:CLMaxRange(aRange)];
     if ([aString length] && [aString characterAtIndex:[aString length]-1] != ':')
       aString = [aString stringByAppendingString:@":"];
     }
-    
+
     [aControl setAction:sel_getUid([aString UTF8String])];
     if (![aControl target])
       [aControl setTarget:[aForm target]];
@@ -965,8 +965,8 @@ typedef struct ContentInfo {
 
   if ((aString = [[aForm attributes] objectForCaseInsensitiveString:@"CL_VPAGE"])) {
     [aControl setTarget:[[[CLPageTarget alloc] initFromPath:
-					[self expandBinding:aString success:&success]]
-			  autorelease]];
+                                        [self expandBinding:aString success:&success]]
+                          autorelease]];
     [aControl setAction:@selector(showPage:)];
     return aControl;
   }
@@ -974,7 +974,7 @@ typedef struct ContentInfo {
   [aControl release];
   return nil;
 }
-  
+
 -(CLControl *) setBindings
 {
   CLForm *aForm;
@@ -989,7 +989,7 @@ typedef struct ContentInfo {
       (aForm = [page objectWithID:aString]) &&
       [aForm isKindOfClass:CLFormClass]) {
     errors = [[CLMutableDictionary alloc] init];
-    
+
     anArray = [self setBindings:[aForm content] error:&err];
     /* In theory if the action is a "magic" method then the target
        won't respond to it and we should automatically save to the
@@ -997,9 +997,9 @@ typedef struct ContentInfo {
     wasError = !!err;
     if (!err && ![target respondsTo:action]) {
       for (i = 0, j = [anArray count]; i < j; i++) {
-	[anArray objectAtIndex:i];
-	/* FIXME - use context of whatever objects we changed */
-	[CLDefaultContext saveChanges];
+        [anArray objectAtIndex:i];
+        /* FIXME - use context of whatever objects we changed */
+        [CLDefaultContext saveChanges];
       }
 
       aControl = [self prepareVaction:aForm];
@@ -1035,13 +1035,13 @@ typedef struct ContentInfo {
     for (i = 0, j = [keys count]; i < j; i++) {
       aKey = [keys objectAtIndex:i];
       if (![aKey hasPrefix:@"CLurl"]) {
-	if ([mString length])
-	  [mString appendString:@"&"];
-	[mString appendString:[[aKey description] stringByAddingPercentEscapes]];
-	[mString appendString:@"="];
-	[mString appendString:[[[CLQuery objectForKey:aKey] description]
-				stringByAddingPercentEscapes]];
-	[CLQuery removeObjectForKey:aKey];
+        if ([mString length])
+          [mString appendString:@"&"];
+        [mString appendString:[[aKey description] stringByAddingPercentEscapes]];
+        [mString appendString:@"="];
+        [mString appendString:[[[CLQuery objectForKey:aKey] description]
+                                stringByAddingPercentEscapes]];
+        [CLQuery removeObjectForKey:aKey];
       }
     }
     [self setQuery:[mString UTF8String]];
@@ -1081,8 +1081,8 @@ typedef struct ContentInfo {
   }
 
   return;
-}  
-  
+}
+
 -(BOOL) doAction:(CLControl *) aControl
 {
   BOOL perform;
@@ -1117,7 +1117,7 @@ typedef struct ContentInfo {
 
   if ((aString = [attributes objectForCaseInsensitiveString:@"ID"]) &&
       (aForm = [page objectWithID:aString]) &&
-      [aForm isKindOfClass:CLFormClass] &&  
+      [aForm isKindOfClass:CLFormClass] &&
       (aControl = [self prepareVaction:aForm]))
     return [self doAction:aControl];
 
@@ -1133,7 +1133,7 @@ typedef struct ContentInfo {
 
   pool = [[CLAutoreleasePool alloc] init];
   [self readData];
-  
+
   {
     CLString *aString;
     CLData *aData;
@@ -1151,48 +1151,48 @@ typedef struct ContentInfo {
      all the autonumbered fields available */
   if (!(aControl = [self setBindings]))
     aControl = self;
-  
+
   [[self pageForm] copyValuesFrom:self];
   [self doAction:aControl];
-  
+
   [pool release];
 
   return;
 }
-  
+
 -(void) copyValuesFrom:(id) aForm array:(CLArray *) anArray
 {
   int i, j;
   id anObject, aValue;
   CLString *aString;
-  
+
 
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-	(aString = [[anObject attributes] objectForCaseInsensitiveString:@"NAME"])) {
+        (aString = [[anObject attributes] objectForCaseInsensitiveString:@"NAME"])) {
       aValue = nil;
       if ([aForm respondsTo:@selector(objectForCaseInsensitiveString:)])
-	aValue = [aForm objectForCaseInsensitiveString:aString];
+        aValue = [aForm objectForCaseInsensitiveString:aString];
       else if ([aForm respondsTo:@selector(valueOfFieldNamed:)])
-	aValue = [aForm valueOfFieldNamed:aString];
-      
+        aValue = [aForm valueOfFieldNamed:aString];
+
       if (aValue) {
-	if ([anObject type] == CLRadioInputType)
-	  [self selectRadioNamed:aString withValue:aValue];
-	else if ([anObject type] == CLCheckboxInputType)
-	  [[self fieldNamed:aString] setChecked:YES];
-	else if ([anObject isKindOfClass:CLSelectClass])
-	  [anObject selectOptionWithValue:aValue];
-	else
-	  [self setValue:aValue forFieldNamed:aString];
+        if ([anObject type] == CLRadioInputType)
+          [self selectRadioNamed:aString withValue:aValue];
+        else if ([anObject type] == CLCheckboxInputType)
+          [[self fieldNamed:aString] setChecked:YES];
+        else if ([anObject isKindOfClass:CLSelectClass])
+          [anObject selectOptionWithValue:aValue];
+        else
+          [self setValue:aValue forFieldNamed:aString];
       }
     }
     else if ([anObject respondsTo:@selector(content)] &&
-	     [[anObject content] isKindOfClass:CLArrayClass])
+             [[anObject content] isKindOfClass:CLArrayClass])
       [self copyValuesFrom:aForm array:[anObject content]];
   }
-  
+
   return;
 }
 
@@ -1207,8 +1207,8 @@ typedef struct ContentInfo {
   if (!ignore)
     ignore = [CLMutableArray array];
   [ignore addObjects:@"CL_CHECKED", @"CL_SELECTED", @"CL_BINDING",
-	  @"CL_VTARGET", @"CL_VACTION", @"CL_VPAGE", nil];
-  
+          @"CL_VTARGET", @"CL_VACTION", @"CL_VPAGE", nil];
+
   [super writeAttributes:stream ignore:ignore];
   return;
 }
@@ -1232,12 +1232,12 @@ typedef struct ContentInfo {
     if ([anArray2 count] > 1) {
       mArray = [[CLMutableArray alloc] init];
       for (k = 0, l = [anArray2 count]; k < l; k++) {
-	aField = [anArray2 objectAtIndex:k];
-	if ((anObject = [aField value]))
-	  [mArray addObject:anObject];
+        aField = [anArray2 objectAtIndex:k];
+        if ((anObject = [aField value]))
+          [mArray addObject:anObject];
       }
       if ([mArray count])
-	[mDict setObject:mArray forKey:aKey];
+        [mDict setObject:mArray forKey:aKey];
       [mArray release];
     }
     else if ((anObject = [[anArray2 objectAtIndex:0] value]))
@@ -1278,7 +1278,7 @@ typedef struct ContentInfo {
   CLArray *keys;
   CLString *aKey;
   CLString *aString;
-  
+
 
   if (![self isVisible])
     return;
@@ -1287,13 +1287,13 @@ typedef struct ContentInfo {
     [stream writeString:@"<FORM" usingEncoding:CLUTF8StringEncoding];
     if (target && action) {
       if (!(aString = [attributes objectForCaseInsensitiveString:@"METHOD"])
-	  || [aString caseInsensitiveCompare:@"GET"])
-	[attributes setObject:@"POST" forCaseInsensitiveString:@"METHOD"];
+          || [aString caseInsensitiveCompare:@"GET"])
+        [attributes setObject:@"POST" forCaseInsensitiveString:@"METHOD"];
       else
-	get = YES;
-	
+        get = YES;
+
       [stream writeFormat:@" ACTION=\"%@\"" usingEncoding:CLUTF8StringEncoding,
-	[self generateURL:get]];
+        [self generateURL:get]];
     }
 
     [self writeAttributes:stream ignore:nil];
@@ -1302,19 +1302,19 @@ typedef struct ContentInfo {
     if (get) {
       keys = [CLQuery allKeys];
       for (i = 0, j = [keys count]; i < j; i++) {
-	aKey = [keys objectAtIndex:i];
-	CLPrintf(stream, @"<INPUT TYPE=hidden NAME=%@ VALUE=\"%@\">", aKey,
-		 [[[CLQuery objectForKey:aKey] description] stringByAddingPercentEscapes]);
-	if ([aKey hasPrefix:@"url"])
-	  [CLQuery removeObjectForKey:aKey];
+        aKey = [keys objectAtIndex:i];
+        CLPrintf(stream, @"<INPUT TYPE=hidden NAME=%@ VALUE=\"%@\">", aKey,
+                 [[[CLQuery objectForKey:aKey] description] stringByAddingPercentEscapes]);
+        if ([aKey hasPrefix:@"url"])
+          [CLQuery removeObjectForKey:aKey];
       }
 
       keys = [localQuery allKeys];
       for (i = 0, j = [keys count]; i < j; i++) {
-	aKey = [keys objectAtIndex:i];
-	CLPrintf(stream, @"<INPUT TYPE=hidden NAME=%@ VALUE=\"%@\">", aKey,
-		 [[[localQuery objectForKey:aKey] description]
-		   stringByAddingPercentEscapes]);
+        aKey = [keys objectAtIndex:i];
+        CLPrintf(stream, @"<INPUT TYPE=hidden NAME=%@ VALUE=\"%@\">", aKey,
+                 [[[localQuery objectForKey:aKey] description]
+                   stringByAddingPercentEscapes]);
       }
     }
   }
@@ -1328,16 +1328,16 @@ typedef struct ContentInfo {
 
     anObject = [self datasource];
     if ([anObject respondsTo:@selector(propertyList)] &&
-	[anObject respondsTo:@selector(formShouldUseAutomaticPropertyList:)] &&
-	[anObject formShouldUseAutomaticPropertyList:self]) {
+        [anObject respondsTo:@selector(formShouldUseAutomaticPropertyList:)] &&
+        [anObject formShouldUseAutomaticPropertyList:self]) {
       aField = [[CLInput alloc] initWithTitle:FIELD_PLIST cols:0 rows:0
-			     value:[anObject propertyList]
-			     type:CLHiddenInputType onPage:nil];
+                             value:[anObject propertyList]
+                             type:CLHiddenInputType onPage:nil];
       CLWriteHTMLObject(stream, aField);
       [aField release];
     }
-  }  
-  
+  }
+
   if ([self isEnabled])
     CLPrintf(stream, @"</FORM>");
 

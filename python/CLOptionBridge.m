@@ -11,13 +11,13 @@ int CLOptionBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&|p", kwlist,
-				   CLPythonConvert, &string,
-				   CLPythonConvert, &value,
-				   &selected))
+                                   CLPythonConvert, &string,
+                                   CLPythonConvert, &value,
+                                   &selected))
     return -1;
 
   self->bridgeObject = [[CLOption alloc] initWithString:string andValue:value
-					       selected:selected];
+                                               selected:selected];
 
   return 0;
 }
@@ -39,4 +39,3 @@ PyTypeObject CLOptionBridgeType = {
   .tp_init = (initproc) CLOptionBridge_init,
   .tp_dealloc = (destructor) CLOptionBridge_dealloc,
 };
-

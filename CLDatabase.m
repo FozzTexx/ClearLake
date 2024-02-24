@@ -86,16 +86,16 @@
     for (i = 0; i < len; i++) {
       c = buf[i];
       if (esc && (c == '[' || c == ']' || c == '%' || c == '_' || c == '^')) {
-	wmemmove(&buf[i+1], &buf[i], len - i);
-	buf[i] = esc;
-	i++;
-	len++;
+        wmemmove(&buf[i+1], &buf[i], len - i);
+        buf[i] = esc;
+        i++;
+        len++;
       }
 
       if (c == '\'') {
-	wmemmove(&buf[i+1], &buf[i], len - i);
-	i++;
-	len++;
+        wmemmove(&buf[i+1], &buf[i], len - i);
+        i++;
+        len++;
       }
     }
 
@@ -119,10 +119,10 @@
 
   if (![interface caseInsensitiveCompare:@"mysql"])
     aDatabase = [[CLMySQLDatabase alloc]
-		  initWithDatabase:database user:user password:password host:host];
+                  initWithDatabase:database user:user password:password host:host];
   else if (![interface caseInsensitiveCompare:@"sybase"])
     aDatabase = [[CLSybaseDatabase alloc]
-		  initWithDatabase:database user:user password:password host:host];
+                  initWithDatabase:database user:user password:password host:host];
 
   return [aDatabase autorelease];
 }
@@ -133,7 +133,7 @@
 }
 
 -(CLArray *) read:(CLArray *) attributes qualifier:(CLString *) qualifier
-	   errors:(id *) errors
+           errors:(id *) errors
 {
   CLMutableArray *mArray = nil;
   CLDictionary *results;
@@ -156,54 +156,54 @@
       aRow = [rows objectAtIndex:i];
       aDict = [[CLMutableDictionary alloc] init];
       for (k = 0, l = [aRow count]; k < l; k++) {
-	attr = [attributes objectAtIndex:k];
-	anObject = [aRow objectAtIndex:k];
-	if (anObject == CLNullObject)
-	  [aDict setObject:anObject forKey:[attr column]];
-	else {
-	  switch ([attr externalType]) {
-	  case CLVarcharAttributeType:
-	    [aDict setObject:anObject forKey:[attr column]];
-	    break;
+        attr = [attributes objectAtIndex:k];
+        anObject = [aRow objectAtIndex:k];
+        if (anObject == CLNullObject)
+          [aDict setObject:anObject forKey:[attr column]];
+        else {
+          switch ([attr externalType]) {
+          case CLVarcharAttributeType:
+            [aDict setObject:anObject forKey:[attr column]];
+            break;
 
-	  case CLCharAttributeType:
-	    {
-	      CLRange aRange;
-	      CLCharacterSet *iSet;
+          case CLCharAttributeType:
+            {
+              CLRange aRange;
+              CLCharacterSet *iSet;
 
 
-	      iSet = [[CLCharacterSet characterSetWithCharactersInString:@" "] invertedSet];
-	      aRange = [anObject rangeOfCharacterFromSet:iSet options:CLBackwardsSearch
-				 range:CLMakeRange(0, [anObject length])];
-	      if (aRange.length)
-		anObject = [anObject substringToIndex:CLMaxRange(aRange)];
-	      else
-		anObject = @"";
-	    }
+              iSet = [[CLCharacterSet characterSetWithCharactersInString:@" "] invertedSet];
+              aRange = [anObject rangeOfCharacterFromSet:iSet options:CLBackwardsSearch
+                                 range:CLMakeRange(0, [anObject length])];
+              if (aRange.length)
+                anObject = [anObject substringToIndex:CLMaxRange(aRange)];
+              else
+                anObject = @"";
+            }
 
-	    [aDict setObject:anObject forKey:[attr column]];
-	    break;
+            [aDict setObject:anObject forKey:[attr column]];
+            break;
 
-	  case CLDatetimeAttributeType:
-	    /* FIXME - not sure how to handle this. I'd rather display
-	       dates in the local timezone and not in the DB's
-	       timezone, but should the date's default timezone be the
-	       DB's timezone anyway?? */
-	    anObject = [CLDatetime dateWithString:anObject format:[self dateFormat]
-					 timeZone:[self timeZone]];
-	    /* Reset timezone to system timezone */
-	    [anObject setTimeZone:nil];
-	    [aDict setObject:anObject forKey:[attr column]];
-	    break;
+          case CLDatetimeAttributeType:
+            /* FIXME - not sure how to handle this. I'd rather display
+               dates in the local timezone and not in the DB's
+               timezone, but should the date's default timezone be the
+               DB's timezone anyway?? */
+            anObject = [CLDatetime dateWithString:anObject format:[self dateFormat]
+                                         timeZone:[self timeZone]];
+            /* Reset timezone to system timezone */
+            [anObject setTimeZone:nil];
+            [aDict setObject:anObject forKey:[attr column]];
+            break;
 
-	  case CLIntAttributeType:
-	  case CLMoneyAttributeType:
-	  case CLNumericAttributeType:
-	    [aDict setObject:[CLDecimalNumber decimalNumberWithString:anObject]
-		   forKey:[attr column]];
-	    break;
-	  }
-	}
+          case CLIntAttributeType:
+          case CLMoneyAttributeType:
+          case CLNumericAttributeType:
+            [aDict setObject:[CLDecimalNumber decimalNumberWithString:anObject]
+                   forKey:[attr column]];
+            break;
+          }
+        }
       }
 
       [mArray addObject:aDict];
@@ -224,11 +224,11 @@
 
 
   [self runQuery:[CLString stringWithFormat:
-			     @"UPDATE cl_sequence_table SET counter ="
-			   " counter + %i where table_name = '%@'", count, table]];
+                             @"UPDATE cl_sequence_table SET counter ="
+                           " counter + %i where table_name = '%@'", count, table]];
   results = [self runQuery:[CLString stringWithFormat:
-				       @"SELECT counter FROM cl_sequence_table"
-				     " WHERE table_name = '%@'", table]];
+                                       @"SELECT counter FROM cl_sequence_table"
+                                     " WHERE table_name = '%@'", table]];
   anArray = [results objectForKey:@"rows"];
   if ([anArray count])
     rid = [[[anArray objectAtIndex:0] objectAtIndex:0] intValue];
@@ -247,14 +247,14 @@
   if (!rid) {
     /* FIXME - InnoDB is a MySQL thing */
     [self runQuery:@"CREATE TABLE IF NOT EXISTS cl_sequence_table ("
-	  "table_name varchar(32) not null, counter integer not null)"
-	  " engine = InnoDB"];
+          "table_name varchar(32) not null, counter integer not null)"
+          " engine = InnoDB"];
 
     if (!rid)
       rid = count;
     aString = [CLString stringWithFormat:
-			  @"INSERT INTO cl_sequence_table (counter, table_name)"
-			"VALUES (%i, '%@')", rid, table];
+                          @"INSERT INTO cl_sequence_table (counter, table_name)"
+                        "VALUES (%i, '%@')", rid, table];
     [self runQuery:aString];
   }
 
@@ -267,21 +267,21 @@
 }
 
 -(int) insertDictionary:(CLDictionary *) aDictionary
-	 withAttributes:(CLArray *) attributes into:(CLString *) table
-		 errors:(id *) errors
+         withAttributes:(CLArray *) attributes into:(CLString *) table
+                 errors:(id *) errors
 {
   int rid;
 
 
   rid = [self nextIDForTable:table];
   [self insertDictionary:aDictionary withAttributes:attributes into:table withID:rid
-	errors:errors];
+        errors:errors];
   return rid;
 }
 
 -(void) insertDictionary:(CLDictionary *) aDictionary
-	  withAttributes:(CLArray *) attributes into:(CLString *) table withID:(int) rid
-		  errors:(id *) errors
+          withAttributes:(CLArray *) attributes into:(CLString *) table withID:(int) rid
+                  errors:(id *) errors
 {
   CLMutableString *mString;
   CLAttribute *attr;
@@ -315,27 +315,27 @@
       switch ([attr externalType]) {
       case CLVarcharAttributeType:
       case CLCharAttributeType:
-	[mString appendFormat:@"'%@'", [self defangString:[anObject description]
-					     escape:NULL]];
-	break;
+        [mString appendFormat:@"'%@'", [self defangString:[anObject description]
+                                             escape:NULL]];
+        break;
 
       case CLDatetimeAttributeType:
-	if ([anObject isKindOfClass:CLDatetimeClass])
-	  [mString appendFormat:@"'%@'",
-		   [anObject descriptionWithFormat:[self dateFormat]
-			     timeZone:[self timeZone]]];
-	else
-	  [mString appendFormat:@"'%@'", [self defangString:[anObject description]
-					       escape:NULL]];
-	break;
+        if ([anObject isKindOfClass:CLDatetimeClass])
+          [mString appendFormat:@"'%@'",
+                   [anObject descriptionWithFormat:[self dateFormat]
+                             timeZone:[self timeZone]]];
+        else
+          [mString appendFormat:@"'%@'", [self defangString:[anObject description]
+                                               escape:NULL]];
+        break;
 
       case CLIntAttributeType:
       case CLMoneyAttributeType:
       case CLNumericAttributeType:
-	if (![anObject isKindOfClass:CLNumberClass])
-	  anObject = [CLDecimalNumber decimalNumberWithString:[anObject description]];
-	[mString appendFormat:@"%@", anObject];
-	break;
+        if (![anObject isKindOfClass:CLNumberClass])
+          anObject = [CLDecimalNumber decimalNumberWithString:[anObject description]];
+        [mString appendFormat:@"%@", anObject];
+        break;
       }
     }
   }
@@ -356,7 +356,7 @@
 
 -(BOOL) updateTable:(CLString *) table withDictionary:(CLDictionary *) aDictionary
       andAttributes:(CLArray *) attributes forRow:(CLString *) rowID
-	     errors:(id *) errors
+             errors:(id *) errors
 {
   CLMutableString *mString;
   CLAttribute *attr;
@@ -380,25 +380,25 @@
       switch ([attr externalType]) {
       case CLVarcharAttributeType:
       case CLCharAttributeType:
-	[mString appendFormat:@"'%@'", [self defangString:[anObject description]
-						   escape:NULL]];
-	break;
+        [mString appendFormat:@"'%@'", [self defangString:[anObject description]
+                                                   escape:NULL]];
+        break;
 
       case CLDatetimeAttributeType:
-	if ([anObject isKindOfClass:CLDatetimeClass])
-	  [mString appendFormat:@"'%@'",
-		   [anObject descriptionWithFormat:[self dateFormat]
-			     timeZone:[self timeZone]]];
-	else
-	  [mString appendFormat:@"'%@'", [self defangString:[anObject description]
-					       escape:NULL]];
-	break;
+        if ([anObject isKindOfClass:CLDatetimeClass])
+          [mString appendFormat:@"'%@'",
+                   [anObject descriptionWithFormat:[self dateFormat]
+                             timeZone:[self timeZone]]];
+        else
+          [mString appendFormat:@"'%@'", [self defangString:[anObject description]
+                                               escape:NULL]];
+        break;
 
       case CLIntAttributeType:
       case CLMoneyAttributeType:
       case CLNumericAttributeType:
-	[mString appendFormat:@"%@", anObject];
-	break;
+        [mString appendFormat:@"%@", anObject];
+        break;
       }
     }
   }
@@ -416,7 +416,7 @@
 }
 
 -(BOOL) deleteRowsFromTable:(CLString *) aTable qualifier:(CLString *) qualifier
-		     errors:(id *) errors
+                     errors:(id *) errors
 {
   CLString *aString;
   CLDictionary *results;
