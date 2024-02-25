@@ -261,6 +261,46 @@
   return self;
 }
 
+-(id) read:(CLStream *) stream
+{
+  CLDictionaryStorage *storage = dictionaryData;
+  CLUInteger idx, count;
+  id aKey, aValue;
+
+
+  [super read:stream];
+  [stream readType:@"I" data:&count];
+  dictionaryData = CLInternalDictionaryInitStorage(count);
+  storage = dictionaryData;
+  storage->table = CLHashTableAlloc(1024);
+  for (idx = 0; idx < count; idx++) {
+    [stream readTypes:@"@@", &aKey, &aValue];
+    CLHashTableSetData(storage->table, aValue, aKey, [aKey hash]);
+  }
+
+  return self;
+}
+
+-(void) write:(CLStream *) stream
+{
+  CLArray *anArray;
+  id aKey, aValue;
+  CLUInteger idx, count;
+
+
+  [super write:stream];
+  anArray = [self allKeys];
+  count = [anArray count];
+  [stream writeTypes:@"I", &count];
+  for (idx = 0; idx < count; idx++) {
+    aKey = [anArray objectAtIndex:idx];
+    aValue = [self objectForKey:aKey];
+    [stream writeTypes:@"@@", &aKey, &aValue];
+  }
+
+  return;
+}
+
 -(CLUInteger) count
 {
   CLDictionaryStorage *storage = dictionaryData;

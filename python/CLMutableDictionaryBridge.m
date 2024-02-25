@@ -32,11 +32,55 @@
   return;
 }
 
+-(CLUInteger) count
+{
+  return PyDict_Size(dictionaryData);
+}
+
 -(id) objectForKey:(id) aKey
 {
   return [CLObjectBridge objectWithPythonObject:
                            PyDict_GetItemString(dictionaryData,
                                                 [[aKey description] UTF8String])];
+}
+
+-(CLArray *) allKeys
+{
+  PyObject *pyKeys;
+  id keys;
+
+
+  pyKeys = PyDict_Keys(dictionaryData);
+  keys = [CLObjectBridge objectWithPythonObject:pyKeys];
+  Py_DECREF(pyKeys);
+  return keys;
+}
+
+-(CLArray *) allValues
+{
+  PyObject *pyValues;
+  id values;
+
+
+  pyValues = PyDict_Values(dictionaryData);
+  values = [CLObjectBridge objectWithPythonObject:pyValues];
+  Py_DECREF(pyValues);
+  return values;
+}
+
+-(CLString *) className
+{
+  return [CLMutableDictionary className];
+}
+
+-(void) write:(CLStream *) stream
+{
+  CLMutableDictionary *mDict = [[CLMutableDictionary alloc] initFromDictionary:self];
+
+
+  [mDict write:stream];
+  [mDict release];
+  return;
 }
 
 @end

@@ -58,61 +58,87 @@
   return value;
 }
 
--(id) init
+-(CLString *) pythonClassName
 {
-  PyObject *py_class;
-  CLString *className;
+  CLString *className, *prefix;
   CLClassDef *hack;
 
 
   [super init];
 
+  prefix = [CLString stringWithFormat:@"%@_", [[self class] className]];
   hack = (CLClassDef *) [self class];
   className = [CLUTF8String stringWithUTF8String:hack->name];
-  py_class = CLPythonClassFromString(className);
-  if (!py_class)
-    [self error:@"Not implemented %@", className];
+  if (![className hasPrefix:prefix])
+    [self error:@"Trying to init unrecognized class %@", className];
+  className = [className substringFromIndex:[prefix length]];
+  return className;
+}
+  
+-(id) init
+{
+  PyObject *pyClass, *pyObject;
+  CLString *className;
 
-  pythonObject = PyObject_CallObject(py_class, NULL);
-  if (!pythonObject)
-    [self error:@"Unable to create instance of %@", className];
+
+  className = [self pythonClassName];
+  pyClass = CLPythonClassFromString(className);
+  if (!pyClass)
+    [self error:@"No such python class: %@", className];
+
+  pyObject = PyObject_CallObject(pyClass, NULL);
+  [self initWithPythonObject:pyObject];
+  Py_DECREF(pyObject);
 
   return self;
 }
 
 -(id) initWithPythonObject:(PyObject *) pyObject
 {
-  if (pythonObject)
+  if (!pyObject)
+    [self error:@"init with what?"];
+  if (bridged)
     [self error:@"Already called init"];
+
   [super init];
   Py_INCREF(pyObject);
-  pythonObject = pyObject;
+  bridged = pyObject;
   return self;
 }
 
 -(void) dealloc
 {
-  Py_DECREF(pythonObject);
+  Py_DECREF(bridged);
   [super dealloc];
   return;
 }
 
 -(id) read:(CLStream *) stream
 {
+  id anObject;
+
+
   [super read:stream];
   [self init];
+  [stream readType:@"@" data:&anObject];
+  [self setObjectValue:anObject forBinding:@"__setstate__"];
   return self;
 }
 
 -(void) write:(CLStream *) stream
 {
+  id anObject;
+
+
   [super write:stream];
+  anObject = [self objectValueForBinding:@"__getstate__"];
+  [stream writeType:@"@" data:&anObject];
   return;
 }
 
 -(PyObject *) pythonObject
 {
-  return pythonObject;
+  return bridged;
 }
 
 -(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
@@ -126,11 +152,15 @@
 
   if (!*found) {
     pyBinding = [aBinding pythonObject];
-    if (PyObject_HasAttr(pythonObject, pyBinding)) {
+    if (PyObject_HasAttr(bridged, pyBinding)) {
       *found = YES;
-      attr = PyObject_GetAttr(pythonObject, pyBinding);
+      attr = PyObject_GetAttr(bridged, pyBinding);
       if (PyCallable_Check(attr)) {
         result = PyObject_CallObject(attr, NULL);
+	if (!result) {
+	  PyErr_Print();
+	  PyErr_Clear();
+	}
       }
       else {
         Py_INCREF(attr);
@@ -173,8 +203,8 @@
     return YES;
 
   pyBinding = [[self pythonizeSelector:aSel] pythonObject];
-  if (PyObject_HasAttr(pythonObject, pyBinding)) {
-    attr = PyObject_GetAttr(pythonObject, pyBinding);
+  if (PyObject_HasAttr(bridged, pyBinding)) {
+    attr = PyObject_GetAttr(bridged, pyBinding);
     if (PyCallable_Check(attr))
       hasMethod = YES;
     Py_DECREF(attr);
@@ -198,7 +228,7 @@
 
   sig = [anInvocation methodSignature];
   aBinding = [self pythonizeSelector:[anInvocation selector]];
-  attr = PyObject_GetAttrString(pythonObject, [aBinding UTF8String]);
+  attr = PyObject_GetAttrString(bridged, [aBinding UTF8String]);
 
   count = [sig numberOfArguments] - 2;
   if (count) {
@@ -229,15 +259,20 @@
   return;
 }
 
+#if 1
+-(CLString *) className
+{
+  return [self pythonClassName];
+}
+#else
 -(CLString *) className
 {
   PyObject *classObj, *name;
-  CLString *aString;
 
 
   classObj = PyObject_GetAttrString(pythonObject, "__class__");
   if (!classObj)
-    return nil;
+    [self error:@"All objects must have a class"];
 
   name = PyObject_GetAttrString(classObj, "__name__");
   Py_DECREF(classObj);
@@ -249,6 +284,7 @@
 
   return aString;
 }
+#endif
 
 @end
 
