@@ -29,11 +29,6 @@
 
 #define CLARRAY_BLOCKSIZE       256
 
-typedef struct {
-  id *dataPtr;
-  CLUInteger numElements, maxElements;
-} CLArrayStorage;
-
 @interface CLArray:CLObject <CLCopying, CLMutableCopying, CLPropertyList>
 {
   void *arrayData;
@@ -63,10 +58,8 @@ typedef struct {
 
 @end
 
-@protocol CLArraySubclass
+@protocol CLArraySubclass <CLArchiving>
 -(id) initWithObjects:(const id *) objects count:(unsigned) count;
--(id) read:(CLStream *) stream;
--(void) write:(CLStream *) stream;
 -(CLUInteger) count;
 -(id) objectAtIndex:(CLUInteger) index;
 @end
@@ -89,11 +82,5 @@ typedef struct {
 
 @interface CLArray (CLArrayArchiving) <CLArchiving>
 @end
-
-@interface CLInternalArray:CLArray
-@end
-
-extern void *CLInternalArrayInitStorage(const id *objects, unsigned count);
-extern void CLInternalArrayDeallocStorage(CLArrayStorage *storage);
 
 #endif /* _CLARRAY_H */

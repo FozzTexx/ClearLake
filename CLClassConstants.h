@@ -27,12 +27,12 @@ extern Class CLDatetimeClass;
 extern Class CLControlClass, CLFormClass;
 extern Class CLSessionClass, CLAccountClass;
 extern Class CLArrayClass, CLMutableArrayClass,
-  CLInternalArrayClass, CLInternalMutableArrayClass;
+  CLArrayDatastoreClass, CLMutableArrayDatastoreClass;
 extern Class CLButtonClass;
 extern Class CLCharacterSetClass, CLMutableCharacterSetClass;
 extern Class CLDataClass, CLMutableDataClass;
 extern Class CLDictionaryClass, CLMutableDictionaryClass,
-  CLInternalDictionaryClass, CLInternalMutableDictionaryClass;
+  CLDictionaryDatastoreClass, CLMutableDictionaryDatastoreClass;
 extern Class CLEditingContextClass, CLGenericRecordClass, CLAttributeClass,
   CLRelationshipClass, CLRecordDefinitionClass, CLFaultClass, CLArrayFaultClass,
   CLPlaceholderClass;

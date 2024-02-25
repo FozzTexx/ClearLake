@@ -33,6 +33,7 @@
 #import "CLDatetime.h"
 #import "CLDecimalNumber.h"
 #import "CLDictionary.h"
+#import "CLDictionaryDatastore.h"
 #import "CLEditingContext.h"
 #import "CLRecordDefinition.h"
 #import "CLFault.h"
@@ -77,6 +78,7 @@
 #import "CLWikiMedia.h"
 #import "CLWikiString.h"
 #import "CLStackString.h"
+#import "CLArrayDatastore.h"
 
 Class CLInputClass;
 Class CLImageElementClass;
@@ -85,12 +87,12 @@ Class CLControlClass, CLFormClass;
 Class CLSessionClass, CLAccountClass;
 Class CLSelectClass;
 Class CLArrayClass, CLMutableArrayClass,
-  CLInternalArrayClass, CLInternalMutableArrayClass;
+  CLArrayDatastoreClass, CLMutableArrayDatastoreClass;
 Class CLButtonClass;
 Class CLCharacterSetClass, CLMutableCharacterSetClass;
 Class CLDataClass, CLMutableDataClass;
 Class CLDictionaryClass, CLMutableDictionaryClass,
-  CLInternalDictionaryClass, CLInternalMutableDictionaryClass;
+  CLDictionaryDatastoreClass, CLMutableDictionaryDatastoreClass;
 Class CLEditingContextClass, CLGenericRecordClass, CLAttributeClass, CLRelationshipClass,
   CLRecordDefinitionClass, CLFaultClass, CLArrayFaultClass, CLPlaceholderClass;
 Class CLElementClass, CLBlockClass, CLOptionClass, CLScriptElementClass,
@@ -143,10 +145,8 @@ int CLInitClassConstants()
       CLPageTargetClass = [CLPageTarget class];
       CLSessionClass = [CLSession class];
       CLTextAreaClass = [CLTextArea class];
-      CLInternalArrayClass = [CLInternalArray class];
-      CLInternalMutableArrayClass = [CLInternalMutableArray class];
-      CLInternalDictionaryClass = [CLInternalDictionary class];
-      CLInternalMutableDictionaryClass = [CLInternalMutableDictionary class];
+      CLArrayDatastoreClass = [CLArrayDatastore class];
+      CLMutableArrayDatastoreClass = [CLMutableArrayDatastore class];
       break;
 
     case 1:
@@ -185,6 +185,8 @@ int CLInitClassConstants()
       CLWikiLinkClass = [CLWikiLink class];
       CLWikiMediaClass = [CLWikiMedia class];
       CLWikiStringClass = [CLWikiString class];
+      CLDictionaryDatastoreClass = [CLDictionaryDatastore class];
+      CLMutableDictionaryDatastoreClass = [CLMutableDictionaryDatastore class];
       break;
 
     default:
