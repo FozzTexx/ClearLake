@@ -53,6 +53,6 @@ include $(MAKEFILEDIR)/$(MAKEFILE)
 -include Makefile.dependencies
 
 .js.jh:
-        sed  -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/^\(.*\)$$/@"\1\\n"/' $*.js > $*.jh
+	sed  -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/^\(.*\)$$/@"\1\\n"/' $*.js > $*.jh
 
 CLChainedSelect.m: CLChainedSelect.jh

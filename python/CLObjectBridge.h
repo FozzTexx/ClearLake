@@ -8,7 +8,7 @@
 
 @interface CLObjectBridge:CLObject <CLArchiving>
 {
-  PyObject *pythonObject;
+  PyObject *bridged;
 }
 
 +(id) objectWithPythonObject:(PyObject *) pyObject;

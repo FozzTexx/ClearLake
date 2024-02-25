@@ -138,26 +138,6 @@
   return [[CLMutableDictionary alloc] initFromDictionary:self];
 }
 
--(void) write:(CLStream *) stream
-{
-  CLArray *anArray;
-  id aKey, aValue;
-  int i, j;
-
-
-  [super write:stream];
-  anArray = [self allKeys];
-  j = [anArray count];
-  [stream writeTypes:@"i", &j];
-  for (i = 0; i < j; i++) {
-    aKey = [anArray objectAtIndex:i];
-    aValue = [self objectForKey:aKey];
-    [stream writeTypes:@"@@", &aKey, &aValue];
-  }
-
-  return;
-}
-
 -(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
 {
   CLRange aRange;
@@ -210,7 +190,7 @@
 
 -(id) init
 {
-  if ([self class] == CLDictionaryClass)
+  if ([self class] == CLDictionaryClass || [self class] == CLMutableDictionaryClass)
     [self error:@"%s: %s must be implemented by subclass",
           object_getClassName(self), sel_getName(_cmd)];
   return [super init];
@@ -221,6 +201,23 @@
   [self error:@"%s: %s must be implemented by subclass",
           object_getClassName(self), sel_getName(_cmd)];
   return nil;
+}
+
+-(id) read:(CLStream *) stream
+{
+  if ([self class] == CLDictionaryClass || [self class] == CLMutableDictionaryClass)
+    [self error:@"%s: %s must be implemented by subclass",
+	  object_getClassName(self), sel_getName(_cmd)];
+  return [super read:stream];
+}
+
+-(void) write:(CLStream *) stream
+{
+  if ([self class] == CLDictionaryClass || [self class] == CLMutableDictionaryClass)
+    [self error:@"%s: %s must be implemented by subclass",
+	  object_getClassName(self), sel_getName(_cmd)];
+  [super write:stream];
+  return;
 }
 
 -(CLUInteger) count
@@ -303,14 +300,36 @@
 
 
   [super read:stream];
+  [stream readType:@"I" data:&count];
+  dictionaryData = CLInternalDictionaryInitStorage(count);
+  storage = dictionaryData;
   storage->table = CLHashTableAlloc(1024);
-  [stream readType:@"u" data:&count];
   for (idx = 0; idx < count; idx++) {
     [stream readTypes:@"@@", &aKey, &aValue];
     CLHashTableSetData(storage->table, aValue, aKey, [aKey hash]);
   }
 
   return self;
+}
+
+-(void) write:(CLStream *) stream
+{
+  CLArray *anArray;
+  id aKey, aValue;
+  CLUInteger idx, count;
+
+
+  [super write:stream];
+  anArray = [self allKeys];
+  count = [anArray count];
+  [stream writeTypes:@"I", &count];
+  for (idx = 0; idx < count; idx++) {
+    aKey = [anArray objectAtIndex:idx];
+    aValue = [self objectForKey:aKey];
+    [stream writeTypes:@"@@", &aKey, &aValue];
+  }
+
+  return;
 }
 
 -(id) objectForKey:(id) aKey

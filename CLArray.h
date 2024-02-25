@@ -65,6 +65,8 @@ typedef struct {
 
 @protocol CLArraySubclass
 -(id) initWithObjects:(const id *) objects count:(unsigned) count;
+-(id) read:(CLStream *) stream;
+-(void) write:(CLStream *) stream;
 -(CLUInteger) count;
 -(id) objectAtIndex:(CLUInteger) index;
 @end

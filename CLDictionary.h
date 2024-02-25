@@ -57,6 +57,8 @@ typedef struct {
 
 @protocol CLDictionarySubclass
 -(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count;
+-(id) read:(CLStream *) stream;
+-(void) write:(CLStream *) stream;
 -(CLUInteger) count;
 -(id) objectForKey:(id) aKey;
 -(CLArray *) allKeys;

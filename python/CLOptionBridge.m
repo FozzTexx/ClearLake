@@ -1,22 +1,23 @@
 #import "CLOptionBridge.h"
 #import "CLObjectBridge.h"
+#import "CLStringBridge.h"
 #import <ClearLake/CLOption.h>
 
 int CLOptionBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 {
-  static char *kwlist[] = {"string", "value", "selected", NULL};
-  CLString *string = nil;
+  static char *kwlist[] = {"label", "value", "selected", NULL};
+  CLString *label = nil;
   id value = nil;
   int selected = NO;
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&|p", kwlist,
-                                   CLPythonConvert, &string,
+                                   CLPythonConvertString, &label,
                                    CLPythonConvert, &value,
                                    &selected))
     return -1;
 
-  self->bridgeObject = [[CLOption alloc] initWithString:string andValue:value
+  self->bridgeObject = [[CLOption alloc] initWithString:label andValue:value
                                                selected:selected];
 
   return 0;

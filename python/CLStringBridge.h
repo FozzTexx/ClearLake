@@ -12,4 +12,6 @@
 -(PyObject *) pythonObject;
 @end
 
+extern int CLPythonConvertString(PyObject *anObj, void *address);
+
 #endif /* CLSTRINGBRIDGETHON_H */

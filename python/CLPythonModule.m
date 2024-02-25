@@ -36,8 +36,10 @@ Class CLClassFromString_python(CLString *aString)
   if (!aClass) {
     if ((py_class = CLPythonClassFromString(aString))) {
       hack = malloc(sizeof(CLClassDef));
-      memcpy(hack, [CLObjectBridge class], sizeof(CLClassDef));
-      hack->name = strdup([aString UTF8String]);
+      aClass = [CLObjectBridge class];
+      memcpy(hack, aClass, sizeof(CLClassDef));
+      hack->name = strdup([[CLString stringWithFormat:@"%@_%@", [aClass className], aString]
+			    UTF8String]);
       aClass = (Class) hack;
     }
   }
