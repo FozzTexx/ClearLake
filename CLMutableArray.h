@@ -49,7 +49,4 @@
 -(void) sortUsingDescriptors:(CLArray *) sortDescriptors;
 @end
 
-@interface CLInternalMutableArray:CLMutableArray
-@end
-
 #endif /* _CLMUTABLEARRAY_H */

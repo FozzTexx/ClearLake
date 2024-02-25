@@ -27,13 +27,7 @@
 
 @class CLString, CLArray;
 
-typedef struct {
-  CLHashTable *table;
-  CLUInteger _hash;
-  CLArray *_keys, *_values;
-} CLDictionaryStorage;
-
-@interface CLDictionary:CLObject <CLCopying, CLMutableCopying, CLPropertyList, CLArchiving>
+@interface CLDictionary:CLObject <CLCopying, CLMutableCopying, CLPropertyList>
 {
   void *dictionaryData;
 }
@@ -41,38 +35,25 @@ typedef struct {
 +(id) dictionary;
 +(id) dictionaryWithObjectsAndKeys:(id) firstObject, ...;
 
--(id) initWithSize:(CLUInteger) size;
 -(id) initFromDictionary:(CLDictionary *) aDict;
 -(id) initWithObjectsAndKeys:(id) firstObject, ...;
 
--(id) objectForCaseInsensitiveString:(CLString *) aString;
--(CLArray *) allKeys;
--(CLArray *) allKeysForObject:(id) anObject;
--(CLArray *) allValues;
--(CLUInteger) count;
 -(CLString *) description;
 -(CLString *) encodeXML;
 
 @end
 
-@protocol CLDictionarySubclass
+@protocol CLDictionarySubclass <CLArchiving>
 -(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count;
--(id) read:(CLStream *) stream;
--(void) write:(CLStream *) stream;
 -(CLUInteger) count;
 -(id) objectForKey:(id) aKey;
 -(CLArray *) allKeys;
 -(CLArray *) allValues;
 -(id) objectForCaseInsensitiveString:(CLString *) aKey;
+-(CLUInteger) hash;
 @end
 
 @interface CLDictionary (CLSubclassMethods) <CLDictionarySubclass>
 @end
-
-@interface CLInternalDictionary:CLDictionary
-@end
-
-extern void *CLInternalDictionaryInitStorage(CLUInteger size);
-extern void CLInternalDictionaryDeallocStorage(CLDictionaryStorage *storage);
 
 #endif /* _CLDICTIONARY_H */

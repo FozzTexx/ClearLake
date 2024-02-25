@@ -24,6 +24,7 @@
 
 #import <ClearLake/CLObject.h>
 #import <ClearLake/CLRuntime.h>
+#import <ClearLake/CLValue.h>
 
 #include <sys/types.h>
 #include <stdint.h>
@@ -68,7 +69,7 @@ CL_INLINE CLHashTable *CLHashTableAlloc(CLInteger size)
 
 
   ht = calloc(1, sizeof(CLHashTable));
-  ht->length = size;
+  ht->length = CLMax(size, 1);
   ht->count = 0;
   ht->first = -1;
   ht->table = calloc(ht->length, sizeof(CLBucket *));

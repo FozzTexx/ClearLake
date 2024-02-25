@@ -34,13 +34,10 @@
 -(void) removeObjectForCaseInsensitiveString:(CLString *) aString;
 -(void) removeObjectForKey:(id) aKey;
 -(void) removeAllObjects;
--(id) initWithObjects:(const id *) objects count:(unsigned) count;
+-(id) initWithSize:(CLUInteger) size;
 @end
 
 @interface CLMutableDictionary (CLSubclassMethods) <CLMutableDictionarySubclass>
-@end
-
-@interface CLInternalMutableDictionary:CLMutableDictionary
 @end
 
 #endif /* _CLMUTABLEDICTIONARY_H */

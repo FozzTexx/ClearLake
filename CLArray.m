@@ -21,6 +21,7 @@
 
 #import "CLArray.h"
 #import "CLMutableArray.h"
+#import "CLArrayDatastore.h"
 #import "CLMutableString.h"
 #import "CLStream.h"
 #import "CLCharacterSet.h"
@@ -38,13 +39,13 @@
 +(id) alloc
 {
   if (self == CLArrayClass)
-    self = CLInternalArrayClass;
+    self = CLArrayDatastoreClass;
   return [super alloc];
 }
 
 +(id) array
 {
-  return [[[CLInternalArray alloc] init] autorelease];
+  return [[[CLArrayDatastore alloc] init] autorelease];
 }
 
 +(id) arrayWithObjects:(id) firstObj, ...
@@ -54,14 +55,14 @@
 
 
   va_start(ap, firstObj);
-  anObject = [[[CLInternalArray alloc] initWithObject:firstObj andArguments:ap] autorelease];
+  anObject = [[[CLArrayDatastore alloc] initWithObject:firstObj andArguments:ap] autorelease];
   va_end(ap);
   return anObject;
 }
 
 +(id) arrayWithObjects:(const id *) objects count:(CLUInteger) count
 {
-  return [[[CLInternalArray alloc] initWithObjects:objects count:count] autorelease];
+  return [[[CLArrayDatastore alloc] initWithObjects:objects count:count] autorelease];
 }
 
 -(id) mutableCopy
@@ -504,131 +505,3 @@
 
 @end
 
-@implementation CLInternalArray
-
--(id) init
-{
-  return [self initWithObjects:NULL count:0];
-}
-
--(id) initWithObjects:(const id *) objects count:(unsigned) count
-{
-  [super init];
-  arrayData = CLInternalArrayInitStorage(objects, count);
-  return self;
-}
-
--(void) dealloc
-{
-  CLInternalArrayDeallocStorage((CLArrayStorage *) arrayData);
-  arrayData = NULL;
-  [super dealloc];
-  return;
-}
-
--(CLUInteger) count
-{
-  return ((CLArrayStorage *) arrayData)->numElements;
-}
-
--(id) objectAtIndex:(CLUInteger) index
-{
-  CLArrayStorage *storage = arrayData;
-
-
-  if (index >= storage->numElements)
-    [self error:@"index beyond length"];
-  return (id) storage->dataPtr[index];
-}
-
--(id) read:(CLStream *) stream
-{
-  CLArrayStorage *storage = arrayData;
-  CLUInteger idx;
-
-
-  [super read:stream];
-  [stream readTypes:@"I", &storage->numElements];
-  storage->maxElements = storage->numElements;
-  if (!(storage->dataPtr = malloc(sizeof(id) * storage->maxElements)))
-    [self error:@"Unable to alloc dataPtr"];
-  for (idx = 0; idx < storage->numElements; idx++)
-    [stream readTypes:@"@", &storage->dataPtr[idx]];
-  return self;
-}
-
--(void) write:(CLStream *) stream
-{
-  CLArrayStorage *storage = arrayData;
-  CLUInteger idx;
-
-
-  [super write:stream];
-  [stream writeTypes:@"I", &storage->numElements];
-  for (idx = 0; idx < storage->numElements; idx++)
-    [stream writeTypes:@"@", &storage->dataPtr[idx]];
-  return;
-}
-
--(void) getObjects:(id *) objects
-{
-  CLArrayStorage *storage = arrayData;
-
-
-  if (storage->numElements)
-    memcpy(objects, storage->dataPtr, sizeof(id) * storage->numElements);
-  return;
-}
-
--(CLArray *) subarrayWithRange:(CLRange) range
-{
-  CLArrayStorage *storage = arrayData;
-
-
-  if (range.location >= storage->numElements || CLMaxRange(range) > storage->numElements) {
-    /* FIXME - raise an exception */
-    return nil;
-  }
-
-  return [[self class] arrayWithObjects:&storage->dataPtr[range.location] count:range.length];
-}
-
-@end
-
-void *CLInternalArrayInitStorage(const id *objects, unsigned count)
-{
-  CLArrayStorage *storage;
-
-
-  if (!(storage = malloc(sizeof(*storage)))) {
-    fprintf(stderr, "error: Unable to allocate memory");
-    abort();
-  }
-  storage->numElements = 0;
-  storage->maxElements = count;
-  if (!(storage->dataPtr = malloc(sizeof(id) * count))) {
-    fprintf(stderr, "error: Unable to allocate memory");
-    abort();
-  }
-
-  if (objects) {
-    storage->numElements = count;
-    memcpy(storage->dataPtr, objects, sizeof(id) * count);
-    for (; count; objects++, count--)
-      [*objects retain];
-  }
-
-  return storage;
-}
-
-void CLInternalArrayDeallocStorage(CLArrayStorage *storage)
-{
-  CLUInteger idx;
-
-
-  for (idx = 0; idx < storage->numElements; idx++)
-    [storage->dataPtr[idx] release];
-  free(storage->dataPtr);
-  free(storage);
-  return;
-}
