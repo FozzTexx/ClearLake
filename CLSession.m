@@ -95,12 +95,13 @@
   if (i < j)
     return;
 
-  /* Delete any sessions that are dead */
+  /* Delete any locks for processes that are dead */
   for (i = 0, j = [anArray count]; i < j; i++)
     [sessionContext deleteObject:[anArray objectAtIndex:i]];
 
   /* Create a lock */
   aSession = [[[CLEditingContext sessionClass] alloc] init];
+  [aSession setEditingContext:sessionContext];
   hash = [CLDecimalNumber numberWithUnsignedInt:getpid()];
   hash = [hash decimalNumberByAdding:
                  [CLDecimalNumber numberWithUnsignedInt:CLUInteger32Max]];

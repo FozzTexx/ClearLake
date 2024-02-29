@@ -40,6 +40,7 @@
 #import "CLManager.h"
 #import "CLMySQLDatabase.h"
 #import "CLSybaseDatabase.h"
+#import "CLSQLiteDatabase.h"
 #import "CLTimeZone.h"
 #import "CLDatetime.h"
 #import "CLSession.h"
@@ -70,7 +71,7 @@ static int _modelInitState = MODEL_UNINIT;
 +(void) decodeSchema:(CLMutableDictionary *) aSchema databaseName:(CLString *) aDatabase
 {
   CLArray *keys;
-  int i, j;
+  CLUInteger idx, count;
   CLString *aTable, *aString;
   CLDictionary *aDict;
   CLRecordDefinition *recordDef;
@@ -79,8 +80,8 @@ static int _modelInitState = MODEL_UNINIT;
 
 
   keys = [aSchema allKeys];
-  for (i = 0, j = [keys count]; i < j; i++) {
-    aTable = [keys objectAtIndex:i];
+  for (idx = 0, count = [keys count]; idx < count; idx++) {
+    aTable = [keys objectAtIndex:idx];
     aDict = [aSchema objectForKey:aTable];
 
     if (!(aString = [aDict objectForKey:@"class"]))
@@ -323,7 +324,7 @@ static int _modelInitState = MODEL_UNINIT;
 
 +(id) model
 {
-  CLMutableDictionary *mDict, *mDict2, *mDict3;
+  CLMutableDictionary *dbConfig, *connectionInfo, *schemaDict;
   CLArray *anArray;
   int i, j;
   CLString *aString;
@@ -355,39 +356,39 @@ static int _modelInitState = MODEL_UNINIT;
     }
 
     _model = [[CLMutableDictionary alloc] init];
-    mDict = [[CLMutableDictionary alloc] init];
-    mDict2 = [[CLMutableDictionary alloc] init];
+    dbConfig = [[CLMutableDictionary alloc] init];
+    connectionInfo = [[CLMutableDictionary alloc] init];
     if ((aString = [CLManager configOption:@"Database"]))
-      [mDict2 setObject:aString forKey:@"database"];
+      [connectionInfo setObject:aString forKey:@"database"];
     if ((aString = [CLManager configOption:@"User"]))
-      [mDict2 setObject:aString forKey:@"user"];
+      [connectionInfo setObject:aString forKey:@"user"];
     if ((aString = [CLManager configOption:@"Password"]))
-      [mDict2 setObject:aString forKey:@"password"];
+      [connectionInfo setObject:aString forKey:@"password"];
     if ((aString = [CLManager configOption:@"Host"]))
-      [mDict2 setObject:aString forKey:@"host"];
+      [connectionInfo setObject:aString forKey:@"host"];
     if ((aString = [CLManager configOption:@"Interface"]))
-      [mDict2 setObject:aString forKey:@"interface"];
-    [mDict setObject:mDict2 forKey:@"connection"];
+      [connectionInfo setObject:aString forKey:@"interface"];
+    [dbConfig setObject:connectionInfo forKey:@"connection"];
 
     if ((aString = [CLManager configOption:@"Schema"]) &&
         (aString = [CLString stringWithContentsOfFile:
                                [[CLManager configurationDirectory]
                                  stringByAppendingPathComponent:aString]
                              encoding:CLASCIIStringEncoding]))
-      mDict3 = [[aString decodePropertyList] mutableCopy];
+      schemaDict = [[aString decodePropertyList] mutableCopy];
     else
-      mDict3 = [[CLMutableDictionary alloc] init];
+      schemaDict = [[CLMutableDictionary alloc] init];
 
-    if (![mDict3 objectForKey:@"account"])
-      [mDict3 setObject:[@"{fields = (\"+id:i\", \"email:*\", \"name:*\", \"password:*\", \"flags:*\", \"created:@\", \"ip_address:*\", \"last_seen:@\"); class=CLAccount;}" decodePropertyList] forKey:@"account"];
-    if (![mDict3 objectForKey:@"session"])
-      [mDict3 setObject:[@"{fields = (\"+id:i\", \"last_seen:@\", \"account_id:i\", \"hash:#\"); relationships = { account = \"account_id=account.id\" } class=CLSession}" decodePropertyList] forKey:@"session"];
+    if (![schemaDict objectForKey:@"account"])
+      [schemaDict setObject:[@"{fields = (\"+id:i\", \"email:*\", \"name:*\", \"password:*\", \"flags:*\", \"created:@\", \"ip_address:*\", \"last_seen:@\"); class=CLAccount;}" decodePropertyList] forKey:@"account"];
+    if (![schemaDict objectForKey:@"session"])
+      [schemaDict setObject:[@"{fields = (\"+id:i\", \"last_seen:@\", \"account_id:i\", \"hash:#\"); relationships = { account = \"account_id=account.id\" } class=CLSession}" decodePropertyList] forKey:@"session"];
 
-    [mDict setObject:mDict3 forKey:@"schema"];
-    [_model setObject:mDict forKey:[mDict2 objectForKey:@"database"]];
-    [mDict3 release];
-    [mDict2 release];
-    [mDict release];
+    [dbConfig setObject:schemaDict forKey:@"schema"];
+    [_model setObject:dbConfig forKey:[connectionInfo objectForKey:@"database"]];
+    [schemaDict release];
+    [connectionInfo release];
+    [dbConfig release];
   }
 
   anArray = [_model allKeys];
@@ -434,6 +435,10 @@ static int _modelInitState = MODEL_UNINIT;
              initWithDatabase:database user:user password:password host:host];
     else if (![interface caseInsensitiveCompare:@"sybase"])
       db = [[CLSybaseDatabase alloc]
+             initWithDatabase:database user:user password:password host:host];
+    else if (![interface caseInsensitiveCompare:@"sqlite"]
+	     || ![interface caseInsensitiveCompare:@"sqlite3"])
+      db = [[CLSQLiteDatabase alloc]
              initWithDatabase:database user:user password:password host:host];
 
     if (encoding) {

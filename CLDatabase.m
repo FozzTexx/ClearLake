@@ -298,7 +298,12 @@
     attr = [attributes objectAtIndex:i];
     if (i || rid)
       [mString appendString:@", "];
+#if 1
+    [mString appendString:[attr column]];
+#else
+    /* SQLite doesn't like dot notation on the field names */
     [mString appendFormat:@"%@.%@", table, [attr column]];
+#endif
   }
   [mString appendString:@") values ("];
   if (rid)

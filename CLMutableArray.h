@@ -26,8 +26,6 @@
 #import <ClearLake/CLRange.h>
 
 @interface CLMutableArray:CLArray <CLCopying>
--(void) addObject:(id) anObject;
--(void) removeAllObjects;
 @end
 
 @protocol CLMutableArraySubclass
@@ -35,18 +33,20 @@
 -(void) removeObjectsInRange:(CLRange) aRange;
 @end
 
-@interface CLMutableArray (CLSubclassMethods) <CLMutableArraySubclass>
-@end
-
 @interface CLMutableArray (CLMutableArrayModifying)
+-(void) addObject:(id) anObject;
 -(void) addObjects:(id) firstObj, ...;
 -(void) addObjectsFromArray:(CLArray *) otherArray;
 -(void) removeObject:(id) anObject;
--(void) removeLastObject;
 -(void) removeObjectAtIndex:(CLUInteger) index;
+-(void) removeAllObjects;
+-(void) removeLastObject;
 -(void) removeObjectsInArray:(CLArray *) anArray;
 -(void) sortUsingSelector:(SEL) comparator;
 -(void) sortUsingDescriptors:(CLArray *) sortDescriptors;
+@end
+
+@interface CLMutableArray (CLSubclassMethods) <CLMutableArraySubclass>
 @end
 
 #endif /* _CLMUTABLEARRAY_H */

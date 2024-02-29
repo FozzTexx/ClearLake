@@ -347,9 +347,12 @@
   return [self _datastoreObjectForCaseInsensitiveString:aKey];
 }
 
+/* Doing an extra retain & autorelease on allKeys because we are
+   mutable. If we get modified the array will be released unexpectedly
+   and it should stick around until the caller is done with it. */
 -(CLArray *) allKeys
 {
-  return [self _datastoreAllKeys];
+  return [[[self _datastoreAllKeys] retain] autorelease];
 }
 
 -(CLArray *) allKeysForObject:(id) anObject
@@ -357,9 +360,12 @@
   return [self _datastoreAllKeysForObject:anObject];
 }
 
+/* Doing an extra retain & autorelease on allValues because we are
+   mutable. If we get modified the array will be released unexpectedly
+   and it should stick around until the caller is done with it. */
 -(CLArray *) allValues
 {
-  return [self _datastoreAllValues];
+  return [[[self _datastoreAllValues] retain] autorelease];
 }
 
 -(CLUInteger) hash

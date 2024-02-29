@@ -46,6 +46,41 @@
   return [[[CLMutableArrayDatastore alloc] init] autorelease];
 }
 
+#if DEBUG_RETAIN
+#undef copy
+#undef retain
+#include <stdio.h>
+-(id) copy:(const char *) file :(int) line :(id) retainer
+{
+  CLMutableArray *anArray = [[CLMutableArrayDatastore alloc] initWithArray:self];
+  extern int CLLeakPrint;
+
+
+  if (CLLeakPrint) {
+    int pl = CLLeakPrint;
+    CLLeakPrint = 0;
+    const char *className = [[[self class] className] UTF8String];
+    if (!className)
+      [self error:@"Unknown class!"];
+    fprintf(stdout, "0x%lx copy %s - 0x%lx %s:%i %i\n",
+            (unsigned long) self, className, (unsigned long) retainer,
+            file, line, [self retainCount] + 1);
+    CLLeakPrint = pl;
+  }
+
+  return anArray;
+}
+#else
+-(id) copy
+{
+  return [[[CLMutableArrayDatastore alloc] initWithArray:self] autorelease];
+}
+#endif
+
+@end
+
+@implementation CLMutableArray (CLMutableArrayModifying)
+
 -(void) addObject:(id) anObject
 {
   return [self insertObject:anObject atIndex:[self count]];
@@ -113,36 +148,31 @@
   return;
 }
 
-#if DEBUG_RETAIN
-#undef copy
-#undef retain
-#include <stdio.h>
--(id) copy:(const char *) file :(int) line :(id) retainer
+-(void) removeObjectsInArray:(CLArray *) anArray
 {
-  CLMutableArray *anArray = [[CLMutableArrayDatastore alloc] initWithArray:self];
-  extern int CLLeakPrint;
+  CLUInteger idx, count, pos;
 
 
-  if (CLLeakPrint) {
-    int pl = CLLeakPrint;
-    CLLeakPrint = 0;
-    const char *className = [[[self class] className] UTF8String];
-    if (!className)
-      [self error:@"Unknown class!"];
-    fprintf(stdout, "0x%lx copy %s - 0x%lx %s:%i %i\n",
-            (unsigned long) self, className, (unsigned long) retainer,
-            file, line, [self retainCount] + 1);
-    CLLeakPrint = pl;
+  for (idx = 0, count = [anArray count]; idx < count; idx++) {
+    pos = [self indexOfObject:[anArray objectAtIndex:idx]];
+    if (pos != CLNotFound)
+      [self removeObjectAtIndex:pos];
   }
 
-  return anArray;
+  return;
 }
-#else
--(id) copy
+
+-(void) sortUsingDescriptors:(CLArray *) sortDescriptors
 {
-  return [[[CLMutableArrayDatastore alloc] initWithArray:self] autorelease];
+  [self error:@"Not implemented"];
+  return;
 }
-#endif
+
+-(void) sortUsingSelector:(SEL) comparator
+{
+  [self error:@"Not implemented"];
+  return;
+}
 
 @end
 
