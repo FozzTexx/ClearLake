@@ -1,5 +1,5 @@
-#ifndef CLSTRINGBRIDGE_H
-#define CLSTRINGBRIDGE_H
+#ifndef _CLSTRINGBRIDGE_H
+#define _CLSTRINGBRIDGE_H
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -14,4 +14,4 @@
 
 extern int CLPythonConvertString(PyObject *anObj, void *address);
 
-#endif /* CLSTRINGBRIDGETHON_H */
+#endif /* _CLSTRINGBRIDGE_H */

@@ -1,5 +1,5 @@
-#ifndef CLNUMBERBRIDGE_H
-#define CLNUMBERBRIDGE_H
+#ifndef _CLNUMBERBRIDGE_H
+#define _CLNUMBERBRIDGE_H
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -10,4 +10,4 @@
 -(PyObject *) pythonObject;
 @end
 
-#endif /* CLNUMBERBRIDGE_H */
+#endif /* _CLNUMBERBRIDGE_H */

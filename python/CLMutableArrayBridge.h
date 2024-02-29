@@ -1,5 +1,5 @@
-#ifndef CLMUTABLEARRAYBRIDGE_H
-#define CLMUTABLEARRAYBRIDGE_H
+#ifndef _CLMUTABLEARRAYBRIDGE_H
+#define _CLMUTABLEARRAYBRIDGE_H
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -15,4 +15,4 @@
 -(void) dealloc;
 @end
 
-#endif /* CLMUTABLEARRAYBRIDGE_H */
+#endif /* _CLMUTABLEARRAYBRIDGE_H */

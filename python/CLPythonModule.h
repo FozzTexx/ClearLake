@@ -1,8 +1,8 @@
-#ifndef CLPYTHONMODULE_H
-#define CLPYTHONMODULE_H
+#ifndef _CLPYTHONMODULE_H
+#define _CLPYTHONMODULE_H
 
 @class CLString;
 
 extern PyObject *CLPythonClassFromString(CLString *aString);
 
-#endif /* CLPYTHONMODULE_H */
+#endif /* _CLPYTHONMODULE_H */

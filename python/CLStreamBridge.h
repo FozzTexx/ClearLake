@@ -1,5 +1,5 @@
-#ifndef CLSTREAMBRIDGE_H
-#define CLSTREAMBRIDGE_H
+#ifndef _CLSTREAMBRIDGE_H
+#define _CLSTREAMBRIDGE_H
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -25,4 +25,4 @@
 
 extern int CLPythonConvertStream(PyObject *anObj, void *address);
 
-#endif /* CLSTREAMBRIDGE_H */
+#endif /* _CLSTREAMBRIDGE_H */

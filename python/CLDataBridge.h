@@ -1,5 +1,5 @@
-#ifndef CLDATABRIDGE_H
-#define CLDATABRIDGE_H
+#ifndef _CLDATABRIDGE_H
+#define _CLDATABRIDGE_H
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -10,4 +10,4 @@
 -(PyObject *) pythonObject;
 @end
 
-#endif /* CLDATABRIDGE_H */
+#endif /* _CLDATABRIDGE_H */

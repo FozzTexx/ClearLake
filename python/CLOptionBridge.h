@@ -1,5 +1,5 @@
-#ifndef CLOPTIONBRIDGE_H
-#define CLOPTIONBRIDGE_H
+#ifndef _CLOPTIONBRIDGE_H
+#define _CLOPTIONBRIDGE_H
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -8,4 +8,4 @@
 
 extern PyTypeObject CLOptionBridgeType;
 
-#endif /* CLOPTIONBRIDGE_H */
+#endif /* _CLOPTIONBRIDGE_H */

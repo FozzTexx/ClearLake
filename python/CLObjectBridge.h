@@ -1,5 +1,5 @@
-#ifndef CLOBJECTBRIDGE_H
-#define CLOBJECTBRIDGE_H
+#ifndef _CLOBJECTBRIDGE_H
+#define _CLOBJECTBRIDGE_H
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -26,4 +26,4 @@ typedef struct {
     id bridgeObject;
 } CLObjectLink;
 
-#endif /* CLOBJECTBRIDGE_H */
+#endif /* _CLOBJECTBRIDGE_H */
