@@ -322,6 +322,58 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   return;
 }
 
+-(void) insertObject:(id) anObject atIndex:(CLUInteger) index
+{
+  CLArrayStorage *storage = arrayData;
+
+
+  if (!anObject)
+    [self error:@"Attempt to insert nil"];
+  if (index > storage->numElements)
+    [self error:@"Index out of range"];
+
+  if (storage->numElements+1 > storage->maxElements)
+    [self grow];
+  if (storage->numElements - index)
+    memmove(&storage->dataPtr[index+1], &storage->dataPtr[index],
+            (storage->numElements - index) * sizeof(id));
+  storage->dataPtr[index] = anObject;
+  storage->numElements++;
+  [anObject retain];
+  return;
+}
+
+-(void) removeObjectsInRange:(CLRange) aRange
+{
+  CLArrayStorage *storage = arrayData;
+  CLUInteger idx;
+  id *oldData;
+
+
+  if (CLMaxRange(aRange) > storage->numElements || !aRange.length)
+    return;
+
+  if (!(oldData = alloca(sizeof(id) * aRange.length)))
+    [self error:@"Unable to allocate memory"];
+  memcpy(oldData, &storage->dataPtr[aRange.location], aRange.length * sizeof(id));
+
+  if (storage->numElements - CLMaxRange(aRange))
+    memmove(&storage->dataPtr[aRange.location], &storage->dataPtr[CLMaxRange(aRange)],
+            (storage->numElements - CLMaxRange(aRange)) * sizeof(id));
+  storage->numElements -= aRange.length;
+
+  for (idx = 0; idx < aRange.length; idx++)
+    [oldData[idx] release];
+
+  return;
+}
+
+@end
+
+#if 0
+
+@implementation CLMutableArrayDatastore (DirectAccess)
+
 -(void) addObjects:(id) firstObj, ...
 {
   CLArrayStorage *storage = arrayData;
@@ -361,27 +413,6 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   storage->numElements += [otherArray count];
   for (; idx < storage->numElements; idx++)
     [storage->dataPtr[idx] retain];
-  return;
-}
-
--(void) insertObject:(id) anObject atIndex:(CLUInteger) index
-{
-  CLArrayStorage *storage = arrayData;
-
-
-  if (!anObject)
-    [self error:@"Attempt to insert nil"];
-  if (index > storage->numElements)
-    [self error:@"Index out of range"];
-
-  if (storage->numElements+1 > storage->maxElements)
-    [self grow];
-  if (storage->numElements - index)
-    memmove(&storage->dataPtr[index+1], &storage->dataPtr[index],
-            (storage->numElements - index) * sizeof(id));
-  storage->dataPtr[index] = anObject;
-  storage->numElements++;
-  [anObject retain];
   return;
 }
 
@@ -430,31 +461,6 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   return;
 }
 
--(void) removeObjectsInRange:(CLRange) aRange
-{
-  CLArrayStorage *storage = arrayData;
-  CLUInteger idx;
-  id *oldData;
-
-
-  if (CLMaxRange(aRange) > storage->numElements || !aRange.length)
-    return;
-
-  if (!(oldData = alloca(sizeof(id) * aRange.length)))
-    [self error:@"Unable to allocate memory"];
-  memcpy(oldData, &storage->dataPtr[aRange.location], aRange.length * sizeof(id));
-
-  if (storage->numElements - CLMaxRange(aRange))
-    memmove(&storage->dataPtr[aRange.location], &storage->dataPtr[CLMaxRange(aRange)],
-            (storage->numElements - CLMaxRange(aRange)) * sizeof(id));
-  storage->numElements -= aRange.length;
-
-  for (idx = 0; idx < aRange.length; idx++)
-    [oldData[idx] release];
-
-  return;
-}
-
 -(void) sortUsingDescriptors:(CLArray *) sortDescriptors
 {
   CLArrayStorage *storage = arrayData;
@@ -489,3 +495,5 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 }
 
 @end
+
+#endif
