@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLMYSQLDATABASE_H
+#define _CLMYSQLDATABASE_H
+
 #import <ClearLake/CLDatabase.h>
 
 /* Must undef and redef alloc because MySQL used it as a struct member */
@@ -43,3 +46,5 @@
 -(id) runQuery:(CLString *) aQuery;
 
 @end
+
+#endif /* _CLMYSQLDATABASE_H */

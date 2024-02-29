@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLMETHODSIGNATURE_H
+#define _CLMETHODSIGNATURE_H
+
 #import <ClearLake/CLObject.h>
 
 @interface CLMethodSignature:CLObject <CLCopying>
@@ -44,3 +47,5 @@
 -(CLUInteger) sizeOfReturnValue;
 
 @end
+
+#endif /* _CLMETHODSIGNATURE_H */

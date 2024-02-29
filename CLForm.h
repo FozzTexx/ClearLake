@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLFORM_H
+#define _CLFORM_H
+
 #import <ClearLake/CLControl.h>
 
 @class CLInput;
@@ -67,3 +70,5 @@
 @end
 
 extern CLStream *CLFormInputStream;
+
+#endif /* _CLFORM_H */

@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLACCESSCONTROL_H
+#define _CLACCESSCONTROL_H
+
 #import <ClearLake/CLObject.h>
 
 @interface CLAccessControl:CLObject <CLCopying>
@@ -34,3 +37,5 @@
 -(BOOL) checkPermission:(id) anObject;
 
 @end
+
+#endif /* _CLACCESSCONTROL_H */

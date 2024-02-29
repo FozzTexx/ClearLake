@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLSTANDARDCONTENTCATEGORY_H
+#define _CLSTANDARDCONTENTCATEGORY_H
+
 #import <ClearLake/CLGenericRecord.h>
 
 @class CLStandardContent, CLCategory;
@@ -35,3 +38,4 @@
 +(void) linkerIsBorked;
 @end
 
+#endif /* _CLSTANDARDCONTENTCATEGORY_H */

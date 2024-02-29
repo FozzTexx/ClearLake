@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLRELATIONSHIP_H
+#define _CLRELATIONSHIP_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLArray, CLString, CLDictionary, CLMutableDictionary;
@@ -55,3 +58,5 @@
 -(BOOL) isReciprocal:(CLRelationship *) aRelationship forTable:(CLString *) aTable;
 
 @end
+
+#endif /* _CLRELATIONSHIP_H */

@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLMANAGER_H
+#define _CLMANAGER_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLString, CLDictionary, CLForm, CLControl, CLSession, CLPage,
@@ -124,3 +127,5 @@ extern void CLRun(CLString *mainObjectName);
 extern CLUInteger CLHandleRequest(CLString *mainObjectName, CLStream *htmlStream,
                                   CLStream *headerStream, CLStream *inputStream);
 extern void CLInitializeQuery(CLString *aString);
+
+#endif /* _CLMANAGER_H */

@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLEMAILMESSAGE_H
+#define _CLEMAILMESSAGE_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLDictionary, CLString, CLEmailHeader;
@@ -44,3 +47,5 @@
 
 void CLSendEmailUsingTemplate(CLDictionary *aDict, CLString *aFilename,
                               CLString *sendmailOptions);
+
+#endif /* _CLEMAILMESSAGE_H */

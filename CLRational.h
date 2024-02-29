@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLRATIONAL_H
+#define _CLRATIONAL_H
+
 #define CLRationalMaxSize       8
 
 typedef struct {
@@ -41,3 +44,5 @@ extern CLCalculationError CLRationalMultiply(CLRational *result,
 extern CLCalculationError CLRationalDivide(CLRational *result,
                                            const CLRational *leftOp, CLRational *rightOp,
                                            CLRoundingMode roundingMode);
+
+#endif /* _CLRATIONAL_H */

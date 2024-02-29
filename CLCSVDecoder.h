@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLCSVDECODER_H
+#define _CLCSVDECODER_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLCharacterSet, CLMutableArray, CLArray;
@@ -39,3 +42,5 @@
 -(CLArray *) decodeNextRow;
 
 @end
+
+#endif /* _CLCSVDECODER_H */

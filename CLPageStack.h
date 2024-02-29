@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLPAGESTACK_H
+#define _CLPAGESTACK_H
+
 #import <ClearLake/CLObject.h>
 #import <ClearLake/CLString.h>
 
@@ -41,3 +44,5 @@
 -(void) setPosition:(CLUInteger) aValue;
 
 @end
+
+#endif /* _CLPAGESTACK_H */

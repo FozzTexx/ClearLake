@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLCACHEDIMAGE_H
+#define _CLCACHEDIMAGE_H
+
 #import <ClearLake/CLGenericRecord.h>
 #import <ClearLake/CLImageElement.h>
 #import <ClearLake/CLOriginalImage.h>
@@ -33,3 +36,5 @@
 -(void) setEffects:(CLString *) aString;
 -(CLOriginalImage *) parent;
 @end
+
+#endif /* _CLCACHEDIMAGE_H */

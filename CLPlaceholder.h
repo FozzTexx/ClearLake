@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLPLACEHOLDER_H
+#define _CLPLACEHOLDER_H
+
 #import <ClearLake/CLObject.h>
 
 @interface CLPlaceholder:CLObject <CLCopying>
@@ -39,3 +42,5 @@
 -(void) setTag:(CLUInteger) aValue;
 
 @end
+
+#endif /* _CLPLACEHOLDER_H */

@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLDATETIME_H
+#define _CLDATETIME_H
+
 #import <ClearLake/CLObject.h>
 
 #include <time.h>
@@ -85,3 +88,5 @@ typedef double CLTimeInterval;
 -(CLComparisonResult) compare:(CLDatetime *) aDate;
 
 @end
+
+#endif /* _CLDATETIME_H */

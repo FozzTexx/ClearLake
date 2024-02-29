@@ -21,6 +21,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLNOTIFICATION_H
+#define _CLNOTIFICATION_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLString, CLDictionary;
@@ -45,3 +48,5 @@
 -(CDictionary *) userInfo;
 
 @end
+
+#endif /* _CLNOTIFICATION_H */

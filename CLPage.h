@@ -21,6 +21,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLPAGE_H
+#define _CLPAGE_H
+
 #import <ClearLake/CLObject.h>
 #import <ClearLake/CLStream.h>
 #import <ClearLake/CLHashTable.h>
@@ -117,3 +120,5 @@ extern void CLRedirectBrowserToPage(CLString *aFilename, BOOL includeQuery);
 
 extern CLStream *CLPageDisplayHTML, *CLPageDisplayHeaders;
 extern CLUInteger CLPageDisplayStatus;
+
+#endif /* _CLPAGE_H */

@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLMEMORYSTREAM_H
+#define _CLMEMORYSTREAM_H
+
 #import <ClearLake/CLStream.h>
 
 @class CLString, CLData;
@@ -47,3 +50,5 @@
 -(CLData *) data;
 
 @end
+
+#endif /* _CLMEMORYSTREAM_H */

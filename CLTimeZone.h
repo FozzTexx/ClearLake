@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLTIMEZONE_H
+#define _CLTIMEZONE_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLString, CLDatetime;
@@ -48,3 +51,5 @@
 -(CLString *) zone;
 
 @end
+
+#endif /* _CLTIMEZONE_H */

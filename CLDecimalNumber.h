@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLDECIMALNUMBER_H
+#define _CLDECIMALNUMBER_H
+
 #import <ClearLake/CLNumber.h>
 #import <ClearLake/CLDecimal.h>
 
@@ -74,3 +77,5 @@
 -(CLString *) description;
 
 @end
+
+#endif /* _CLDECIMALNUMBER_H */

@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLEXPRESSION_H
+#define _CLEXPRESSION_H
+
 #import <ClearLake/CLObject.h>
 
 @interface CLExpression:CLObject
@@ -48,3 +51,5 @@
 @protocol CLExpression
 -(id) valueForExpression:(CLString *) aString success:(BOOL *) success;
 @end
+
+#endif /* _CLEXPRESSION_H */

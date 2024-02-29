@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLFILETYPE_H
+#define _CLFILETYPE_H
+
 #import <ClearLake/CLGenericRecord.h>
 
 @interface CLFileType:CLGenericRecord
@@ -33,3 +36,5 @@
 @interface CLFileType (LinkerIsBorked)
 +(void) linkerIsBorked;
 @end
+
+#endif /* _CLFILETYPE_H */

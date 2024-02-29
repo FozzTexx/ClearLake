@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLOPTION_H
+#define _CLOPTION_H
+
 #import <ClearLake/CLElement.h>
 #import <ClearLake/CLStream.h>
 
@@ -52,3 +55,5 @@
 -(void) writeHTML:(CLStream *) stream;
 
 @end
+
+#endif /* _CLOPTION_H */

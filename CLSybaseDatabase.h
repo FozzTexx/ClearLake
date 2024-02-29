@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLSYBASEDATABASE_H
+#define _CLSYBASEDATABASE_H
+
 #import <ClearLake/CLDatabase.h>
 
 #include <ctpublic.h>
@@ -35,3 +38,5 @@
 -(id) runQuery:(CLString *) aQuery;
 
 @end
+
+#endif /* _CLSYBASEDATABASE_H */

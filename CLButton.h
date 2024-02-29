@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLBUTTON_H
+#define _CLBUTTON_H
+
 #import <ClearLake/CLInput.h>
 
 @interface CLButton:CLInput
@@ -27,3 +30,5 @@
 }
 
 @end
+
+#endif /* _CLBUTTON_H */

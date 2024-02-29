@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLSESSION_H
+#define _CLSESSION_H
+
 #import <ClearLake/CLGenericRecord.h>
 
 @class CLDatetime, CLAccount, CLDecimalNumber;
@@ -45,3 +48,5 @@
 -(void) setLastSeen:(CLDatetime *) aDate;
 -(void) setReturnTo:(id) anObject;
 @end
+
+#endif /* _CLSESSION_H */

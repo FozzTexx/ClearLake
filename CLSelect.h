@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLSELECT_H
+#define _CLSELECT_H
+
 #import <ClearLake/CLInput.h>
 
 @interface CLSelect:CLInput
@@ -32,3 +35,5 @@
 -(void) selectOptionWithName:(CLString *) aString;
 -(int) numOptions;
 @end
+
+#endif /* _CLSELECT_H */

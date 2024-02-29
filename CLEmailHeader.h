@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLEMAILHEADER_H
+#define _CLEMAILHEADER_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLArray, CLMutableArray;
@@ -43,3 +46,5 @@
 -(CLArray *) headers;
 
 @end
+
+#endif /* _CLEMAILHEADER_H */

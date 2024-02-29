@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLRANGEVIEW_H
+#define _CLRANGEVIEW_H
+
 #import <ClearLake/CLBlock.h>
 
 @class CLDictionary;
@@ -42,3 +45,5 @@
 @protocol CLRangeViewDelegate
 -(CLDictionary *) extraQueryForRangeView:(CLRangeView *) aView;
 @end
+
+#endif /* _CLRANGEVIEW_H */

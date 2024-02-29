@@ -19,9 +19,14 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLNULL_H
+#define _CLNULL_H
+
 #import <ClearLake/CLObject.h>
 
 @interface CLNull:CLObject
 @end
 
 extern id CLNullObject;
+
+#endif /* _CLNULL_H */

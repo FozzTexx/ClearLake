@@ -19,7 +19,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLTEXTAREA_H
+#define _CLTEXTAREA_H
+
 #import <ClearLake/CLInput.h>
 
 @interface CLTextArea:CLInput
 @end
+
+#endif /* _CLTEXTAREA_H */

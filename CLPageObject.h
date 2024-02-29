@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLPAGEOBJECT_H
+#define _CLPAGEOBJECT_H
+
 #import <ClearLake/CLObject.h>
 
 typedef enum {
@@ -49,3 +52,5 @@ typedef enum {
 -(Class) objectClass;
 
 @end
+
+#endif /* _CLPAGEOBJECT_H */

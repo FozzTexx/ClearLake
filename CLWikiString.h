@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLWIKISTRING_H
+#define _CLWIKISTRING_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLArray, CLMutableArray;
@@ -42,3 +45,5 @@
 -(void) unlinkMedia;
 
 @end
+
+#endif /* _CLWIKISTRING_H */

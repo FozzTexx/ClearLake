@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLINVOCATION_H
+#define _CLINVOCATION_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLMethodSignature;
@@ -53,3 +56,5 @@
 -(void) invoke;
 
 @end
+
+#endif /* _CLINVOCATION_H */
