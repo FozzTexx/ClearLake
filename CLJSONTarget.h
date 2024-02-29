@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLJSONTARGET_H
+#define _CLJSONTARGET_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLString;
@@ -39,3 +42,5 @@
 -(void) showPage:(id) sender;
 
 @end
+
+#endif /* _CLJSONTARGET_H */

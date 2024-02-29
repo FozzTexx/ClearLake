@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLWIKIIMAGE_H
+#define _CLWIKIIMAGE_H
+
 #import <ClearLake/CLWikiObject.h>
 
 @class CLOriginalImage, CLInput, CLNumber;
@@ -32,3 +35,5 @@
 -(void) setPosition:(int) aNumber;
 -(CLComparisonResult) comparePosition:(id) anImage;
 @end
+
+#endif /* _CLWIKIIMAGE_H */

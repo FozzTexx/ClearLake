@@ -21,6 +21,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _HEADER_H
+#define _HEADER_H
+
 #import <ClearLake/CLObject.h>
 #import <ClearLake/CLStream.h>
 
@@ -46,3 +49,5 @@
 -(const char *) headerAt:(int) index;
 
 @end
+
+#endif /* _HEADER_H */

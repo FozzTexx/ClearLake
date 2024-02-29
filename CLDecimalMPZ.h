@@ -35,6 +35,9 @@
    is used is in decimalNumberByDividingBy:
 */
 
+#ifndef _CLDECIMALMPZ_H
+#define _CLDECIMALMPZ_H
+
 #import <ClearLake/CLDecimal.h>
 #import <ClearLake/CLRuntime.h>
 
@@ -134,3 +137,5 @@ CL_INLINE CLComparisonResult CLCompareMPZ(CLDecimalMPZ *leftOperand,
 }
 
 #endif
+
+#endif /* _CLDECIMALMPZ_H */

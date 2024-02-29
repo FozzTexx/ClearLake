@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLWIKIOBJECT_H
+#define _CLWIKIOBJECT_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLDictionary, CLMutableDictionary;
@@ -39,3 +42,5 @@
 -(CLString *) wikiClassName;
 
 @end
+
+#endif /* _CLWIKIOBJECT_H */

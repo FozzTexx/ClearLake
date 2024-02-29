@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLATTRIBUTE_H
+#define _CLATTRIBUTE_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLString, CLArray;
@@ -62,3 +65,5 @@ typedef enum {
 extern CLArray *CLAttributes(CLString *name, ...);
 extern CLArray *CLAttributesFromArray(CLArray *anArray);
 extern CLAttributeType CLAttributeTypeFor(int aType);
+
+#endif /* _CLATTRIBUTE_H */

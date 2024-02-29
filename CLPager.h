@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLPAGER_H
+#define _CLPAGER_H
+
 #import <ClearLake/CLBlock.h>
 
 @interface CLPager:CLBlock <CLCopying, CLArchiving>
@@ -37,3 +40,5 @@
 -(void) goto:(id) sender;
 
 @end
+
+#endif /* _CLPAGER_H */

@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLWIKIMEDIA_H
+#define _CLWIKIMEDIA_H
+
 #import <ClearLake/CLWikiObject.h>
 
 @class CLNumber, CLOriginalFile, CLInput;
@@ -30,3 +33,5 @@
 -(BOOL) setFileFromField:(CLInput *) aField;
 -(CLString *) playerID;
 @end
+
+#endif /* _CLWIKIMEDIA_H */

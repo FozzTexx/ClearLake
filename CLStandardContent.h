@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLSTANDARDCONTENT_H
+#define _CLSTANDARDCONTENT_H
+
 #import <ClearLake/CLGenericRecord.h>
 
 #define CLSCDashMode            1
@@ -77,3 +80,5 @@
 -(void) setUrlTitle:(CLString *) aString;
 -(void) detail:(id) sender;
 @end
+
+#endif /* _CLSTANDARDCONTENT_H */

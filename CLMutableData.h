@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLMUTABLEDATA_H
+#define _CLMUTABLEDATA_H
+
 #import <ClearLake/CLData.h>
 
 @interface CLMutableData:CLData <CLCopying>
@@ -35,3 +38,5 @@
 -(void) appendData:(CLData *) aData;
 
 @end
+
+#endif /* _CLMUTABLEDATA_H */

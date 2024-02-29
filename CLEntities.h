@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLENTITIES_H
+#define _CLENTITIES_H
+
 static struct {
   unichar c;
   CLString *entity;
@@ -279,3 +282,4 @@ static struct {
   {0, nil},
 };
 
+#endif /* _CLENTITIES_H */

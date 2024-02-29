@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLSTANDARDCONTENTFILE_H
+#define _CLSTANDARDCONTENTFILE_H
+
 #import <ClearLake/CLOriginalFile.h>
 
 @class CLFileType;
@@ -36,3 +39,5 @@
 -(CLFileType *) type;
 -(void) setType:(CLFileType *) aType;
 @end
+
+#endif /* _CLSTANDARDCONTENTFILE_H */

@@ -21,6 +21,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLCOOKIE_H
+#define _CLCOOKIE_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLString, CLDatetime, CLArray, CLMutableArray;
@@ -65,3 +68,5 @@ extern void CLReplaceCookie(CLCookie *aCookie);
 extern CLCookie *CLCookieWithKey(CLString *aKey, BOOL onlyFromBrowser);
 extern CLArray *CLCookiesWithKey(CLString *aKey, BOOL onlyFromBrowser);
 extern void CLRemoveCookie(CLString *aKey);
+
+#endif /* _CLCOOKIE_H */

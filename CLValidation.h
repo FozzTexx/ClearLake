@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLVALIDATION_H
+#define _CLVALIDATION_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLString;
@@ -26,3 +29,5 @@
 extern BOOL CLHasDNSRecord(CLString *type, CLString *host);
 extern BOOL CLValidEmailAddress(CLString *anAddress);
 extern BOOL CLValidCreditCard(CLString *aCCNumber, CLUInteger month, CLUInteger year);
+
+#endif /* _CLVALIDATION_H */

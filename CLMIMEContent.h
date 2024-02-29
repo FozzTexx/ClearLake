@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLMIMECONTENT_H
+#define _CLMIMECONTENT_H
+
 #import <ClearLake/CLObject.h>
 
 @interface CLMIMEContent:CLObject <CLCopying>
@@ -31,3 +34,5 @@
 -(void) dealloc;
 
 @end
+
+#endif /* _CLMIMECONTENT_H */

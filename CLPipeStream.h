@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLPIPESTREAM_H
+#define _CLPIPESTREAM_H
+
 #import <ClearLake/CLStream.h>
 
 @class CLString;
@@ -45,3 +48,5 @@
 -(int) pid;
 
 @end
+
+#endif /* _CLPIPESTREAM_H */

@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLFILESTREAM_H
+#define _CLFILESTREAM_H
+
 #import <ClearLake/CLStream.h>
 
 @class CLString;
@@ -48,3 +51,5 @@
 -(void) drain;
 
 @end
+
+#endif /* _CLFILESTREAM_H */

@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLWIKILINK_H
+#define _CLWIKILINK_H
+
 #import <ClearLake/CLWikiObject.h>
 
 @class CLDictionary, CLMutableDictionary;
@@ -31,3 +34,5 @@
 @protocol CLWikiLinkDelegate
 -(CLString *) hrefForWikiLink:(CLWikiLink *) aLink;
 @end
+
+#endif /* _CLWIKILINK_H */

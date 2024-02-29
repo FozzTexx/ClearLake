@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLCATEGORY_H
+#define _CLCATEGORY_H
+
 #import <ClearLake/CLGenericRecord.h>
 
 @interface CLCategory:CLGenericRecord
@@ -46,3 +49,5 @@
 -(void) setUrlTitle:(CLString *) aString;
 -(void) setParent:(CLCategory *) aParent;
 @end
+
+#endif /* _CLCATEGORY_H */

@@ -19,7 +19,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLPAYPALEXPRESSGATEWAY_H
+#define _CLPAYPALEXPRESSGATEWAY_H
+
 #import "CLPayPalExpressGateway.h"
 
 @implementation CLPayPalExpressGateway
 @end
+
+#endif /* _CLPAYPALEXPRESSGATEWAY_H */

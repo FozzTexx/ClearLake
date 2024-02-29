@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLGEOMETRY_H
+#define _CLGEOMETRY_H
+
 #import <ClearLake/CLRuntime.h>
 
 typedef struct {
@@ -65,3 +68,5 @@ CL_INLINE CLRect CLMakeRect(float x, float y, float w, float h)
   r.size.height = h;
   return r;
 }
+
+#endif /* _CLGEOMETRY_H */

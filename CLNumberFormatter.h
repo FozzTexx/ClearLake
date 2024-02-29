@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLNUMBERFORMATTER_H
+#define _CLNUMBERFORMATTER_H
+
 #import <ClearLake/CLObject.h>
 
 @interface CLNumberFormatter:CLObject <CLCopying>
@@ -39,3 +42,5 @@
 -(CLString *) stringForObjectValue:(id) anObject;
 
 @end
+
+#endif /* _CLNUMBERFORMATTER_H */

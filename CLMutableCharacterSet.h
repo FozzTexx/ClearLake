@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLMUTABLECHARACTERSET_H
+#define _CLMUTABLECHARACTERSET_H
+
 #import <ClearLake/CLCharacterSet.h>
 
 @interface CLMutableCharacterSet:CLCharacterSet <CLCopying>
@@ -31,3 +34,5 @@
 -(void) invert;
 
 @end
+
+#endif /* _CLMUTABLECHARACTERSET_H */

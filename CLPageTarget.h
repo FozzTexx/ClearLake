@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLPAGETARGET_H
+#define _CLPAGETARGET_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLString;
@@ -45,3 +48,5 @@
 @interface CLPageTarget (LinkerIsBorked)
 +(void) linkerIsBorked;
 @end
+
+#endif /* _CLPAGETARGET_H */

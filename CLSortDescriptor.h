@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLSORTDESCRIPTOR_H
+#define _CLSORTDESCRIPTOR_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLArray;
@@ -46,3 +49,5 @@
 -(CLComparisonResult) compareObject:(id) object1 toObject:(id) object2;
 
 @end
+
+#endif /* _CLSORTDESCRIPTOR_H */

@@ -20,6 +20,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLNOTIFICATIONCENTER_H
+#define _CLNOTIFICATIONCENTER_H
+
 #import <ClearLake/CLObject.h>
 
 @class CLNotification, CLString, CLDictionary, CLMutableDictionary;
@@ -42,3 +45,5 @@
                 object:(id) notificationSender;
 
 @end
+
+#endif /* _CLNOTIFICATIONCENTER_H */

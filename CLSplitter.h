@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLSPLITTER_H
+#define _CLSPLITTER_H
+
 #import <ClearLake/CLBlock.h>
 
 @interface CLSplitter:CLBlock <CLCopying>
@@ -35,3 +38,5 @@
 @interface CLSplitter (LinkerIsBorked)
 +(void) linkerIsBorked;
 @end
+
+#endif /* _CLSPLITTER_H */

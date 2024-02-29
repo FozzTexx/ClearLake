@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLCHAINEDSELECT_H
+#define _CLCHAINEDSELECT_H
+
 #import <ClearLake/CLBlock.h>
 
 @interface CLChainedSelect:CLBlock
@@ -31,3 +34,5 @@
 @interface CLChainedSelect (LinkerIsBorked)
 +(void) linkerIsBorked;
 @end
+
+#endif /* _CLCHAINEDSELECT_H */

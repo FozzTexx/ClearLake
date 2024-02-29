@@ -19,6 +19,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CLDATEFORMATTER_H
+#define _CLDATEFORMATTER_H
+
 #import <ClearLake/CLObject.h>
 
 @interface CLDateFormatter:CLObject <CLCopying>
@@ -35,3 +38,5 @@
 -(CLString *) stringForObjectValue:(id) anObject;
 
 @end
+
+#endif /* _CLDATEFORMATTER_H */
