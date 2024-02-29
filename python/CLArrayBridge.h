@@ -1,5 +1,5 @@
-#ifndef CLARRAYBRDIGE_H
-#define CLARRAYBRDIGE_H
+#ifndef _CLARRAYBRDIGE_H
+#define _CLARRAYBRDIGE_H
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -10,4 +10,4 @@
 -(PyObject *) pythonObject;
 @end
 
-#endif /* CLARRAYBRDIGE_H */
+#endif /* _CLARRAYBRDIGE_H */

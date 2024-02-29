@@ -1,5 +1,5 @@
-#ifndef CLCONTROLBRIDGE_H
-#define CLCONTROLBRIDGE_H
+#ifndef _CLCONTROLBRIDGE_H
+#define _CLCONTROLBRIDGE_H
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -8,4 +8,4 @@
 
 extern PyTypeObject CLControlBridgeType;
 
-#endif /* CLCONTROLBRIDGE_H */
+#endif /* _CLCONTROLBRIDGE_H */
