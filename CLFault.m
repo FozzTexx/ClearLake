@@ -54,14 +54,13 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 /* We have our own dealloc to prevent faulting and loading from the database */
 -(void) dealloc
 {
-  void *buf;
   CLObjectReserved *reserved;
   CLFaultData *data;
 
 
-  buf = self;
-  reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  reserved = (void *) self - sizeof(CLObjectReserved);
+  data = reserved->privateData;
+  reserved->privateData = data->originalPrivate;
   self->isa = data->original;
   [self dealloc];
   [data->info.faultData.primaryKey release];
@@ -77,15 +76,13 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
 -(Class) class
 {
-  void *buf;
   CLObjectReserved *reserved;
   CLFaultData *data;
   Class aClass;
 
 
-  buf = self;
-  reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  reserved = (void *) self - sizeof(CLObjectReserved);
+  data = reserved->privateData;
   aClass = object_getClass(data->original);
   if (class_isMetaClass(aClass))
     aClass = data->original;
@@ -94,61 +91,48 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
 -(BOOL) respondsTo:(SEL) aSel
 {
-  void *buf;
   CLObjectReserved *reserved;
   CLFaultData *data;
 
 
-  buf = self;
-  reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  reserved = (void *) self - sizeof(CLObjectReserved);
+  data = reserved->privateData;
 
-  return data && !!([self isInstance] ?
-                    class_getInstanceMethod(data->original, aSel) :
-                    class_getClassMethod(data->original, aSel));
+  return data && !!class_getInstanceMethod(data->original, aSel);
 }
 
 -(struct objc_method_description *) descriptionForMethod:(SEL) aSel
 {
-  void *buf;
   CLObjectReserved *reserved;
   CLFaultData *data;
 
 
-  buf = self;
-  reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  reserved = (void *) self - sizeof(CLObjectReserved);
+  data = reserved->privateData;
 
-  return (struct objc_method_description *)
-           ([self isInstance] ?
-            class_getInstanceMethod(data->original, aSel) :
-            class_getClassMethod(data->original, aSel));
+  return (struct objc_method_description *) class_getInstanceMethod(data->original, aSel);
 }
 
 -(BOOL) isMemberOfClass:(Class) aClassObject
 {
-  void *buf;
   CLObjectReserved *reserved;
   CLFaultData *data;
 
 
-  buf = self;
-  reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  reserved = (void *) self - sizeof(CLObjectReserved);
+  data = reserved->privateData;
   return data->original == aClassObject;
 }
 
 -(BOOL) isKindOfClass:(Class) aClassObject
 {
   Class class;
-  void *buf;
   CLObjectReserved *reserved;
   CLFaultData *data;
 
 
-  buf = self;
-  reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  reserved = (void *) self - sizeof(CLObjectReserved);
+  data = reserved->privateData;
 
   for (class = data->original; class; class = class_getSuperclass(class))
     if (class == aClassObject)
@@ -165,30 +149,25 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
 -(CLEditingContext *) editingContext
 {
-  void *buf;
   CLObjectReserved *reserved;
 
 
-  buf = self;
-  reserved = buf - sizeof(CLObjectReserved);
+  reserved = (void *) self - sizeof(CLObjectReserved);
   return reserved->context;
 }
 
 -(void) setEditingContext:(CLEditingContext *) aContext
 {
-  void *buf;
   CLObjectReserved *reserved;
 
 
-  buf = self;
-  reserved = buf - sizeof(CLObjectReserved);
+  reserved = (void *) self - sizeof(CLObjectReserved);
   reserved->context = aContext;
   return;
 }
 
 -(void) fault
 {
-  void *buf;
   CLObjectReserved *reserved;
   CLFaultData *data;
   int i, j;
@@ -201,9 +180,9 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   CLMutableDictionary *keyData;
 
 
-  buf = self;
-  reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  reserved = (void *) self - sizeof(CLObjectReserved);
+  data = reserved->privateData;
+  reserved->privateData = data->originalPrivate;
   self->isa = data->original;
 
 #if 0
@@ -322,7 +301,6 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
 -(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
 {
-  void *buf;
   CLObjectReserved *reserved;
   CLFaultData *data;
   CLString *fieldName;
@@ -330,9 +308,8 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
 
   *found = NO;
-  buf = self;
-  reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  reserved = (void *) self - sizeof(CLObjectReserved);
+  data = reserved->privateData;
 
   if (![data->info.faultData.primaryKey isKindOfClass:CLDictionaryClass]) {
     fieldName = [[[data->info.faultData.recordDef primaryKeys] objectAtIndex:0] column];
@@ -362,14 +339,12 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
 -(IMP) methodFor:(SEL) aSel
 {
-  void *buf;
   CLFaultData *data;
   CLObjectReserved *reserved;
 
 
-  buf = self;
-  reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  reserved = (void *) self - sizeof(CLObjectReserved);
+  data = reserved->privateData;
 
   return method_getImplementation(class_getInstanceMethod(data->original, aSel));
 }
@@ -477,7 +452,6 @@ id CLNewFault(id info, CLRecordDefinition *recordDef, BOOL fromDB)
 
 void CLBecomeFault(id anObject, id info, CLRecordDefinition *recordDef, BOOL fromDB)
 {
-  void *buf;
   CLObjectReserved *reserved;
   CLFaultData *data, *newFault;
 #if DEBUG_LEAK || DEBUG_RETAIN
@@ -485,10 +459,11 @@ void CLBecomeFault(id anObject, id info, CLRecordDefinition *recordDef, BOOL fro
 #endif
 
 
-  buf = newFault = (CLFaultData *) anObject;
-  reserved = buf - sizeof(CLObjectReserved);
+  newFault = (CLFaultData *) anObject;
+  reserved = (void *) anObject - sizeof(CLObjectReserved);
   data = calloc(1, sizeof(CLFaultData));
-  reserved->faultData = data;
+  data->originalPrivate = reserved->privateData;
+  reserved->privateData = data;
   data->original = newFault->original;
   data->info.faultData.primaryKey = [info retain];
   data->info.faultData.recordDef = [recordDef retain];

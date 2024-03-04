@@ -78,6 +78,7 @@ typedef struct {
 -(void *) cacheBindings;
 -(id) objectValueForBinding:(CLString *) aBinding;
 -(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found;
+-(void) setObjectValue:(id) anObject atLocation:(void *) var type:(int) aType;
 -(void) setObjectValue:(id) anObject forVariable:(CLString *) aField;
 -(void) setObjectValue:(id) anObject forBinding:(CLString *) aBinding;
 -(void) setPrimitiveValue:(id) anObject forKey:(CLString *) aKey;

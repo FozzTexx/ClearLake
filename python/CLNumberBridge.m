@@ -1,4 +1,5 @@
 #import "CLNumberBridge.h"
+#import <ClearLake/CLNumber.h>
 
 @implementation CLNumber (CLPythonExtensions)
 

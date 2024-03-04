@@ -1,4 +1,5 @@
 #import "CLDataBridge.h"
+#import <ClearLake/CLData.h>
 
 @implementation CLData (CLPythonExtensions)
 

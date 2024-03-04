@@ -1,20 +1,7 @@
 #import "CLPageBridge.h"
 #import "CLObjectBridge.h"
 #import "CLStreamBridge.h"
-
-@implementation CLPage (CLPythonExtensions)
-
--(PyObject *) pythonObject
-{
-  CLObjectLink *obj;
-
-
-  obj = (CLObjectLink *) CLPageBridgeType.tp_new(&CLPageBridgeType, PyTuple_New(0), NULL);
-  obj->bridgeObject = [self retain];
-  return (PyObject *) obj;
-}
-
-@end
+#import <ClearLake/CLPage.h>
 
 static int CLPageBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 {
@@ -128,7 +115,7 @@ static PyMethodDef CLPageBridge_methods[] = {
 
 static PyGetSetDef CLPageBridge_getsetters[] = {
   {"status", (getter) CLPageBridge_status, NULL, "HTTP status of the page", NULL},
-  {"owner", (getter) CLPageBridge_owner, CLPageBridge_setOwner,
+  {"owner", (getter) CLPageBridge_owner, (setter) CLPageBridge_setOwner,
    "get the page owner", "set the page owner"},
   {NULL},
 };
@@ -140,6 +127,7 @@ PyTypeObject CLPageBridgeType = {
   .tp_basicsize = sizeof(CLObjectLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+  .tp_base = &CLObjectBridgeType,
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLPageBridge_init,
   .tp_dealloc = (destructor) CLPageBridge_dealloc,

@@ -41,6 +41,7 @@
 +(CLDatabase *) database;
 +(CLDatabase *) databaseForClass:(Class) aClass;
 +(Class) sessionClass;
++(void) setSessionClass:(Class) aClass;
 +(Class) accountClass;
 +(CLString *) generateQualifier:(CLDictionary *) aDict;
 +(CLString *) qualifierForObject:(id) aRecord fromDatabase:(BOOL) fromDB

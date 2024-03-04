@@ -425,7 +425,7 @@ id CLDisposeInstance(id object)
   return (struct objc_method_description *)
            ([self isInstance] ?
             class_getInstanceMethod(self->isa, aSel) :
-            class_getClassMethod(self->isa, aSel));
+            class_getClassMethod(self, aSel));
 }
 
 -(CLMethodSignature *) newMethodSignatureForSelector:(SEL) aSel
@@ -453,8 +453,8 @@ id CLDisposeInstance(id object)
 -(IMP) methodFor:(SEL) aSel
 {
   return method_getImplementation([self isInstance] ?
-                        class_getInstanceMethod(self->isa, aSel) :
-                        class_getClassMethod(self->isa, aSel));
+				  class_getInstanceMethod(self->isa, aSel) :
+				  class_getClassMethod((Class) self, aSel));
 }
 
 /* This is just here to appease gdb */

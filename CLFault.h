@@ -26,8 +26,9 @@
 
 @class CLDictionary, CLRecordDefinition, CLMethodSignature, CLMutableArray;
 
-typedef struct CLFaultData {
+typedef struct {
   Class original;
+  void *originalPrivate;
   union {
     struct {
       CLDictionary *primaryKey;

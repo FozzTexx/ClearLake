@@ -9,7 +9,6 @@
 @interface CLString (CLPythonExtensions)
 +(id) stringFromPythonObject:(PyObject *) pyString;
 -(id) initFromPythonObject:(PyObject *) pyString;
--(PyObject *) pythonObject;
 @end
 
 extern int CLPythonConvertString(PyObject *anObj, void *address);

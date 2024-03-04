@@ -1,22 +1,9 @@
 #import "CLFormBridge.h"
 #import "CLObjectBridge.h"
 #import "CLPageBridge.h"
+#import <ClearLake/CLPage.h>
 #import <ClearLake/CLForm.h>
 #import <ClearLake/CLInput.h>
-
-@implementation CLForm (CLPythonExtensions)
-
--(PyObject *) pythonObject
-{
-  CLObjectLink *obj;
-
-
-  obj = (CLObjectLink *) CLFormBridgeType.tp_new(&CLFormBridgeType, PyTuple_New(0), NULL);
-  obj->bridgeObject = [self retain];
-  return (PyObject *) obj;
-}
-
-@end
 
 static int CLFormBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 {
@@ -133,6 +120,7 @@ PyTypeObject CLFormBridgeType = {
   .tp_basicsize = sizeof(CLObjectLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+  .tp_base = &CLObjectBridgeType,
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLFormBridge_init,
   .tp_dealloc = (destructor) CLFormBridge_dealloc,

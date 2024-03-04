@@ -56,6 +56,7 @@ static id _model = nil;
 /* For CLRecordDefinition category */
 static CLHashTable *_classDefs = NULL, *_tableDefs = NULL,
   *_classTable = NULL, *_tableClass = NULL;
+static Class _sessionClass = nil;
 
 enum {
   MODEL_UNINIT = 0,
@@ -480,9 +481,6 @@ static int _modelInitState = MODEL_UNINIT;
 
 +(Class) sessionClass
 {
-  static Class _sessionClass = nil;
-
-
   if (!_sessionClass) {
     if ([CLDelegate respondsTo:@selector(sessionClass)])
       _sessionClass = [CLDelegate sessionClass];
@@ -509,6 +507,12 @@ static int _modelInitState = MODEL_UNINIT;
   }
 
   return _sessionClass;
+}
+
++(void) setSessionClass:(Class) aClass
+{
+  _sessionClass = aClass;
+  return;
 }
 
 +(Class) accountClass

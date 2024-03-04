@@ -11,7 +11,7 @@
   PyObject *pythonStream;
 }
 
--(id) initWithStreamBridge:(PyObject *) stream;
+-(id) initWithPythonStream:(PyObject *) aStream;
 -(void) dealloc;
 
 -(int) readByte;

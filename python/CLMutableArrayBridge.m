@@ -1,15 +1,31 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include <datetime.h>
 
 #import "CLMutableArrayBridge.h"
 #import "CLObjectBridge.h"
+
+#import <ClearLake/CLConstantString.h>
 
 @implementation CLMutableArray (CLPythonExtensions)
 
 +(id) arrayWithPythonObject:(PyObject *) pyList
 {
   return [[[CLMutableArrayBridge alloc] initWithPythonObject:pyList] autorelease];
+}
+
+-(PyObject *) pythonObject
+{
+  CLObjectLink *obj;
+  PyTypeObject *type;
+
+
+  type = CLPythonBridgeTypeForClass([self class]);
+  if (!type)
+    type = &CLObjectBridgeType;
+
+  obj = (CLObjectLink *) type->tp_new(type, PyTuple_New(0), NULL);
+  obj->bridgeObject = [self retain];
+  return (PyObject *) obj;
 }
 
 @end
