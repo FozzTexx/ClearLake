@@ -36,6 +36,7 @@
 @interface CLMutableArray (CLMutableArrayModifying)
 -(void) addObject:(id) anObject;
 -(void) addObjects:(id) firstObj, ...;
+-(void) addObjects:(const id *) objects count:(CLUInteger) count;
 -(void) addObjectsFromArray:(CLArray *) otherArray;
 -(void) removeObject:(id) anObject;
 -(void) removeObjectAtIndex:(CLUInteger) index;

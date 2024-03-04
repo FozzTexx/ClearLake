@@ -32,6 +32,64 @@
 #include <string.h>
 #include <stdarg.h>
 
+static CLMutableArray *CLQsortStack = nil;
+static SEL CLQsortComparator;
+
+static int CLQsortCompareBySelector(const void *ptr1, const void *ptr2)
+{
+  IMP imp;
+  id object1, object2;
+
+
+  object1 = *(id *) ptr1;
+  object2 = *(id *) ptr2;
+  if (object1 == CLNullObject)
+    object1 = nil;
+  if (object2 == CLNullObject)
+    object2 = nil;
+
+  if (!object1 && object2)
+    return CLOrderedAscending;
+  if (object1 && !object2)
+    return CLOrderedDescending;
+
+  if ((imp = [object1 methodFor:CLQsortComparator]))
+    return ((CLComparisonResult (*) (id,SEL,id)) imp)(object1, CLQsortComparator, object2);
+
+  return CLOrderedSame;
+}
+
+static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
+{
+  int i;
+  CLComparisonResult res = 0;
+  id object1, object2;
+  unsigned int len;
+  CLArray *descriptors;
+
+
+  object1 = *(id *) ptr1;
+  object2 = *(id *) ptr2;
+  if (object1 == CLNullObject)
+    object1 = nil;
+  if (object2 == CLNullObject)
+    object2 = nil;
+
+  if (!object1 && object2)
+    return CLOrderedAscending;
+  if (object1 && !object2)
+    return CLOrderedDescending;
+
+  descriptors = [CLQsortStack lastObject];
+  len = [descriptors count];
+
+  for (i = 0; i < len; i++)
+    if ((res = [[descriptors objectAtIndex:i] compareObject:object1 toObject:object2]))
+      break;
+
+  return res;
+}
+
 @implementation CLMutableArray
 
 +(id) alloc
@@ -98,6 +156,16 @@
     [self addObject:anObject];
   va_end(ap);
 
+  return;
+}
+
+-(void) addObjects:(const id *) objects count:(CLUInteger) count
+{
+  CLUInteger idx;
+
+
+  for (idx = 0; idx < count; idx++)
+    [self addObject:objects[idx]];
   return;
 }
 
@@ -170,7 +238,22 @@
 
 -(void) sortUsingSelector:(SEL) comparator
 {
-  [self error:@"Not implemented"];
+  CLUInteger count = [self count];
+  id *data;
+
+
+  if (count > 1) {
+    CLQsortComparator = comparator;
+
+    if (!(data = alloca(sizeof(id) * count)))
+      [self error:@"Unable to allocate memory"];
+    [self getObjects:data];
+
+    qsort(data, count, sizeof(id), CLQsortCompareBySelector);
+    [self addObjects:data count:count];
+    [self removeObjectsInRange:CLMakeRange(0, count)];
+  }
+
   return;
 }
 

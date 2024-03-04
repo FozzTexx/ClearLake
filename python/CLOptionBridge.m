@@ -36,6 +36,7 @@ PyTypeObject CLOptionBridgeType = {
   .tp_basicsize = sizeof(CLObjectLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+  .tp_base = &CLObjectBridgeType,
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLOptionBridge_init,
   .tp_dealloc = (destructor) CLOptionBridge_dealloc,

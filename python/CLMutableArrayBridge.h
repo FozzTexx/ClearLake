@@ -8,6 +8,7 @@
 
 @interface CLMutableArray (CLPythonExtensions)
 +(id) arrayWithPythonObject:(PyObject *) pyList;
+-(PyObject *) pythonObject;
 @end
 
 @interface CLMutableArrayBridge:CLMutableArray <CLArraySubclass, CLMutableArraySubclass>

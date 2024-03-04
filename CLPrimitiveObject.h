@@ -51,7 +51,7 @@ enum {CLNotFound = CLUIntegerMax};
 typedef struct CLObjectReserved {
   CLUInteger retainCount;
   CLEditingContext *context;
-  void *faultData;
+  void *privateData;
 } CLObjectReserved;
 
 @class CLString, CLMethodSignature;

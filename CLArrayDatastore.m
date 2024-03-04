@@ -28,64 +28,6 @@
 #include <string.h>
 #include <alloca.h>
 
-static CLMutableArray *CLQsortStack = nil;
-static SEL CLQsortComparator;
-
-static int CLQsortCompareBySelector(const void *ptr1, const void *ptr2)
-{
-  IMP imp;
-  id object1, object2;
-
-
-  object1 = *(id *) ptr1;
-  object2 = *(id *) ptr2;
-  if (object1 == CLNullObject)
-    object1 = nil;
-  if (object2 == CLNullObject)
-    object2 = nil;
-
-  if (!object1 && object2)
-    return CLOrderedAscending;
-  if (object1 && !object2)
-    return CLOrderedDescending;
-
-  if ((imp = [object1 methodFor:CLQsortComparator]))
-    return ((CLComparisonResult (*) (id,SEL,id)) imp)(object1, CLQsortComparator, object2);
-
-  return CLOrderedSame;
-}
-
-static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
-{
-  int i;
-  CLComparisonResult res = 0;
-  id object1, object2;
-  unsigned int len;
-  CLArray *descriptors;
-
-
-  object1 = *(id *) ptr1;
-  object2 = *(id *) ptr2;
-  if (object1 == CLNullObject)
-    object1 = nil;
-  if (object2 == CLNullObject)
-    object2 = nil;
-
-  if (!object1 && object2)
-    return CLOrderedAscending;
-  if (object1 && !object2)
-    return CLOrderedDescending;
-
-  descriptors = [CLQsortStack lastObject];
-  len = [descriptors count];
-
-  for (i = 0; i < len; i++)
-    if ((res = [[descriptors objectAtIndex:i] compareObject:object1 toObject:object2]))
-      break;
-
-  return res;
-}
-
 @interface CLArray (CLArrayDatastoreCommon)
 -(id) _datastoreInitWithObjects:(const id *) objects count:(unsigned) count;
 -(void) _datastoreDealloc;
@@ -133,6 +75,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   for (idx = 0; idx < storage->numElements; idx++)
     [storage->dataPtr[idx] release];
   free(storage->dataPtr);
+  storage->dataPtr = -1;
   free(storage);
   return;
 }
@@ -220,8 +163,8 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
 -(void) dealloc
 {
-  [super dealloc];
   [self _datastoreDealloc];
+  [super dealloc];
   return;
 }
 
@@ -273,8 +216,8 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
 -(void) dealloc
 {
-  [super dealloc];
   [self _datastoreDealloc];
+  [super dealloc];
   return;
 }
 

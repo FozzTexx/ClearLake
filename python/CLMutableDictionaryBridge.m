@@ -1,6 +1,5 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include <datetime.h>
 
 #import <ClearLake/CLString.h>
 #import "CLMutableDictionaryBridge.h"

@@ -497,6 +497,9 @@ static CLMutableDictionary *CLConfig = nil;
     return;
 
   sessionDef = [CLEditingContext recordDefinitionForClass:sessionClass];
+  if (!sessionDef)
+    return;
+
   db = [sessionDef database];
   localTable = [sessionDef databaseTable];
 
@@ -822,6 +825,8 @@ static CLMutableDictionary *CLConfig = nil;
         user_id = [self validateUser:sender uniqueMask:0];
 
       if (user_id > 0) {
+	[[sender pageForm] setValue:nil forFieldNamed:FIELD_ACCOUNT];
+	[[sender pageForm] setValue:nil forFieldNamed:FIELD_PASSWORD];
         [[self activeSession]
           setAccount:[CLDefaultContext loadObjectWithClass:[CLEditingContext accountClass]
                                                    objectID:user_id]];

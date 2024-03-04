@@ -59,7 +59,8 @@
 
   buf = self;
   reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  data = reserved->privateData;
+  reserved->privateData = data->originalPrivate;
   self->isa = data->original;
 
   pool = [[CLAutoreleasePool alloc] init];
@@ -112,7 +113,7 @@
 
   buf = self;
   reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  data = reserved->privateData;
 
   if ([data->info.arrayData.objects containsObjectIdenticalTo:anObject])
     return YES;
@@ -134,7 +135,7 @@
 
   buf = self;
   reserved = buf - sizeof(CLObjectReserved);
-  data = reserved->faultData;
+  data = reserved->privateData;
 
   if (!data->info.arrayData.objects)
     data->info.arrayData.objects = [[CLMutableArray alloc] init];
@@ -158,7 +159,8 @@ id CLNewArrayFault(CLString *aQualifier, CLString *aTable, CLEditingContext *aCo
   buf = anObject;
   reserved = buf - sizeof(CLObjectReserved);
   data = calloc(1, sizeof(CLFaultData));
-  reserved->faultData = data;
+  data->originalPrivate = reserved->privateData;
+  reserved->privateData = data;
   reserved->context = aContext;
   data->original = anObject->original;
   data->info.arrayData.qualifier = [aQualifier copy];

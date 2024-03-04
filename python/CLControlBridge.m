@@ -2,21 +2,6 @@
 #import "CLObjectBridge.h"
 #import <ClearLake/CLControl.h>
 
-@implementation CLControl (CLPythonExtensions)
-
--(PyObject *) pythonObject
-{
-  CLObjectLink *obj;
-
-
-  obj = (CLObjectLink *) CLControlBridgeType.tp_new(&CLControlBridgeType,
-                                                    PyTuple_New(0), NULL);
-  obj->bridgeObject = [self retain];
-  return (PyObject *) obj;
-}
-
-@end
-
 static int CLControlBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"string", "page", NULL};
@@ -52,7 +37,7 @@ static int CLControlBridge_setVisible(CLObjectLink *self, PyObject *value, void 
 }
 
 static PyGetSetDef CLControlBridge_getsetters[] = {
-  {"visible", (getter) CLControlBridge_visible, CLControlBridge_setVisible,
+  {"visible", (getter) CLControlBridge_visible, (setter) CLControlBridge_setVisible,
    "boolean represinting if element is visible", "set if the element is visible"},
   {NULL},
 };
@@ -64,6 +49,7 @@ PyTypeObject CLControlBridgeType = {
   .tp_basicsize = sizeof(CLObjectLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+  .tp_base = &CLObjectBridgeType,
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLControlBridge_init,
   .tp_dealloc = (destructor) CLControlBridge_dealloc,

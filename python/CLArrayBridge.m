@@ -1,4 +1,5 @@
 #import "CLArrayBridge.h"
+#import <ClearLake/CLArray.h>
 
 @implementation CLArray (CLPythonExtensions)
 
