@@ -16,6 +16,7 @@ static int CLPageBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
     return -1;
 
   self->bridgeObject = [[CLPage alloc] initFromFile:path owner:owner];
+  [self->bridgeObject setPythonObject:self];
 
   return 0;
 }
@@ -98,18 +99,12 @@ static PyMappingMethods CLPageBridge_mapping = {
 };
 
 static PyMethodDef CLPageBridge_methods[] = {
-  {
-    "display", (PyCFunction) CLPageBridge_display, METH_NOARGS,
-    "render the page and send it to stdout",
-  },
-  {
-    "updateBindings", (PyCFunction) CLPageBridge_updateBindings, METH_NOARGS,
-    "update all the dynamic content on the page",
-  },
-  {
-    "writeHTML", (PyCFunction) CLPageBridge_writeHTML, METH_VARARGS | METH_KEYWORDS,
-    "write out the HTML and optionally the headers",
-  },
+  {"display", (PyCFunction) CLPageBridge_display, METH_NOARGS,
+    "render the page and send it to stdout"},
+  {"updateBindings", (PyCFunction) CLPageBridge_updateBindings, METH_NOARGS,
+    "update all the dynamic content on the page"},
+  {"writeHTML", (PyCFunction) CLPageBridge_writeHTML, METH_VARARGS | METH_KEYWORDS,
+    "write out the HTML and optionally the headers"},
   {NULL},
 };
 

@@ -2,6 +2,7 @@
 #include <Python.h>
 
 #import "CLMutableArrayBridge.h"
+#import "CLPythonModule.h"
 #import "CLObjectBridge.h"
 
 #import <ClearLake/CLConstantString.h>

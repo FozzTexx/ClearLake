@@ -9,6 +9,7 @@
 #import "CLOptionBridge.h"
 #import "CLMutableDictionaryBridge.h"
 #import "CLPythonModule.h"
+#import "CLDataBridge.h"
 
 #import <ClearLake/CLInvocation.h>
 #import <ClearLake/CLNumber.h>
@@ -16,6 +17,14 @@
 #import <ClearLake/CLMethodSignature.h>
 #import <ClearLake/CLGenericRecord.h>
 #import <ClearLake/CLStream.h>
+
+Class CLObjectBridgeClass;
+
+static void CLInitBridgeClassConstants()
+{
+  CLObjectBridgeClass = [CLObjectBridge class];
+  return;
+}
 
 @implementation CLObject (CLPythonExtensions)
 
@@ -42,76 +51,96 @@
 
 @implementation CLObjectBridge
 
-+(id) alloc
++(void) initialize
 {
-  CLString *className;
-  CLRange aRange;
-  id anObject;
+  CLInitBridgeClassConstants();
+  return;
+}
+
++(id) allocAsClass:(Class) aClass
+{
   CLObjectReserved *reserved;
   CLBridgeData *data;
-  Class aClass;
+  CLString *className;
+  CLRange aRange;
+  Class nativeClass;
+  id anObject;
 
 
-  className = [CLString stringWithUTF8String:((CLClassDef *)self)->name];
+  className = [CLString stringWithUTF8String:((CLClassDef *) aClass)->name];
   aRange = [className rangeOfString:@":"];
   if (!aRange.length)
     [self error:@"Unrecognizable class: %@", className];
   className = [className substringToIndex:aRange.location];
-  aClass = CLClassFromString(className);
+  nativeClass = CLClassFromString(className);
 
-  if (aClass == [CLObjectBridge class])
+  if (((CLClassDef *) nativeClass)->class_pointer
+      == ((CLClassDef *) CLObjectBridgeClass)->class_pointer)
     anObject = [super alloc];
   else
-    anObject = [aClass alloc];
+    anObject = [nativeClass alloc];
 
   reserved = ((void *) anObject) - sizeof(CLObjectReserved);
   data = calloc(1, sizeof(CLBridgeData));
   data->originalPrivate = reserved->privateData;
   reserved->privateData = data;
-  data->original = aClass;
-  ((CLObjectBridge *) anObject)->isa = self;
+  data->nativeClass = nativeClass;
+  ((CLObjectBridge *) anObject)->isa = aClass;
 
   return anObject;
 }
 
-+(BOOL) isBridgeClass:(PyObject *) pyObject
++(id) alloc
 {
-  return CLPythonIsBridgeClass(pyObject->ob_type);
+  return [self allocAsClass:self];
 }
 
 +(id) objectWithPythonObject:(PyObject *) pyObject
 {
-  id value = nil;
+  id anObject = nil;
 
 
   PyDateTime_IMPORT;
 
   if (!pyObject || pyObject == Py_None)
-    value = nil;
-  else if (PyLong_Check(pyObject))
-    value = [CLNumber numberWithLongLong:PyLong_AsLongLong(pyObject)];
+    return nil;
+
+  if (PyLong_Check(pyObject))
+    anObject = [CLNumber numberWithLongLong:PyLong_AsLongLong(pyObject)];
   else if (PyFloat_Check(pyObject))
-    value = [CLNumber numberWithDouble:PyFloat_AsDouble(pyObject)];
+    anObject = [CLNumber numberWithDouble:PyFloat_AsDouble(pyObject)];
   else if (PyUnicode_Check(pyObject))
-    value = [CLString stringFromPythonObject:pyObject];
+    anObject = [CLString stringFromPythonObject:pyObject];
   else if (PyTuple_Check(pyObject))
     [self error:@"Conversion to CLArray not implemented"];
   else if (PyList_Check(pyObject))
-    value = [CLMutableArray arrayWithPythonObject:pyObject];
+    anObject = [CLMutableArray arrayWithPythonObject:pyObject];
   else if (PyBytes_Check(pyObject))
-    [self error:@"Conversion to CLData not implemented"];
+    anObject = [CLData dataFromPythonObject:pyObject];
+  else if (PyByteArray_Check(pyObject))
+    [self error:@"Conversion to CLMutableData not implemented"];
   else if (PyDateTime_Check(pyObject))
     [self error:@"Conversion to CLDatetime not implemented"];
   else if (PyDict_Check(pyObject))
-    value = [CLMutableDictionary dictionaryWithPythonObject:pyObject];
+    anObject = [CLMutableDictionary dictionaryWithPythonObject:pyObject];
   else if (PySet_Check(pyObject))
     [self error:@"There's no set class in ClearLake!"];
-  else if ([self isBridgeClass:pyObject])
-    value = ((CLObjectLink *) pyObject)->bridgeObject;
-  else
-    value = [[[self alloc] initWithPythonObject:pyObject] autorelease];
+  else if (CLNativeSuperclassForPythonClass(pyObject))
+    anObject = ((CLObjectLink *) pyObject)->bridgeObject;
+  else {
+    CLString *pyClassName;
+    Class bridgeClass;
 
-  return value;
+
+    pyClassName = [CLString stringWithUTF8String:pyObject->ob_type->tp_name];
+    bridgeClass = CLClassFromString(pyClassName);
+    anObject = [[[self allocAsClass:bridgeClass] initWithPythonObject:pyObject] autorelease];
+  }
+
+  if (!anObject)
+    [self error:@"Where did the object go?"];
+
+  return anObject;
 }
 
 -(id) init
@@ -132,6 +161,9 @@
     [self error:@"No such python class: %@", className];
 
   pyObject = PyObject_CallObject(pyClass, NULL);
+  if (!pyObject)
+    [self error:@"Failed to create instance: %@", className];
+
   [self initWithPythonObject:pyObject];
   Py_DECREF(pyObject);
 
@@ -142,25 +174,30 @@
 {
   CLObjectReserved *reserved;
   CLBridgeData *data;
-  PyTypeObject *type;
   Class current;
+  CLString *className;
+  CLRange aRange;
 
 
   if (!pyObject)
     [self error:@"init with what?"];
 
+  className = [CLString stringWithUTF8String:((CLClassDef *) [self class])->name];
+  aRange = [className rangeOfString:@":"];
+  if (!aRange.length)
+    [self error:@"Unrecognizable class: %@", className];
+
   reserved = ((void *) self) - sizeof(CLObjectReserved);
   data = reserved->privateData;
-  data->pyObject = pyObject;
-  type = Py_TYPE(pyObject);
-  data->pythonClassName = [[CLString alloc] initWithUTF8String:type->tp_name];
-  Py_INCREF(pyObject);
 
-  if (data->original == [CLObjectBridge class])
+  [self setPythonObject:pyObject];
+
+  if (((CLClassDef *) data->nativeClass)->class_pointer
+      == ((CLClassDef *) CLObjectBridgeClass)->class_pointer)
     [super init];
   else {
     current = self->isa;
-    self->isa = data->original;
+    self->isa = data->nativeClass;
     /* Yes this looks like it could go into an infinite loop but
        this call is to the swizzled class */
     [self init];
@@ -179,6 +216,7 @@
   reserved = ((void *) self) - sizeof(CLObjectReserved);
   data = reserved->privateData;
   Py_DECREF(data->pyObject);
+  [data->pythonClassName release];
   reserved->privateData = data->originalPrivate;
   free(data);
   [super dealloc];
@@ -220,6 +258,26 @@
   return data->pyObject;
 }
 
+-(void) setPythonObject:(PyObject *) pyObject
+{
+  CLObjectReserved *reserved;
+  CLBridgeData *data;
+  PyTypeObject *type;
+
+
+  reserved = ((void *) self) - sizeof(CLObjectReserved);
+  data = reserved->privateData;
+
+  Py_INCREF(pyObject);
+  if (data->pyObject)
+    Py_DECREF(data->pyObject);
+  data->pyObject = pyObject;
+  type = Py_TYPE(pyObject);
+  [data->pythonClassName release];
+  data->pythonClassName = [[CLString alloc] initWithUTF8String:type->tp_name];
+  return;
+}
+
 -(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
 {
   id value = nil;
@@ -233,9 +291,10 @@
   reserved = ((void *) self) - sizeof(CLObjectReserved);
   data = reserved->privateData;
 
-  if (data->original != [CLObjectBridge class]) {
+  if (((CLClassDef *) data->nativeClass)->class_pointer
+      != ((CLClassDef *) CLObjectBridgeClass)->class_pointer) {
     current = self->isa;
-    self->isa = data->original;
+    self->isa = data->nativeClass;
     /* Yes this looks like it could go into an infinite loop but
        this call is to the swizzled class */
     value = [self objectValueForBinding:aBinding found:found];
@@ -273,6 +332,62 @@
   return value;
 }
 
+-(void) setObject:anObject forPythonAttribute:(CLString *) anAttr
+{
+  CLObjectReserved *reserved;
+  CLBridgeData *data;
+  PyObject *value;
+
+
+  [self willChange];
+
+  if (anObject)
+    value = [anObject pythonObject];
+  else {
+    value = Py_None;
+    Py_INCREF(value);
+  }
+
+  reserved = ((void *) self) - sizeof(CLObjectReserved);
+  data = reserved->privateData;
+  if (PyObject_SetAttrString(data->pyObject, [anAttr UTF8String], value) < 0)
+    [self error:@"Unable to set attribute of python object"];
+
+  Py_DECREF(value);
+  return;
+}
+
+/* This is a lot like setObjectValue:forBinding: except that it avoids
+   the willChange */
+-(void) setPrimitiveValue:(id) anObject forKey:(CLString *) aKey
+{
+  CLObjectReserved *reserved;
+  CLBridgeData *data;
+  BOOL found = NO;
+  Class current;
+  SEL sel;
+  int aType;
+
+
+  reserved = ((void *) self) - sizeof(CLObjectReserved);
+  data = reserved->privateData;
+  current = self->isa;
+  self->isa = data->nativeClass;
+  sel = sel_getUid([aKey UTF8String]);
+  if ([self pointerForIvar:[aKey UTF8String] type:&aType] || [self respondsTo:sel]) {
+    /* Yes this looks like it could go into an infinite loop but
+       this call is to the swizzled class */
+    [self setPrimitiveValue:anObject forKey:aKey];
+    found = YES;
+  }
+  self->isa = current;
+
+  if (!found)
+    [self setObject:anObject forPythonAttribute:aKey];
+
+  return;
+}
+
 -(void) setObjectValue:(id) anObject forVariable:(CLString *) aField
 {
   [self error:@"Not implemented"];
@@ -306,8 +421,8 @@
     sel = sel_getUid([setBinding UTF8String]);
 
     current = self->isa;
-    self->isa = data->original;
-    if ([self respondsTo:sel] || [self pointerForIvar:[aBinding UTF8String] type:&aType]) {
+    self->isa = data->nativeClass;
+    if ([self pointerForIvar:[aBinding UTF8String] type:&aType] || [self respondsTo:sel]) {
       /* Yes this looks like it could go into an infinite loop but
 	 this call is to the swizzled class */
       [self setObjectValue:anObject forBinding:aBinding];
@@ -316,37 +431,8 @@
     self->isa = current;
 
     if (!found) {
-      PyObject *pyBinding, *attr;
-
-
-      pyBinding = [aBinding pythonObject];
-      if (PyObject_HasAttr(data->pyObject, pyBinding)) {
-	attr = PyObject_GetAttr(data->pyObject, pyBinding);
-	if (PyCallable_Check(attr)) {
-	  [self error:@"Let forwardInvocation: do it?"];
-	}
-	else {
-	  [self error:@"Set the python attribute"];
-	}
-
-	Py_DECREF(attr);
-      }
-      else {
-	PyObject *value;
-
-
-	value = [anObject pythonObject];
-	if (!value) {
-	  value = Py_None;
-	  Py_INCREF(value);
-	}
-	if (PyObject_SetAttrString(data->pyObject, [aBinding UTF8String], value) < 0) {
-	  [self error:@"Unable to set attribute of python object"];
-	}
-	Py_DECREF(value);
-      }
-
-      Py_DECREF(pyBinding);
+      [self willChange];
+      [self setObject:anObject forPythonAttribute:aBinding];
     }
   }
 
@@ -397,7 +483,7 @@
   reserved = ((void *) self) - sizeof(CLObjectReserved);
   data = reserved->privateData;
 
-  if (class_getInstanceMethod(data->original, aSel)
+  if (class_getInstanceMethod(data->nativeClass, aSel)
       || [self pythonRespondsTo:[self pythonizeSelector:aSel]])
     return YES;
 
@@ -408,9 +494,6 @@
 {
   CLString *className;
   CLRange aRange;
-  id anObject;
-  CLObjectReserved *reserved;
-  CLBridgeData *data;
   Class aClass;
 
 
@@ -446,9 +529,9 @@
 
   reserved = ((void *) self) - sizeof(CLObjectReserved);
   data = reserved->privateData;
-  if (class_getInstanceMethod(data->original, [anInvocation selector])) {
+  if (class_getInstanceMethod(data->nativeClass, [anInvocation selector])) {
     current = self->isa;
-    self->isa = data->original;
+    self->isa = data->nativeClass;
     [anInvocation invoke];
     self->isa = current;
     return;
@@ -496,7 +579,7 @@
   reserved = (void *) self - sizeof(CLObjectReserved);
   data = reserved->privateData;
 
-  return method_getImplementation(class_getInstanceMethod(data->original, aSel));
+  return method_getImplementation(class_getInstanceMethod(data->nativeClass, aSel));
 }
 
 -(struct objc_method_description *) descriptionForMethod:(SEL) aSel
@@ -508,7 +591,7 @@
   reserved = (void *) self - sizeof(CLObjectReserved);
   data = reserved->privateData;
 
-  return (struct objc_method_description *) class_getInstanceMethod(data->original, aSel);
+  return (struct objc_method_description *) class_getInstanceMethod(data->nativeClass, aSel);
 }
 
 #if 1
@@ -544,6 +627,23 @@
 }
 #endif
 
+-(void) willSaveToDatabase
+{
+  CLObjectReserved *reserved;
+  CLBridgeData *data;
+  Class current;
+
+
+  reserved = (void *) self - sizeof(CLObjectReserved);
+  data = reserved->privateData;
+
+  current = self->isa;
+  self->isa = data->nativeClass;
+  [self willSaveToDatabase];
+  self->isa = current;
+  return;
+}
+
 @end
 
 int CLPythonConvert(PyObject *anObj, void *address)
@@ -554,10 +654,14 @@ int CLPythonConvert(PyObject *anObj, void *address)
 
 static int CLObjectBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 {
+  Class nativeClass;
+
+
   if (!PyArg_ParseTuple(args, ":__init__"))
     return -1;
 
-  self->bridgeObject = nil;
+  nativeClass = CLClassForPythonObject((PyObject *) self);
+  self->bridgeObject = [[nativeClass alloc] initWithPythonObject:self];
 
   return 0;
 }
@@ -577,7 +681,7 @@ static PyObject *CLObjectBridge_addObjectToBothSidesOfRelationship(CLObjectLink 
   CLString *relationship;
 
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&", kwlist,
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&", kwlist,
                                    CLPythonConvert, &object,
                                    CLPythonConvertString, &relationship))
     return NULL;

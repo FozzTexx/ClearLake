@@ -28,6 +28,7 @@ static struct {
   char *name;
   PyTypeObject *type;
 } CLBridgeTypes[] = {
+  BRIDGE_TYPE(CLObject),
   BRIDGE_TYPE(CLManager),
   BRIDGE_TYPE(CLPage),
   BRIDGE_TYPE(CLForm),
@@ -50,16 +51,18 @@ Class CLClassFromString_python(CLString *aString)
 {
   Class aClass;
   CLClassDef *hack;
-  PyObject *py_class;
+  PyObject *pyClass;
 
 
   aClass = CLClassFromString_python_orig(aString);
   if (!aClass) {
     aClass = CLHashTableDataForKey(_classMapping, aString, [aString hash],
 				   @selector(isEqual:));
-    if (!aClass && (py_class = CLPythonClassFromString(aString))) {
+    if (!aClass && (pyClass = CLPythonClassFromString(aString))) {
       hack = malloc(sizeof(CLClassDef));
-      aClass = CLPythonBridgeSuperclassForClass(py_class);
+      aClass = CLNativeSuperclassForPythonClass(pyClass);
+      if (!aClass)
+	aClass = [CLObjectBridge class];
       memcpy(hack, [CLObjectBridge class], sizeof(CLClassDef));
       hack->name = strdup([[CLString stringWithFormat:@"%@:%@", [aClass className], aString]
 			    UTF8String]);
@@ -70,57 +73,6 @@ Class CLClassFromString_python(CLString *aString)
   }
 
   return aClass;
-}
-
-BOOL CLPythonIsBridgeClass(PyTypeObject *pyType)
-{
-  CLUInteger idx;
-
-
-  for (idx = 0; CLBridgeTypes[idx].name; idx++) {
-    if (CLBridgeTypes[idx].type == pyType)
-      return YES;
-  }
-
-  return NO;
-}
-
-PyTypeObject *CLPythonBridgeTypeForClass(Class aClass)
-{
-  CLUInteger idx;
-  const char *className = [[aClass className] UTF8String];
-
-
-  for (idx = 0; CLBridgeTypes[idx].name; idx++) {
-    if (!strcmp(CLBridgeTypes[idx].name, className))
-      return CLBridgeTypes[idx].type;
-  }
-
-  return NULL;
-}
-
-Class CLPythonBridgeSuperclassForClass(PyObject *pyClass)
-{
-  PyTypeObject *type = (PyTypeObject *) pyClass;
-  CLUInteger idx;
-
-
-  while (type) {
-    for (idx = 0; CLBridgeTypes[idx].name; idx++) {
-      if (CLBridgeTypes[idx].type == type)
-	return CLClassFromString([CLString stringWithUTF8String:CLBridgeTypes[idx].name]);
-    }
-    type = type->tp_base;
-  }
-
-  return [CLObjectBridge class];
-}
-
-PyObject *CLPythonObjectForObject(id anObject)
-{
-  if (!anObject)
-    Py_RETURN_NONE;
-  return [anObject pythonObject];
 }
 
 #if 0
@@ -153,14 +105,73 @@ static void print_dict_keys(PyObject* dict)
 
 PyObject *CLPythonClassFromString(CLString *aString)
 {
-  PyObject *main_module, *main_dict, *py_class;
+  PyObject *main_module, *main_dict, *pyClass;
 
 
   main_module = PyImport_AddModule("__main__");
   main_dict = PyModule_GetDict(main_module);
   //print_dict_keys(main_dict);
-  py_class = PyDict_GetItemString(main_dict, [aString UTF8String]);
-  return py_class;
+  pyClass = PyDict_GetItemString(main_dict, [aString UTF8String]);
+  return pyClass;
+}
+
+BOOL CLIsBridgeClass(PyTypeObject *pyType)
+{
+  CLUInteger idx;
+
+
+  for (idx = 0; CLBridgeTypes[idx].name; idx++) {
+    if (CLBridgeTypes[idx].type == pyType)
+      return YES;
+  }
+
+  return NO;
+}
+
+PyTypeObject *CLPythonBridgeTypeForClass(Class aClass)
+{
+  CLUInteger idx;
+  const char *className = [[aClass className] UTF8String];
+
+
+  for (idx = 0; CLBridgeTypes[idx].name; idx++) {
+    if (!strcmp(CLBridgeTypes[idx].name, className))
+      return CLBridgeTypes[idx].type;
+  }
+
+  return NULL;
+}
+
+Class CLNativeSuperclassForPythonClass(PyObject *pyClass)
+{
+  CLUInteger idx;
+  PyTypeObject *type = pyClass;
+
+
+  if (!PyType_Check(type))
+    type = Py_TYPE(type);
+
+  while (type) {
+    for (idx = 0; CLBridgeTypes[idx].name; idx++) {
+      if (CLBridgeTypes[idx].type == type)
+	return CLClassFromString([CLString stringWithUTF8String:CLBridgeTypes[idx].name]);
+    }
+    type = type->tp_base;
+  }
+
+  return nil;
+}
+
+Class CLClassForPythonObject(PyObject *pyObject)
+{
+  return CLClassFromString([CLString stringWithUTF8String:pyObject->ob_type->tp_name]);
+}
+
+PyObject *CLPythonObjectForNativeObject(id anObject)
+{
+  if (!anObject)
+    Py_RETURN_NONE;
+  return [anObject pythonObject];
 }
 
 static void CLPythonAddToEnvironment(CLDictionary *aDict, CLString **keys)
@@ -266,11 +277,19 @@ static PyObject *CLPython_setSessionClass(PyObject *self, PyObject *arg)
   Py_RETURN_NONE;
 }
 
+static PyObject *CLPython_saveChanges(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
+{
+  [CLDefaultContext saveChanges];
+  Py_RETURN_NONE;
+}
+
 static PyMethodDef ClearLake_functions[] = {
   {"CLRun", (PyCFunction) CLRun_bridge, METH_VARARGS | METH_KEYWORDS,
    "handle the request from a client"},
   {"setSessionClass", CLPython_setSessionClass, METH_O, "set the class used for sessions"},
-  {NULL, NULL, 0, NULL}  // Sentinel
+  {"saveChanges", (PyCFunction) CLPython_saveChanges, METH_NOARGS,
+    "save any objects to the database that have been changed"},
+  {NULL},
 };
 
 static PyModuleDef ClearLake_module = {
