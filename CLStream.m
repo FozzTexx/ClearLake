@@ -818,15 +818,25 @@ CLString *CLGetsfd(int fd, CLStringEncoding enc)
 
 void CLFindFileDirectory()
 {
+  const char *docRoot;
+  char buf[PATH_MAX+1];
+
+
 #if DEBUG_RETAIN
     id self = nil;
 #endif
   if (!CLFileDirectory) {
     if ([CLDelegate respondsTo:@selector(delegateGetFileDirectory)])
       CLFileDirectory = [[CLDelegate delegateGetFileDirectory] copy];
-    else
-      CLFileDirectory = [[[CLString stringWithUTF8String:getenv("DOCUMENT_ROOT")]
+    else {
+      docRoot = getenv("DOCUMENT_ROOT");
+      if (!docRoot) {
+	getcwd(buf, sizeof(buf));
+	docRoot = buf;
+      }
+      CLFileDirectory = [[[CLString stringWithUTF8String:docRoot]
                            stringByAppendingPathComponent:FILE_DIR] retain];
+    }
   }
 
   return;

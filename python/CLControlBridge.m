@@ -15,6 +15,7 @@ static int CLControlBridge_init(CLObjectLink *self, PyObject *args, PyObject *kw
     return -1;
 
   self->bridgeObject = [[CLControl alloc] initFromString:string onPage:page];
+  [self->bridgeObject setPythonObject:(PyObject *) self];
 
   return 0;
 }

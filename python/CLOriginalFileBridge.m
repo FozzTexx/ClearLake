@@ -1,21 +1,26 @@
 #import "CLOriginalFileBridge.h"
 #import "CLObjectBridge.h"
+#import "CLDataBridge.h"
+#import "CLPythonModule.h"
 #import <ClearLake/CLOriginalFile.h>
 #import <ClearLake/CLData.h>
 
 static int CLOriginalFileBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"data", "filename", NULL};
-  CLData *data;
+  CLData *data = nil;
   CLString *filename = nil;
+  Class nativeClass;
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&", kwlist,
-                                   CLPythonConvert, &data,
+                                   CLPythonConvertData, &data,
 				   CLPythonConvert, &filename))
     return -1;
 
-  self->bridgeObject = [[CLOriginalFile alloc] initFromData:data table:nil];
+  nativeClass = CLClassForPythonObject((PyObject *) self);
+  self->bridgeObject = [[nativeClass alloc] initFromData:data table:nil];
+  [self->bridgeObject setPythonObject:self];
   [self->bridgeObject setFilename:filename];
 
   return 0;

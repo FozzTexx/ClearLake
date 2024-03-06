@@ -954,6 +954,8 @@ static int _modelInitState = MODEL_UNINIT;
   skipped = [[CLMutableArray alloc] init];
 
   recordDef = [CLEditingContext recordDefinitionForClass:[aRecord class]];
+  if (!recordDef)
+    [self error:@"No record definition for %@", [aRecord className]];
   db = [recordDef database];
 
   fields = [recordDef fields];
@@ -1538,6 +1540,9 @@ static int _modelInitState = MODEL_UNINIT;
   CLAutoreleasePool *pool;
 
 
+  if (!aTable)
+    return nil;
+
   if (!_tableDefs)
     [self model];
 
@@ -1552,6 +1557,7 @@ static int _modelInitState = MODEL_UNINIT;
 
     recordDef = [[[model objectForKey:database] objectForKey:@"schema"] objectForKey:table];
     CLHashTableSetData(_tableDefs, recordDef, [aTable copy], [aTable hash]);
+    CLHashTableSetData(_classDefs, recordDef, [recordDef recordClass], (size_t) aClass);
     [pool release];
   }
 

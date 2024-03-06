@@ -22,7 +22,7 @@ static void CLManagerBridge_dealloc(CLObjectLink *self)
 static PyObject *CLManagerBridge_activeSession(CLObjectLink *self,
 					       PyObject *Py_UNUSED(ignored))
 {
-  return CLPythonObjectForObject([self->bridgeObject activeSession]);
+  return CLPythonObjectForNativeObject([self->bridgeObject activeSession]);
 }
 
 static PyGetSetDef CLManagerBridge_getsetters[] = {

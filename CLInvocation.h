@@ -54,6 +54,7 @@
 -(void) setSelector:(SEL) aSelector;
 
 -(void) invoke;
+-(void) invokeWithTarget:(id) anObject;
 
 @end
 

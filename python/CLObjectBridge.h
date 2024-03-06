@@ -8,7 +8,7 @@
 
 typedef struct {
   void *originalPrivate;
-  Class original;
+  Class nativeClass;
   PyObject *pyObject;
   CLString *pythonClassName;
 } CLBridgeData;
@@ -22,6 +22,7 @@ typedef struct {
 -(id) initWithPythonObject:(PyObject *) pyObject;
 -(void) dealloc;
 
+-(void) setPythonObject:(PyObject *) pyObject;
 -(void) forwardInvocation:(CLInvocation *) anInvocation;
 @end
 

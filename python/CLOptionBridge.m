@@ -19,6 +19,7 @@ int CLOptionBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 
   self->bridgeObject = [[CLOption alloc] initWithString:label andValue:value
                                                selected:selected];
+  [self->bridgeObject setPythonObject:self];
 
   return 0;
 }
