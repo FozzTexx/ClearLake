@@ -23,6 +23,6 @@
 
 @end
 
-extern int CLPythonConvertStream(PyObject *anObj, void *address);
+extern int CLPyBridgeConvertStream(PyObject *anObj, void *address);
 
 #endif /* _CLSTREAMBRIDGE_H */

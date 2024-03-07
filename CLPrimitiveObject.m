@@ -425,7 +425,7 @@ id CLDisposeInstance(id object)
   return (struct objc_method_description *)
            ([self isInstance] ?
             class_getInstanceMethod(self->isa, aSel) :
-            class_getClassMethod(self, aSel));
+            class_getClassMethod((Class) self, aSel));
 }
 
 -(CLMethodSignature *) newMethodSignatureForSelector:(SEL) aSel

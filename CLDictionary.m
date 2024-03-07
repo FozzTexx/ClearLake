@@ -45,7 +45,7 @@
 
 +(id) dictionary
 {
-  return [[[CLDictionaryDatastore alloc] init] autorelease];
+  return [[[self alloc] init] autorelease];
 }
 
 +(id) dictionaryWithObjectsAndKeys:(id) firstObject , ...
@@ -76,7 +76,7 @@
   }
   va_end(ap);
 
-  anObject = [[[CLDictionaryDatastore alloc] initWithObjects:objects forKeys:keys count:i]
+  anObject = [[[self alloc] initWithObjects:objects forKeys:keys count:i]
                autorelease];
   return anObject;
 }

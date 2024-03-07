@@ -25,12 +25,10 @@
 
 #include <string.h>
 
-Class CLClassFromString_internal(CLString *aString)
+Class CLClassFromString(CLString *aString)
 {
-  return objc_lookUpClass([aString UTF8String]);
+  return objc_getClass([aString UTF8String]);
 }
-
-Class (*CLClassFromString)(CLString *) = CLClassFromString_internal;
 
 CLHashTable *CLSelNameTable = NULL;
 

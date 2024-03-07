@@ -3,7 +3,7 @@
 
 #import "CLMutableArrayBridge.h"
 #import "CLPythonModule.h"
-#import "CLObjectBridge.h"
+#import "CLPythonBridge.h"
 
 #import <ClearLake/CLConstantString.h>
 
@@ -16,15 +16,15 @@
 
 -(PyObject *) pythonObject
 {
-  CLObjectLink *obj;
+  CLPyBridgeLink *obj;
   PyTypeObject *type;
 
 
   type = CLPythonBridgeTypeForClass([self class]);
   if (!type)
-    type = &CLObjectBridgeType;
+    type = &CLPyBridgeType;
 
-  obj = (CLObjectLink *) type->tp_new(type, PyTuple_New(0), NULL);
+  obj = (CLPyBridgeLink *) type->tp_new(type, PyTuple_New(0), NULL);
   obj->bridgeObject = [self retain];
   return (PyObject *) obj;
 }
@@ -55,7 +55,7 @@
 
 -(id) objectAtIndex:(CLUInteger) index
 {
-  return [CLObjectBridge objectWithPythonObject:PyList_GetItem(arrayData, index)];
+  return [CLPythonBridge objectWithPythonObject:PyList_GetItem(arrayData, index)];
 }
 
 @end

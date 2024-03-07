@@ -1,9 +1,9 @@
 #import "CLManagerBridge.h"
-#import "CLObjectBridge.h"
+#import "CLPythonBridge.h"
 #import "CLPythonModule.h"
 #import <ClearLake/CLManager.h>
 
-static int CLManagerBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
+static int CLManagerBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
   if (!PyArg_ParseTuple(args, ":__init__"))
     return -1;
@@ -13,13 +13,13 @@ static int CLManagerBridge_init(CLObjectLink *self, PyObject *args, PyObject *kw
   return 0;
 }
 
-static void CLManagerBridge_dealloc(CLObjectLink *self)
+static void CLManagerBridge_dealloc(CLPyBridgeLink *self)
 {
   [self->bridgeObject release];
   return;
 }
 
-static PyObject *CLManagerBridge_activeSession(CLObjectLink *self,
+static PyObject *CLManagerBridge_activeSession(CLPyBridgeLink *self,
 					       PyObject *Py_UNUSED(ignored))
 {
   return CLPythonObjectForNativeObject([self->bridgeObject activeSession]);
@@ -35,10 +35,10 @@ PyTypeObject CLManagerBridgeType = {
   .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
   .tp_name = "ClearLake.CLManager",
   .tp_doc = PyDoc_STR("ClearLake object representing a web manager"),
-  .tp_basicsize = sizeof(CLObjectLink),
+  .tp_basicsize = sizeof(CLPyBridgeLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-  .tp_base = &CLObjectBridgeType,
+  .tp_base = &CLPyBridgeType,
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLManagerBridge_init,
   .tp_dealloc = (destructor) CLManagerBridge_dealloc,

@@ -11,6 +11,6 @@
 -(id) initFromPythonObject:(PyObject *) pyString;
 @end
 
-extern int CLPythonConvertString(PyObject *anObj, void *address);
+extern int CLPyBridgeConvertString(PyObject *anObj, void *address);
 
 #endif /* _CLSTRINGBRIDGE_H */

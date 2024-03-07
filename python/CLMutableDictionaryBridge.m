@@ -3,7 +3,7 @@
 
 #import <ClearLake/CLString.h>
 #import "CLMutableDictionaryBridge.h"
-#import "CLObjectBridge.h"
+#import "CLPythonBridge.h"
 
 @implementation CLMutableDictionary (CLPythonExtensions)
 
@@ -38,7 +38,7 @@
 
 -(id) objectForKey:(id) aKey
 {
-  return [CLObjectBridge objectWithPythonObject:
+  return [CLPythonBridge objectWithPythonObject:
                            PyDict_GetItemString(dictionaryData,
                                                 [[aKey description] UTF8String])];
 }
@@ -50,7 +50,7 @@
 
 
   pyKeys = PyDict_Keys(dictionaryData);
-  keys = [CLObjectBridge objectWithPythonObject:pyKeys];
+  keys = [CLPythonBridge objectWithPythonObject:pyKeys];
   Py_DECREF(pyKeys);
   return keys;
 }
@@ -62,7 +62,7 @@
 
 
   pyValues = PyDict_Values(dictionaryData);
-  values = [CLObjectBridge objectWithPythonObject:pyValues];
+  values = [CLPythonBridge objectWithPythonObject:pyValues];
   Py_DECREF(pyValues);
   return values;
 }

@@ -1538,6 +1538,7 @@ static int _modelInitState = MODEL_UNINIT;
   CLRange aRange;
   CLString *database, *table;
   CLAutoreleasePool *pool;
+  Class aClass;
 
 
   if (!aTable)
@@ -1557,7 +1558,8 @@ static int _modelInitState = MODEL_UNINIT;
 
     recordDef = [[[model objectForKey:database] objectForKey:@"schema"] objectForKey:table];
     CLHashTableSetData(_tableDefs, recordDef, [aTable copy], [aTable hash]);
-    CLHashTableSetData(_classDefs, recordDef, [recordDef recordClass], (size_t) aClass);
+    aClass = [recordDef recordClass];
+    CLHashTableSetData(_classDefs, recordDef, aClass, (size_t) aClass);
     [pool release];
   }
 

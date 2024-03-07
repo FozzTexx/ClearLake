@@ -1,9 +1,9 @@
 #import "CLPageBridge.h"
-#import "CLObjectBridge.h"
+#import "CLPythonBridge.h"
 #import "CLStreamBridge.h"
 #import <ClearLake/CLPage.h>
 
-static int CLPageBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
+static int CLPageBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"path", "owner", NULL};
   CLString *path = nil;
@@ -11,66 +11,66 @@ static int CLPageBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&", kwlist,
-                                   CLPythonConvert, &path,
-                                   CLPythonConvert, &owner))
+                                   CLPyBridgeConvert, &path,
+                                   CLPyBridgeConvert, &owner))
     return -1;
 
   self->bridgeObject = [[CLPage alloc] initFromFile:path owner:owner];
-  [self->bridgeObject setPythonObject:self];
+  [self->bridgeObject setPythonObject:(PyObject *) self];
 
   return 0;
 }
 
-static void CLPageBridge_dealloc(CLObjectLink *self)
+static void CLPageBridge_dealloc(CLPyBridgeLink *self)
 {
   [self->bridgeObject release];
   return;
 }
 
-static PyObject *CLPageBridge_display(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLPageBridge_display(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
 {
   [self->bridgeObject display];
   Py_RETURN_NONE;
 }
 
-static PyObject *CLPageBridge_updateBindings(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLPageBridge_updateBindings(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
 {
   [self->bridgeObject updateBindings];
   Py_RETURN_NONE;
 }
 
-static PyObject *CLPageBridge_status(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLPageBridge_status(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
 {
   return PyLong_FromLong([self->bridgeObject status]);
 }
 
-static PyObject *CLPageBridge_owner(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLPageBridge_owner(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
 {
   return [[self->bridgeObject owner] pythonObject];
 }
 
-static int CLPageBridge_setOwner(CLObjectLink *self, PyObject *value, void *closure)
+static int CLPageBridge_setOwner(CLPyBridgeLink *self, PyObject *value, void *closure)
 {
-  [self->bridgeObject setOwner:[CLObjectBridge objectWithPythonObject:value]];
+  [self->bridgeObject setOwner:[CLPythonBridge objectWithPythonObject:value]];
   return 0;
 }
 
-static PyObject *CLPageBridge_writeHTML(CLObjectLink *self, PyObject *args, PyObject *kwds)
+static PyObject *CLPageBridge_writeHTML(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"htmlStream", "headerStream", NULL};
   CLStream *htmlStream = nil, *headerStream = nil;
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&", kwlist,
-                                   CLPythonConvertStream, &htmlStream,
-                                   CLPythonConvertStream, &headerStream))
+                                   CLPyBridgeConvertStream, &htmlStream,
+                                   CLPyBridgeConvertStream, &headerStream))
     return NULL;
 
   [self->bridgeObject writeHTML:htmlStream headers:headerStream];
   Py_RETURN_NONE;
 }
 
-static PyObject *CLPageBridge_getItem(CLObjectLink *self, PyObject *key)
+static PyObject *CLPageBridge_getItem(CLPyBridgeLink *self, PyObject *key)
 {
   PyObject *value;
   id element;
@@ -81,7 +81,7 @@ static PyObject *CLPageBridge_getItem(CLObjectLink *self, PyObject *key)
     return NULL;
   }
 
-  element = [self->bridgeObject objectWithID:[CLObjectBridge objectWithPythonObject:key]];
+  element = [self->bridgeObject objectWithID:[CLPythonBridge objectWithPythonObject:key]];
   if (!element) {
     if (!PyErr_Occurred()) {
       PyErr_SetObject(PyExc_KeyError, key);
@@ -119,10 +119,10 @@ PyTypeObject CLPageBridgeType = {
   .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
   .tp_name = "ClearLake.CLPage",
   .tp_doc = PyDoc_STR("ClearLake object representing a web page"),
-  .tp_basicsize = sizeof(CLObjectLink),
+  .tp_basicsize = sizeof(CLPyBridgeLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-  .tp_base = &CLObjectBridgeType,
+  .tp_base = &CLPyBridgeType,
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLPageBridge_init,
   .tp_dealloc = (destructor) CLPageBridge_dealloc,
