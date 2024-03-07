@@ -80,7 +80,7 @@
 
 @end
 
-int CLPythonConvertStream(PyObject *anObj, void *address)
+int CLPyBridgeConvertStream(PyObject *anObj, void *address)
 {
   *(id *) address = [[[CLStreamBridge alloc] initWithPythonStream:anObj] autorelease];
   return 1;

@@ -4,8 +4,6 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#import "CLObjectBridge.h"
-
 extern PyTypeObject CLControlBridgeType;
 
 #endif /* _CLCONTROLBRIDGE_H */

@@ -13,4 +13,4 @@
 
 #endif /* _CLDATABRIDGE_H */
 
-extern int CLPythonConvertData(PyObject *anObj, void *address);
+extern int CLPyBridgeConvertData(PyObject *anObj, void *address);

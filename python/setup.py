@@ -8,12 +8,12 @@ setup(ext_modules=[
     "ClearLake",
     [
       "CLPythonModule.m",
+      "CLPythonBridge.m",
       "CLArrayBridge.m",
       "CLDataBridge.m",
       "CLMutableArrayBridge.m",
       "CLMutableDictionaryBridge.m",
       "CLNumberBridge.m",
-      "CLObjectBridge.m",
       "CLOptionBridge.m",
       "CLPageBridge.m",
       "CLStreamBridge.m",
@@ -22,7 +22,7 @@ setup(ext_modules=[
       "CLControlBridge.m",
       "CLOriginalFileBridge.m",
       "CLManagerBridge.m",
-      "CLSessionBridge.m"
+      "CLSessionBridge.m",
     ],
     extra_compile_args=[
       "-fconstant-string-class=CLConstantString",

@@ -19,7 +19,7 @@
 
 @end
 
-int CLPythonConvertString(PyObject *anObj, void *address)
+int CLPyBridgeConvertString(PyObject *anObj, void *address)
 {
   if (!PyUnicode_Check(anObj)) {
     PyErr_SetString(PyExc_TypeError, "argument must be str");

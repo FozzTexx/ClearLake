@@ -1,11 +1,11 @@
 #import "CLFormBridge.h"
-#import "CLObjectBridge.h"
+#import "CLPythonBridge.h"
 #import "CLPageBridge.h"
 #import <ClearLake/CLPage.h>
 #import <ClearLake/CLForm.h>
 #import <ClearLake/CLInput.h>
 
-static int CLFormBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
+static int CLFormBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"string", "page", NULL};
   CLString *string = nil;
@@ -13,8 +13,8 @@ static int CLFormBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&", kwlist,
-                                   CLPythonConvert, &string,
-                                   CLPythonConvert, &page))
+                                   CLPyBridgeConvert, &string,
+                                   CLPyBridgeConvert, &page))
     return -1;
 
   self->bridgeObject = [[CLForm alloc] initFromString:string onPage:page];
@@ -23,14 +23,14 @@ static int CLFormBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
   return 0;
 }
 
-static void CLFormBridge_dealloc(CLObjectLink *self)
+static void CLFormBridge_dealloc(CLPyBridgeLink *self)
 {
   [self->bridgeObject release];
   return;
 }
 
 #if 0
-static PyObject *CLFormBridge_valueOfFieldNamed(CLObjectLink *self,
+static PyObject *CLFormBridge_valueOfFieldNamed(CLPyBridgeLink *self,
                                                 PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"name", NULL};
@@ -38,14 +38,14 @@ static PyObject *CLFormBridge_valueOfFieldNamed(CLObjectLink *self,
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&", kwlist,
-                                   CLPythonConvert, &name))
+                                   CLPyBridgeConvert, &name))
     return NULL;
 
   return [[self->bridgeObject valueOfFieldNamed:name] pythonObject];
 }
 #endif
 
-static PyObject *CLFormBridge_getItem(CLObjectLink *self, PyObject *key)
+static PyObject *CLFormBridge_getItem(CLPyBridgeLink *self, PyObject *key)
 {
   PyObject *value;
   id field;
@@ -56,7 +56,7 @@ static PyObject *CLFormBridge_getItem(CLObjectLink *self, PyObject *key)
     return NULL;
   }
 
-  field = [self->bridgeObject fieldNamed:[CLObjectBridge objectWithPythonObject:key]];
+  field = [self->bridgeObject fieldNamed:[CLPythonBridge objectWithPythonObject:key]];
   if (!field) {
     if (!PyErr_Occurred()) {
       PyErr_SetObject(PyExc_KeyError, key);
@@ -69,12 +69,12 @@ static PyObject *CLFormBridge_getItem(CLObjectLink *self, PyObject *key)
   return value;
 }
 
-static PyObject *CLFormBridge_page(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLFormBridge_page(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
 {
   return [[self->bridgeObject page] pythonObject];
 }
 
-static int CLFormBridge_setItem(CLObjectLink *self, PyObject *key, PyObject *value)
+static int CLFormBridge_setItem(CLPyBridgeLink *self, PyObject *key, PyObject *value)
 {
   CLString *aString;
 
@@ -84,11 +84,11 @@ static int CLFormBridge_setItem(CLObjectLink *self, PyObject *key, PyObject *val
     return -1;
   }
 
-  aString = [CLObjectBridge objectWithPythonObject:key];
+  aString = [CLPythonBridge objectWithPythonObject:key];
   if (value == NULL)
     [self->bridgeObject setValue:nil forFieldNamed:aString];
   else
-    [self->bridgeObject setValue:[CLObjectBridge objectWithPythonObject:value]
+    [self->bridgeObject setValue:[CLPythonBridge objectWithPythonObject:value]
                    forFieldNamed:aString];
 
   return 0;
@@ -118,10 +118,10 @@ PyTypeObject CLFormBridgeType = {
   .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
   .tp_name = "ClearLake.CLForm",
   .tp_doc = PyDoc_STR("ClearLake object representing a form"),
-  .tp_basicsize = sizeof(CLObjectLink),
+  .tp_basicsize = sizeof(CLPyBridgeLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-  .tp_base = &CLObjectBridgeType,
+  .tp_base = &CLPyBridgeType,
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLFormBridge_init,
   .tp_dealloc = (destructor) CLFormBridge_dealloc,

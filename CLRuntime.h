@@ -68,7 +68,7 @@ typedef struct {
 #define class_isMetaClass               class_is_meta_class
 #define method_getImplementation        method_get_imp
 #define method_getTypeEncoding          method_get_type_encoding
-//#define objc_lookUpClass              objc_lookup_class
+#define objc_lookUpClass                objc_lookup_class
 #define object_getClass                 object_get_class
 #define object_getClassName             object_get_class_name
 #define sel_getName                     sel_get_name
@@ -84,7 +84,7 @@ typedef struct {
 @class CLString;
 
 extern CLString *CLSelGetName(SEL selector);
-extern Class (*CLClassFromString)(CLString *);
+extern Class CLClassFromString(CLString *);
 
 typedef struct {
   const char *name;

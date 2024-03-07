@@ -1,6 +1,9 @@
 #ifndef _CLPYTHONMODULE_H
 #define _CLPYTHONMODULE_H
 
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
 #import <ClearLake/CLRuntime.h>
 
 @class CLString;

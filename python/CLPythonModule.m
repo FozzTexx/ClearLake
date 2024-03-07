@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #import "CLPythonModule.h"
+#import "CLPythonBridge.h"
 #import "CLManagerBridge.h"
 #import "CLPageBridge.h"
 #import "CLFormBridge.h"
@@ -28,7 +29,7 @@ static struct {
   char *name;
   PyTypeObject *type;
 } CLBridgeTypes[] = {
-  BRIDGE_TYPE(CLObject),
+  {"CLPythonBridge", &CLPyBridgeType},
   BRIDGE_TYPE(CLManager),
   BRIDGE_TYPE(CLPage),
   BRIDGE_TYPE(CLForm),
@@ -39,41 +40,26 @@ static struct {
   {NULL, NULL},
 };
 
-typedef struct {
-  CLAutoreleasePool *pool;
-} ClearLake_python_state;
-
-static CLHashTable *_classMapping = NULL;
-
-Class (*CLClassFromString_python_orig)(CLString *);
-
-Class CLClassFromString_python(CLString *aString)
+Class CLPyBridgeClassFromName(const char *name)
 {
-  Class aClass;
-  CLClassDef *hack;
-  PyObject *pyClass;
+  static int _creatingClass = 0;
+  Class aClass = nil;
 
 
-  aClass = CLClassFromString_python_orig(aString);
-  if (!aClass) {
-    aClass = CLHashTableDataForKey(_classMapping, aString, [aString hash],
-				   @selector(isEqual:));
-    if (!aClass && (pyClass = CLPythonClassFromString(aString))) {
-      hack = malloc(sizeof(CLClassDef));
-      aClass = CLNativeSuperclassForPythonClass(pyClass);
-      if (!aClass)
-	aClass = [CLObjectBridge class];
-      memcpy(hack, [CLObjectBridge class], sizeof(CLClassDef));
-      hack->name = strdup([[CLString stringWithFormat:@"%@:%@", [aClass className], aString]
-			    UTF8String]);
-      aClass = (Class) hack;
-      aString = [aString copy]; // copy not retain in case string is mutable
-      CLHashTableSetData(_classMapping, aClass, aString, [aString hash]);
-    }
+  /* objc_allocateClassPair will call objc_getClass which will call us
+     again, avoid infinite recursion */
+  if (!_creatingClass) {
+    _creatingClass++;
+    aClass = [CLPythonBridge createBridgeClass:[CLString stringWithUTF8String:name]];
+    _creatingClass--;
   }
 
   return aClass;
 }
+
+typedef struct {
+  CLAutoreleasePool *pool;
+} ClearLake_python_state;
 
 #if 0
 static void print_dict_keys(PyObject* dict)
@@ -145,7 +131,7 @@ PyTypeObject *CLPythonBridgeTypeForClass(Class aClass)
 Class CLNativeSuperclassForPythonClass(PyObject *pyClass)
 {
   CLUInteger idx;
-  PyTypeObject *type = pyClass;
+  PyTypeObject *type = (PyTypeObject *) pyClass;
 
 
   if (!PyType_Check(type))
@@ -227,9 +213,9 @@ static PyObject *CLRun_bridge(PyObject *self, PyObject *args, PyObject *kwds)
 
   pool = [[CLAutoreleasePool alloc] init];
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&|O&", kwlist,
-                                   CLPythonConvert, &mainObjectName,
-                                   CLPythonConvert, &environment,
-                                   CLPythonConvertStream, &inputStream)) {
+                                   CLPyBridgeConvert, &mainObjectName,
+                                   CLPyBridgeConvert, &environment,
+                                   CLPyBridgeConvertStream, &inputStream)) {
     [pool release];
     return NULL;
   }
@@ -277,7 +263,7 @@ static PyObject *CLPython_setSessionClass(PyObject *self, PyObject *arg)
   Py_RETURN_NONE;
 }
 
-static PyObject *CLPython_saveChanges(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLPython_saveChanges(PyObject *self, PyObject *Py_UNUSED(ignored))
 {
   [CLDefaultContext saveChanges];
   Py_RETURN_NONE;
@@ -307,8 +293,6 @@ PyMODINIT_FUNC PyInit_ClearLake(void)
   CLUInteger idx;
 
 
-  _classMapping = CLHashTableAlloc(CLHashTableDefaultSize);
-
   for (idx = 0; CLBridgeTypes[idx].name; idx++) {
     if (PyType_Ready(CLBridgeTypes[idx].type) < 0)
       return NULL;
@@ -329,8 +313,7 @@ PyMODINIT_FUNC PyInit_ClearLake(void)
   state = (ClearLake_python_state *) PyModule_GetState(m);
   state->pool = [[CLAutoreleasePool alloc] init];
 
-  CLClassFromString_python_orig = CLClassFromString;
-  CLClassFromString = CLClassFromString_python;
+  objc_setGetUnknownClassHandler(CLPyBridgeClassFromName);
 
   return m;
 }

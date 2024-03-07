@@ -320,6 +320,35 @@ void *CLFFITypeForObjCType(const char *aType)
   return;
 }
 
+-(void) invokeWithClass:(Class) aClass
+{
+  ffi_cif cif;
+  ffi_type **arg_types;
+  ffi_status status;
+  ffi_arg result;
+  int i, narg;
+  IMP imp;
+
+
+  if (!(imp = class_getMethodImplementation(aClass, action)))
+    [self error:@"%@ does not have method %s", [aClass className], sel_getName(action)];
+
+  narg = [sig numberOfArguments];
+  arg_types = calloc(narg, sizeof(ffi_type *));
+  for (i = 0; i < narg; i++)
+    arg_types[i] = CLFFITypeForObjCType([sig getArgumentTypeAtIndex:i]);
+
+  status = ffi_prep_cif(&cif, FFI_DEFAULT_ABI, narg,
+			CLFFITypeForObjCType([sig methodReturnType]), arg_types);
+  if (status != FFI_OK)
+    [self error:@"Unable to invoke"];
+  ffi_call(&cif, FFI_FN(imp), &result, &values[1]);
+  [self setReturnValue:&result];
+  free(arg_types);
+
+  return;
+}
+
 -(void) invokeWithTarget:(id) anObject
 {
   [self setTarget:anObject];

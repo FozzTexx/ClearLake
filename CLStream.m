@@ -604,7 +604,14 @@ static CLString *CLFileDirectory = nil;
 
 
       if (anObject) {
-        className = [[anObject className] UTF8String];
+	if ([anObject isKindOfClass:CLStringClass])
+	  className = "CLString";
+	else if ([anObject isKindOfClass:CLArrayClass])
+	  className = "CLArray";
+	else if ([anObject isKindOfClass:CLDataClass])
+	  className = "CLData";
+	else
+	  className = [[anObject className] UTF8String];
         len = strlen(className);
       }
       [self writeType:@"i" data:&len];

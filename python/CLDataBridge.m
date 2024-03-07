@@ -20,7 +20,7 @@
 
 @end
 
-int CLPythonConvertData(PyObject *anObj, void *address)
+int CLPyBridgeConvertData(PyObject *anObj, void *address)
 {
   if (!PyBytes_Check(anObj) && !PyByteArray_Check(anObj)) {
     PyErr_SetString(PyExc_TypeError, "argument must be bytes or bytearray");

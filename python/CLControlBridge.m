@@ -1,8 +1,8 @@
 #import "CLControlBridge.h"
-#import "CLObjectBridge.h"
+#import "CLPythonBridge.h"
 #import <ClearLake/CLControl.h>
 
-static int CLControlBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
+static int CLControlBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"string", "page", NULL};
   CLString *string = nil;
@@ -10,8 +10,8 @@ static int CLControlBridge_init(CLObjectLink *self, PyObject *args, PyObject *kw
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&", kwlist,
-                                   CLPythonConvert, &string,
-                                   CLPythonConvert, &page))
+                                   CLPyBridgeConvert, &string,
+                                   CLPyBridgeConvert, &page))
     return -1;
 
   self->bridgeObject = [[CLControl alloc] initFromString:string onPage:page];
@@ -20,18 +20,18 @@ static int CLControlBridge_init(CLObjectLink *self, PyObject *args, PyObject *kw
   return 0;
 }
 
-static void CLControlBridge_dealloc(CLObjectLink *self)
+static void CLControlBridge_dealloc(CLPyBridgeLink *self)
 {
   [self->bridgeObject release];
   return;
 }
 
-static PyObject *CLControlBridge_visible(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLControlBridge_visible(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
 {
   return PyBool_FromLong([self->bridgeObject isVisible]);
 }
 
-static int CLControlBridge_setVisible(CLObjectLink *self, PyObject *value, void *closure)
+static int CLControlBridge_setVisible(CLPyBridgeLink *self, PyObject *value, void *closure)
 {
   [self->bridgeObject setVisible:PyObject_IsTrue(value)];
   return 0;
@@ -47,10 +47,10 @@ PyTypeObject CLControlBridgeType = {
   .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
   .tp_name = "ClearLake.CLControl",
   .tp_doc = PyDoc_STR("ClearLake object representing a control"),
-  .tp_basicsize = sizeof(CLObjectLink),
+  .tp_basicsize = sizeof(CLPyBridgeLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-  .tp_base = &CLObjectBridgeType,
+  .tp_base = &CLPyBridgeType,
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLControlBridge_init,
   .tp_dealloc = (destructor) CLControlBridge_dealloc,

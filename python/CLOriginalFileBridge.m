@@ -1,11 +1,11 @@
 #import "CLOriginalFileBridge.h"
-#import "CLObjectBridge.h"
-#import "CLDataBridge.h"
 #import "CLPythonModule.h"
+#import "CLPythonBridge.h"
+#import "CLDataBridge.h"
 #import <ClearLake/CLOriginalFile.h>
 #import <ClearLake/CLData.h>
 
-static int CLOriginalFileBridge_init(CLObjectLink *self, PyObject *args, PyObject *kwds)
+static int CLOriginalFileBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"data", "filename", NULL};
   CLData *data = nil;
@@ -13,37 +13,37 @@ static int CLOriginalFileBridge_init(CLObjectLink *self, PyObject *args, PyObjec
   Class nativeClass;
 
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&", kwlist,
-                                   CLPythonConvertData, &data,
-				   CLPythonConvert, &filename))
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&", kwlist,
+                                   CLPyBridgeConvertData, &data,
+				   CLPyBridgeConvert, &filename))
     return -1;
 
   nativeClass = CLClassForPythonObject((PyObject *) self);
   self->bridgeObject = [[nativeClass alloc] initFromData:data table:nil];
-  [self->bridgeObject setPythonObject:self];
+  [self->bridgeObject setPythonObject:(PyObject *) self];
   [self->bridgeObject setFilename:filename];
 
   return 0;
 }
 
-static void CLOriginalFileBridge_dealloc(CLObjectLink *self)
+static void CLOriginalFileBridge_dealloc(CLPyBridgeLink *self)
 {
   [self->bridgeObject release];
   return;
 }
 
-static PyObject *CLOriginalFileBridge_data(CLObjectLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLOriginalFileBridge_data(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
 {
   return [[self->bridgeObject data] pythonObject];
 }
 
-static PyObject *CLOriginalFileBridge_filename(CLObjectLink *self,
+static PyObject *CLOriginalFileBridge_filename(CLPyBridgeLink *self,
 					       PyObject *Py_UNUSED(ignored))
 {
   return [[self->bridgeObject filename] pythonObject];
 }
 
-static PyObject *CLOriginalFileBridge_path(CLObjectLink *self,
+static PyObject *CLOriginalFileBridge_path(CLPyBridgeLink *self,
 					       PyObject *Py_UNUSED(ignored))
 {
   return [[self->bridgeObject path] pythonObject];
@@ -62,10 +62,10 @@ PyTypeObject CLOriginalFileBridgeType = {
   .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
   .tp_name = "ClearLake.CLOriginalFile",
   .tp_doc = PyDoc_STR("ClearLake object representing an uploaded file"),
-  .tp_basicsize = sizeof(CLObjectLink),
+  .tp_basicsize = sizeof(CLPyBridgeLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-  .tp_base = &CLObjectBridgeType,
+  .tp_base = &CLPyBridgeType,
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLOriginalFileBridge_init,
   .tp_dealloc = (destructor) CLOriginalFileBridge_dealloc,
