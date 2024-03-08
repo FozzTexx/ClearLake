@@ -1,4 +1,5 @@
 #import "CLFormBridge.h"
+#import "CLControlBridge.h"
 #import "CLPythonBridge.h"
 #import "CLPageBridge.h"
 #import <ClearLake/CLPage.h>
@@ -121,7 +122,7 @@ PyTypeObject CLFormBridgeType = {
   .tp_basicsize = sizeof(CLPyBridgeLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-  .tp_base = &CLPyBridgeType,
+  .tp_base = &CLControlBridgeType,
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLFormBridge_init,
   .tp_dealloc = (destructor) CLFormBridge_dealloc,

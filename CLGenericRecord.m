@@ -1001,7 +1001,7 @@
         CLString *aString;
 
 
-        aString = [[CLString stringWithBytes:&aBinding[1] length:strlen(aBinding) - 4
+        aString = [[CLString stringWithBytes:&aBinding[3] length:strlen(aBinding) - 4
                                     encoding:CLUTF8StringEncoding] lowerCamelCaseString];
         anObject = [self addNewObjectToBothSidesOfRelationship:aString];
         [CLEditingContext generatePrimaryKey:nil forRecord:anObject];

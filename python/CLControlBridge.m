@@ -1,5 +1,6 @@
 #import "CLControlBridge.h"
 #import "CLPythonBridge.h"
+#import "CLStringBridge.h"
 #import <ClearLake/CLControl.h>
 
 static int CLControlBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
@@ -25,6 +26,34 @@ static void CLControlBridge_dealloc(CLPyBridgeLink *self)
   [self->bridgeObject release];
   return;
 }
+
+static PyObject *CLControl_navigateTo(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
+{
+  static char *kwlist[] = {"owner", "selector", NULL};
+  id owner;
+  CLString *selector;
+  BOOL success;
+
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&", kwlist,
+                                   CLPyBridgeConvert, &owner,
+                                   CLPyBridgeConvertString, &selector))
+    return NULL;
+
+  if ([selector characterAtIndex:[selector length] - 1] != ':')
+    selector = [selector stringByAppendingString:@":"];
+  success = [owner replacePage:self->bridgeObject selector:sel_getUid([selector UTF8String])];
+
+  return PyLong_FromLong(success);
+}
+
+static PyMethodDef CLControlBridge_methods[] = {
+  {
+    "navigateTo", (PyCFunction) CLControl_navigateTo, METH_VARARGS | METH_KEYWORDS,
+    "replace the control's page with the selector using owner as the page owner",
+  },
+  {NULL},
+};
 
 static PyObject *CLControlBridge_visible(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
 {
@@ -55,4 +84,5 @@ PyTypeObject CLControlBridgeType = {
   .tp_init = (initproc) CLControlBridge_init,
   .tp_dealloc = (destructor) CLControlBridge_dealloc,
   .tp_getset = CLControlBridge_getsetters,
+  .tp_methods = CLControlBridge_methods,
 };

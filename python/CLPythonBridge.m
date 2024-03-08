@@ -12,6 +12,7 @@
 #import <ClearLake/CLMethodSignature.h>
 #import <ClearLake/CLNumber.h>
 #import <ClearLake/CLGenericRecord.h>
+#import <ClearLake/CLClassConstants.h>
 
 static const char * _bridgeSubclassMethods[] = {
   "initWithPythonObject:",
@@ -53,22 +54,28 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
 
 @implementation CLPythonBridge
 
-+(Class) createBridgeClass:(CLString *) name
++(Class) createBridgeClassFromPythonClass:(PyTypeObject *) pyClass
 {
   Class aClass, bridgeClass;
-  PyObject *pyClass;
   CLMethodInfo *methods, *aMethod;
   CLUInteger idx, idx2, count;
+  CLString *className;
 
-
-  pyClass = CLPythonClassFromString(name);
-  if (!pyClass)
-    return nil;
 
   aClass = CLNativeSuperclassForPythonClass(pyClass);
   if (!aClass)
     aClass = self;
-  bridgeClass = objc_allocateClassPair(aClass, [name UTF8String], 0);
+
+#if 0
+  PyObject *pyModule = NULL;
+  if (pyClass->tp_dict)
+    pyModule = PyDict_GetItemString(pyClass->tp_dict, "__module__");
+
+  moduleName = [CLString stringWithUTF8String:PyUnicode_AsUTF8(pyModule)];
+#endif
+  className = [CLString stringWithUTF8String:pyClass->tp_name];
+  fprintf(stderr, "Creating class %s\n", [className UTF8String]);
+  bridgeClass = objc_allocateClassPair(aClass, [className UTF8String], 0);
 
   if (aClass != self) {
     methods = CLGetMethods(self, &count);
@@ -122,7 +129,8 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   else if (CLNativeSuperclassForPythonClass(pyObject))
     anObject = ((CLPyBridgeLink *) pyObject)->bridgeObject;
   else
-    anObject = [[[self alloc] initWithPythonObject:pyObject] autorelease];
+    anObject = [[[CLClassForPythonObject(pyObject) alloc] initWithPythonObject:pyObject]
+		 autorelease];
 
   if (!anObject)
     [self error:@"Where did the object go?"];
@@ -177,6 +185,11 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
     free(data);
   }
   _dynamicSuperCall(self, @selector(dealloc));
+
+  /* Just here to make the compiler warning go away */
+  if (0)
+    [super dealloc];
+
   return;
 }
 
@@ -393,7 +406,29 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   PyObject *attr, *result, *py_tuple = NULL;
   CLUInteger idx, count;
   id arg, anObject = nil;
+  CLRange aRange;
 
+
+  aBinding = CLSelGetName([anInvocation selector]);
+  aRange = [aBinding rangeOfString:@":" options:0 range:CLMakeRange(0, [aBinding length])];
+  if (aRange.length && [[anInvocation methodSignature] numberOfArguments] == 3) {
+    if ([aBinding hasPrefix:@"set"]) {
+      if ([self setIvarFromInvocation:anInvocation]) {
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
+      }
+    }
+    else if (*[[anInvocation methodSignature] getArgumentTypeAtIndex:2] == _C_ID) {
+      [anInvocation getArgument:&anObject atIndex:2];
+      if ([anObject isKindOfClass:CLControlClass] &&
+          [self replacePage:anObject selector:[anInvocation selector]]) {
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
+      }
+    }
+  }
 
   if (![self respondsTo:[anInvocation selector]])
     [self doesNotRecognize:[anInvocation selector]];

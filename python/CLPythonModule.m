@@ -40,17 +40,21 @@ static struct {
   {NULL, NULL},
 };
 
+static CLHashTable *_classMapping = NULL;
+static int _creatingClass = 0;
+
 Class CLPyBridgeClassFromName(const char *name)
 {
-  static int _creatingClass = 0;
   Class aClass = nil;
+  PyObject *pyClass;
 
 
   /* objc_allocateClassPair will call objc_getClass which will call us
      again, avoid infinite recursion */
   if (!_creatingClass) {
     _creatingClass++;
-    aClass = [CLPythonBridge createBridgeClass:[CLString stringWithUTF8String:name]];
+    pyClass = CLPythonClassFromString([CLString stringWithUTF8String:name]);
+    aClass = CLClassForPythonClass(pyClass);
     _creatingClass--;
   }
 
@@ -61,7 +65,8 @@ typedef struct {
   CLAutoreleasePool *pool;
 } ClearLake_python_state;
 
-#if 0
+#undef DICT_DEBUG
+#ifdef DICT_DEBUG
 static void print_dict_keys(PyObject* dict)
 {
   if (!PyDict_Check(dict)) {
@@ -91,14 +96,30 @@ static void print_dict_keys(PyObject* dict)
 
 PyObject *CLPythonClassFromString(CLString *aString)
 {
-  PyObject *main_module, *main_dict, *pyClass;
+  CLString *moduleName, *className;
+  PyObject *pyModule, *pyModuleDict;
+  CLRange aRange;
 
 
-  main_module = PyImport_AddModule("__main__");
-  main_dict = PyModule_GetDict(main_module);
-  //print_dict_keys(main_dict);
-  pyClass = PyDict_GetItemString(main_dict, [aString UTF8String]);
-  return pyClass;
+  aRange = [aString rangeOfString:@"."];
+  if (!aRange.length) {
+    moduleName = @"__main__";
+    className = aString;
+  }
+  else {
+    moduleName = [aString substringToIndex:aRange.location];
+    className = [aString substringFromIndex:CLMaxRange(aRange)];
+  }
+
+  pyModule = PyImport_AddModule([moduleName UTF8String]);
+  pyModuleDict = PyModule_GetDict(pyModule);
+
+#ifdef DICT_DEBUG
+  printf("Searching for %s.%s\n", [moduleName UTF8String], [className UTF8String]);
+  print_dict_keys(pyModuleDict);
+#endif
+
+  return PyDict_GetItemString(pyModuleDict, [className UTF8String]);
 }
 
 BOOL CLIsBridgeClass(PyTypeObject *pyType)
@@ -148,9 +169,30 @@ Class CLNativeSuperclassForPythonClass(PyObject *pyClass)
   return nil;
 }
 
+Class CLClassForPythonClass(PyTypeObject *pyClass)
+{
+  Class aClass;
+
+
+  if (!PyType_Check(pyClass)) {
+    fprintf(stderr, "Not a Python class\n");
+    abort();
+  }
+
+  aClass = CLHashTableDataForIdenticalKey(_classMapping, (id) pyClass, (size_t) pyClass);
+  if (!aClass) {
+    _creatingClass++;
+    aClass = [CLPythonBridge createBridgeClassFromPythonClass:pyClass];
+    _creatingClass--;
+    CLHashTableSetData(_classMapping, aClass, (id) pyClass, (size_t) pyClass);
+  }
+
+  return aClass;
+}
+
 Class CLClassForPythonObject(PyObject *pyObject)
 {
-  return CLClassFromString([CLString stringWithUTF8String:pyObject->ob_type->tp_name]);
+  return CLClassForPythonClass(Py_TYPE(pyObject));
 }
 
 PyObject *CLPythonObjectForNativeObject(id anObject)
@@ -249,7 +291,7 @@ static PyObject *CLRun_bridge(PyObject *self, PyObject *args, PyObject *kwds)
 
 static PyObject *CLPython_setSessionClass(PyObject *self, PyObject *arg)
 {
-  PyTypeObject *type = (PyTypeObject *) arg;
+  PyTypeObject *pyClass = (PyTypeObject *) arg;
   Class aClass;
 
 
@@ -258,7 +300,8 @@ static PyObject *CLPython_setSessionClass(PyObject *self, PyObject *arg)
     return NULL;
   }
 
-  aClass = CLClassFromString([CLString stringWithUTF8String:type->tp_name]);
+  aClass = CLClassForPythonClass(pyClass);
+  //  aClass = CLClassFromString([CLString stringWithUTF8String:type->tp_name]);
   [CLEditingContext setSessionClass:aClass];
   Py_RETURN_NONE;
 }
@@ -270,8 +313,8 @@ static PyObject *CLPython_saveChanges(PyObject *self, PyObject *Py_UNUSED(ignore
 }
 
 static PyMethodDef ClearLake_functions[] = {
-  {"CLRun", (PyCFunction) CLRun_bridge, METH_VARARGS | METH_KEYWORDS,
-   "handle the request from a client"},
+  {"run", (PyCFunction) CLRun_bridge, METH_VARARGS | METH_KEYWORDS,
+   "handle a request from a client"},
   {"setSessionClass", CLPython_setSessionClass, METH_O, "set the class used for sessions"},
   {"saveChanges", (PyCFunction) CLPython_saveChanges, METH_NOARGS,
     "save any objects to the database that have been changed"},
@@ -292,6 +335,8 @@ PyMODINIT_FUNC PyInit_ClearLake(void)
   ClearLake_python_state *state;
   CLUInteger idx;
 
+
+  _classMapping = CLHashTableAlloc(CLHashTableDefaultSize);
 
   for (idx = 0; CLBridgeTypes[idx].name; idx++) {
     if (PyType_Ready(CLBridgeTypes[idx].type) < 0)
