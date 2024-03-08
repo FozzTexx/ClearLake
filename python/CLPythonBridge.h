@@ -4,12 +4,12 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
+#import <ClearLake/CLObject.h>
+
 typedef struct {
   PyObject_HEAD
   id bridgeObject;
 } CLPyBridgeLink;
-
-#import <ClearLake/CLObject.h>
 
 typedef struct {
   void *originalPrivate;
@@ -17,7 +17,7 @@ typedef struct {
 } CLBridgeData;
 
 @interface CLPythonBridge:CLObject
-+(Class) createBridgeClass:(CLString *) name;
++(Class) createBridgeClassFromPythonClass:(PyTypeObject *) pyClass;
 +(id) objectWithPythonObject:(PyObject *) pyObject;
 
 -(id) initWithPythonObject:(PyObject *) pyObject;

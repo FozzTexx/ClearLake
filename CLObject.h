@@ -95,5 +95,6 @@ typedef struct {
 
 extern CLString *CLPropertyListString(id anObject);
 extern CLString *CLJSONString(id anObject);
+extern CLInvocation *CLCreateInvocation(id receiver, SEL sel, va_list ap);
 
 #endif /* _CLOBJECT_H */
