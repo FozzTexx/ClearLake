@@ -268,7 +268,7 @@ void CLGregorianDateFromAbsolute(CLTimeInterval abs, int *day, int *month, int *
 
 -(id) read:(CLStream *) stream
 {
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"l@@", &when, &format, &zone];
   return self;
 }

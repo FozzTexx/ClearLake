@@ -72,7 +72,7 @@
 
 -(id) read:(CLStream *) stream
 {
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"@", &attributes];
   return self;
 }

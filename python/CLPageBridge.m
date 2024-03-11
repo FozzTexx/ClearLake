@@ -1,22 +1,29 @@
 #import "CLPageBridge.h"
 #import "CLPythonBridge.h"
 #import "CLStreamBridge.h"
+#import "CLPythonModule.h"
 #import <ClearLake/CLPage.h>
 
 static int CLPageBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
-  static char *kwlist[] = {"path", "owner", NULL};
+  static char *kwlist[] = {"path", "owner", "_bridgeObject"};
+  PyObject *bridgeCapsule = NULL;
   CLString *path = nil;
   id owner = nil;
 
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&", kwlist,
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&O!:__init__", kwlist,
                                    CLPyBridgeConvert, &path,
-                                   CLPyBridgeConvert, &owner))
+                                   CLPyBridgeConvert, &owner,
+				   &PyCapsule_Type, &bridgeCapsule))
     return -1;
 
-  self->bridgeObject = [[CLPage alloc] initFromFile:path owner:owner];
-  [self->bridgeObject setPythonObject:(PyObject *) self];
+  if (!bridgeCapsule) {
+    self->bridgeObject = [[CLPage alloc] initFromFile:path owner:owner];
+    [self->bridgeObject setPythonObject:(PyObject *) self];
+  }
+  else
+    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
@@ -46,12 +53,12 @@ static PyObject *CLPageBridge_status(CLPyBridgeLink *self, PyObject *Py_UNUSED(i
 
 static PyObject *CLPageBridge_owner(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
 {
-  return [[self->bridgeObject owner] pythonObject];
+  return CLNativeToPython([self->bridgeObject owner]);
 }
 
 static int CLPageBridge_setOwner(CLPyBridgeLink *self, PyObject *value, void *closure)
 {
-  [self->bridgeObject setOwner:[CLPythonBridge objectWithPythonObject:value]];
+  [self->bridgeObject setOwner:CLPythonToNative(value)];
   return 0;
 }
 
@@ -72,7 +79,6 @@ static PyObject *CLPageBridge_writeHTML(CLPyBridgeLink *self, PyObject *args, Py
 
 static PyObject *CLPageBridge_getItem(CLPyBridgeLink *self, PyObject *key)
 {
-  PyObject *value;
   id element;
 
 
@@ -81,7 +87,7 @@ static PyObject *CLPageBridge_getItem(CLPyBridgeLink *self, PyObject *key)
     return NULL;
   }
 
-  element = [self->bridgeObject objectWithID:[CLPythonBridge objectWithPythonObject:key]];
+  element = [self->bridgeObject objectWithID:CLPythonToNative(key)];
   if (!element) {
     if (!PyErr_Occurred()) {
       PyErr_SetObject(PyExc_KeyError, key);
@@ -89,9 +95,7 @@ static PyObject *CLPageBridge_getItem(CLPyBridgeLink *self, PyObject *key)
     return NULL;
   }
 
-  value = [element pythonObject];
-  Py_INCREF(value);
-  return value;
+  return CLNativeToPython(element);
 }
 
 static PyMappingMethods CLPageBridge_mapping = {

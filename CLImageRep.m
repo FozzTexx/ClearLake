@@ -108,7 +108,7 @@
   CLImageRep *aRep;
 
 
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"@", &anObject];
   if ([anObject isKindOfClass:CLStringClass]) {
     path = anObject;

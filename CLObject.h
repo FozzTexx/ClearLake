@@ -22,6 +22,8 @@
 #ifndef _CLOBJECT_H
 #define _CLOBJECT_H
 
+#include <stdarg.h>
+
 #import <ClearLake/CLPrimitiveObject.h>
 
 @class CLInvocation, CLData, CLStream;

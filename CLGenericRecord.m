@@ -212,7 +212,7 @@
   id anObject;
 
 
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"@@", &pk, &_table];
   _record = CLHashTableAlloc(MAX_HASH);
   if (_table)
@@ -317,19 +317,21 @@
   return _primaryKey;
 }
 
--(CLUInteger) objectID
-{
-  return [[self objectValueForBinding:@"id"] unsignedIntValue];
-}
-
 -(CLString *) table
 {
   return _table;
 }
 
+-(CLUInteger) objectID
+{
+  return objectID;
+  //return [[self objectValueForBinding:OBJECTID_BINDING] unsignedIntValue];
+}
+
 -(void) setObjectID:(CLUInteger) oid
 {
-  [self setObjectValue:[CLNumber numberWithUnsignedInt:oid] forBinding:@"id"];
+  objectID = oid;
+  //[self setObjectValue:[CLNumber numberWithUnsignedInt:oid] forBinding:OBJECTID_BINDING];
   return;
 }
 
@@ -617,20 +619,22 @@
 
 
     oldKey = CLHashTableKeyForKey(_record, aField, [aField hash], @selector(isEqual:));
-    oldObject = CLHashTableRemoveDataForKey(_record, aField, [aField hash],
-                                            @selector(isEqual:));
-    if ([[self attributeForField:aField] isPrimaryKey]) {
-      if (oldObject && ![oldObject isEqual:anObject])
-        [self error:@"Changing primary key"];
-      if ([anObject isKindOfClass:CLNumberClass] && ![anObject intValue] &&
-          ![self allowZeroPrimaryKey])
-        [self error:@"Trying to set primary key to 0"];
+    oldObject = CLHashTableDataForKey(_record, aField, [aField hash], @selector(isEqual:));
+    if (oldObject != anObject && ![oldObject isEqual:anObject]) {
+      CLHashTableRemoveDataForKey(_record, aField, [aField hash], @selector(isEqual:));
+      if ([[self attributeForField:aField] isPrimaryKey]) {
+	if (oldObject && ![oldObject isEqual:anObject])
+	  [self error:@"Changing primary key"];
+	if ([anObject isKindOfClass:CLNumberClass] && ![anObject intValue] &&
+	    ![self allowZeroPrimaryKey])
+	  [self error:@"Trying to set primary key to 0"];
+      }
+      [self retainField:aField object:anObject oldObject:oldObject];
+      if (!oldKey)
+	oldKey = [aField copy];
+      CLHashTableSetData(_record, anObject, oldKey, [oldKey hash]);
+      [self willChange];
     }
-    [self retainField:aField object:anObject oldObject:oldObject];
-    if (!oldKey)
-      oldKey = [aField copy];
-    CLHashTableSetData(_record, anObject, oldKey, [oldKey hash]);
-    [self willChange];
   }
 
   return;

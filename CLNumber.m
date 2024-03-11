@@ -226,7 +226,7 @@ CLNumber *CLTrueObject, *CLFalseObject;
 
 -(id) read:(CLStream *) stream
 {
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"i", &type];
   if (type == 'i')
     [stream readTypes:@"l", &value.l];

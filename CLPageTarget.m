@@ -74,7 +74,7 @@
   char *buf;
 
 
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"*", &buf];
   if (buf)
     path = [[CLString alloc] initWithUTF8String:buf];

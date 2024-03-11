@@ -13,6 +13,7 @@
 #import "CLControlBridge.h"
 #import "CLOriginalFileBridge.h"
 #import "CLSessionBridge.h"
+#import "CLMutableDictionaryBridge.h"
 
 #import <ClearLake/CLAutoreleasePool.h>
 #import <ClearLake/CLDictionary.h>
@@ -30,6 +31,9 @@ static struct {
   PyTypeObject *type;
 } CLBridgeTypes[] = {
   {"CLPythonBridge", &CLPyBridgeType},
+#if 0
+  {"CLPyBridgeIterator", &CLPyBridgeIteratorType},
+#endif
   BRIDGE_TYPE(CLManager),
   BRIDGE_TYPE(CLPage),
   BRIDGE_TYPE(CLForm),
@@ -37,6 +41,7 @@ static struct {
   BRIDGE_TYPE(CLControl),
   BRIDGE_TYPE(CLOriginalFile),
   BRIDGE_TYPE(CLSession),
+  BRIDGE_TYPE(CLMutableDictionary),
   {NULL, NULL},
 };
 
@@ -52,10 +57,12 @@ Class CLPyBridgeClassFromName(const char *name)
   /* objc_allocateClassPair will call objc_getClass which will call us
      again, avoid infinite recursion */
   if (!_creatingClass) {
-    _creatingClass++;
     pyClass = CLPythonClassFromString([CLString stringWithUTF8String:name]);
-    aClass = CLClassForPythonClass(pyClass);
-    _creatingClass--;
+    if (pyClass) {
+      _creatingClass++;
+      aClass = CLClassForPythonClass((PyTypeObject *) pyClass);
+      _creatingClass--;
+    }
   }
 
   return aClass;
@@ -94,10 +101,10 @@ static void print_dict_keys(PyObject* dict)
 }
 #endif
 
-PyObject *CLPythonClassFromString(CLString *aString)
+PyTypeObject *CLPythonClassFromString(CLString *aString)
 {
   CLString *moduleName, *className;
-  PyObject *pyModule, *pyModuleDict;
+  PyObject *pyModule, *pyModuleDict, *pyClass;
   CLRange aRange;
 
 
@@ -119,20 +126,13 @@ PyObject *CLPythonClassFromString(CLString *aString)
   print_dict_keys(pyModuleDict);
 #endif
 
-  return PyDict_GetItemString(pyModuleDict, [className UTF8String]);
-}
-
-BOOL CLIsBridgeClass(PyTypeObject *pyType)
-{
-  CLUInteger idx;
-
-
-  for (idx = 0; CLBridgeTypes[idx].name; idx++) {
-    if (CLBridgeTypes[idx].type == pyType)
-      return YES;
+  pyClass = PyDict_GetItemString(pyModuleDict, [className UTF8String]);
+  if (pyClass && !PyType_Check(pyClass)) {
+    fprintf(stderr, "Not a Python class\n");
+    abort();
   }
 
-  return NO;
+  return pyClass;
 }
 
 PyTypeObject *CLPythonBridgeTypeForClass(Class aClass)
@@ -147,6 +147,22 @@ PyTypeObject *CLPythonBridgeTypeForClass(Class aClass)
   }
 
   return NULL;
+}
+
+BOOL CLIsBridgeClass(PyTypeObject *pyType)
+{
+  CLUInteger idx;
+
+
+  while (pyType) {
+    for (idx = 0; CLBridgeTypes[idx].name; idx++) {
+      if (CLBridgeTypes[idx].type == pyType)
+	return YES;
+    }
+    pyType = pyType->tp_base;
+  }
+
+  return NO;
 }
 
 Class CLNativeSuperclassForPythonClass(PyObject *pyClass)
@@ -195,12 +211,14 @@ Class CLClassForPythonObject(PyObject *pyObject)
   return CLClassForPythonClass(Py_TYPE(pyObject));
 }
 
-PyObject *CLPythonObjectForNativeObject(id anObject)
+#if 0
+PyObject *CLNativeToPython(id anObject)
 {
   if (!anObject)
     Py_RETURN_NONE;
   return [anObject pythonObject];
 }
+#endif
 
 static void CLPythonAddToEnvironment(CLDictionary *aDict, CLString **keys)
 {
@@ -279,10 +297,11 @@ static PyObject *CLRun_bridge(PyObject *self, PyObject *args, PyObject *kwds)
   htmlStream = [CLStream openMemoryForWriting];
   headerStream = [CLStream openMemoryForWriting];
   status = CLHandleRequest(mainObjectName, htmlStream, headerStream, inputStream);
+  [CLDefaultContext saveChanges];
 
   result = [CLArray arrayWithObjects:[CLNumber numberWithUnsignedInt:status],
                     [htmlStream data], [headerStream data], nil];
-  pyResult = [result pythonObject];
+  pyResult = CLNativeToPython(result);
   [[CLManager manager] setActiveSession:nil];
   [pool release];
 

@@ -20,6 +20,7 @@
  */
 
 #import "CLRecordDefinition.h"
+#import "CLGenericRecord.h"
 #import "CLRange.h"
 #import "CLString.h"
 #import "CLDictionary.h"
@@ -157,9 +158,9 @@
   for (i = 0, j = [anArray count]; i < j; i++) {
     anAttr = [anArray objectAtIndex:i];
     if ([[anAttr key] isEqualToString:fieldName] ||
-        ([fieldName isEqualToString:@"objectID"] &&
+        ([fieldName isEqualToString:OBJECTID_BINDING] &&
          [recordClass isKindOfClass:CLGenericRecordClass] &&
-         [[anAttr key] isEqualToString:@"id"]))
+         [[anAttr key] isEqualToString:OBJECTID_COLUMN]))
       return [anAttr isPrimaryKey];
   }
 

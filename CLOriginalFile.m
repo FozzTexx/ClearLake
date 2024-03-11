@@ -130,7 +130,7 @@
 
 -(id) read:(CLStream *) stream
 {
-  [super read:stream];
+  self = [super read:stream];
   loaded = NO;
   data = nil;
   return self;

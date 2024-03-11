@@ -2,24 +2,31 @@
 #import "CLControlBridge.h"
 #import "CLPythonBridge.h"
 #import "CLPageBridge.h"
+#import "CLPythonModule.h"
 #import <ClearLake/CLPage.h>
 #import <ClearLake/CLForm.h>
 #import <ClearLake/CLInput.h>
 
 static int CLFormBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
-  static char *kwlist[] = {"string", "page", NULL};
+  static char *kwlist[] = {"string", "page", "_bridgeObject", NULL};
+  PyObject *bridgeCapsule = NULL;
   CLString *string = nil;
   id page = nil;
 
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&", kwlist,
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&O!:__init__", kwlist,
                                    CLPyBridgeConvert, &string,
-                                   CLPyBridgeConvert, &page))
+                                   CLPyBridgeConvert, &page,
+				   &PyCapsule_Type, &bridgeCapsule))
     return -1;
 
-  self->bridgeObject = [[CLForm alloc] initFromString:string onPage:page];
-  [self->bridgeObject setPythonObject:(PyObject *) self];
+  if (!bridgeCapsule) {
+    self->bridgeObject = [[CLForm alloc] initFromString:string onPage:page];
+    [self->bridgeObject setPythonObject:(PyObject *) self];
+  }
+  else
+    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
@@ -28,6 +35,11 @@ static void CLFormBridge_dealloc(CLPyBridgeLink *self)
 {
   [self->bridgeObject release];
   return;
+}
+
+static PyObject *CLFormBridge_page(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+{
+  return CLNativeToPython([self->bridgeObject page]);
 }
 
 #if 0
@@ -42,13 +54,12 @@ static PyObject *CLFormBridge_valueOfFieldNamed(CLPyBridgeLink *self,
                                    CLPyBridgeConvert, &name))
     return NULL;
 
-  return [[self->bridgeObject valueOfFieldNamed:name] pythonObject];
+  return CLNativeToPython([self->bridgeObject valueOfFieldNamed:name]);
 }
 #endif
 
 static PyObject *CLFormBridge_getItem(CLPyBridgeLink *self, PyObject *key)
 {
-  PyObject *value;
   id field;
 
 
@@ -57,7 +68,7 @@ static PyObject *CLFormBridge_getItem(CLPyBridgeLink *self, PyObject *key)
     return NULL;
   }
 
-  field = [self->bridgeObject fieldNamed:[CLPythonBridge objectWithPythonObject:key]];
+  field = [self->bridgeObject fieldNamed:CLPythonToNative(key)];
   if (!field) {
     if (!PyErr_Occurred()) {
       PyErr_SetObject(PyExc_KeyError, key);
@@ -65,19 +76,12 @@ static PyObject *CLFormBridge_getItem(CLPyBridgeLink *self, PyObject *key)
     return NULL;
   }
 
-  value = [[field value] pythonObject];
-  Py_INCREF(value);
-  return value;
-}
-
-static PyObject *CLFormBridge_page(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
-{
-  return [[self->bridgeObject page] pythonObject];
+  return CLNativeToPython([field value]);
 }
 
 static int CLFormBridge_setItem(CLPyBridgeLink *self, PyObject *key, PyObject *value)
 {
-  CLString *aString;
+  CLString *aField;
 
 
   if (!PyUnicode_Check(key)) {
@@ -85,12 +89,11 @@ static int CLFormBridge_setItem(CLPyBridgeLink *self, PyObject *key, PyObject *v
     return -1;
   }
 
-  aString = [CLPythonBridge objectWithPythonObject:key];
+  aField = CLPythonToNative(key);
   if (value == NULL)
-    [self->bridgeObject setValue:nil forFieldNamed:aString];
+    [self->bridgeObject setValue:nil forFieldNamed:aField];
   else
-    [self->bridgeObject setValue:[CLPythonBridge objectWithPythonObject:value]
-                   forFieldNamed:aString];
+    [self->bridgeObject setValue:CLPythonToNative(value) forFieldNamed:aField];
 
   return 0;
 }

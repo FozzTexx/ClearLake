@@ -76,7 +76,7 @@
 
 -(id) read:(CLStream *) stream
 {
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"@@", &datasource, &binding];
   return self;
 }

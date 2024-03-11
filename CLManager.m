@@ -532,9 +532,9 @@ static CLMutableDictionary *CLConfig = nil;
     if (anID) {
       aString = [CLString stringWithFormat:
                             @"select %@, %@ from %@ where %@ = %i",
-                          [sessionDef columnNameForKey:@"objectID"],
+                          [sessionDef columnNameForKey:OBJECTID_BINDING],
                           [sessionDef columnNameForKey:@"browserHash"],
-                          localTable, [sessionDef columnNameForKey:@"objectID"], anID];
+                          localTable, [sessionDef columnNameForKey:OBJECTID_BINDING], anID];
       rows = [db read:attr qualifier:aString errors:NULL];
 
       if ([rows count]) {
@@ -739,7 +739,7 @@ static CLMutableDictionary *CLConfig = nil;
 
     if ((!aString && !aPass) ||
         (aString && aPass && [aString isEqualToString:cryptPass])) {
-      uid = [[aDict objectForKey:@"id"] intValue];
+      uid = [[aDict objectForKey:OBJECTID_COLUMN] intValue];
       if ([CLDelegate respondsTo:@selector(willValidateAccountID:sender:)]
           && ![CLDelegate willValidateAccountID:uid sender:sender]) {
         uid = 0;
@@ -1613,8 +1613,13 @@ void CLInit()
                     stringByAppendingPathComponent:CLAppName];
     }
   }
-  else
-    CLAppPath = @"";
+  else {
+    char buf[PATH_MAX+1];
+
+
+    getcwd(buf, sizeof(buf));
+    CLAppPath = [CLString stringWithUTF8String:buf];
+  }
 
   [CLAppName retain];
   [CLWebName retain];

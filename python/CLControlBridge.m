@@ -5,18 +5,24 @@
 
 static int CLControlBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
-  static char *kwlist[] = {"string", "page", NULL};
+  static char *kwlist[] = {"string", "page", "_bridgeObject", NULL};
+  PyObject *bridgeCapsule = NULL;
   CLString *string = nil;
   id page = nil;
 
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&", kwlist,
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&O!:__init__", kwlist,
                                    CLPyBridgeConvert, &string,
-                                   CLPyBridgeConvert, &page))
+                                   CLPyBridgeConvert, &page,
+				   &PyCapsule_Type, &bridgeCapsule))
     return -1;
 
-  self->bridgeObject = [[CLControl alloc] initFromString:string onPage:page];
-  [self->bridgeObject setPythonObject:(PyObject *) self];
+  if (!bridgeCapsule) {
+    self->bridgeObject = [[CLControl alloc] initFromString:string onPage:page];
+    [self->bridgeObject setPythonObject:(PyObject *) self];
+  }
+  else
+    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
@@ -42,7 +48,14 @@ static PyObject *CLControl_navigateTo(CLPyBridgeLink *self, PyObject *args, PyOb
 
   if ([selector characterAtIndex:[selector length] - 1] != ':')
     selector = [selector stringByAppendingString:@":"];
-  success = [owner replacePage:self->bridgeObject selector:sel_getUid([selector UTF8String])];
+  if (!owner) {
+    [self->bridgeObject setPage:nil];
+    CLRedirectBrowserToPage(selector, NO);
+    success = YES;
+  }
+  else
+    success = [owner replacePage:self->bridgeObject
+			selector:sel_getUid([selector UTF8String])];
 
   return PyLong_FromLong(success);
 }

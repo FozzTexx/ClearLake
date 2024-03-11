@@ -144,15 +144,24 @@
 
 -(CLArray *) sortedArrayUsingSelector:(SEL) comparator
 {
-  CLMutableArray *mArray;
+  id sortedArray;
   CLArray *anArray;
 
 
-  mArray = [self mutableCopy];
-  [mArray sortUsingSelector:comparator];
-  anArray = [[[self class] alloc] initWithArray:mArray];
-  [mArray release];
-  return [anArray autorelease];
+  sortedArray = [self mutableCopy];
+  [sortedArray sortUsingSelector:comparator];
+
+  if (![self isKindOfClass:CLMutableArrayClass]) {
+    /* FIXME - if self is not mutable then what is returned should not
+               be either, find a way to downgrade mArray to immutable
+               without forcing our class to implement
+               initWithObjects:count: */
+    anArray = [[[self class] alloc] initWithArray:sortedArray];
+    [sortedArray release];
+    sortedArray = anArray;
+  }
+
+  return [sortedArray autorelease];
 }
 
 -(CLArray *) sortedArrayUsingDescriptors:(CLArray *) sortDescriptors

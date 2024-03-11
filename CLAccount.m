@@ -114,7 +114,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   id anObject;
 
 
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"i", &objectID];
   if ((anObject = [CLDefaultContext registerInstance:self inTable:[CLEditingContext
                                                                     tableForClass:[self class]]

@@ -350,7 +350,7 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   CLDecimalMPZ *val;
 
 
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"@", &aString];
   if (!(val = calloc(1, sizeof(CLDecimalMPZ))))
     [self error:@"Unable to allocate memory"];

@@ -5,21 +5,27 @@
 
 int CLOptionBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
-  static char *kwlist[] = {"label", "value", "selected", NULL};
+  static char *kwlist[] = {"label", "value", "selected", "_bridgeObject", NULL};
+  PyObject *bridgeCapsule = NULL;
   CLString *label = nil;
   id value = nil;
   int selected = NO;
 
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&|p", kwlist,
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&|pO!:__init__", kwlist,
                                    CLPyBridgeConvertString, &label,
                                    CLPyBridgeConvert, &value,
-                                   &selected))
+                                   &selected,
+				   &PyCapsule_Type, &bridgeCapsule))
     return -1;
 
-  self->bridgeObject = [[CLOption alloc] initWithString:label andValue:value
-                                               selected:selected];
-  [self->bridgeObject setPythonObject:(PyObject *) self];
+  if (!bridgeCapsule) {
+    self->bridgeObject = [[CLOption alloc] initWithString:label andValue:value
+						 selected:selected];
+    [self->bridgeObject setPythonObject:(PyObject *) self];
+  }
+  else
+    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
