@@ -26,12 +26,16 @@
 #import <ClearLake/CLString.h>
 #import <ClearLake/CLHashTable.h>
 
+#define OBJECTID_BINDING	@"objectID"
+#define OBJECTID_COLUMN		@"id"
+
 @class CLDictionary, CLMutableDictionary, CLArray, CLMutableArray,
   CLDatabase, CLDatetime, CLEditingContext, CLAttribute, CLRelationship,
   CLRecordDefinition;
 
 @interface CLGenericRecord:CLObject <CLArchiving, CLCopying>
 {
+  int objectID;
   CLString *_table;
   CLHashTable *_record;
   CLRecordDefinition *_recordDef;

@@ -4,6 +4,7 @@
 #import "CLMutableArrayBridge.h"
 #import "CLPythonModule.h"
 #import "CLPythonBridge.h"
+#import "CLArrayBridge.h"
 
 #import <ClearLake/CLConstantString.h>
 
@@ -14,20 +15,22 @@
   return [[[CLMutableArrayBridge alloc] initWithPythonObject:pyList] autorelease];
 }
 
+#if 1
 -(PyObject *) pythonObject
 {
-  CLPyBridgeLink *obj;
-  PyTypeObject *type;
+  PyObject *pyTuple = NULL;
 
 
-  type = CLPythonBridgeTypeForClass([self class]);
-  if (!type)
-    type = &CLPyBridgeType;
-
-  obj = (CLPyBridgeLink *) type->tp_new(type, PyTuple_New(0), NULL);
-  obj->bridgeObject = [self retain];
-  return (PyObject *) obj;
+  CLPythonTupleFromArray(self, &pyTuple);
+  return pyTuple;
 }
+#else
+-(PyObject *) pythonObject
+{
+  [self error:@"Not implemented"];
+  return NULL;
+}
+#endif
 
 @end
 
@@ -35,6 +38,8 @@
 
 -(id) initWithPythonObject:(PyObject *) pyObject
 {
+  if (!PyList_Check(pyObject))
+    [self error:@"object is not a Python list"];
   [super init];
   Py_INCREF(pyObject);
   arrayData = pyObject;
@@ -55,7 +60,17 @@
 
 -(id) objectAtIndex:(CLUInteger) index
 {
-  return [CLPythonBridge objectWithPythonObject:PyList_GetItem(arrayData, index)];
+  return CLPythonToNative(PyList_GetItem(arrayData, index));
+}
+
+-(void) write:(CLStream *) stream
+{
+  CLArray *anArray = [[CLArray alloc] initWithArray:self];
+
+
+  [anArray write:stream];
+  [anArray release];
+  return;
 }
 
 @end

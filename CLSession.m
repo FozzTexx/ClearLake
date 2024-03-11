@@ -142,7 +142,7 @@
   id anObject;
 
 
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"i", &objectID];
   if ((anObject = [CLDefaultContext registerInstance:self inTable:[CLEditingContext
                                                                     tableForClass:[self class]]

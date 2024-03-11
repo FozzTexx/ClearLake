@@ -78,7 +78,7 @@
   CLUInteger start;
 
 
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"@ii", &aString, &maxPages, &start];
   if (![CLQuery objectForKey:QUERY_START])
     [CLQuery setObject:[CLNumber numberWithUnsignedInt:start] forKey:QUERY_START];

@@ -101,7 +101,7 @@
   CLUInteger idx;
 
 
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"I", &storage->numElements];
   storage->maxElements = storage->numElements;
   if (!(storage->dataPtr = malloc(sizeof(id) * storage->maxElements)))

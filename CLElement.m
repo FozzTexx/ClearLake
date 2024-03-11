@@ -329,7 +329,7 @@
 /* These just exist to do the init */
 -(id) read:(CLStream *) stream
 {
-  [super read:stream];
+  self = [super read:stream];
   attributes = [[CLMutableDictionary alloc] initWithSize:MAX_HASH];
   return self;
 }

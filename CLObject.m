@@ -50,6 +50,7 @@
 #include <dirent.h>
 
 static CLHashTable *CLCachedClasses = NULL;
+static CLHashTable *CLCachedPages = NULL;
 
 static IMP CLFindForwardFunction(SEL sel);
 
@@ -500,6 +501,31 @@ static IMP CLFindForwardFunction(SEL sel);
   return [pages autorelease];
 }
 
+-(CLMutableArray *) pagesForSelf
+{
+  Class pClass;
+  CLArray *anArray;
+  CLMutableArray *mArray;
+
+
+  if (!CLCachedPages)
+    CLCachedPages = CLHashTableAlloc(100);
+
+  mArray = [[CLMutableArray alloc] init];
+  pClass = [self class];
+  while (pClass) {
+    anArray = CLHashTableDataForIdenticalKey(CLCachedPages, pClass, (size_t) pClass);
+    if (!anArray) {
+      anArray = [[self pagesForPrefix:[pClass className]] retain];
+      CLHashTableSetData(CLCachedPages, anArray, pClass, (size_t) pClass);
+    }
+    [mArray addObjectsFromArray:anArray];
+    pClass = [pClass superClass];
+  }
+
+  return [mArray autorelease];
+}
+
 -(void *) cacheBindings
 {
   CLMethodInfo *methods, *aMethod;
@@ -622,15 +648,11 @@ static IMP CLFindForwardFunction(SEL sel);
     CLString *aString;
     unistr binding;
     CLRange aRange;
-    Class pClass;
+    CLAutoreleasePool *pool;
 
 
-    mArray = [[CLMutableArray alloc] init];
-    pClass = aClass;
-    while (pClass) {
-      [mArray addObjectsFromArray:[self pagesForPrefix:[pClass className]]];
-      pClass = [pClass superClass];
-    }
+    pool = [[CLAutoreleasePool alloc] init];
+    mArray = [self pagesForSelf];
 
     if (([self isKindOfClass:CLGenericRecordClass] &&
          (recordDef = [((CLGenericRecord *) self) recordDef])) ||
@@ -677,7 +699,7 @@ static IMP CLFindForwardFunction(SEL sel);
       }
     }
 
-    [mArray release];
+    [pool release];
   }
 
   if (!CLCachedClasses)

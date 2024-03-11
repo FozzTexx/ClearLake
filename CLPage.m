@@ -1589,6 +1589,7 @@ void CLRedirectBrowser(CLString *newURL, BOOL includeQuery, int status)
   CLArray *keys;
   CLMutableString *mString;
   id aValue;
+  CLStream *htmlStream, *headerStream;
 
 
   aRange = [newURL rangeOfString:@"?"];
@@ -1621,29 +1622,35 @@ void CLRedirectBrowser(CLString *newURL, BOOL includeQuery, int status)
     if (CLStatusStrings[i].status == status)
       statusString = CLStatusStrings[i].string;
 
-  printf("Status: %i", status);
+  htmlStream = CLPageDisplayHTML;
+  headerStream = CLPageDisplayHeaders;
+  if (!htmlStream)
+    htmlStream = [CLStream openDescriptor:1 mode:CLWriteOnly];
+  if (!headerStream)
+    headerStream = htmlStream;
+
+  CLPrintf(headerStream, @"Status: %i", status);
   if (statusString)
-    printf(" %s", [statusString UTF8String]);
-  printf("\r\n");
-  printf("Location: %s\r\n", [newURL UTF8String]);
+    CLPrintf(headerStream, @" %@", statusString);
+  CLPrintf(headerStream, @"\r\n");
+  CLPrintf(headerStream, @"Location: %@\r\n", newURL);
   for (i = 0, j = [CLCookies count]; i < j; i++)
     if (![[CLCookies objectAtIndex:i] isFromBrowser])
-      printf("Set-Cookie: %s\n",
-             [[[CLCookies objectAtIndex:i] cookieString] UTF8String]);
-  printf("Content-Type: text/html\r\n");
-  printf("\r\n");
-  printf("<HTML><HEAD>"
-         "<TITLE>%i", status);
+      CLPrintf(headerStream, @"Set-Cookie: %\n",
+	       [[CLCookies objectAtIndex:i] cookieString]);
+  CLPrintf(headerStream, @"Content-Type: text/html\r\n");
+  CLPrintf(headerStream, @"\r\n");
+  CLPrintf(htmlStream, @"<HTML><HEAD>"
+	   @"<TITLE>%i", status);
   if (statusString)
-    printf(" %s", [statusString UTF8String]);
-  printf("</TITLE>"
-         "</HEAD><BODY>"
-         "<H1>Moved Temporarily</H1>"
-         "The document has moved <A HREF=\"%s\">here</A>.<P>"
-         "</BODY></HTML>"
-         "\r\n", [newURL UTF8String]);
+    CLPrintf(htmlStream, @" %@", statusString);
+  CLPrintf(htmlStream, @"</TITLE>"
+	   "</HEAD><BODY>"
+	   "<H1>Moved Temporarily</H1>"
+	   "The document has moved <A HREF=\"%@\">here</A>.<P>"
+	   "</BODY></HTML>"
+	   "\r\n", newURL);
 
-  exit(0);
   return;
 }
 
@@ -1666,4 +1673,6 @@ void CLRedirectBrowserToPage(CLString *aFilename, BOOL includeQuery)
   [aTarget release];
 
   CLRedirectBrowser(aString, includeQuery, 303);
+
+  return;
 }

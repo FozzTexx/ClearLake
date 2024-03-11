@@ -203,7 +203,7 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   char *p;
 
 
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"*", &p];
   return [self initWithBytesNoCopy:p length:strlen(p) encoding:CLUTF8StringEncoding];
 }

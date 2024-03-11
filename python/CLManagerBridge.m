@@ -5,10 +5,18 @@
 
 static int CLManagerBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
-  if (!PyArg_ParseTuple(args, ":__init__"))
+  static char *kwlist[] = {"_bridgeObject", NULL};
+  PyObject *bridgeCapsule = NULL;
+
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O!:__init__", kwlist,
+				   &PyCapsule_Type, &bridgeCapsule))
     return -1;
 
-  self->bridgeObject = [[CLManager manager] retain];
+  if (!bridgeCapsule)
+    self->bridgeObject = [[CLManager manager] retain];
+  else
+    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
@@ -22,7 +30,7 @@ static void CLManagerBridge_dealloc(CLPyBridgeLink *self)
 static PyObject *CLManagerBridge_activeSession(CLPyBridgeLink *self,
 					       PyObject *Py_UNUSED(ignored))
 {
-  return CLPythonObjectForNativeObject([self->bridgeObject activeSession]);
+  return CLNativeToPython([self->bridgeObject activeSession]);
 }
 
 static PyGetSetDef CLManagerBridge_getsetters[] = {

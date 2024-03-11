@@ -116,7 +116,7 @@ static CLTimeZone *CLSystemTimeZone = nil, *CLUTCTimeZone = nil;
 
 -(id) read:(CLStream *) stream
 {
-  [super read:stream];
+  self = [super read:stream];
   [stream readTypes:@"@", &zone];
   return self;
 }

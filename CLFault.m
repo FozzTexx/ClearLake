@@ -197,7 +197,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
     fields = [[CLDictionary alloc] initWithObjectsAndKeys:
                                      data->info.faultData.primaryKey,
                                    [[[data->info.faultData.recordDef primaryKeys]
-                                                       objectAtIndex:0] column], nil];
+                                                       objectAtIndex:0] key], nil];
     [data->info.faultData.primaryKey release];
     data->info.faultData.primaryKey = fields;
   }

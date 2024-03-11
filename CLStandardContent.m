@@ -1326,7 +1326,7 @@
 
 -(BOOL) formShouldUseAutomaticPropertyList:(CLForm *) aForm
 {
-  if ([[[aForm attributes] objectForCaseInsensitiveString:@"id"]
+  if ([[[aForm attributes] objectForCaseInsensitiveString:@"ID"]
         isEqualToString:@"theForm"])
     return YES;
   return NO;

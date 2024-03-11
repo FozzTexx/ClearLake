@@ -40,7 +40,7 @@
 
 -(CLNumber *) imageID
 {
-  return [attributes objectForCaseInsensitiveString:@"id"];
+  return [attributes objectForCaseInsensitiveString:OBJECTID_BINDING];
 }
 
 -(CLOriginalImage *) image
@@ -56,7 +56,7 @@
 
 -(void) setImageID:(CLNumber *) aValue
 {
-  [attributes setObject:aValue forCaseInsensitiveString:@"id"];
+  [attributes setObject:aValue forCaseInsensitiveString:OBJECTID_BINDING];
   return;
 }
 

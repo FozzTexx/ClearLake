@@ -125,7 +125,7 @@ static char *base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 
 -(id) read:(CLStream *) stream
 {
-  [super read:stream];
+  self = [super read:stream];
   [stream readType:@"I" data:&len];
   if (!(data = malloc(len)))
     [self error:@"Unable to allocate memory"];

@@ -7,21 +7,27 @@
 
 static int CLOriginalFileBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
-  static char *kwlist[] = {"data", "filename", NULL};
+  static char *kwlist[] = {"data", "filename", "_bridgeObject", NULL};
+  PyObject *bridgeCapsule = NULL;
   CLData *data = nil;
   CLString *filename = nil;
   Class nativeClass;
 
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&", kwlist,
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&O!:__init__", kwlist,
                                    CLPyBridgeConvertData, &data,
-				   CLPyBridgeConvert, &filename))
+				   CLPyBridgeConvert, &filename,
+				   &PyCapsule_Type, &bridgeCapsule))
     return -1;
 
-  nativeClass = CLClassForPythonObject((PyObject *) self);
-  self->bridgeObject = [[nativeClass alloc] initFromData:data table:nil];
-  [self->bridgeObject setPythonObject:(PyObject *) self];
-  [self->bridgeObject setFilename:filename];
+  if (!bridgeCapsule) {
+    nativeClass = CLClassForPythonObject((PyObject *) self);
+    self->bridgeObject = [[nativeClass alloc] initFromData:data table:nil];
+    [self->bridgeObject setPythonObject:(PyObject *) self];
+    [self->bridgeObject setFilename:filename];
+  }
+  else
+    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
@@ -34,25 +40,32 @@ static void CLOriginalFileBridge_dealloc(CLPyBridgeLink *self)
 
 static PyObject *CLOriginalFileBridge_data(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
 {
-  return [[self->bridgeObject data] pythonObject];
+  return CLNativeToPython([self->bridgeObject data]);
 }
 
 static PyObject *CLOriginalFileBridge_filename(CLPyBridgeLink *self,
 					       PyObject *Py_UNUSED(ignored))
 {
-  return [[self->bridgeObject filename] pythonObject];
+  return CLNativeToPython([self->bridgeObject filename]);
+}
+
+static int CLOriginalFileBridge_setFilename(CLPyBridgeLink *self, PyObject *value,
+					    void *closure)
+{
+  [self->bridgeObject setFilename:CLPythonToNative(value)];
+  return 0;
 }
 
 static PyObject *CLOriginalFileBridge_path(CLPyBridgeLink *self,
 					       PyObject *Py_UNUSED(ignored))
 {
-  return [[self->bridgeObject path] pythonObject];
+  return CLNativeToPython([self->bridgeObject path]);
 }
 
 static PyGetSetDef CLOriginalFileBridge_getsetters[] = {
   {"data", (getter) CLOriginalFileBridge_data, NULL, "data of the file", NULL},
-  {"filename", (getter) CLOriginalFileBridge_filename, NULL,
-   "suggested filename of the file", NULL},
+  {"filename", (getter) CLOriginalFileBridge_filename,
+   (setter) CLOriginalFileBridge_setFilename, "suggested filename of the file", NULL},
   {"path", (getter) CLOriginalFileBridge_path, NULL,
    "path to where the data is stored", NULL},
   {NULL},

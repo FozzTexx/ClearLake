@@ -93,7 +93,7 @@
   id aKey, aValue;
 
 
-  [super read:stream];
+  self = [super read:stream];
   [stream readType:@"I" data:&count];
   storage = calloc(1, sizeof(*storage));
   storage->table = CLHashTableAlloc(count);
