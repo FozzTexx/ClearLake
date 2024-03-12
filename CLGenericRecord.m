@@ -1771,6 +1771,10 @@
     }
     if (![mArray containsObjectIdenticalTo:anObject]) {
       [self willChange];
+      if (![mArray isKindOfClass:CLMutableArrayClass]) {
+	mArray = [mArray mutableCopy];
+	[self setPrimitiveValue:mArray forKey:aKey];
+      }
       [mArray addObject:anObject];
     }
   }
@@ -1828,12 +1832,18 @@
 {
   CLRelationship *aRelationship;
   CLArray *anArray;
+  CLMutableArray *mArray;
   CLRecordDefinition *recordDef = [CLEditingContext recordDefinitionForClass:[self class]];
 
 
   aRelationship = [[recordDef relationships] objectForKey:aKey];
   if ([aRelationship toMany]) {
-    [[self objectValueForBinding:aKey] removeObject:anObject];
+    mArray = [self objectValueForBinding:aKey];
+    if (![mArray isKindOfClass:CLMutableArrayClass]) {
+      mArray = [mArray mutableCopy];
+      [self setPrimitiveValue:mArray forKey:aKey];
+    }
+    [mArray removeObject:anObject];
     if ([aRelationship isOwner]) {
       [[self editingContext] removeObject:anObject];
       [[self editingContext] deleteObject:anObject];
