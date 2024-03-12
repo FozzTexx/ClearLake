@@ -14,6 +14,8 @@
 #import "CLOriginalFileBridge.h"
 #import "CLSessionBridge.h"
 #import "CLMutableDictionaryBridge.h"
+#import "CLAccountBridge.h"
+#import "CLInputBridge.h"
 
 #import <ClearLake/CLAutoreleasePool.h>
 #import <ClearLake/CLDictionary.h>
@@ -42,6 +44,8 @@ static struct {
   BRIDGE_TYPE(CLOriginalFile),
   BRIDGE_TYPE(CLSession),
   BRIDGE_TYPE(CLMutableDictionary),
+  BRIDGE_TYPE(CLAccount),
+  BRIDGE_TYPE(CLInput),
   {NULL, NULL},
 };
 
@@ -57,7 +61,7 @@ Class CLPyBridgeClassFromName(const char *name)
   /* objc_allocateClassPair will call objc_getClass which will call us
      again, avoid infinite recursion */
   if (!_creatingClass) {
-    pyClass = CLPythonClassFromString([CLString stringWithUTF8String:name]);
+    pyClass = (PyObject *) CLPythonClassFromString([CLString stringWithUTF8String:name]);
     if (pyClass) {
       _creatingClass++;
       aClass = CLClassForPythonClass((PyTypeObject *) pyClass);
@@ -104,7 +108,8 @@ static void print_dict_keys(PyObject* dict)
 PyTypeObject *CLPythonClassFromString(CLString *aString)
 {
   CLString *moduleName, *className;
-  PyObject *pyModule, *pyModuleDict, *pyClass;
+  PyObject *pyModule, *pyModuleDict;
+  PyTypeObject *pyClass;
   CLRange aRange;
 
 

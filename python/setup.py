@@ -23,6 +23,8 @@ setup(ext_modules=[
       "CLOriginalFileBridge.m",
       "CLManagerBridge.m",
       "CLSessionBridge.m",
+      "CLAccountBridge.m",
+      "CLInputBridge.m",
     ],
     extra_compile_args=[
       "-fconstant-string-class=CLConstantString",
