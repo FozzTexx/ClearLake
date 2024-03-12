@@ -1452,13 +1452,8 @@ static CLMutableDictionary *CLConfig = nil;
 
   if (foundMatch && !allow) {
     if ([anObject isKindOfClass:[CLControl class]]) {
-      id target = [anObject target];
-      CLString *action = [CLString stringWithUTF8String:
-                                     sel_getName([anObject action])];
-
-
       fprintf(stderr, "Access denied for object %s,%s\n",
-              [[target className] UTF8String], [action UTF8String]);
+              [[[anObject target] className] UTF8String], sel_getName([anObject action]));
     }
     else if ([anObject isKindOfClass:[CLPage class]]) {
       fprintf(stderr, "Access denied for page %s\n", [[anObject filename] UTF8String]);

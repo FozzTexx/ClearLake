@@ -216,7 +216,7 @@ static IMP CLFindForwardFunction(SEL sel);
 
   *found = NO;
 
-  aSel = sel_getUid([aMethod UTF8String]);
+  aSel = CLSelectorFromString(aMethod);
   if (![self respondsTo:aSel])
     return nil;
 
@@ -906,7 +906,7 @@ static IMP CLFindForwardFunction(SEL sel);
     [((CLMutableString *) &ustr) upperCamelCase];
     [((CLMutableString *) &ustr) appendString:@":"];
     [((CLMutableString *) &ustr) insertString:@"set" atIndex:0];
-    sel = sel_getUid([((CLString *) &ustr) UTF8String]);
+    sel = CLSelectorFromString((CLString *) &ustr);
     if (![self respondsTo:sel])
       [self setObjectValue:anObject forVariable:aBinding];
     else {
@@ -974,7 +974,7 @@ static IMP CLFindForwardFunction(SEL sel);
   }
   else {
     aString = [CLString stringWithFormat:@"set%@:", [aKey upperCamelCaseString]];
-    sel = sel_getUid([aString UTF8String]);
+    sel = CLSelectorFromString(aString);
     if ([self respondsTo:sel]) {
       aSig = [self newMethodSignatureForSelector:sel];
       if ((*[aSig getArgumentTypeAtIndex:2]) == _C_ID)
@@ -1089,7 +1089,7 @@ static IMP CLFindForwardFunction(SEL sel);
     return;
   }
 
-  aBinding = CLSelGetName([anInvocation selector]);
+  aBinding = CLStringFromSelector([anInvocation selector]);
   aRange = [aBinding rangeOfString:@":" options:0 range:CLMakeRange(0, [aBinding length])];
   if (aRange.length && [[anInvocation methodSignature] numberOfArguments] == 3) {
     if ([aBinding hasPrefix:@"set"]) {
@@ -1188,7 +1188,7 @@ static IMP CLFindForwardFunction(SEL sel);
   oldTarget = [sender target];
   oldSel = [sender action];
 
-  aString = CLSelGetName(aSel);
+  aString = CLStringFromSelector(aSel);
   ustr = CLCloneStackString(aString);
   ustr.len--;
   didReplace = [self replacePage:sender key:(CLString *) &ustr];
