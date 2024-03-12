@@ -2,6 +2,7 @@
 #import "CLPythonBridge.h"
 #import "CLStringBridge.h"
 #import <ClearLake/CLControl.h>
+#import <ClearLake/CLPage.h>
 
 static int CLControlBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {

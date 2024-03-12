@@ -3,6 +3,7 @@
 #import "CLPythonBridge.h"
 #import "CLPageBridge.h"
 #import "CLPythonModule.h"
+#import "CLStringBridge.h"
 #import <ClearLake/CLPage.h>
 #import <ClearLake/CLForm.h>
 #import <ClearLake/CLInput.h>
@@ -42,21 +43,18 @@ static PyObject *CLFormBridge_page(CLPyBridgeLink *self, PyObject *Py_UNUSED(ign
   return CLNativeToPython([self->bridgeObject page]);
 }
 
-#if 0
-static PyObject *CLFormBridge_valueOfFieldNamed(CLPyBridgeLink *self,
-                                                PyObject *args, PyObject *kwds)
+static PyObject *CLFormBridge_fieldsNamed(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"name", NULL};
   CLString *name = nil;
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&", kwlist,
-                                   CLPyBridgeConvert, &name))
+                                   CLPyBridgeConvertString, &name))
     return NULL;
 
-  return CLNativeToPython([self->bridgeObject valueOfFieldNamed:name]);
+  return CLNativeToPython([self->bridgeObject fieldsNamed:name]);
 }
-#endif
 
 static PyObject *CLFormBridge_getItem(CLPyBridgeLink *self, PyObject *key)
 {
@@ -107,16 +105,13 @@ static PyGetSetDef CLFormBridge_getsetters[] = {
   {NULL},
 };
 
-#if 0
 PyMethodDef CLFormBridge_methods[] = {
   {
-    "valueOfFieldNamed", (PyCFunction) CLFormBridge_valueOfFieldNamed,
-    METH_VARARGS | METH_KEYWORDS,
-    "returns the value of the field with ID matching name",
+    "fieldsNamed", (PyCFunction) CLFormBridge_fieldsNamed, METH_VARARGS | METH_KEYWORDS,
+    "returns all the fields with ID matching name",
   },
   {NULL},
 };
-#endif
 
 PyTypeObject CLFormBridgeType = {
   .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
@@ -129,9 +124,7 @@ PyTypeObject CLFormBridgeType = {
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLFormBridge_init,
   .tp_dealloc = (destructor) CLFormBridge_dealloc,
-#if 0
   .tp_methods = CLFormBridge_methods,
-#endif
   .tp_getset = CLFormBridge_getsetters,
   .tp_as_mapping = &CLFormBridge_mapping,
 };

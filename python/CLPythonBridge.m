@@ -147,7 +147,7 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
 
 
   className = [self className];
-  pyClass = CLPythonClassFromString(className);
+  pyClass = (PyObject *) CLPythonClassFromString(className);
   if (!pyClass)
     [self error:@"No such python class: %@", className];
 
