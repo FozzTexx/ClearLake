@@ -83,8 +83,9 @@ typedef struct {
 
 @class CLString;
 
-extern CLString *CLSelGetName(SEL selector);
-extern Class CLClassFromString(CLString *);
+extern CLString *CLStringFromSelector(SEL selector);
+extern SEL CLSelectorFromString(CLString *aString);
+#define CLClassFromString(x) ({objc_getClass([(x) UTF8String]);})
 
 typedef struct {
   const char *name;

@@ -75,7 +75,6 @@
   for (idx = 0; idx < storage->numElements; idx++)
     [storage->dataPtr[idx] release];
   free(storage->dataPtr);
-  storage->dataPtr = -1;
   free(storage);
   return;
 }

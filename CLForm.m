@@ -823,7 +823,7 @@ typedef struct ContentInfo {
 
     aString = [CLString stringWithFormat:@"validate%@:error:",
                         [aBinding upperCamelCaseString]];
-    aSel = sel_getUid([aString UTF8String]);
+    aSel = CLSelectorFromString(aString);
     if ((imp = [anObject methodFor:aSel]))
       valid = ((BOOL (*) (id,SEL,id*,CLString**)) imp)(anObject, aSel, aValue, errString);
   }
@@ -955,7 +955,7 @@ typedef struct ContentInfo {
       aString = [aString stringByAppendingString:@":"];
     }
 
-    [aControl setAction:sel_getUid([aString UTF8String])];
+    [aControl setAction:CLSelectorFromString(aString)];
     if (![aControl target])
       [aControl setTarget:[aForm target]];
     if (![aControl target])

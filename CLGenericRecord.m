@@ -99,7 +99,7 @@
 
 -(id) initFromDictionary:(CLDictionary *) aDict
 {
-  [self error:@"%@ is no longer available", CLSelGetName(_cmd)];
+  [self error:@"%@ is no longer available", CLStringFromSelector(_cmd)];
   return nil;
 }
 
@@ -873,7 +873,7 @@
 
   anObject = [anInvocation objectValueForArgumentAtIndex:2];
 
-  ustr = CLCloneStackString(CLSelGetName([anInvocation selector]));
+  ustr = CLCloneStackString(CLStringFromSelector([anInvocation selector]));
   ustr.str += 3;
   ustr.len -= 4;
   ustr.str[0] = towlower(ustr.str[0]);
@@ -925,7 +925,7 @@
   id anObject;
 
 
-  fieldName = [CLString stringWithUTF8String:sel_getName([anInvocation selector])];
+  fieldName = CLStringFromSelector([anInvocation selector]);
   fieldName = [[fieldName substringWithRange:CLMakeRange(5, [fieldName length]-6)]
                 lowerCamelCaseString];
   if (![self hasFieldNamed:fieldName])
@@ -943,7 +943,7 @@
   id anObject;
 
 
-  fieldName = [CLString stringWithUTF8String:sel_getName([anInvocation selector])];
+  fieldName = CLStringFromSelector([anInvocation selector]);
   fieldName = [[fieldName substringWithRange:CLMakeRange(10, [fieldName length]-11)]
                 lowerCamelCaseString];
   if (![self hasFieldNamed:fieldName])
@@ -1292,7 +1292,7 @@
 }
 
 -(id) createObject:(id) anObject relationship:(CLRelationship *) aRelationship
-              seen:(CLMutableDictionary *) seen updateChanged:(BOOL) flag
+              seen:(CLMutableDictionary *) seen updateChanged:(BOOL) updateFlag
 {
   id newObject = nil, regObject;
   CLRecordDefinition *recordDef;
@@ -1327,14 +1327,14 @@
     [seen setObject:newObject forKey:
             [CLPlaceholder placeholderFromString:[newObject className] tag:[seen count] + 1]];
     if ([newObject respondsTo:@selector(setFieldsFromDictionary:seen:updateChanged:)])
-      [newObject setFieldsFromDictionary:anObject seen:seen updateChanged:flag];
+      [newObject setFieldsFromDictionary:anObject seen:seen updateChanged:updateFlag];
   }
 
   return newObject;
 }
 
 -(void) setFieldsFromDictionary:(CLDictionary *) aDict seen:(CLMutableDictionary *) seen
-                  updateChanged:(BOOL) flag
+                  updateChanged:(BOOL) updateFlag
 {
   CLArray *anArray, *fields, *relFields;
   int i, j, k, l;
@@ -1346,7 +1346,7 @@
   BOOL oldChanged = _changed;
 
 
-  if (!flag)
+  if (!updateFlag)
     _changed = DONTCHANGE;
 
   anArray = [[aDict allKeys] sortedArrayUsingSelector:@selector(compare:)];
@@ -1368,7 +1368,7 @@
         for (k = 0, l = [anObject count]; k < l; k++) {
           aRecord = [anObject objectAtIndex:k];
           aRecord = [self createObject:aRecord relationship:aRelationship
-                                  seen:seen updateChanged:flag];
+                                  seen:seen updateChanged:updateFlag];
           if (![mArray containsObject:aRecord])
             [self addObject:aRecord toBothSidesOfRelationship:aKey];
         }
@@ -1377,20 +1377,20 @@
         /* FIXME - should we nullify if the key was empty? Probably need
            to check if the related key is set.  */
         anObject = [self createObject:anObject relationship:aRelationship
-                                 seen:seen updateChanged:flag];
+                                 seen:seen updateChanged:updateFlag];
         if (anObject != [self objectValueForBinding:aKey])
           [self addObject:anObject toBothSidesOfRelationship:aKey];
       }
     }
   }
 
-  if (!flag)
+  if (!updateFlag)
     _changed = oldChanged;
 
   return;
 }
 
--(void) setFieldsFromDictionary:(CLDictionary *) aDict updateChanged:(BOOL) flag
+-(void) setFieldsFromDictionary:(CLDictionary *) aDict updateChanged:(BOOL) updateFlag
 {
   CLMutableDictionary *mDict;
 
@@ -1399,7 +1399,7 @@
   [mDict setObject:self forKey:
            [CLPlaceholder placeholderFromString:[[self class] className]
                           tag:1]];
-  [self setFieldsFromDictionary:aDict seen:mDict updateChanged:flag];
+  [self setFieldsFromDictionary:aDict seen:mDict updateChanged:updateFlag];
   [mDict release];
   return;
 }

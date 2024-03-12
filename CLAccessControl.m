@@ -110,7 +110,7 @@
   BOOL objMatch = NO;
   CLString *aString;
   id target;
-  CLString *action;
+  CLString *actionString;
   CLString *localTable = nil, *localClass = nil;
   CLRecordDefinition *recordDef;
 
@@ -132,7 +132,7 @@
     if ([target isKindOfClass:CLPageTargetClass])
       return YES; /* Deal with it when the page asks */
 
-    action = [CLString stringWithUTF8String:sel_getName([anObject action])];
+    actionString = CLStringFromSelector([anObject action]);
 
     if ([target isKindOfClass:CLGenericRecordClass]) {
       localTable = [target table];
@@ -145,7 +145,7 @@
     if (([target isKindOfClass:CLClassFromString(aClass)] ||
          ([target isKindOfClass:CLGenericRecordClass] &&
           ([aClass isEqualToString:localClass] || [aClass isEqualToString:localTable]))) &&
-        ([aMethod isEqualToString:@"*:"] || [action isEqualToString:aMethod]))
+        ([aMethod isEqualToString:@"*:"] || [actionString isEqualToString:aMethod]))
       objMatch = YES;
   }
   else if ([anObject isKindOfClass:CLPageClass] && aFilename) {

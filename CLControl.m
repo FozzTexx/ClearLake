@@ -292,7 +292,7 @@ void CLWriteURL(CLStream *stream, id object,
     aString = [self expandBinding:aString success:&success];
     if ([aString length] && [aString characterAtIndex:[aString length]-1] != ':')
       aString = [aString stringByAppendingString:@":"];
-    [self setAction:sel_getUid([aString UTF8String])];
+    [self setAction:CLSelectorFromString(aString)];
     if (!target && ![attributes objectForCaseInsensitiveString:@"CL_TARGET"])
       [self setTarget:[page owner]];
   }
@@ -527,7 +527,7 @@ void CLWriteURL(CLStream *stream, id object,
   aString = [CLQuery objectForKey:CL_URLSEL];
   if ([aString length] && [aString characterAtIndex:[aString length]-1] != ':')
     aString = [aString stringByAppendingString:@":"];
-  action = sel_getUid([aString UTF8String]);
+  action = CLSelectorFromString(aString);
   [CLQuery removeObjectForKey:CL_URLSEL];
   if ([self isKindOfClass:CLFormClass])
     [((CLForm *) self) restoreObject:anObject];
@@ -579,7 +579,7 @@ void CLWriteURL(CLStream *stream, id object,
   if ([target respondsTo:@selector(control:writePersistentData:)])
     [target control:self writePersistentData:stream];
 
-  ustr = CLCloneStackString(CLSelGetName(action));
+  ustr = CLCloneStackString(CLStringFromSelector(action));
   if (ustr.len && ustr.str[ustr.len-1] == ':')
     ustr.len--;
   [CLQuery setObject:[((CLString *) &ustr) copy] forKey:CL_URLSEL];

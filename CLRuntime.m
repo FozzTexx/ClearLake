@@ -25,34 +25,57 @@
 
 #include <string.h>
 
-Class CLClassFromString(CLString *aString)
-{
-  return objc_getClass([aString UTF8String]);
-}
+static CLHashTable *_stringToSel = NULL;
+static CLHashTable *_selToString = NULL;
 
-CLHashTable *CLSelNameTable = NULL;
-
-CLString *CLSelGetName(SEL selector)
+CLString *CLStringFromSelector(SEL selector)
 {
   CLString *aString;
   const char *selName;
 
 
-  if (!CLSelNameTable ||
+  if (!_selToString ||
       !(aString =
-        CLHashTableDataForIdenticalKey(CLSelNameTable, (id) selector, (size_t) selector))) {
+        CLHashTableDataForIdenticalKey(_selToString, (id) selector, (size_t) selector))) {
     selName = sel_getName(selector);
 #if DEBUG_RETAIN
     id self = nil;
 #endif
     aString = [[CLString alloc] initWithBytes:selName length:strlen(selName)
                                      encoding:CLUTF8StringEncoding];
-    if (!CLSelNameTable)
-      CLSelNameTable = CLHashTableAlloc(CLHashTableDefaultSize);
-    CLHashTableSetData(CLSelNameTable, aString, (id) selector, (size_t) selector);
+    if (!_selToString)
+      _selToString = CLHashTableAlloc(CLHashTableDefaultSize);
+    CLHashTableSetData(_selToString, aString, (id) selector, (size_t) selector);
+    if (!_stringToSel)
+      _stringToSel = CLHashTableAlloc(CLHashTableDefaultSize);
+    CLHashTableSetData(_selToString, (void *) selector, aString, [aString hash]);
   }
 
   return aString;
+}
+
+SEL CLSelectorFromString(CLString *aString)
+{
+  SEL selector;
+
+
+  if (!_stringToSel ||
+      !(selector =
+        CLHashTableDataForIdenticalKey(_stringToSel, aString, [aString hash]))) {
+    selector = sel_getUid([aString UTF8String]);
+#if DEBUG_RETAIN
+    id self = nil;
+#endif
+    aString = [aString copy];
+    if (!_selToString)
+      _selToString = CLHashTableAlloc(CLHashTableDefaultSize);
+    CLHashTableSetData(_selToString, aString, (id) selector, (size_t) selector);
+    if (!_stringToSel)
+      _stringToSel = CLHashTableAlloc(CLHashTableDefaultSize);
+    CLHashTableSetData(_selToString, (void *) selector, aString, [aString hash]);
+  }
+
+  return selector;
 }
 
 #ifdef __GNU_LIBOBJC__
