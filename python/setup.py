@@ -25,6 +25,7 @@ setup(ext_modules=[
       "CLSessionBridge.m",
       "CLAccountBridge.m",
       "CLInputBridge.m",
+      "CLDecimalNumberBridge.m",
     ],
     extra_compile_args=[
       "-fconstant-string-class=CLConstantString",

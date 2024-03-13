@@ -100,6 +100,8 @@
   dictionaryData = storage;
   for (idx = 0; idx < count; idx++) {
     [stream readTypes:@"@@", &aKey, &aValue];
+    if (!aKey || !aValue)
+      [self error:@"Bogus key/value"];
     CLHashTableSetData(storage->table, aValue, aKey, [aKey hash]);
   }
 
@@ -120,6 +122,8 @@
   for (idx = 0; idx < count; idx++) {
     aKey = [anArray objectAtIndex:idx];
     aValue = [self objectForKey:aKey];
+    if (!aKey || !aValue)
+      [self error:@"Bogus key/value"];
     [stream writeTypes:@"@@", &aKey, &aValue];
   }
 

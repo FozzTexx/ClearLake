@@ -30,7 +30,7 @@
 
 @interface CLEditingContext:CLObject
 {
-  CLMutableArray *dirty, *inserted, *updated, *delete;
+  CLMutableArray *dirty, *inserted, *updated, *delete, *ignore;
   CLHashTable *instancesTable, *primaryKeys;
 
   int _savingChanges;
@@ -63,6 +63,10 @@
 -(BOOL) instanceIsRegistered:(id) anObject;
 -(id) recordForPrimaryKey:(id) primaryKey inTable:(CLString *) table;
 -(BOOL) recordHasChanges:(id) aRecord;
+
+-(void) addToIgnoreChanges:(id) anObject;
+-(void) removeFromIgnoreChanges:(id) anObject;
+-(BOOL) ignoreWillChange:(id) anObject;
 
 -(void) addObject:(id) anObject;
 -(void) removeObject:(id) anObject;

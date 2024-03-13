@@ -563,6 +563,7 @@ static int _modelInitState = MODEL_UNINIT;
   CLString *aKey;
   int i, j;
   id anObject;
+  BOOL found;
 
 
   pKeys = [recordDef primaryKeys];
@@ -572,7 +573,7 @@ static int _modelInitState = MODEL_UNINIT;
     if (fromDB)
       anObject = [aRecord objectForKey:[anAttr column]];
     else
-      anObject = [aRecord objectValueForBinding:[anAttr key]];
+      anObject = [aRecord objectValueForKey:[anAttr key] found:&found];
     if (!anObject)
       anObject = CLNullObject;
     [mDict setObject:anObject forKey:[anAttr column]];
@@ -711,6 +712,7 @@ static int _modelInitState = MODEL_UNINIT;
   inserted = [[CLMutableArray alloc] init];
   updated = [[CLMutableArray alloc] init];
   delete = [[CLMutableArray alloc] init];
+  ignore = [[CLMutableArray alloc] init];
   instancesTable = CLHashTableAlloc(CLHashTableDefaultSize);
   primaryKeys = CLHashTableAlloc(CLHashTableDefaultSize);
 
@@ -729,6 +731,7 @@ static int _modelInitState = MODEL_UNINIT;
   [inserted release];
   [updated release];
   [delete release];
+  [ignore release];
 
   hTable = alloca(sizeof(CLHashTable *) * instancesTable->count);
   CLHashTableGetData(instancesTable, (void **) hTable);
@@ -866,6 +869,23 @@ static int _modelInitState = MODEL_UNINIT;
 -(BOOL) recordHasChanges:(id) aRecord
 {
   return [dirty containsObjectIdenticalTo:aRecord];
+}
+
+-(void) addToIgnoreChanges:(id) anObject
+{
+  [ignore addObject:anObject];
+  return;
+}
+
+-(void) removeFromIgnoreChanges:(id) anObject
+{
+  [ignore removeObject:anObject];
+  return;
+}
+
+-(BOOL) ignoreWillChange:(id) anObject
+{
+  return [ignore containsObject:anObject];
 }
 
 -(void) addObject:(id) anObject

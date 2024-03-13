@@ -1592,6 +1592,8 @@ void CLRedirectBrowser(CLString *newURL, BOOL includeQuery, int status)
   CLStream *htmlStream, *headerStream;
 
 
+  CLPageDisplayStatus = status;
+
   aRange = [newURL rangeOfString:@"?"];
   if (!aRange.length && [CLQuery count] && includeQuery) {
     mString = [newURL mutableCopy];
@@ -1636,7 +1638,7 @@ void CLRedirectBrowser(CLString *newURL, BOOL includeQuery, int status)
   CLPrintf(headerStream, @"Location: %@\r\n", newURL);
   for (i = 0, j = [CLCookies count]; i < j; i++)
     if (![[CLCookies objectAtIndex:i] isFromBrowser])
-      CLPrintf(headerStream, @"Set-Cookie: %\n",
+      CLPrintf(headerStream, @"Set-Cookie: %@\r\n",
 	       [[CLCookies objectAtIndex:i] cookieString]);
   CLPrintf(headerStream, @"Content-Type: text/html\r\n");
   CLPrintf(headerStream, @"\r\n");

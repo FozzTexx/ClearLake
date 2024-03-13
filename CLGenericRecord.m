@@ -68,11 +68,14 @@
   CLAttribute *anAttr;
   CLArray *anArray;
   CLString *aString;
+  BOOL found;
 
 
   [super init];
 
+#if 0
   _changed = DONTCHANGE;
+#endif
   _record = CLHashTableAlloc(MAX_HASH);
   if (aTable)
     _recordDef = [[CLEditingContext recordDefinitionForTable:aTable] retain];
@@ -83,16 +86,20 @@
   _db = nil;
   _dbPrimaryKey = nil;
 
+  [self disableWillChange];
   fields = [_recordDef fields];
   anArray = [fields allKeys];
   for (i = 0, j = [anArray count]; i < j; i++) {
     aString = [anArray objectAtIndex:i];
     anAttr = [fields objectForKey:aString];
     if ((aValue = [aDict objectForKey:[anAttr column]]) && aValue != CLNullObject)
-      [self setObjectValue:aValue forBinding:aString];
+      [self setObjectValue:aValue forKey:aString found:&found];
   }
+  [self enableWillChange];
 
+#if 0
   _changed = NO;
+#endif
 
   return self;
 }
@@ -305,7 +312,7 @@
 
 -(id) primaryKey
 {
-  if (!_primaryKey || _changed) {
+  if (!_primaryKey /*|| _changed*/) {
     [_primaryKey release];
     _primaryKey = [[CLEditingContext constructPrimaryKey:self recordDef:_recordDef
                                             fromDatabase:NO asDictionary:NO] retain];
@@ -1274,7 +1281,7 @@
     [added addObject:record];
     mDict = [[CLMutableDictionary alloc] init];
 
-    if (record->_changed || ![record exists] || allFields) {
+    if (/*record->_changed ||*/ ![record exists] || allFields) {
       fields = [record->_recordDef fields];
       anArray = [[record->_recordDef relationships] allKeys];
       for (i = 0, j = [anArray count]; i < j; i++) {
@@ -1401,11 +1408,18 @@
   CLRelationship *aRelationship;
   CLDictionary *relationships;
   CLMutableArray *mArray;
+#if 0
   BOOL oldChanged = _changed;
+#endif
 
 
-  if (!updateFlag)
+  if (!updateFlag) {
+#if 1
+    [self disableWillChange];
+#else
     _changed = DONTCHANGE;
+#endif
+  }
 
   anArray = [[aDict allKeys] sortedArrayUsingSelector:@selector(compare:)];
   fields = [[_recordDef fields] allKeys];
@@ -1442,8 +1456,13 @@
     }
   }
 
-  if (!updateFlag)
+  if (!updateFlag) {
+#if 1
+    [self enableWillChange];
+#else
     _changed = oldChanged;
+#endif
+  }
 
   return;
 }
@@ -1462,6 +1481,7 @@
   return;
 }
 
+#if 0
 -(BOOL) hasChanges:(CLMutableArray *) ignoreList
 {
   int i, j;
@@ -1521,6 +1541,7 @@
   [mArray release];
   return hasChanges;
 }
+#endif
 
 -(BOOL) allowZeroPrimaryKey
 {
@@ -1532,6 +1553,7 @@
   return _recordDef;
 }
 
+#if 0
 -(BOOL) hasChanges
 {
   return _changed || [super hasChanges];
@@ -1543,6 +1565,7 @@
   _changed = YES;
   return;
 }
+#endif
 
 -(BOOL) shouldDeferRelease
 {
@@ -1679,26 +1702,44 @@
 
   buf = self;
   reserved = buf - sizeof(CLObjectReserved);
+#if 0
+  if (reserved->context)
+    [self error:@"Changing context"];
+#endif
   reserved->context = aContext;
   return;
 }
 
 -(void) willChange
 {
-  [[self editingContext] addObject:self];
+  if (![[self editingContext] ignoreWillChange:self])
+    [[self editingContext] addObject:self];
+  return;
+}
+
+-(void) enableWillChange
+{
+  [[self editingContext] removeFromIgnoreChanges:self];
+  return;
+}
+
+-(void) disableWillChange
+{
+  [[self editingContext] addToIgnoreChanges:self];
   return;
 }
 
 -(void) willSaveToDatabase
 {
   CLDatetime *now;
+  BOOL found;
 
 
   now = [CLDatetime now];
   if ([self hasFieldNamed:@"modified"] && [self hasChanges])
-    [self setObjectValue:now forBinding:@"modified"];
+    [self setObjectValue:now forKey:@"modified" found:&found];
   if ([self hasFieldNamed:@"created"] && ![self objectValueForBinding:@"created"])
-    [self setObjectValue:now forBinding:@"created"];
+    [self setObjectValue:now forKey:@"created" found:&found];
 
   {
     int i, j, k, l;
@@ -1893,6 +1934,7 @@
   CLArray *anArray;
   CLMutableArray *mArray;
   CLRecordDefinition *recordDef = [CLEditingContext recordDefinitionForClass:[self class]];
+  BOOL found;
 
 
   aRelationship = [[recordDef relationships] objectForKey:aKey];
@@ -1900,7 +1942,7 @@
     mArray = [self objectValueForBinding:aKey];
     if (![mArray isKindOfClass:CLMutableArrayClass]) {
       mArray = [mArray mutableCopy];
-      [self setPrimitiveValue:mArray forKey:aKey];
+      [self setObjectValue:mArray forKey:aKey found:&found];
     }
     [mArray removeObject:anObject];
     if ([aRelationship isOwner]) {

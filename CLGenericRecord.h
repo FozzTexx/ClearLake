@@ -42,7 +42,9 @@
   CLDictionary *_primaryKey, *_dbPrimaryKey;
   CLMutableArray *_autoretain;
   CLDatabase *_db;
+#if 0
   int _changed;
+#endif
 }
 
 -(id) init;
@@ -54,7 +56,9 @@
 -(id) primaryKey;
 -(BOOL) hasFieldNamed:(CLString *) aString;
 -(CLAttribute *) attributeForField:(CLString *) aString;
+#if 0
 -(id) objectForCachedBinding:(CLCachedBinding *) cachedBinding;
+#endif
 -(CLString *) table;
 -(CLUInteger) objectID;
 -(void) setObjectID:(CLUInteger) oid;
@@ -65,7 +69,9 @@
 -(void) setFieldsFromDictionary:(CLDictionary *) aDict seen:(CLMutableDictionary *) seen
                   updateChanged:(BOOL) flag;
 -(void) setFieldsFromDictionary:(CLDictionary *) aDict updateChanged:(BOOL) flag;
+#if 0
 -(BOOL) hasChanges:(CLMutableArray *) ignoreList;
+#endif
 -(BOOL) allowZeroPrimaryKey;
 -(CLRecordDefinition *) recordDef;
 
@@ -93,6 +99,8 @@
 -(CLEditingContext *) editingContext;
 -(void) setEditingContext:(CLEditingContext *) aContext;
 -(void) willChange;
+-(void) enableWillChange;
+-(void) disableWillChange;
 -(void) willSaveToDatabase;
 -(void) willDeleteFromDatabase;
 -(void) didInsertIntoDatabase;
