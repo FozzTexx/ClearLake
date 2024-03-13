@@ -351,20 +351,13 @@
 
 -(CLString *) filename
 {
-  if ([self hasFieldNamed:@"filename"])
-    return CLHashTableDataForKey(_record, @"filename", [@"filename" hash],
-                                 @selector(isEqual:));
   return _filename;
 }
 
 -(void) setFilename:(CLString *) aString
 {
-  if ([self hasFieldNamed:@"filename"])
-    [self setObjectValue:aString forVariable:@"filename"];
-  else {
-    [_filename release];
-    _filename = [aString copy];
-  }
+  [_filename release];
+  _filename = [aString copy];
   return;
 }
 

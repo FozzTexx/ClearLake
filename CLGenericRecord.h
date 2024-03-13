@@ -55,8 +55,8 @@
 -(BOOL) hasFieldNamed:(CLString *) aString;
 -(CLAttribute *) attributeForField:(CLString *) aString;
 -(id) objectForCachedBinding:(CLCachedBinding *) cachedBinding;
--(CLUInteger) objectID;
 -(CLString *) table;
+-(CLUInteger) objectID;
 -(void) setObjectID:(CLUInteger) oid;
 -(BOOL) exists;
 -(CLDictionary *) dictionary;

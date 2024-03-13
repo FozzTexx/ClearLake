@@ -19,11 +19,9 @@
 static const char * _bridgeSubclassMethods[] = {
   "initWithPythonObject:",
   "dealloc",
-  "objectValueForBinding:found:",
   "setObject:forPythonAttribute:",
-  "setPrimitiveValue:forKey:",
-  "setObjectValue:forVariable:",
-  "setObjectValue:forBinding:",
+  "objectValueForKey:found:",
+  "setObjectValue:forKey:found:",
   "pythonizeSelector:",
   "pythonRespondsTo:",
   "read:",
@@ -61,23 +59,37 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   Class aClass, bridgeClass;
   CLMethodInfo *methods, *aMethod;
   CLUInteger idx, idx2, count;
-  CLString *className;
+  CLString *className, *moduleName;
+  PyObject *pyModule = NULL;
 
 
   aClass = CLNativeSuperclassForPythonClass((PyObject *) pyClass);
   if (!aClass)
     aClass = self;
 
-#if 0
-  PyObject *pyModule = NULL;
   if (pyClass->tp_dict)
     pyModule = PyDict_GetItemString(pyClass->tp_dict, "__module__");
 
   moduleName = [CLString stringWithUTF8String:PyUnicode_AsUTF8(pyModule)];
-#endif
   className = [CLString stringWithUTF8String:pyClass->tp_name];
-  fprintf(stderr, "Creating class %s\n", [className UTF8String]);
+  fprintf(stderr, "Creating class %s from %s.%s\n", [className UTF8String],
+	  [moduleName UTF8String], [className UTF8String]);
+
+  if (![moduleName isEqualToString:@"__main__"]) {
+    PyObject *mainModule;
+
+
+    mainModule = PyImport_AddModule("__main__");
+    if (!mainModule)
+      [self error:@"Unable to find Python module __main__"];
+
+    if (PyObject_HasAttrString(mainModule, [className UTF8String]))
+      className = [CLString stringWithFormat:@"%@.%@", moduleName, className];
+  }
+
   bridgeClass = objc_allocateClassPair(aClass, [className UTF8String], 0);
+  if (!bridgeClass)
+    [self error:@"Failed to allocate class %@", className];
 
   if (aClass != self) {
     methods = CLGetMethods(self, &count);
@@ -130,9 +142,12 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
     [self error:@"There's no set class in ClearLake!"];
   else if (CLNativeSuperclassForPythonClass(pyObject))
     anObject = ((CLPyBridgeLink *) pyObject)->bridgeObject;
-  else
-    anObject = [[[CLClassForPythonObject(pyObject) alloc] initWithPythonObject:pyObject]
-		 autorelease];
+  else {
+    Class aClass = CLClassForPythonObject(pyObject);
+
+
+    anObject = [[[aClass alloc] initWithPythonObject:pyObject] autorelease];
+  }
 
   if (!anObject)
     [self error:@"Where did the object go?"];
@@ -195,32 +210,26 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   return;
 }
 
--(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
+-(id) objectValueForKey:(CLString *) aKey found:(BOOL *) found
 {
+  CLObjectReserved *reserved;
+  CLBridgeData *data;
   id anObject = nil;
   PyObject *result, *attr;
   PyObject *pyBinding;
-  CLObjectReserved *reserved;
-  CLBridgeData *data;
   CLRange aRange;
-  CLString *localBinding;
 
 
   *found = NO;
-  aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
-  if (!aRange.length)
-    localBinding = aBinding;
-  else
-    localBinding = [aBinding substringToIndex:aRange.location];
-
-  anObject = _dynamicSuperCall(self, @selector(objectValueForBinding:found:),
-			       localBinding, found);
+  if (![self pythonRespondsTo:aKey])
+    anObject = _dynamicSuperCall(self, @selector(objectValueForKey:found:),
+				 aKey, found);
 
   reserved = ((void *) self) - sizeof(CLObjectReserved);
   data = reserved->privateData;
 
   if (!*found && data && data->pyObject) {
-    pyBinding = [localBinding pythonObject];
+    pyBinding = [aKey pythonObject];
     if (PyObject_HasAttr(data->pyObject, pyBinding)) {
       *found = YES;
       attr = PyObject_GetAttr(data->pyObject, pyBinding);
@@ -236,7 +245,6 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
         result = attr;
       }
 
-      //[self error:@"Unable to find value %@ %@", [self className], localBinding];
       Py_DECREF(attr);
       Py_DECREF(pyBinding);
 
@@ -246,10 +254,6 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
         Py_DECREF(result);
     }
   }
-
-  if (*found && aRange.length)
-    anObject = [anObject objectValueForBinding:
-                           [aBinding substringFromIndex:CLMaxRange(aRange)] found:found];
 
   return anObject;
 }
@@ -279,70 +283,14 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   return;
 }
 
-/* This is a lot like setObjectValue:forBinding: except that it avoids
-   the willChange */
--(void) setPrimitiveValue:(id) anObject forKey:(CLString *) aKey
+-(void) setObjectValue:(id) anObject forKey:(id) aKey found:(BOOL *) found
 {
-  SEL sel;
-  int aType;
-
-
-  sel = sel_getUid([aKey UTF8String]);
-  if ([self pointerForIvar:[aKey UTF8String] type:&aType] || [self respondsTo:sel]) {
-    _dynamicSuperCall(self, @selector(setPrimitiveValue:forKey:), anObject, aKey);
+  _dynamicSuperCall(self, @selector(setObjectValue:forKey:found:), anObject, aKey, found);
+  if (*found)
     return;
-  }
 
+  *found = YES;
   [self setObject:anObject forPythonAttribute:aKey];
-  return;
-}
-
--(void) setObjectValue:(id) anObject forVariable:(CLString *) aField
-{
-  if ([self hasFieldNamed:aField])
-    _dynamicSuperCall(self, @selector(setObjectValue:forVariable:), anObject, aField);
-  else
-    [self setObjectValue:anObject forBinding:aField];
-  return;
-}
-
--(void) setObjectValue:(id) anObject forBinding:(CLString *) aBinding
-{
-  CLRange aRange;
-  id anObject2;
-  SEL sel;
-  int aType;
-  CLString *setBinding;
-  void *var;
-
-
-  aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
-  if (aRange.length) {
-    anObject2 = [self objectValueForBinding:[aBinding substringToIndex:aRange.location]];
-    [anObject2 setObjectValue:anObject forBinding:[aBinding
-						    substringFromIndex:CLMaxRange(aRange)]];
-  }
-  else {
-    if ([self hasFieldNamed:aBinding]) {
-      _dynamicSuperCall(self, @selector(setObjectValue:forBinding:), anObject, aBinding);
-      return;
-    }
-
-    if ((var = [self pointerForIvar:[aBinding UTF8String] type:&aType])) {
-      [self setObjectValue:anObject atLocation:var type:aType];
-      return;
-    }
-
-    setBinding = [CLString stringWithFormat:@"set%@:", [aBinding upperCamelCaseString]];
-    sel = sel_getUid([setBinding UTF8String]);
-    if ([self respondsTo:sel]) {
-      _dynamicSuperCall(self, @selector(setObjectValue:forBinding:), anObject, aBinding);
-      return;
-    }
-
-    [self willChange];
-    [self setObject:anObject forPythonAttribute:aBinding];
-  }
 
   return;
 }
@@ -352,7 +300,7 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   CLString *aString;
 
 
-  aString = CLSelGetName(aSel);
+  aString = CLStringFromSelector(aSel);
   if ([aString hasSuffix:@":"])
     aString = [aString substringToIndex:[aString length] - 1];
   return aString;
@@ -387,7 +335,7 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   self = _dynamicSuperCall(self, @selector(read:), stream);
   [stream readType:@"@" data:&anObject];
   if ([self pythonRespondsTo:@"__setstate__"])
-    [self setObjectValue:anObject forBinding:@"__setstate__"];
+    [self setObjectValue:anObject forKey:@"__setstate__"];
   else if ([anObject isKindOfClass:CLDictionaryClass]) {
     PyObject *myDict, *pyObject;
 
@@ -439,7 +387,7 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   CLRange aRange;
 
 
-  aBinding = CLSelGetName([anInvocation selector]);
+  aBinding = CLStringFromSelector([anInvocation selector]);
   aRange = [aBinding rangeOfString:@":" options:0 range:CLMakeRange(0, [aBinding length])];
   if (aRange.length && [[anInvocation methodSignature] numberOfArguments] == 3) {
     if ([aBinding hasPrefix:@"set"]) {

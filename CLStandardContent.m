@@ -1313,6 +1313,7 @@
   return;
 }
 
+#if 0
 -(void) setPrimitiveValue:(id) anObject forKey:(CLString *) aKey
 {
   if ([aKey isEqualToString:@"body"])
@@ -1321,6 +1322,7 @@
     [super setPrimitiveValue:anObject forKey:aKey];
   return;
 }
+#endif
 
 /* CLForm delegate methods */
 

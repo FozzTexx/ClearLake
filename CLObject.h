@@ -72,19 +72,33 @@ typedef struct {
 -(CLUInteger) hash;
 -(BOOL) isEqual:(id) anObject;
 
+-(CLString *) findFileForKey:(CLString *) aKey;
+-(CLString *) findFileForKey:(CLString *) aKey directory:(CLString *) aDir;
+-(void) forwardInvocation:(CLInvocation *) anInvocation;
+@end
+
+@interface CLObject (CLGetSet)
+-(id) objectValueForBinding:(CLString *) aBinding;
+-(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found;
+
+#if 1
+
+-(id) objectValueForKey:(id) aKey found:(BOOL *) found;
+-(void) setObjectValue:(id) anObject forBinding:(CLString *) aBinding;
+-(void) setObjectValue:(id) anObject forBinding:(CLString *) aBinding found:(BOOL *) found;
+-(void) setObjectValue:(id) anObject forKey:(id) aKey found:(BOOL *) found;
+
+#else
+
 -(void *) pointerForIvar:(const char *) anIvar type:(int *) aType;
 -(id) objectForMethod:(CLString *) aMethod found:(BOOL *) found;
 -(id) objectForIvar:(CLString *) anIvar found:(BOOL *) found;
--(CLString *) findFileForKey:(CLString *) aKey;
--(CLString *) findFileForKey:(CLString *) aKey directory:(CLString *) aDir;
 -(void *) cacheBindings;
--(id) objectValueForBinding:(CLString *) aBinding;
--(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found;
 -(void) setObjectValue:(id) anObject atLocation:(void *) var type:(int) aType;
 -(void) setObjectValue:(id) anObject forVariable:(CLString *) aField;
--(void) setObjectValue:(id) anObject forBinding:(CLString *) aBinding;
 -(void) setPrimitiveValue:(id) anObject forKey:(CLString *) aKey;
--(void) forwardInvocation:(CLInvocation *) anInvocation;
+
+#endif
 @end
 
 @interface CLObject (CLWeb)

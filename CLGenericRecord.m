@@ -401,6 +401,7 @@
   return NO;
 }
 
+#if 0
 -(CLHashTable *) cacheBindings
 {
   CLHashTable *cache;
@@ -495,6 +496,7 @@
                                [((CLString *) cachedBinding->getter) hash],
                                @selector(isEqual:));
 }
+#endif
 
 -(id) retainField:(CLString *) aField object:(id) anObject oldObject:(id) oldObject
 {
@@ -524,6 +526,58 @@
   return anObject;
 }
 
+#if 1
+-(id) objectValueForKey:(id) aKey found:(BOOL *) found
+{
+  id anObject;
+
+
+  anObject = [super objectValueForKey:aKey found:found];
+  if (*found)
+    return anObject;
+
+  if ([self hasFieldNamed:aKey]) {
+    *found = YES;
+    return CLHashTableDataForKey(_record, aKey, [aKey hash], @selector(isEqual:));
+  }
+
+  return nil;
+}
+
+-(void) setObjectValue:(id) anObject forKey:(id) aKey found:(BOOL *) found
+{
+  id oldObject, oldKey;
+
+
+  [super setObjectValue:anObject forKey:aKey found:found];
+  if (*found)
+    return;
+
+  if ([self hasFieldNamed:aKey]) {
+    *found = YES;
+
+    oldKey = CLHashTableKeyForKey(_record, aKey, [aKey hash], @selector(isEqual:));
+    oldObject = CLHashTableDataForKey(_record, aKey, [aKey hash], @selector(isEqual:));
+    if (oldObject != anObject && ![oldObject isEqual:anObject]) {
+      CLHashTableRemoveDataForKey(_record, aKey, [aKey hash], @selector(isEqual:));
+      if ([[self attributeForField:aKey] isPrimaryKey]) {
+	if (oldObject && ![oldObject isEqual:anObject])
+	  [self error:@"Changing primary key"];
+	if ([anObject isKindOfClass:CLNumberClass] && ![anObject intValue] &&
+	    ![self allowZeroPrimaryKey])
+	  [self error:@"Trying to set primary key to 0"];
+      }
+      [self retainField:aKey object:anObject oldObject:oldObject];
+      if (!oldKey)
+	oldKey = [aKey copy];
+      CLHashTableSetData(_record, anObject, oldKey, [oldKey hash]);
+    }
+  }
+
+  return;
+}
+
+#else
 -(void) setObjectValue:(id) anObject forVariable:(CLString *) aField
 {
   void *var;
@@ -918,6 +972,7 @@
 
   return NO;
 }
+#endif
 
 -(BOOL) addToFromInvocation:(CLInvocation *) anInvocation
 {
@@ -960,7 +1015,6 @@
   id anObject;
   CLRange aRange;
   id sender;
-  BOOL found;
   const char *aBinding, *pos;
 
 
@@ -1023,6 +1077,9 @@
     }
   }
   else {
+#if 1
+    [self error:@"Not implemented"];
+#else
     CLString *bString;
 
 
@@ -1099,6 +1156,7 @@
       }
       return;
     }
+#endif
   }
 
   [super forwardInvocation:anInvocation];
@@ -1754,6 +1812,7 @@
   CLRelationship *aRelationship;
   CLMutableArray *mArray;
   CLRecordDefinition *recordDef = [CLEditingContext recordDefinitionForClass:[self class]];
+  BOOL found;
 
 
   /* FIXME - set editing context on anObject if it doesn't have one? */
@@ -1773,7 +1832,7 @@
       [self willChange];
       if (![mArray isKindOfClass:CLMutableArrayClass]) {
 	mArray = [mArray mutableCopy];
-	[self setPrimitiveValue:mArray forKey:aKey];
+	[self setObjectValue:mArray forKey:aKey found:&found];
       }
       [mArray addObject:anObject];
     }

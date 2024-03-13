@@ -73,8 +73,8 @@ static int _modelInitState = MODEL_UNINIT;
 {
   CLArray *keys;
   CLUInteger idx, count;
-  CLString *aTable, *aString;
-  CLDictionary *aDict;
+  CLString *aTable, *fqTable, *aString;
+  CLDictionary *tableDict;
   CLRecordDefinition *recordDef;
   Class aClass;
   CLMutableDictionary *fields, *relations;
@@ -83,12 +83,12 @@ static int _modelInitState = MODEL_UNINIT;
   keys = [aSchema allKeys];
   for (idx = 0, count = [keys count]; idx < count; idx++) {
     aTable = [keys objectAtIndex:idx];
-    aDict = [aSchema objectForKey:aTable];
+    tableDict = [aSchema objectForKey:aTable];
 
-    if (!(aString = [aDict objectForKey:@"class"]))
+    if (!(aString = [tableDict objectForKey:@"class"]))
       aString = [aTable upperCamelCaseString];
     if (!(aClass = CLClassFromString(aString))) {
-      if ([aDict objectForKey:@"class"])
+      if ([tableDict objectForKey:@"class"])
         [self error:@"Unable to find class \"%@\"", aString];
       aClass = CLGenericRecordClass;
     }
@@ -102,7 +102,7 @@ static int _modelInitState = MODEL_UNINIT;
 
 
       fields = [[CLMutableDictionary alloc] init];
-      anObject = [aDict objectForKey:@"fields"];
+      anObject = [tableDict objectForKey:@"fields"];
       if ([anObject isKindOfClass:CLArrayClass]) {
         anArray = CLAttributesFromArray(anObject);
         for (k = 0, l = [anArray count]; k < l; k++) {
@@ -131,7 +131,7 @@ static int _modelInitState = MODEL_UNINIT;
 
 
       relations = [[CLMutableDictionary alloc] init];
-      anObject = [aDict objectForKey:@"relationships"];
+      anObject = [tableDict objectForKey:@"relationships"];
       anArray = [anObject allKeys];
       for (k = 0, l = [anArray count]; k < l; k++) {
         aString = [anArray objectAtIndex:k];
@@ -142,10 +142,11 @@ static int _modelInitState = MODEL_UNINIT;
       }
     }
 
-    recordDef = [[CLRecordDefinition alloc] initFromTable:[CLString stringWithFormat:@"%@.%@",
-                                                                    aDatabase, aTable]
-                                                    class:aClass fields:fields
-                                            relationships:relations];
+    fqTable = [CLString stringWithFormat:@"%@.%@", aDatabase, aTable];
+    fprintf(stderr, "Creating recordDef for %s in %s\n",
+	    [[aClass className] UTF8String], [fqTable UTF8String]);
+    recordDef = [[CLRecordDefinition alloc]
+		  initFromTable:fqTable class:aClass fields:fields relationships:relations];
     [aSchema setObject:recordDef forKey:aTable];
     [fields release];
     [relations release];
@@ -667,6 +668,7 @@ static int _modelInitState = MODEL_UNINIT;
   CLAttribute *anAttr;
   CLDatabase *db;
   id aValue;
+  BOOL found;
 
 
   recordDef = [self recordDefinitionForClass:[aRecord class]];
@@ -692,7 +694,7 @@ static int _modelInitState = MODEL_UNINIT;
       aValue = [mDict objectForKey:[anAttr column]];
       if (aValue == CLNullObject || ![aValue intValue]) {
         /* FIXME - should we be doing it this way and bypassing willChange? */
-        [aRecord setPrimitiveValue:[CLNumber numberWithInt:oid] forKey:[anAttr key]];
+        [aRecord setObjectValue:[CLNumber numberWithInt:oid] forKey:[anAttr key] found:&found];
         [mDict setObject:[CLNumber numberWithInt:oid] forKey:[anAttr column]];
         break;
       }
