@@ -229,7 +229,7 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   data = reserved->privateData;
 
   if (!*found && data && data->pyObject) {
-    pyBinding = [aKey pythonObject];
+    pyBinding = CLNativeToPython(aKey);
     if (PyObject_HasAttr(data->pyObject, pyBinding)) {
       *found = YES;
       attr = PyObject_GetAttr(data->pyObject, pyBinding);
@@ -265,12 +265,7 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   PyObject *value;
 
 
-  if (anObject)
-    value = [anObject pythonObject];
-  else {
-    value = Py_None;
-    Py_INCREF(value);
-  }
+  value = CLNativeToPython(anObject);
 
   reserved = ((void *) self) - sizeof(CLObjectReserved);
   data = reserved->privateData;
@@ -312,8 +307,8 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   BOOL hasMethod = NO;
 
 
-  pyBinding = [aMethod pythonObject];
-  if ((pyObject = [self pythonObject])) {
+  pyBinding = CLNativeToPython(aMethod);
+  if ((pyObject = CLNativeToPython(self))) {
     attr = PyObject_GetAttr(pyObject, pyBinding);
     if (!attr)
       PyErr_Clear();
@@ -340,10 +335,10 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
     PyObject *myDict, *pyObject;
 
 
-    pyObject = [self pythonObject];
+    pyObject = CLNativeToPython(self);
     myDict = PyObject_GetAttrString(pyObject, "__dict__");
     if (PyDict_Check(myDict)) {
-      if (PyDict_Update(myDict, [anObject pythonObject]) != 0) {
+      if (PyDict_Update(myDict, CLNativeToPython(anObject)) != 0) {
 	PyErr_Print();
         [self error:@"Unable to read"];
       }
@@ -362,6 +357,25 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
 
   _dynamicSuperCall(self, @selector(write:), stream);
   anObject = [self objectValueForBinding:@"__getstate__"];
+
+  if ([anObject isKindOfClass:[CLDictionary class]]) {
+    CLUInteger idx, count;
+    CLArray *keys;
+    CLString *aKey;
+
+
+    anObject = [anObject mutableCopy];
+    keys = [anObject allKeys];
+    for (idx = 0, count = [keys count]; idx < count; idx++) {
+      aKey = [keys objectAtIndex:idx];
+      if ([self hasFieldNamed:aKey])
+	[anObject removeObjectForKey:aKey];
+    }
+
+    if (![anObject count])
+      anObject = nil;
+  }
+
   [stream writeType:@"@" data:&anObject];
   return;
 }
@@ -423,7 +437,7 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
     py_tuple = PyTuple_New(count);
     for (idx = 0; idx < count; idx++) {
       arg = [anInvocation objectValueForArgumentAtIndex:idx + 2];
-      result = [arg pythonObject];
+      result = CLNativeToPython(arg);
       if (PyTuple_SetItem(py_tuple, idx, result) != 0) {
 	PyErr_Print();
         [self error:@"Unable to forward %@", aBinding];
@@ -446,6 +460,12 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
 
   [anInvocation setReturnValue:&anObject];
 
+  return;
+}
+
+-(void) willChange
+{
+  [super willChange];
   return;
 }
 

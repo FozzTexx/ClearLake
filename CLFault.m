@@ -197,7 +197,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
     fields = [[CLDictionary alloc] initWithObjectsAndKeys:
                                      data->info.faultData.primaryKey,
                                    [[[data->info.faultData.recordDef primaryKeys]
-                                                       objectAtIndex:0] key], nil];
+                                                       objectAtIndex:0] column], nil];
     [data->info.faultData.primaryKey release];
     data->info.faultData.primaryKey = fields;
   }
@@ -259,6 +259,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   fields = [data->info.faultData.recordDef fields];
   keyData = [[CLMutableDictionary alloc] init];
   anArray = [fields allKeys];
+  [((CLObject *) self) disableWillChange];
   for (i = 0, j = [anArray count]; i < j; i++) {
     BOOL found;
 
@@ -272,6 +273,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
     if (aValue)
       [keyData setObject:aValue forKey:aField];
   }
+  [((CLObject *) self) enableWillChange];
 
   fields = [data->info.faultData.recordDef relationships];
   anArray = [fields allKeys];
@@ -420,7 +422,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   [pool release];
 
   /* FIXME - figure out if we own it and/or need to retain it. Currently
-     setPrimitiveValue will do a retain if it's an object, which is
+     setObjectValue: will do a retain if it's an object, which is
      probably wrong. */
   if ([aValue retainCount] == 1) {
 #if 0

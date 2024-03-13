@@ -125,7 +125,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
     self = anObject;
   }
   else
-    CLBecomeFault(self, [CLDecimalNumber numberWithInt:objectID],
+    CLBecomeFault(self, [CLNumber numberWithInt:objectID],
                   [CLEditingContext recordDefinitionForClass:[self class]], NO);
   return self;
 }
@@ -356,6 +356,9 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
 
 -(void) setObjectID:(int) aValue
 {
+  if (aValue == objectID)
+    return;
+
   if (objectID)
     [self error:@"Changing primary key"];
   [self willChange];

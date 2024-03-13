@@ -1,7 +1,3 @@
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
-#include <stdlib.h>
-
 #import "CLPythonModule.h"
 #import "CLPythonBridge.h"
 #import "CLManagerBridge.h"
@@ -25,6 +21,8 @@
 #import <ClearLake/CLNumber.h>
 #import <ClearLake/CLRuntime.h>
 #import <ClearLake/CLEditingContext.h>
+
+#include <stdlib.h>
 
 #define BRIDGE_TYPE(x) {#x, (PyTypeObject *) &x##BridgeType}
 

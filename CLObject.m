@@ -1516,12 +1516,13 @@ static IMP CLFindForwardFunction(SEL sel);
         (aString = [CLDelegate delegateEncodeSimpleURL:aControl localQuery:nil])) {
       aString = [CLWebName stringByAppendingFormat:@"/%@", aString];
       aString = [CLControl rewriteURL:aString];
-
-      CLRedirectBrowser(aString, YES, 303);
-
-      /* FIXME - should we really do an exit here? */
-      exit(0);
     }
+    else
+      aString = [aControl generateURL];
+
+    /* FIXME - is aString different than URL browser requested? */
+    CLRedirectBrowser(aString, YES, 303);
+    [sender setPage:nil];
 
     [aControl release];
   }

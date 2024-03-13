@@ -1,0 +1,7 @@
+#ifndef _CLDECIMALNUMBERBRIDGE_H
+#define _CLDECIMALNUMBERBRIDGE_H
+
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
+#endif /* _CLDECIMALNUMBERBRIDGE_H */

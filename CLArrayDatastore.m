@@ -96,11 +96,14 @@
 
 -(id) _datastoreRead:(CLStream *) stream
 {
-  CLArrayStorage *storage = arrayData;
+  CLArrayStorage *storage;
   CLUInteger idx;
 
 
   self = [super read:stream];
+  if (!(storage = malloc(sizeof(*storage))))
+    [self error:@"Unable to allocate memory"];
+  arrayData = storage;
   [stream readTypes:@"I", &storage->numElements];
   storage->maxElements = storage->numElements;
   if (!(storage->dataPtr = malloc(sizeof(id) * storage->maxElements)))
