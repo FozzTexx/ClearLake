@@ -49,7 +49,9 @@
 #include <ctype.h>
 #include <dirent.h>
 
+#if 0
 static CLHashTable *CLCachedClasses = NULL;
+#endif
 static CLHashTable *CLCachedPages = NULL;
 
 static IMP CLFindForwardFunction(SEL sel);
@@ -91,33 +93,289 @@ static IMP CLFindForwardFunction(SEL sel);
   return;
 }
 
-#if 0
--(int) returnType:(id) anObject forBinding:(CLString *) aBinding
+-(CLString *) findFileForKey:(CLString *) aKey
 {
-  Method cMethod;
-  const char *p, *enc;
-  int aType = 0;
-  Ivar iv;
+  return [self findFileForKey:aKey directory:nil];
+}
+
+-(CLString *) findFileForKey:(CLString *) aKey directory:(CLString *) aDir
+{
+  CLString *aFilename = nil;
+  CLRecordDefinition *recordDef;
+  Class aClass;
 
 
-  p = [aBinding UTF8String];
-  cMethod = class_getInstanceMethod([self class], sel_getUid(p));
-  if (cMethod) {
-    enc = method_getTypeEncoding(cMethod);
-    aType = *enc;
-  }
-  else {
-    iv = class_getInstanceVariable([self class], p);
-    if (iv) {
-      enc = ivar_getTypeEncoding(iv);
-      aType = *enc;
+  if (([self isKindOfClass:CLGenericRecordClass] &&
+       (recordDef = [((CLGenericRecord *) self) recordDef])) ||
+      (recordDef = [CLEditingContext recordDefinitionForClass:[self class]])) {
+    CLString *cname, *rname, *tname;
+    CLUInteger len;
+    unistr evil;
+    unistr *pstr;
+    CLMutableStackString *evilStack;
+
+
+    cname = [self className];
+    len = [cname length];
+    rname = [[recordDef recordClass] className];
+    if (len < [rname length])
+      len = [rname length];
+
+    if ((tname = [recordDef databaseTable])) {
+      pstr = alloca(sizeof(unistr));
+      *pstr = CLCopyStackString(tname, 0);
+      [((CLMutableString *) pstr) upperCamelCase];
+      tname = (CLString *) pstr;
+      if (len < [tname length])
+        len = [tname length];
+    }
+
+    len += 1 + [aKey length];
+    evil = CLNewStackString(len);
+    evilStack = (CLMutableStackString *) &evil;
+    [evilStack setString:cname];
+    [evilStack appendString:@"_"];
+    [evilStack appendString:aKey];
+
+    aFilename = [CLPage findFile:evilStack directory:aDir];
+    if (!aFilename) {
+      [evilStack setString:rname];
+      [evilStack appendString:@"_"];
+      [evilStack appendString:aKey];
+      aFilename = [CLPage findFile:evilStack directory:aDir];
+      if (!aFilename) {
+        [evilStack setString:tname];
+        [evilStack appendString:@"_"];
+        [evilStack appendString:aKey];
+        aFilename = [CLPage findFile:evilStack directory:aDir];
+      }
     }
   }
 
-  return aType;
-}
-#endif
+  if (!aFilename) {
+    aClass = [self class];
+    while (aClass && !(aFilename = [CLPage findFile:
+                                             [CLString stringWithFormat:@"%@_%@",
+                                                       [aClass className], aKey]
+                                          directory:nil]))
+      aClass = [aClass superClass];
+  }
 
+  return aFilename;
+}
+
+-(CLArray *) pagesForPrefix:(CLString *) aPrefix
+{
+  struct dirent *dp;
+  DIR *dir;
+  CLMutableArray *mArray, *pages;
+  CLArray *extensions, *anArray;
+  int i, j, k, l;
+  CLString *aDir;
+  const char *cname;
+  unistr ustr;
+  int clen;
+  CLString *aString;
+
+
+  ustr = CLCopyStackString(aPrefix, 1);
+  [((CLMutableString *) &ustr) appendCharacter:'_'];
+  cname = [((CLMutableString *) &ustr) UTF8String];
+  clen = strlen(cname);
+  pages = [[CLMutableArray alloc] init];
+
+  extensions = [CLPage pageExtensions];
+  mArray = [[CLMutableArray alloc] init];
+  if ([CLDelegate respondsTo:@selector(additionalPageDirectories)]) {
+    anArray = [CLDelegate additionalPageDirectories];
+    for (i = 0, j = [anArray count]; i < j; i++)
+      [mArray addObject:[CLAppPath stringByAppendingPathComponent:[anArray objectAtIndex:i]]];
+  }
+  [mArray addObject:CLAppPath];
+
+  for (i = 0, j = [mArray count]; i < j; i++) {
+    aDir = [mArray objectAtIndex:i];
+    if (!(dir = opendir([aDir UTF8String])))
+      continue;
+
+    for (dp = readdir(dir); dp; dp = readdir(dir)) {
+      if (!strncmp(dp->d_name, cname, clen)) {
+        /* FIXME - don't convert every string just to check extensions */
+        aString = [CLString stringWithUTF8String:dp->d_name];
+        for (k = 0, l = [extensions count]; k < l; k++) {
+          if ([[aString pathExtension] isEqualToString:[extensions objectAtIndex:k]]) {
+            [pages addObject:[aDir stringByAppendingPathComponent:aString]];
+            break;
+          }
+        }
+      }
+    }
+
+    closedir(dir);
+  }
+  [mArray release];
+
+  return [pages autorelease];
+}
+
+-(CLMutableArray *) pagesForSelf
+{
+  Class pClass;
+  CLArray *anArray;
+  CLMutableArray *mArray;
+  CLRecordDefinition *recordDef;
+  CLUInteger idx, count;
+  CLString *aString;
+
+
+  if (!CLCachedPages)
+    CLCachedPages = CLHashTableAlloc(100);
+
+  mArray = [[CLMutableArray alloc] init];
+  pClass = [self class];
+  while (pClass) {
+    anArray = CLHashTableDataForIdenticalKey(CLCachedPages, pClass, (size_t) pClass);
+    if (!anArray) {
+      anArray = [[self pagesForPrefix:[pClass className]] retain];
+      CLHashTableSetData(CLCachedPages, anArray, pClass, (size_t) pClass);
+    }
+    [mArray addObjectsFromArray:anArray];
+    pClass = [pClass superClass];
+  }
+
+  if (([self isKindOfClass:CLGenericRecordClass] &&
+       (recordDef = [((CLGenericRecord *) self) recordDef])) ||
+      (recordDef = [CLEditingContext recordDefinitionForClass:[self class]])) {
+    anArray = [self pagesForPrefix:[[recordDef databaseTable] upperCamelCaseString]];
+    for (idx = 0, count = [anArray count]; idx < count; idx++) {
+      aString = [anArray objectAtIndex:idx];
+      if (![mArray containsObject:aString])
+	[mArray addObject:aString];
+    }
+  }
+
+  return [mArray autorelease];
+}
+
+-(BOOL) isEqual:(id) anObject
+{
+  if (self == anObject)
+    return YES;
+  return NO;
+}
+
+-(CLUInteger) hash
+{
+  return (size_t) self;
+}
+
+-(void) forwardInvocation:(CLInvocation *) anInvocation
+{
+  void *var;
+  int aType;
+  CLString *aBinding;
+  CLRange aRange;
+  id anObject;
+
+
+  /* Sometimes when the runtime is stacking up method calls on a
+     CLFault that hasn't fired yet it thinks that the object doesn't
+     respond to a selector that it will respond to after the fault has
+     fired. */
+  if ([self respondsTo:[anInvocation selector]]) {
+    [anInvocation invoke];
+    return;
+  }
+
+  aBinding = CLStringFromSelector([anInvocation selector]);
+  aRange = [aBinding rangeOfString:@":" options:0 range:CLMakeRange(0, [aBinding length])];
+  if (aRange.length && [[anInvocation methodSignature] numberOfArguments] == 3) {
+    if ([aBinding hasPrefix:@"set"]) {
+      if ([self setObjectFromInvocation:anInvocation]) {
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
+      }
+    }
+    else if (*[[anInvocation methodSignature] getArgumentTypeAtIndex:2] == _C_ID) {
+      [anInvocation getArgument:&anObject atIndex:2];
+      if ([anObject isKindOfClass:CLControlClass] &&
+          [self replacePage:anObject selector:[anInvocation selector]]) {
+        anObject = nil;
+        [anInvocation setReturnValue:&anObject];
+        return;
+      }
+    }
+  }
+  else if ((var = [self pointerForIvar:sel_getName([anInvocation selector]) type:&aType])) {
+    [anInvocation setReturnValue:var];
+    return;
+  }
+
+  [self doesNotRecognize:[anInvocation selector]];
+  return;
+}
+
+-(CLString *) description
+{
+  return [CLString stringWithFormat:@"<%@: 0x%08lx>", [[self class] className],
+                   (unsigned long) self];
+}
+
+-(CLString *) json
+{
+  return [CLString stringWithFormat:@"\"<%@: 0x%08lx>\"", [[self class] className],
+                   (unsigned long) self];
+}
+
+-(id) read:(CLStream *) stream
+{
+  return self;
+}
+
+-(void) write:(CLStream *) stream
+{
+  return;
+}
+
+@end
+
+@implementation CLObject (CLGetSet)
+
+-(id) objectValueForBinding:(CLString *) aBinding
+{
+  BOOL found;
+
+
+  return [self objectValueForBinding:aBinding found:&found];
+}
+
+-(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
+{
+  CLRange aRange;
+  CLUInteger olen;
+  id subObject;
+  unistr ustr;
+
+
+  aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
+  if (!aRange.length)
+    return [self objectValueForKey:aBinding found:found];
+
+  ustr = CLCloneStackString(aBinding);
+  olen = ustr.len;
+  ustr.len = aRange.location;
+  subObject = [self objectValueForKey:(CLString *) &ustr found:found];
+  if (!*found)
+    return nil;
+
+  ustr.str += CLMaxRange(aRange);
+  ustr.len = olen - CLMaxRange(aRange);
+
+  return [subObject objectValueForBinding:(CLString *) &ustr found:found];
+}
+
+#if 0
 -(id) objectForIMP:(IMP) imp selector:(SEL) aSel returnType:(int) aType
 {
   id anObject = nil;
@@ -227,6 +485,7 @@ static IMP CLFindForwardFunction(SEL sel);
 
   return [self objectForIMP:imp selector:aSel returnType:aType];
 }
+#endif
 
 #ifdef __GNU_LIBOBJC__
 -(void *) pointerForIvar:(const char *) anIvar type:(int *) aType
@@ -360,6 +619,7 @@ static IMP CLFindForwardFunction(SEL sel);
   return anObject;
 }
 
+#if 0
 -(id) objectForIvar:(CLString *) anIvar found:(BOOL *) found
 {
   int aType;
@@ -375,157 +635,36 @@ static IMP CLFindForwardFunction(SEL sel);
 
   return [self objectForIvarPointer:var type:aType];
 }
+#endif
 
--(CLString *) findFileForKey:(CLString *) aKey
+#if 0
+-(int) returnType:(id) anObject forBinding:(CLString *) aBinding
 {
-  return [self findFileForKey:aKey directory:nil];
-}
-
--(CLString *) findFileForKey:(CLString *) aKey directory:(CLString *) aDir
-{
-  CLString *aFilename = nil;
-  CLRecordDefinition *recordDef;
-  Class aClass;
+  Method cMethod;
+  const char *p, *enc;
+  int aType = 0;
+  Ivar iv;
 
 
-  if (([self isKindOfClass:CLGenericRecordClass] &&
-       (recordDef = [((CLGenericRecord *) self) recordDef])) ||
-      (recordDef = [CLEditingContext recordDefinitionForClass:[self class]])) {
-    CLString *cname, *rname, *tname;
-    CLUInteger len;
-    unistr evil;
-    unistr *pstr;
-    CLMutableStackString *evilStack;
-
-
-    cname = [self className];
-    len = [cname length];
-    rname = [[recordDef recordClass] className];
-    if (len < [rname length])
-      len = [rname length];
-
-    if ((tname = [recordDef databaseTable])) {
-      pstr = alloca(sizeof(unistr));
-      *pstr = CLCopyStackString(tname, 0);
-      [((CLMutableString *) pstr) upperCamelCase];
-      tname = (CLString *) pstr;
-      if (len < [tname length])
-        len = [tname length];
-    }
-
-    len += 1 + [aKey length];
-    evil = CLNewStackString(len);
-    evilStack = (CLMutableStackString *) &evil;
-    [evilStack setString:cname];
-    [evilStack appendString:@"_"];
-    [evilStack appendString:aKey];
-
-    aFilename = [CLPage findFile:evilStack directory:aDir];
-    if (!aFilename) {
-      [evilStack setString:rname];
-      [evilStack appendString:@"_"];
-      [evilStack appendString:aKey];
-      aFilename = [CLPage findFile:evilStack directory:aDir];
-      if (!aFilename) {
-        [evilStack setString:tname];
-        [evilStack appendString:@"_"];
-        [evilStack appendString:aKey];
-        aFilename = [CLPage findFile:evilStack directory:aDir];
-      }
+  p = [aBinding UTF8String];
+  cMethod = class_getInstanceMethod([self class], sel_getUid(p));
+  if (cMethod) {
+    enc = method_getTypeEncoding(cMethod);
+    aType = *enc;
+  }
+  else {
+    iv = class_getInstanceVariable([self class], p);
+    if (iv) {
+      enc = ivar_getTypeEncoding(iv);
+      aType = *enc;
     }
   }
 
-  if (!aFilename) {
-    aClass = [self class];
-    while (aClass && !(aFilename = [CLPage findFile:
-                                             [CLString stringWithFormat:@"%@_%@",
-                                                       [aClass className], aKey]
-                                          directory:nil]))
-      aClass = [aClass superClass];
-  }
-
-  return aFilename;
+  return aType;
 }
+#endif
 
--(CLArray *) pagesForPrefix:(CLString *) aPrefix
-{
-  struct dirent *dp;
-  DIR *dir;
-  CLMutableArray *mArray, *pages;
-  CLArray *extensions, *anArray;
-  int i, j, k, l;
-  CLString *aDir;
-  const char *cname;
-  unistr ustr;
-  int clen;
-  CLString *aString;
-
-
-  ustr = CLCopyStackString(aPrefix, 1);
-  [((CLMutableString *) &ustr) appendCharacter:'_'];
-  cname = [((CLMutableString *) &ustr) UTF8String];
-  clen = strlen(cname);
-  pages = [[CLMutableArray alloc] init];
-
-  extensions = [CLPage pageExtensions];
-  mArray = [[CLMutableArray alloc] init];
-  if ([CLDelegate respondsTo:@selector(additionalPageDirectories)]) {
-    anArray = [CLDelegate additionalPageDirectories];
-    for (i = 0, j = [anArray count]; i < j; i++)
-      [mArray addObject:[CLAppPath stringByAppendingPathComponent:[anArray objectAtIndex:i]]];
-  }
-  [mArray addObject:CLAppPath];
-
-  for (i = 0, j = [mArray count]; i < j; i++) {
-    aDir = [mArray objectAtIndex:i];
-    if (!(dir = opendir([aDir UTF8String])))
-      continue;
-
-    for (dp = readdir(dir); dp; dp = readdir(dir)) {
-      if (!strncmp(dp->d_name, cname, clen)) {
-        /* FIXME - don't convert every string just to check extensions */
-        aString = [CLString stringWithUTF8String:dp->d_name];
-        for (k = 0, l = [extensions count]; k < l; k++) {
-          if ([[aString pathExtension] isEqualToString:[extensions objectAtIndex:k]]) {
-            [pages addObject:[aDir stringByAppendingPathComponent:aString]];
-            break;
-          }
-        }
-      }
-    }
-
-    closedir(dir);
-  }
-  [mArray release];
-
-  return [pages autorelease];
-}
-
--(CLMutableArray *) pagesForSelf
-{
-  Class pClass;
-  CLArray *anArray;
-  CLMutableArray *mArray;
-
-
-  if (!CLCachedPages)
-    CLCachedPages = CLHashTableAlloc(100);
-
-  mArray = [[CLMutableArray alloc] init];
-  pClass = [self class];
-  while (pClass) {
-    anArray = CLHashTableDataForIdenticalKey(CLCachedPages, pClass, (size_t) pClass);
-    if (!anArray) {
-      anArray = [[self pagesForPrefix:[pClass className]] retain];
-      CLHashTableSetData(CLCachedPages, anArray, pClass, (size_t) pClass);
-    }
-    [mArray addObjectsFromArray:anArray];
-    pClass = [pClass superClass];
-  }
-
-  return [mArray autorelease];
-}
-
+#if 0
 -(void *) cacheBindings
 {
   CLMethodInfo *methods, *aMethod;
@@ -654,17 +793,6 @@ static IMP CLFindForwardFunction(SEL sel);
     pool = [[CLAutoreleasePool alloc] init];
     mArray = [self pagesForSelf];
 
-    if (([self isKindOfClass:CLGenericRecordClass] &&
-         (recordDef = [((CLGenericRecord *) self) recordDef])) ||
-        (recordDef = [CLEditingContext recordDefinitionForClass:[self class]])) {
-      anArray = [self pagesForPrefix:[[recordDef databaseTable] upperCamelCaseString]];
-      for (i = 0, j = [anArray count]; i < j; i++) {
-        aString = [anArray objectAtIndex:i];
-        if (![mArray containsObject:aString])
-          [mArray addObject:aString];
-      }
-    }
-
     count = [mArray count];
     for (i = 0; i < count; i++) {
       aString = [mArray objectAtIndex:i];
@@ -708,15 +836,158 @@ static IMP CLFindForwardFunction(SEL sel);
 
   return cache;
 }
+#endif
 
--(id) objectValueForBinding:(CLString *) aBinding
+-(id) objectForSelector:(SEL) aSel
 {
-  BOOL found;
+  int aType = 0;
+  IMP imp;
+  struct objc_method_description *md;
+  id anObject = nil;
 
 
-  return [self objectValueForBinding:aBinding found:&found];
+  md = [self descriptionForMethod:aSel];
+  aType = *md->types;
+  imp = [self methodFor:aSel];
+
+  switch (aType) {
+  case _C_ID:
+    anObject = imp(self, aSel);
+    break;
+
+  case _C_CHR:
+    anObject = [CLNumber numberWithInt:((char (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_UCHR:
+    anObject = [CLNumber numberWithUnsignedInt:
+                           ((unsigned char (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_SHT:
+    anObject = [CLNumber numberWithInt:((short (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_USHT:
+    anObject = [CLNumber numberWithUnsignedInt:
+                           ((unsigned short (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_INT:
+    anObject = [CLNumber numberWithInt:((int (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_UINT:
+    anObject = [CLNumber numberWithUnsignedInt:
+                           ((unsigned int (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_LNG:
+    anObject = [CLNumber numberWithLong:((long (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_ULNG:
+    anObject = [CLNumber numberWithUnsignedLong:
+                           ((unsigned long (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_LNG_LNG:
+    anObject = [CLNumber numberWithLongLong:
+                           ((long long (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_ULNG_LNG:
+    anObject = [CLNumber numberWithUnsignedLongLong:
+                           ((unsigned long long (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_FLT:
+    anObject = [CLNumber numberWithFloat:((float (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_DBL:
+    anObject = [CLNumber numberWithDouble:((double (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_CHARPTR:
+    anObject = [CLString stringWithUTF8String:((char * (*) (id,SEL)) imp)(self, aSel)];
+    break;
+
+  case _C_CLASS:
+  case _C_SEL:
+  case _C_BFLD:
+  case _C_VOID:
+  case _C_UNDEF:
+  case _C_PTR:
+  case _C_ATOM:
+  case _C_ARY_B:
+  case _C_ARY_E:
+  case _C_UNION_B:
+  case _C_UNION_E:
+  case _C_STRUCT_B:
+  case _C_STRUCT_E:
+  case _C_VECTOR:
+    break;
+  }
+
+  return anObject;
 }
 
+-(id) objectValueForKey:(id) aKey found:(BOOL *) found
+{
+  SEL aSel;
+  void *var;
+  int aType;
+
+
+  *found = NO;
+
+  aSel = CLSelectorFromString(aKey);
+  if ([self respondsTo:aSel]) {
+    *found = YES;
+    return [self objectForSelector:aSel];
+  }
+
+  if ((var = [self pointerForIvar:[aKey UTF8String] type:&aType])) {
+    *found = YES;
+    return [self objectForIvarPointer:var type:aType];
+  }
+
+  if ([aKey isKindOfClass:CLStringClass]) {
+    CLArray *anArray;
+    CLUInteger idx, count;
+    CLString *filename;
+    unistr pageKey;
+    CLRange aRange;
+    CLPage *aPage;
+    id anObject;
+
+
+    anArray = [self pagesForSelf];
+    for (idx = 0, count = [anArray count]; idx < count; idx++) {
+      filename = [anArray objectAtIndex:idx];
+      aRange = [filename rangeOfString:@"_" options:CLBackwardsSearch];
+      pageKey = CLCloneStackString(filename);
+      pageKey.str += CLMaxRange(aRange);
+      pageKey.len -= CLMaxRange(aRange);
+      aRange = [((CLString *) &pageKey) rangeOfString:@"."];
+      pageKey.len = aRange.location;
+
+      if ([aKey isEqualToString:(CLString *) &pageKey]) {
+	*found = YES;
+	aPage = [[CLPage alloc] initFromFile:filename owner:self];
+	anObject = [[CLBlock alloc] init];
+	[anObject setContent:[aPage body]];
+	[aPage release];
+	return [anObject autorelease];
+      }
+    }
+  }
+
+  return nil;
+}
+
+#if 0
 -(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
 {
   CLRange aRange;
@@ -819,6 +1090,96 @@ static IMP CLFindForwardFunction(SEL sel);
 
   return anObject;
 }
+#endif
+
+#if 1
+-(void) setObjectValue:(id) anObject forBinding:(CLString *) aBinding
+{
+  BOOL found;
+
+
+  return [self setObjectValue:anObject forBinding:aBinding found:&found];
+}
+
+-(void) setObjectValue:(id) anObject forBinding:(CLString *) aBinding found:(BOOL *) found
+{
+  CLRange aRange;
+  CLUInteger olen;
+  id subObject;
+  unistr ustr;
+
+
+  *found = NO;
+
+  aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
+  if (!aRange.length) {
+    [self willChange];
+    [self setObjectValue:anObject forKey:aBinding found:found];
+    return;
+  }
+
+  ustr = CLCloneStackString(aBinding);
+  olen = ustr.len;
+  ustr.len = aRange.location;
+  subObject = [self objectValueForKey:(CLString *) &ustr found:found];
+  if (!*found)
+    return;
+
+  ustr.str += CLMaxRange(aRange);
+  ustr.len = olen - CLMaxRange(aRange);
+
+  [subObject setObjectValue:anObject forBinding:(CLString *) &ustr found:found];
+  return;
+}
+
+-(void) setObjectValue:(id) anObject usingSelector:(SEL) aSel
+{
+  CLMethodSignature *aSig;
+  IMP imp;
+
+
+  aSig = [self newMethodSignatureForSelector:aSel];
+  imp = [self methodFor:aSel];
+
+  switch (*[aSig getArgumentTypeAtIndex:2]) {
+  case _C_ID:
+    imp(self, aSel, anObject);
+    break;
+
+  case _C_CHR:
+  case _C_SHT:
+  case _C_INT:
+    imp(self, aSel, [anObject intValue]);
+    break;
+  case _C_UCHR:
+  case _C_USHT:
+  case _C_UINT:
+    imp(self, aSel, [anObject unsignedIntValue]);
+    break;
+  case _C_LNG:
+    imp(self, aSel, [anObject longValue]);
+    break;
+  case _C_ULNG:
+    imp(self, aSel, [anObject unsignedLongValue]);
+    break;
+  case _C_LNG_LNG:
+    imp(self, aSel, [anObject longLongValue]);
+    break;
+  case _C_ULNG_LNG:
+    imp(self, aSel, [anObject unsignedLongLongValue]);
+    break;
+
+  case _C_FLT:
+    imp(self, aSel, [anObject doubleValue]);
+    break;
+  case _C_DBL:
+    imp(self, aSel, [anObject doubleValue]);
+    break;
+  }
+
+  [aSig release];
+  return;
+}
 
 -(void) setObjectValue:(id) anObject atLocation:(void *) var type:(int) aType
 {
@@ -870,6 +1231,35 @@ static IMP CLFindForwardFunction(SEL sel);
   return;
 }
 
+-(void) setObjectValue:(id) anObject forKey:(id) aKey found:(BOOL *) found
+{
+  unistr ustr;
+  SEL aSel;
+  void *var;
+  int aType;
+
+
+  *found = NO;
+  ustr = CLCopyStackString(aKey, 4);
+  [((CLMutableString *) &ustr) upperCamelCase];
+  [((CLMutableString *) &ustr) appendString:@":"];
+  [((CLMutableString *) &ustr) insertString:@"set" atIndex:0];
+  aSel = CLSelectorFromString((CLString *) &ustr);
+  if ([self respondsTo:aSel]) {
+    *found = YES;
+    [self setObjectValue:anObject usingSelector:aSel];
+    return;
+  }
+
+  if ((var = [self pointerForIvar:[aKey UTF8String] type:&aType])) {
+    *found = YES;
+    [self setObjectValue:anObject atLocation:var type:aType];
+    return;
+  }
+
+  return;
+}
+#else
 -(void) setObjectValue:(id) anObject forVariable:(CLString *) aField
 {
   void *var;
@@ -902,6 +1292,7 @@ static IMP CLFindForwardFunction(SEL sel);
     [anObject2 setObjectValue:anObject forBinding:(CLString *) &ustr];
   }
   else {
+    [self willChange];
     ustr = CLCopyStackString(aBinding, 4);
     [((CLMutableString *) &ustr) upperCamelCase];
     [((CLMutableString *) &ustr) appendString:@":"];
@@ -985,19 +1376,9 @@ static IMP CLFindForwardFunction(SEL sel);
 
   return;
 }
+#endif
 
--(BOOL) isEqual:(id) anObject
-{
-  if (self == anObject)
-    return YES;
-  return NO;
-}
-
--(CLUInteger) hash
-{
-  return (size_t) self;
-}
-
+#if 0
 -(BOOL) setIvarFromInvocation:(CLInvocation *) anInvocation
 {
   int aType, aType2;
@@ -1070,75 +1451,7 @@ static IMP CLFindForwardFunction(SEL sel);
 
   return YES;
 }
-
--(void) forwardInvocation:(CLInvocation *) anInvocation
-{
-  void *var;
-  int aType;
-  CLString *aBinding;
-  CLRange aRange;
-  id anObject;
-
-
-  /* Sometimes when the runtime is stacking up method calls on a
-     CLFault that hasn't fired yet it thinks that the object doesn't
-     respond to a selector that it will respond to after the fault has
-     fired. */
-  if ([self respondsTo:[anInvocation selector]]) {
-    [anInvocation invoke];
-    return;
-  }
-
-  aBinding = CLStringFromSelector([anInvocation selector]);
-  aRange = [aBinding rangeOfString:@":" options:0 range:CLMakeRange(0, [aBinding length])];
-  if (aRange.length && [[anInvocation methodSignature] numberOfArguments] == 3) {
-    if ([aBinding hasPrefix:@"set"]) {
-      if ([self setIvarFromInvocation:anInvocation]) {
-        anObject = nil;
-        [anInvocation setReturnValue:&anObject];
-        return;
-      }
-    }
-    else if (*[[anInvocation methodSignature] getArgumentTypeAtIndex:2] == _C_ID) {
-      [anInvocation getArgument:&anObject atIndex:2];
-      if ([anObject isKindOfClass:CLControlClass] &&
-          [self replacePage:anObject selector:[anInvocation selector]]) {
-        anObject = nil;
-        [anInvocation setReturnValue:&anObject];
-        return;
-      }
-    }
-  }
-  else if ((var = [self pointerForIvar:sel_getName([anInvocation selector]) type:&aType])) {
-    [anInvocation setReturnValue:var];
-    return;
-  }
-
-  [self doesNotRecognize:[anInvocation selector]];
-  return;
-}
-
--(CLString *) description
-{
-  return [CLString stringWithFormat:@"<%@: 0x%08lx>", [[self class] className],
-                   (unsigned long) self];
-}
-
--(CLString *) json
-{
-  return [CLString stringWithFormat:@"\"<%@: 0x%08lx>\"", [[self class] className],
-                   (unsigned long) self];
-}
-
--(id) read:(CLStream *) stream
-{
-  return self;
-}
-
--(void) write:(CLStream *) stream
-{
-  return;
-}
+#endif
 
 @end
 

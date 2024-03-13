@@ -50,6 +50,7 @@ static struct {
 };
 
 static CLHashTable *_classMapping = NULL;
+static CLHashTable *_nameMapping = NULL;
 static int _creatingClass = 0;
 
 Class CLPyBridgeClassFromName(const char *name)
@@ -113,28 +114,31 @@ PyTypeObject *CLPythonClassFromString(CLString *aString)
   CLRange aRange;
 
 
-  aRange = [aString rangeOfString:@"."];
-  if (!aRange.length) {
-    moduleName = @"__main__";
-    className = aString;
-  }
-  else {
-    moduleName = [aString substringToIndex:aRange.location];
-    className = [aString substringFromIndex:CLMaxRange(aRange)];
-  }
+  pyClass = CLHashTableDataForIdenticalKey(_nameMapping, aString, [aString hash]);
+  if (!pyClass) {
+    aRange = [aString rangeOfString:@"."];
+    if (!aRange.length) {
+      moduleName = @"__main__";
+      className = aString;
+    }
+    else {
+      moduleName = [aString substringToIndex:aRange.location];
+      className = [aString substringFromIndex:CLMaxRange(aRange)];
+    }
 
-  pyModule = PyImport_AddModule([moduleName UTF8String]);
-  pyModuleDict = PyModule_GetDict(pyModule);
+    pyModule = PyImport_AddModule([moduleName UTF8String]);
+    pyModuleDict = PyModule_GetDict(pyModule);
 
 #ifdef DICT_DEBUG
-  printf("Searching for %s.%s\n", [moduleName UTF8String], [className UTF8String]);
-  print_dict_keys(pyModuleDict);
+    printf("Searching for %s.%s\n", [moduleName UTF8String], [className UTF8String]);
+    print_dict_keys(pyModuleDict);
 #endif
 
-  pyClass = PyDict_GetItemString(pyModuleDict, [className UTF8String]);
-  if (pyClass && !PyType_Check(pyClass)) {
-    fprintf(stderr, "Not a Python class\n");
-    abort();
+    pyClass = PyDict_GetItemString(pyModuleDict, [className UTF8String]);
+    if (pyClass && !PyType_Check(pyClass)) {
+      fprintf(stderr, "Not a Python class\n");
+      abort();
+    }
   }
 
   return pyClass;
@@ -193,6 +197,7 @@ Class CLNativeSuperclassForPythonClass(PyObject *pyClass)
 Class CLClassForPythonClass(PyTypeObject *pyClass)
 {
   Class aClass;
+  CLString *className;
 
 
   if (!PyType_Check(pyClass)) {
@@ -205,7 +210,13 @@ Class CLClassForPythonClass(PyTypeObject *pyClass)
     _creatingClass++;
     aClass = [CLPythonBridge createBridgeClassFromPythonClass:pyClass];
     _creatingClass--;
+    if (!aClass) {
+      fprintf(stderr, "Failed to create class");
+      abort();
+    }
     CLHashTableSetData(_classMapping, aClass, (id) pyClass, (size_t) pyClass);
+    className = [aClass className];
+    CLHashTableSetData(_nameMapping, pyClass, className, [className hash]);
   }
 
   return aClass;
@@ -361,6 +372,7 @@ PyMODINIT_FUNC PyInit_ClearLake(void)
 
 
   _classMapping = CLHashTableAlloc(CLHashTableDefaultSize);
+  _nameMapping = CLHashTableAlloc(CLHashTableDefaultSize);
 
   for (idx = 0; CLBridgeTypes[idx].name; idx++) {
     if (PyType_Ready(CLBridgeTypes[idx].type) < 0)

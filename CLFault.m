@@ -260,12 +260,15 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   keyData = [[CLMutableDictionary alloc] init];
   anArray = [fields allKeys];
   for (i = 0, j = [anArray count]; i < j; i++) {
+    BOOL found;
+
+
     aField = [anArray objectAtIndex:i];
     anAttr = [fields objectForKey:aField];
     aValue = [data->info.faultData.primaryKey objectForKey:[anAttr column]];
     if (aValue == CLNullObject)
       aValue = nil;
-    [((CLObject *) self) setPrimitiveValue:aValue forKey:aField];
+    [((CLObject *) self) setObjectValue:aValue forKey:aField found:&found];
     if (aValue)
       [keyData setObject:aValue forKey:aField];
   }
@@ -369,6 +372,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   CLRelationship *aRelationship;
   id aValue;
   CLAutoreleasePool *pool;
+  BOOL found;
 
 
 #if DEBUG_RETAIN
@@ -411,7 +415,7 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
     aValue = CLNewArrayFault(qual, [aRelationship theirTable], [anObject editingContext]);
 
   if (aValue)
-    [anObject setPrimitiveValue:aValue forKey:aKey];
+    [anObject setObjectValue:aValue forKey:aKey found:&found];
 
   [pool release];
 

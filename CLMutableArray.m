@@ -32,7 +32,9 @@
 #include <string.h>
 #include <stdarg.h>
 
+#if 0
 static CLMutableArray *CLQsortStack = nil;
+#endif
 static SEL CLQsortComparator;
 
 static int CLQsortCompareBySelector(const void *ptr1, const void *ptr2)
@@ -59,6 +61,7 @@ static int CLQsortCompareBySelector(const void *ptr1, const void *ptr2)
   return CLOrderedSame;
 }
 
+#if 0
 static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 {
   int i;
@@ -89,6 +92,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
   return res;
 }
+#endif
 
 @implementation CLMutableArray
 

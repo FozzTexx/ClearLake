@@ -55,8 +55,7 @@ static PyObject *CLControl_navigateTo(CLPyBridgeLink *self, PyObject *args, PyOb
     success = YES;
   }
   else
-    success = [owner replacePage:self->bridgeObject
-			selector:sel_getUid([selector UTF8String])];
+    success = [owner replacePage:self->bridgeObject selector:CLSelectorFromString(selector)];
 
   return PyLong_FromLong(success);
 }
