@@ -489,10 +489,17 @@ static CLString *CLFileDirectory = nil;
           streamObjects = CLHashTableAlloc(100);
         if (!(anObject = CLHashTableDataForIdenticalKey(streamObjects,
                                                         (id) objHash, objHash))) {
-          anObject = [CLClassFromString(className) alloc];
+	  id replacedObject;
+
+
+	  anObject = [CLClassFromString(className) alloc];
           CLHashTableSetData(streamObjects, anObject, (id) objHash, objHash);
-          if ([anObject respondsTo:@selector(read:)])
-            anObject = [anObject read:self];
+          if ([anObject respondsTo:@selector(read:)]) {
+            replacedObject = [anObject read:self];
+	    if (replacedObject != anObject)
+	      CLHashTableSetData(streamObjects, replacedObject, (id) objHash, objHash);
+	    anObject = replacedObject;
+	  }
         }
         else
           [anObject retain];
