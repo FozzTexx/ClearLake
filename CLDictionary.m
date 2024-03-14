@@ -154,30 +154,17 @@
   return [[CLMutableDictionary alloc] initFromDictionary:self];
 }
 
--(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
+-(id) objectValueForKey:(CLString *) aKey found:(BOOL *) found
 {
-  CLRange aRange;
-  CLString *aString;
   id anObject = nil;
 
 
   *found = NO;
 
-  aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
-  if (!aRange.length)
-    aString = aBinding;
-  else
-    aString = [aBinding substringToIndex:aRange.location];
-
-  if (!(anObject = [self objectForKey:aString]))
-    return [super objectValueForBinding:aBinding found:found];
+  if (!(anObject = [self objectForKey:aKey]))
+    return [super objectValueForKey:aKey found:found];
 
   *found = YES;
-
-  if (aRange.length)
-    anObject = [anObject objectValueForBinding:
-                           [aBinding substringFromIndex:CLMaxRange(aRange)] found:found];
-
   return anObject;
 }
 

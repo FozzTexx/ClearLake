@@ -570,10 +570,8 @@ static int _modelInitState = MODEL_UNINIT;
   mDict = [[CLMutableDictionary alloc] init];
   for (i = 0, j = [pKeys count]; i < j; i++) {
     anAttr = [pKeys objectAtIndex:i];
-    if (fromDB)
-      anObject = [aRecord objectForKey:[anAttr column]];
-    else
-      anObject = [aRecord objectValueForKey:[anAttr key] found:&found];
+    aKey = fromDB ? [anAttr column] : [anAttr key];
+    anObject = [aRecord objectValueForKey:aKey found:&found];
     if (!anObject)
       anObject = CLNullObject;
     [mDict setObject:anObject forKey:[anAttr column]];

@@ -179,6 +179,8 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
 
 -(void) setEmail:(CLString *) aString
 {
+  if (![aString length])
+    [self error:@"Invalid email"];
   if (![email isEqualToString:aString]) {
     [self willChange];
     [email release];
@@ -189,6 +191,8 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
 
 -(void) setName:(CLString *) aString
 {
+  if (![aString length])
+    [self error:@"Invalid name"];
   if (![name isEqualToString:aString]) {
     [self willChange];
     [name release];
@@ -199,6 +203,8 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
 
 -(void) setPassword:(CLString *) aString
 {
+  if (![aString length])
+    [self error:@"Invalid password"];
   if (![password isEqualToString:aString]) {
     [self willChange];
     [password release];
