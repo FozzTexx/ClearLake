@@ -170,9 +170,9 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 {
   CLObjectReserved *reserved;
   CLFaultData *data;
-  int i, j;
+  CLUInteger idx, count;
   CLArray *anArray;
-  CLString *aField;
+  CLString *aField, *aKey;
   id aValue;
   CLAutoreleasePool *pool;
   CLDictionary *fields;
@@ -194,10 +194,10 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   pool = [[CLAutoreleasePool alloc] init];
 
   if (![data->info.faultData.primaryKey isKindOfClass:CLDictionaryClass]) {
+    anAttr = [[data->info.faultData.recordDef primaryKeys] objectAtIndex:0];
+    aKey = data->info.faultData.fromDB ? [anAttr column] : [anAttr key];
     fields = [[CLDictionary alloc] initWithObjectsAndKeys:
-                                     data->info.faultData.primaryKey,
-                                   [[[data->info.faultData.recordDef primaryKeys]
-                                                       objectAtIndex:0] column], nil];
+				     data->info.faultData.primaryKey, aKey, nil];
     [data->info.faultData.primaryKey release];
     data->info.faultData.primaryKey = fields;
   }
@@ -208,13 +208,14 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
     have = [data->info.faultData.primaryKey allKeys];
     need = [[data->info.faultData.recordDef fields] allValues];
-    for (i = 0, j = [need count]; i < j; i++) {
-      anAttr = [need objectAtIndex:i];
-      if (![have containsObject:[anAttr column]])
+    for (idx = 0, count = [need count]; idx < count; idx++) {
+      anAttr = [need objectAtIndex:idx];
+      aKey = data->info.faultData.fromDB ? [anAttr column] : [anAttr key];
+      if (![have containsObject:aKey])
         break;
     }
 
-    if (i < j) {
+    if (idx < count) {
       CLMutableString *mString;
       CLString *aString;
       id errors = nil;
@@ -245,14 +246,17 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
         mDict = [[CLMutableDictionary alloc] init];
         anArray = [data->info.faultData.recordDef primaryKeys];
-        for (i = 0, j = [anArray count]; i < j; i++) {
-          anAttr = [anArray objectAtIndex:i];
+        for (idx = 0, count = [anArray count]; idx < count; idx++) {
+          anAttr = [anArray objectAtIndex:idx];
           [mDict setObject:[data->info.faultData.primaryKey objectForKey:[anAttr key]]
                     forKey:[anAttr column]];
         }
         [data->info.faultData.primaryKey release];
         data->info.faultData.primaryKey = mDict;
       }
+
+      if ([data->info.faultData.primaryKey count] < [need count])
+	[self error:@"Insufficient data"];
     }
   }
 
@@ -260,11 +264,11 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   keyData = [[CLMutableDictionary alloc] init];
   anArray = [fields allKeys];
   [((CLObject *) self) disableWillChange];
-  for (i = 0, j = [anArray count]; i < j; i++) {
+  for (idx = 0, count = [anArray count]; idx < count; idx++) {
     BOOL found;
 
 
-    aField = [anArray objectAtIndex:i];
+    aField = [anArray objectAtIndex:idx];
     anAttr = [fields objectForKey:aField];
     aValue = [data->info.faultData.primaryKey objectForKey:[anAttr column]];
     if (aValue == CLNullObject)
@@ -277,8 +281,8 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
 
   fields = [data->info.faultData.recordDef relationships];
   anArray = [fields allKeys];
-  for (i = 0, j = [anArray count]; i < j; i++)
-    CLFaultLoadRelationship(self, [anArray objectAtIndex:i], data, keyData);
+  for (idx = 0, count = [anArray count]; idx < count; idx++)
+    CLFaultLoadRelationship(self, [anArray objectAtIndex:idx], data, keyData);
 
   [keyData release];
   [data->info.faultData.primaryKey release];
@@ -304,12 +308,12 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   return YES;
 }
 
--(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
+-(id) primaryKeyValueForKey:(CLString *) aKey found:(BOOL *) found
 {
   CLObjectReserved *reserved;
   CLFaultData *data;
   CLString *fieldName;
-  id aValue;
+  id anObject;
 
 
   *found = NO;
@@ -317,17 +321,54 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
   data = reserved->privateData;
 
   if (![data->info.faultData.primaryKey isKindOfClass:CLDictionaryClass]) {
-    fieldName = [[[data->info.faultData.recordDef primaryKeys] objectAtIndex:0] column];
-    if ([aBinding isEqualToString:fieldName]) {
+    fieldName = [[[data->info.faultData.recordDef primaryKeys] objectAtIndex:0] key];
+    if ([aKey isEqualToString:fieldName]) {
       *found = YES;
       return data->info.faultData.primaryKey;
     }
   }
-  else if ((aValue = [data->info.faultData.primaryKey objectForKey:aBinding])) {
-    if (aValue == CLNullObject)
-      aValue = nil;
+  else if ((anObject = [data->info.faultData.primaryKey objectForKey:aKey])) {
+    if (anObject == CLNullObject)
+      anObject = nil;
     *found = YES;
-    return aValue;
+    return anObject;
+  }
+
+  return nil;
+}
+
+-(id) objectValueForKey:(CLString *) aKey found:(BOOL *) found
+{
+  id anObject;
+
+
+  anObject = [self primaryKeyValueForKey:aKey found:found];
+  if (*found)
+    return anObject;
+
+  [self fault];
+  return [self objectValueForKey:aKey found:found];
+}
+
+-(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found
+{
+  CLRange aRange;
+  CLString *aKey;
+  id anObject;
+
+
+  aRange = [aBinding rangeOfString:@"." options:0 range:CLMakeRange(0, [aBinding length])];
+  if (!aRange.length)
+    aKey = aBinding;
+  else
+    aKey = [aBinding substringToIndex:aRange.location];
+
+  anObject = [self primaryKeyValueForKey:aKey found:found];
+  if (*found) {
+    if (aRange.length)
+      anObject = [anObject objectValueForBinding:
+			     [aBinding substringFromIndex:CLMaxRange(aRange)] found:found];
+    return anObject;
   }
 
   [self fault];
