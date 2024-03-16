@@ -5,13 +5,16 @@
 #import <ClearLake/CLOriginalFile.h>
 #import <ClearLake/CLData.h>
 
-static int CLOriginalFileBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
+static int CLOriginalFileBridge_init(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"data", "filename", "_bridgeObject", NULL};
   PyObject *bridgeCapsule = NULL;
   CLData *data = nil;
   CLString *filename = nil;
   Class nativeClass;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&O!:__init__", kwlist,
@@ -21,45 +24,48 @@ static int CLOriginalFileBridge_init(CLPyBridgeLink *self, PyObject *args, PyObj
     return -1;
 
   if (!bridgeCapsule) {
-    nativeClass = CLClassForPythonObject((PyObject *) self);
-    self->bridgeObject = [[nativeClass alloc] initFromData:data table:nil];
-    [self->bridgeObject setPythonObject:(PyObject *) self];
-    [self->bridgeObject setFilename:filename];
+    nativeClass = CLClassForPythonObject((PyObject *) pySelf);
+    pySelf->bridgeObject = [[nativeClass alloc] initFromData:data table:nil];
+    [pySelf->bridgeObject setPythonObject:(PyObject *) pySelf];
+    [pySelf->bridgeObject setFilename:filename];
   }
   else
-    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
+    pySelf->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
 
-static void CLOriginalFileBridge_dealloc(CLPyBridgeLink *self)
+static void CLOriginalFileBridge_dealloc(CLPyBridgeLink *pySelf)
 {
-  [self->bridgeObject release];
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
+  [pySelf->bridgeObject release];
   return;
 }
 
-static PyObject *CLOriginalFileBridge_data(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLOriginalFileBridge_data(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject data]);
+  return CLNativeToPython([pySelf->bridgeObject data]);
 }
 
-static PyObject *CLOriginalFileBridge_filename(CLPyBridgeLink *self,
+static PyObject *CLOriginalFileBridge_filename(CLPyBridgeLink *pySelf,
 					       PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject filename]);
+  return CLNativeToPython([pySelf->bridgeObject filename]);
 }
 
-static int CLOriginalFileBridge_setFilename(CLPyBridgeLink *self, PyObject *value,
+static int CLOriginalFileBridge_setFilename(CLPyBridgeLink *pySelf, PyObject *value,
 					    void *closure)
 {
-  [self->bridgeObject setFilename:CLPythonToNative(value)];
+  [pySelf->bridgeObject setFilename:CLPythonToNative(value)];
   return 0;
 }
 
-static PyObject *CLOriginalFileBridge_path(CLPyBridgeLink *self,
+static PyObject *CLOriginalFileBridge_path(CLPyBridgeLink *pySelf,
 					       PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject path]);
+  return CLNativeToPython([pySelf->bridgeObject path]);
 }
 
 static PyGetSetDef CLOriginalFileBridge_getsetters[] = {

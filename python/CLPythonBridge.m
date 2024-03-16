@@ -37,6 +37,9 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   CLInvocation *invoc = nil;
   void *ret = NULL;
   Class superClass;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   superClass = class_getSuperclass([receiver class]);
@@ -72,8 +75,10 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
 
   moduleName = [CLString stringWithUTF8String:PyUnicode_AsUTF8(pyModule)];
   className = [CLString stringWithUTF8String:pyClass->tp_name];
+#if 0
   fprintf(stderr, "Creating class %s from %s.%s\n", [className UTF8String],
 	  [moduleName UTF8String], [className UTF8String]);
+#endif
 
   if (![moduleName isEqualToString:@"__main__"]) {
     PyObject *mainModule;
@@ -210,6 +215,27 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   return;
 }
 
+-(BOOL) pythonRespondsTo:(CLString *) aMethod
+{
+  PyObject *attr, *pyBinding, *pyObject;
+  BOOL hasMethod = NO;
+
+
+  pyBinding = CLNativeToPython(aMethod);
+  if ((pyObject = CLNativeToPython(self))) {
+    attr = PyObject_GetAttr(pyObject, pyBinding);
+    if (!attr)
+      PyErr_Clear();
+    else if (PyCallable_Check(attr))
+      hasMethod = YES;
+    Py_XDECREF(attr);
+  }
+  Py_XDECREF(pyObject);
+  Py_XDECREF(pyBinding);
+
+  return hasMethod;
+}
+
 -(id) objectValueForKey:(CLString *) aKey found:(BOOL *) found
 {
   CLObjectReserved *reserved;
@@ -217,7 +243,6 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   id anObject = nil;
   PyObject *result, *attr;
   PyObject *pyBinding;
-  CLRange aRange;
 
 
   *found = NO;
@@ -253,6 +278,12 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
       if (result)
         Py_DECREF(result);
     }
+
+#if 0
+    fprintf(stderr, "0x%lx %s getting \"%s\": %s\n", (unsigned long) self,
+	    [[self className] UTF8String],
+	    [aKey UTF8String], [[anObject description] UTF8String]);
+#endif
   }
 
   return anObject;
@@ -264,6 +295,13 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   CLBridgeData *data;
   PyObject *value;
 
+
+#if 0
+  fprintf(stderr, "0x%lx %s setting Python attribute \"%s\" to \"%s\"\n",
+	  (unsigned long) self,
+	  [[self className] UTF8String],
+	  [anAttr UTF8String], [[anObject description] UTF8String]);
+#endif
 
   value = CLNativeToPython(anObject);
 
@@ -281,11 +319,16 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
 -(void) setObjectValue:(id) anObject forKey:(id) aKey found:(BOOL *) found
 {
   _dynamicSuperCall(self, @selector(setObjectValue:forKey:found:), anObject, aKey, found);
-  if (*found)
-    return;
+  if (!*found) {
+    *found = YES;
+    [self setObject:anObject forPythonAttribute:aKey];
+  }
 
-  *found = YES;
-  [self setObject:anObject forPythonAttribute:aKey];
+#if 0
+  fprintf(stderr, "0x%lx %s setting \"%s\" to \"%s\"\n", (unsigned long) self,
+	  [[self className] UTF8String],
+	  [aKey UTF8String], [[anObject description] UTF8String]);
+#endif
 
   return;
 }
@@ -301,36 +344,16 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   return aString;
 }
 
--(BOOL) pythonRespondsTo:(CLString *) aMethod
-{
-  PyObject *attr, *pyBinding, *pyObject;
-  BOOL hasMethod = NO;
-
-
-  pyBinding = CLNativeToPython(aMethod);
-  if ((pyObject = CLNativeToPython(self))) {
-    attr = PyObject_GetAttr(pyObject, pyBinding);
-    if (!attr)
-      PyErr_Clear();
-    else if (PyCallable_Check(attr))
-      hasMethod = YES;
-    Py_XDECREF(attr);
-  }
-  Py_XDECREF(pyObject);
-  Py_XDECREF(pyBinding);
-
-  return hasMethod;
-}
-
 -(id) read:(CLStream *) stream
 {
   id anObject;
+  BOOL found;
 
 
   self = _dynamicSuperCall(self, @selector(read:), stream);
   [stream readType:@"@" data:&anObject];
-  if ([self pythonRespondsTo:@"__setstate__"])
-    [self setObjectValue:anObject forKey:@"__setstate__"];
+  if (anObject && [self pythonRespondsTo:@"__setstate__"])
+    [self setObjectValue:anObject forKey:@"__setstate__" found:&found];
   else if ([anObject isKindOfClass:CLDictionaryClass]) {
     PyObject *myDict, *pyObject;
 
@@ -398,67 +421,50 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   PyObject *attr, *result, *py_tuple = NULL;
   CLUInteger idx, count;
   id arg, anObject = nil;
-  CLRange aRange;
 
 
-  aBinding = CLStringFromSelector([anInvocation selector]);
-  aRange = [aBinding rangeOfString:@":" options:0 range:CLMakeRange(0, [aBinding length])];
-  if (aRange.length && [[anInvocation methodSignature] numberOfArguments] == 3) {
-    if ([aBinding hasPrefix:@"set"]) {
-      if ([self setIvarFromInvocation:anInvocation]) {
-        anObject = nil;
-        [anInvocation setReturnValue:&anObject];
-        return;
+  if ([self pythonRespondsTo:[self pythonizeSelector:[anInvocation selector]]]) {
+    reserved = ((void *) self) - sizeof(CLObjectReserved);
+    data = reserved->privateData;
+
+    sig = [anInvocation methodSignature];
+    aBinding = [self pythonizeSelector:[anInvocation selector]];
+    attr = PyObject_GetAttrString(data->pyObject, [aBinding UTF8String]);
+
+    count = [sig numberOfArguments] - 2;
+    if (count) {
+      py_tuple = PyTuple_New(count);
+      for (idx = 0; idx < count; idx++) {
+	arg = [anInvocation objectValueForArgumentAtIndex:idx + 2];
+	result = CLNativeToPython(arg);
+	if (PyTuple_SetItem(py_tuple, idx, result) != 0) {
+	  PyErr_Print();
+	  [self error:@"Unable to forward %@", aBinding];
+	}
+	Py_XDECREF(result);
       }
     }
-    else if (*[[anInvocation methodSignature] getArgumentTypeAtIndex:2] == _C_ID) {
-      [anInvocation getArgument:&anObject atIndex:2];
-      if ([anObject isKindOfClass:CLControlClass] &&
-          [self replacePage:anObject selector:[anInvocation selector]]) {
-        anObject = nil;
-        [anInvocation setReturnValue:&anObject];
-        return;
-      }
+
+    result = PyObject_CallObject(attr, py_tuple);
+    if (result) {
+      anObject = CLPythonToNative(result);
+      Py_DECREF(result);
     }
-  }
-
-  if (![self respondsTo:[anInvocation selector]])
-    [self doesNotRecognize:[anInvocation selector]];
-
-  reserved = ((void *) self) - sizeof(CLObjectReserved);
-  data = reserved->privateData;
-
-  sig = [anInvocation methodSignature];
-  aBinding = [self pythonizeSelector:[anInvocation selector]];
-  attr = PyObject_GetAttrString(data->pyObject, [aBinding UTF8String]);
-
-  count = [sig numberOfArguments] - 2;
-  if (count) {
-    py_tuple = PyTuple_New(count);
-    for (idx = 0; idx < count; idx++) {
-      arg = [anInvocation objectValueForArgumentAtIndex:idx + 2];
-      result = CLNativeToPython(arg);
-      if (PyTuple_SetItem(py_tuple, idx, result) != 0) {
-	PyErr_Print();
-        [self error:@"Unable to forward %@", aBinding];
-      }
-      Py_XDECREF(result);
+    else {
+      PyErr_Print();
+      PyErr_Clear();
     }
+
+    Py_DECREF(attr);
+
+    [anInvocation setReturnValue:&anObject];
+    return;
   }
 
-  result = PyObject_CallObject(attr, py_tuple);
-  if (result) {
-    anObject = [[self class] objectWithPythonObject:result];
-    Py_DECREF(result);
-  }
-  else {
-    PyErr_Print();
-    PyErr_Clear();
-  }
+  // set/get will be handled by super by calling
+  // setObjectValue:forKey:found/objectValueForKey:found:
 
-  Py_DECREF(attr);
-
-  [anInvocation setReturnValue:&anObject];
+  _dynamicSuperCall(self, @selector(forwardInvocation:), anInvocation);
 
   return;
 }
@@ -556,11 +562,14 @@ int CLPyBridgeConvert(PyObject *anObj, void *address)
   return 1;
 }
 
-static int CLPyBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
+static int CLPyBridge_init(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"_bridgeObject", NULL};
   PyObject *bridgeCapsule = NULL;
   Class nativeClass;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O!:__init__", kwlist,
@@ -569,22 +578,25 @@ static int CLPyBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
 
   if (!bridgeCapsule) {
     // FIXME - allow subclasses to call init
-    nativeClass = CLClassForPythonObject((PyObject *) self);
-    self->bridgeObject = [[nativeClass alloc] initWithPythonObject:(PyObject *) self];
+    nativeClass = CLClassForPythonObject((PyObject *) pySelf);
+    pySelf->bridgeObject = [[nativeClass alloc] initWithPythonObject:(PyObject *) pySelf];
   }
   else
-    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
+    pySelf->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
 
-static void CLPyBridge_dealloc(CLPyBridgeLink *self)
+static void CLPyBridge_dealloc(CLPyBridgeLink *pySelf)
 {
-  [self->bridgeObject release];
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
+  [pySelf->bridgeObject release];
   return;
 }
 
-static PyObject *CLPyBridge_addObjectToBothSidesOfRelationship(CLPyBridgeLink *self,
+static PyObject *CLPyBridge_addObjectToBothSidesOfRelationship(CLPyBridgeLink *pySelf,
 								 PyObject *args,
 								 PyObject *kwds)
 {
@@ -598,7 +610,7 @@ static PyObject *CLPyBridge_addObjectToBothSidesOfRelationship(CLPyBridgeLink *s
                                    CLPyBridgeConvertString, &relationship))
     return NULL;
 
-  [self->bridgeObject addObject:object toBothSidesOfRelationship:relationship];
+  [pySelf->bridgeObject addObject:object toBothSidesOfRelationship:relationship];
   Py_RETURN_NONE;
 }
 

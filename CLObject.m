@@ -42,6 +42,7 @@
 #import "CLClassConstants.h"
 #import "CLRelationship.h"
 #import "CLDictionary.h"
+#import "CLFault.h"
 
 #include <stdlib.h>
 #include <wctype.h>
@@ -269,13 +270,31 @@ static IMP CLFindForwardFunction(SEL sel);
   return (size_t) self;
 }
 
+-(BOOL) setObjectFromInvocation:(CLInvocation *) anInvocation
+{
+  int aType;
+  BOOL found;
+  void *var;
+  id anObject;
+  CLString *aKey;
+
+
+  aType = *[[anInvocation methodSignature] getArgumentTypeAtIndex:2];
+  [anInvocation getArgument:&var atIndex:2];
+  anObject = [self objectForIvarPointer:&var type:aType];
+  aKey = CLStringFromSelector([anInvocation selector]);
+  aKey = [[aKey substringWithRange:CLMakeRange(3, [aKey length] - 4)] lowerCamelCaseString];
+  [self setObjectValue:anObject forKey:aKey found:&found];
+  return found;
+}
+
 -(void) forwardInvocation:(CLInvocation *) anInvocation
 {
-  void *var;
   int aType;
   CLString *aBinding;
   CLRange aRange;
   id anObject;
+  BOOL found;
 
 
   /* Sometimes when the runtime is stacking up method calls on a
@@ -307,9 +326,78 @@ static IMP CLFindForwardFunction(SEL sel);
       }
     }
   }
-  else if ((var = [self pointerForIvar:sel_getName([anInvocation selector]) type:&aType])) {
-    [anInvocation setReturnValue:var];
-    return;
+  else if ([[anInvocation methodSignature] numberOfArguments] == 2) {
+    anObject = [self objectValueForKey:aBinding found:&found];
+    if (found) {
+      aType = [[anInvocation methodSignature] methodReturnType][0];
+      switch (aType) {
+      case _C_ID:
+        [anInvocation setReturnValue:&anObject];
+        break;
+      case _C_CHR:
+      case _C_SHT:
+      case _C_INT:
+        {
+          int c = [anObject intValue];
+          [anInvocation setReturnValue:&c];
+        }
+        break;
+      case _C_UCHR:
+      case _C_USHT:
+      case _C_UINT:
+        {
+          unsigned int c = [anObject unsignedIntValue];
+          [anInvocation setReturnValue:&c];
+        }
+        break;
+      case _C_LNG:
+        {
+          long c = [anObject longValue];
+          [anInvocation setReturnValue:&c];
+        }
+        break;
+      case _C_ULNG:
+        {
+          unsigned long c = [anObject unsignedLongValue];
+          [anInvocation setReturnValue:&c];
+        }
+        break;
+
+        /* For some reason a nil object can't set a long long or unsigned long long to 0 */
+      case _C_LNG_LNG:
+        {
+          long long c;
+
+
+          if (anObject)
+            c = [anObject longLongValue];
+          else
+            c = 0;
+          [anInvocation setReturnValue:&c];
+        }
+        break;
+      case _C_ULNG_LNG:
+        {
+          unsigned long long c;
+
+
+          if (anObject)
+            c = [anObject unsignedLongLongValue];
+          else
+            c = 0;
+          [anInvocation setReturnValue:&c];
+        }
+        break;
+
+      case _C_FLT:
+      case _C_DBL:
+        {
+          double c = [anObject doubleValue];
+          [anInvocation setReturnValue:&c];
+        }
+      }
+      return;
+    }
   }
 
   [self doesNotRecognize:[anInvocation selector]];
@@ -328,6 +416,7 @@ static IMP CLFindForwardFunction(SEL sel);
                    (unsigned long) self];
 }
 
+#if 0
 -(id) read:(CLStream *) stream
 {
   return self;
@@ -337,6 +426,44 @@ static IMP CLFindForwardFunction(SEL sel);
 {
   return;
 }
+#else
+-(id) read:(CLStream *) stream
+{
+  CLRecordDefinition *recordDef;
+  id pk, anObject;
+
+
+  if ((recordDef = [CLEditingContext recordDefinitionForClass:[self class]])) {
+    [stream readType:@"@" data:&pk];
+    if (pk) {
+      anObject = [[self editingContext] registerInstance:self inTable:[recordDef table]
+					  withPrimaryKey:pk];
+      if (anObject != self) {
+	[anObject retain];
+	[self release];
+	self = anObject;
+      }
+      else
+	CLBecomeFault(self, pk, recordDef, NO);
+    }
+  }
+
+  return self;
+}
+
+-(void) write:(CLStream *) stream
+{
+  id pk;
+
+
+  if ([CLEditingContext recordDefinitionForClass:[self class]]) {
+    pk = [[self editingContext] primaryKeyForRecord:self];
+    [stream writeType:@"@" data:&pk];
+  }
+
+  return;
+}
+#endif
 
 @end
 

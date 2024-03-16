@@ -96,6 +96,10 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
 @implementation CLMutableArray
 
+#if DEBUG_RETAIN
+#undef alloc
+#endif
+
 +(id) alloc
 {
   if (self == CLMutableArrayClass)

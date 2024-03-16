@@ -3,13 +3,16 @@
 #import "CLStringBridge.h"
 #import <ClearLake/CLOption.h>
 
-int CLOptionBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
+int CLOptionBridge_init(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"label", "value", "selected", "_bridgeObject", NULL};
   PyObject *bridgeCapsule = NULL;
   CLString *label = nil;
   id value = nil;
   int selected = NO;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&|pO!:__init__", kwlist,
@@ -20,19 +23,22 @@ int CLOptionBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
     return -1;
 
   if (!bridgeCapsule) {
-    self->bridgeObject = [[CLOption alloc] initWithString:label andValue:value
+    pySelf->bridgeObject = [[CLOption alloc] initWithString:label andValue:value
 						 selected:selected];
-    [self->bridgeObject setPythonObject:(PyObject *) self];
+    [pySelf->bridgeObject setPythonObject:(PyObject *) pySelf];
   }
   else
-    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
+    pySelf->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
 
-void CLOptionBridge_dealloc(CLPyBridgeLink *self)
+void CLOptionBridge_dealloc(CLPyBridgeLink *pySelf)
 {
-  [self->bridgeObject release];
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
+  [pySelf->bridgeObject release];
   return;
 }
 

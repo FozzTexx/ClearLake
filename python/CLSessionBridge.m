@@ -1,15 +1,16 @@
 #import "CLSessionBridge.h"
 #import "CLPythonBridge.h"
 #import "CLPythonModule.h"
+#import <ClearLake/CLSession.h>
 
-static PyObject *CLSessionBridge_account(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLSessionBridge_account(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject account]);
+  return CLNativeToPython([pySelf->bridgeObject account]);
 }
 
-static int CLSessionBridge_setAccount(CLPyBridgeLink *self, PyObject *value, void *closure)
+static int CLSessionBridge_setAccount(CLPyBridgeLink *pySelf, PyObject *value, void *closure)
 {
-  [self->bridgeObject setAccount:CLPythonToNative(value)];
+  [pySelf->bridgeObject setAccount:CLPythonToNative(value)];
   return 0;
 }
 

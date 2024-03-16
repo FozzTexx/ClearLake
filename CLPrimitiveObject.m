@@ -270,7 +270,7 @@ id CLDisposeInstance(id object)
 
     buf = self;
     reserved = buf - sizeof(CLObjectReserved);
-    reserved->faultData = isa;
+    reserved->privateData = isa;
     isa = CLReleaseTrackerClass;
   }
 

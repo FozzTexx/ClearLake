@@ -18,13 +18,18 @@
 {
   CLObjectReserved *reserved;
   CLBridgeData *data;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   reserved = ((void *) self) - sizeof(CLObjectReserved);
   data = reserved->privateData;
   if (!data || !data->pyObject) {
     CLPyBridgeLink *obj;
-    PyTypeObject *type;
+    PyTypeObject *pyClass;
+    PyObject *args;
+    PyObject *kwargs = NULL;
 
 
     if (!data) {
@@ -32,9 +37,19 @@
       reserved->privateData = data;
     }
 
-    type = &CLMutableDictionaryBridgeType;
-    obj = (CLPyBridgeLink *) type->tp_new(type, PyTuple_New(0), NULL);
-    obj->bridgeObject = [self retain];
+    pyClass = &CLMutableDictionaryBridgeType;
+    args = PyTuple_New(0);
+    kwargs = PyDict_New();
+    PyDict_SetItemString(kwargs, "_bridgeObject", PyCapsule_New(self, NULL, NULL));
+    obj = (CLPyBridgeLink *) PyObject_Call((PyObject *) pyClass, args, kwargs);
+    if (!obj) {
+      PyErr_Print();
+      [self error:@"Failed to create bridge"];
+    }
+
+    Py_XDECREF(args);
+    Py_XDECREF(kwargs);
+
     [self setPythonObject:(PyObject *) obj];
     // setPythonObject: incremented the new reference we created
     Py_DECREF(obj);
@@ -122,21 +137,21 @@ typedef struct {
   Py_ssize_t pos;
 } CLPyBridgeIterator;
 
-static PyObject *CLPyBridgeIterator_iternext(CLPyBridgeIterator *self)
+static PyObject *CLPyBridgeIterator_iternext(CLPyBridgeIterator *pySelf)
 {
-  CLDictionary *aDict = self->dict;
+  CLDictionary *aDict = pySelf->dict;
   id aKey;
   PyObject *key, *value, *result = NULL;
 
 
-  if (self->pos < [aDict count]) {
-    aKey = [[aDict allKeys] objectAtIndex:self->pos];
+  if (pySelf->pos < [aDict count]) {
+    aKey = [[aDict allKeys] objectAtIndex:pySelf->pos];
     key = CLNativeToPython(aKey);
     value = CLNativeToPython([aDict objectForKey:aKey]);
     result = PyTuple_Pack(2, key, value);
     Py_XDECREF(key);
     Py_XDECREF(value);
-    self->pos++;
+    pySelf->pos++;
   }
   else
     PyErr_SetNone(PyExc_StopIteration);
@@ -152,14 +167,17 @@ PyTypeObject CLPyBridgeIteratorType = {
 };
 #endif
 
-static int CLMutableDictionaryBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
+static int CLMutableDictionaryBridge_init(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
 {
-  static char *kwlist[] = {"_bridgeObject", NULL};
+  static char *kwlist[] = {"iterable", "_bridgeObject", NULL};
   PyObject *bridgeCapsule = NULL;
   PyObject *iterable = NULL, *iterator = NULL, *item = NULL;
   Py_ssize_t pos = 0;
   PyObject *key = NULL, *value = NULL;
   int err = 0;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OO!:__init__", kwlist,
@@ -176,11 +194,11 @@ static int CLMutableDictionaryBridge_init(CLPyBridgeLink *self, PyObject *args, 
   }
 
   if (!bridgeCapsule) {
-    self->bridgeObject = [[CLMutableDictionary alloc] init];
-    [self->bridgeObject setPythonObject:(PyObject *) self];
+    pySelf->bridgeObject = [[CLMutableDictionary alloc] init];
+    [pySelf->bridgeObject setPythonObject:(PyObject *) pySelf];
   }
   else
-    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
+    pySelf->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   while (iterator && (item = PyIter_Next(iterator))) {
     if (!PyTuple_Check(item) || PyTuple_Size(item) != 2) {
@@ -191,7 +209,7 @@ static int CLMutableDictionaryBridge_init(CLPyBridgeLink *self, PyObject *args, 
 
     key = PyTuple_GetItem(item, 0); // Borrowed reference
     value = PyTuple_GetItem(item, 1); // Borrowed reference
-    [self->bridgeObject setObject:CLPythonToNative(value)
+    [pySelf->bridgeObject setObject:CLPythonToNative(value)
 			   forKey:CLPythonToNative(key)];
 
     Py_DECREF(item);
@@ -204,7 +222,7 @@ static int CLMutableDictionaryBridge_init(CLPyBridgeLink *self, PyObject *args, 
 
   if (kwds && PyDict_Check(kwds)) {
     while (PyDict_Next(kwds, &pos, &key, &value))
-      [self->bridgeObject setObject:CLPythonToNative(value)
+      [pySelf->bridgeObject setObject:CLPythonToNative(value)
 			     forKey:CLPythonToNative(key)];
 
     if (PyErr_Occurred()) {
@@ -218,35 +236,39 @@ static int CLMutableDictionaryBridge_init(CLPyBridgeLink *self, PyObject *args, 
   Py_XDECREF(item);
 
   if (err)
-    [self->bridgeObject release];
-  return err ? 0 : -1;
+    [pySelf->bridgeObject release];
+  return err ? -1 : 0;
 }
 
-static void CLMutableDictionaryBridge_dealloc(CLPyBridgeLink *self)
+static void CLMutableDictionaryBridge_dealloc(CLPyBridgeLink *pySelf)
 {
-  [self->bridgeObject release];
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
+  [pySelf->bridgeObject release];
   return;
 }
 
-static PyObject *CLMutableDictionaryBridge_keys(CLPyBridgeLink *self)
+static PyObject *CLMutableDictionaryBridge_keys(CLPyBridgeLink *pySelf)
 {
   PyObject *pyTuple = NULL;
 
 
-  CLPythonTupleFromArray([self->bridgeObject allKeys], &pyTuple);
+  CLPythonTupleFromArray([pySelf->bridgeObject allKeys], &pyTuple);
   return pyTuple;
 }
 
-static Py_ssize_t CLMutableDictionaryBridge_length(CLPyBridgeLink *self)
+static Py_ssize_t CLMutableDictionaryBridge_length(CLPyBridgeLink *pySelf)
 {
-  return [self->bridgeObject count];
+  return [pySelf->bridgeObject count];
 }
 
-static PyObject *CLMutableDictionaryBridge_getItem(CLPyBridgeLink *self, PyObject *key)
+static PyObject *CLMutableDictionaryBridge_getItem(CLPyBridgeLink *pySelf, PyObject *key)
 {
   id value;
 
-  value = [self->bridgeObject objectForKey:CLPythonToNative(key)];
+
+  value = [pySelf->bridgeObject objectForKey:CLPythonToNative(key)];
   if (!value) {
     if (!PyErr_Occurred()) {
       PyErr_SetObject(PyExc_KeyError, key);
@@ -257,7 +279,7 @@ static PyObject *CLMutableDictionaryBridge_getItem(CLPyBridgeLink *self, PyObjec
   return CLNativeToPython(value);
 }
 
-static int CLMutableDictionaryBridge_setItem(CLPyBridgeLink *self, PyObject *key,
+static int CLMutableDictionaryBridge_setItem(CLPyBridgeLink *pySelf, PyObject *key,
 					     PyObject *value)
 {
   CLString *aKey;
@@ -265,15 +287,15 @@ static int CLMutableDictionaryBridge_setItem(CLPyBridgeLink *self, PyObject *key
 
   aKey = CLPythonToNative(key);
   if (value == NULL)
-    [self->bridgeObject removeObjectForKey:aKey];
+    [pySelf->bridgeObject removeObjectForKey:aKey];
   else
-    [self->bridgeObject setObject:CLPythonToNative(value) forKey:aKey];
+    [pySelf->bridgeObject setObject:CLPythonToNative(value) forKey:aKey];
 
   return 0;
 }
 
 #if 0
-PyObject *CLMutableDictionaryBridge_iter(CLPyBridgeLink *self)
+PyObject *CLMutableDictionaryBridge_iter(CLPyBridgeLink *pySelf)
 {
   CLPyBridgeIterator *iter = PyObject_New(CLPyBridgeIterator, &CLPyBridgeIteratorType);
 
@@ -281,8 +303,8 @@ PyObject *CLMutableDictionaryBridge_iter(CLPyBridgeLink *self)
   if (!iter)
     return NULL;
 
-  Py_INCREF(self);
-  iter->dict = self->bridgeObject;
+  Py_INCREF(pySelf);
+  iter->dict = pySelf->bridgeObject;
   iter->pos = 0;
   return (PyObject *) iter;
 }
