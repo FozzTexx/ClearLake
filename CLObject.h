@@ -80,6 +80,7 @@ typedef struct {
 @interface CLObject (CLGetSet)
 -(id) objectValueForBinding:(CLString *) aBinding;
 -(id) objectValueForBinding:(CLString *) aBinding found:(BOOL *) found;
+-(id) objectForIvarPointer:(void *) var type:(int) aType;
 -(id) objectValueForKey:(id) aKey found:(BOOL *) found;
 -(void) setObjectValue:(id) anObject forBinding:(CLString *) aBinding;
 -(void) setObjectValue:(id) anObject forBinding:(CLString *) aBinding found:(BOOL *) found;

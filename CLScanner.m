@@ -54,6 +54,10 @@
   return;
 }
 
+#if DEBUG_RETAIN
+#undef copy
+#endif
+
 -(id) copy
 {
   CLScanner *aCopy;

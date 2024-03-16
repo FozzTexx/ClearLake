@@ -9,9 +9,11 @@
 #import "CLControlBridge.h"
 #import "CLOriginalFileBridge.h"
 #import "CLSessionBridge.h"
+#import "CLMutableArrayBridge.h"
 #import "CLMutableDictionaryBridge.h"
 #import "CLAccountBridge.h"
 #import "CLInputBridge.h"
+#import "CLGenericRecordBridge.h"
 
 #import <ClearLake/CLAutoreleasePool.h>
 #import <ClearLake/CLDictionary.h>
@@ -41,9 +43,11 @@ static struct {
   BRIDGE_TYPE(CLControl),
   BRIDGE_TYPE(CLOriginalFile),
   BRIDGE_TYPE(CLSession),
+  BRIDGE_TYPE(CLMutableArray),
   BRIDGE_TYPE(CLMutableDictionary),
   BRIDGE_TYPE(CLAccount),
   BRIDGE_TYPE(CLInput),
+  BRIDGE_TYPE(CLGenericRecord),
   {NULL, NULL},
 };
 
@@ -112,7 +116,13 @@ PyTypeObject *CLPythonClassFromString(CLString *aString)
   CLRange aRange;
 
 
-  pyClass = CLHashTableDataForIdenticalKey(_nameMapping, aString, [aString hash]);
+  /* Attempt to get model loaded and create any Python bridge classes listed in model */
+  [CLEditingContext model];
+
+#if 0
+  fprintf(stderr, "Searching name map: %s\n", [aString UTF8String]);
+#endif
+  pyClass = CLHashTableDataForKey(_nameMapping, aString, [aString hash], @selector(isEqual:));
   if (!pyClass) {
     aRange = [aString rangeOfString:@"."];
     if (!aRange.length) {
@@ -132,7 +142,7 @@ PyTypeObject *CLPythonClassFromString(CLString *aString)
     print_dict_keys(pyModuleDict);
 #endif
 
-    pyClass = PyDict_GetItemString(pyModuleDict, [className UTF8String]);
+    pyClass = (PyTypeObject *) PyDict_GetItemString(pyModuleDict, [className UTF8String]);
     if (pyClass && !PyType_Check(pyClass)) {
       fprintf(stderr, "Not a Python class\n");
       abort();
@@ -215,6 +225,9 @@ Class CLClassForPythonClass(PyTypeObject *pyClass)
     CLHashTableSetData(_classMapping, aClass, (id) pyClass, (size_t) pyClass);
     className = [aClass className];
     CLHashTableSetData(_nameMapping, pyClass, className, [className hash]);
+#if 0
+    fprintf(stderr, "Added name map: %s\n", [className UTF8String]);
+#endif
   }
 
   return aClass;
@@ -273,7 +286,7 @@ static CLString *CLEnvKeys[] = {
   nil,
 };
 
-static PyObject *CLRun_bridge(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *CLRun_bridge(PyObject *pySelf, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"mainObjectName", "environment", "stdin", NULL};
   CLAutoreleasePool *pool;
@@ -283,6 +296,9 @@ static PyObject *CLRun_bridge(PyObject *self, PyObject *args, PyObject *kwds)
   CLUInteger status;
   CLArray *result;
   PyObject *pyResult;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   pool = [[CLAutoreleasePool alloc] init];
@@ -322,7 +338,7 @@ static PyObject *CLRun_bridge(PyObject *self, PyObject *args, PyObject *kwds)
   return pyResult;
 }
 
-static PyObject *CLPython_setSessionClass(PyObject *self, PyObject *arg)
+static PyObject *CLPython_setSessionClass(PyObject *pySelf, PyObject *arg)
 {
   PyTypeObject *pyClass = (PyTypeObject *) arg;
   Class aClass;
@@ -339,7 +355,7 @@ static PyObject *CLPython_setSessionClass(PyObject *self, PyObject *arg)
   Py_RETURN_NONE;
 }
 
-static PyObject *CLPython_saveChanges(PyObject *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLPython_saveChanges(PyObject *pySelf, PyObject *Py_UNUSED(ignored))
 {
   [CLDefaultContext saveChanges];
   Py_RETURN_NONE;
@@ -367,6 +383,9 @@ PyMODINIT_FUNC PyInit_ClearLake(void)
   PyObject *m;
   ClearLake_python_state *state;
   CLUInteger idx;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   _classMapping = CLHashTableAlloc(CLHashTableDefaultSize);

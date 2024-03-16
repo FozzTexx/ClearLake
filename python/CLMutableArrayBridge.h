@@ -16,4 +16,6 @@
 -(void) dealloc;
 @end
 
+extern PyTypeObject CLMutableArrayBridgeType;
+
 #endif /* _CLMUTABLEARRAYBRIDGE_H */

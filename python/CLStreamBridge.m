@@ -82,6 +82,9 @@
 
 int CLPyBridgeConvertStream(PyObject *anObj, void *address)
 {
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
   *(id *) address = [[[CLStreamBridge alloc] initWithPythonStream:anObj] autorelease];
   return 1;
 }

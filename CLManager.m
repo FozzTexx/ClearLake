@@ -1521,11 +1521,15 @@ void CLInit()
 #endif
   pool = [[CLAutoreleasePool alloc] init];
 
-  CLDefaultContext = [[CLEditingContext alloc] init];
-  CLAddToCleanup(CLDefaultContext);
+  if (!CLDefaultContext) {
+    CLDefaultContext = [[CLEditingContext alloc] init];
+    CLAddToCleanup(CLDefaultContext);
+  }
 
-  CLEnvironment = [[CLMutableDictionary alloc] init];
-  CLAddToCleanup(CLEnvironment);
+  if (!CLEnvironment) {
+    CLEnvironment = [[CLMutableDictionary alloc] init];
+    CLAddToCleanup(CLEnvironment);
+  }
 
   env = environ;
   while (env && *env) {

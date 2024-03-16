@@ -4,12 +4,15 @@
 #import <ClearLake/CLControl.h>
 #import <ClearLake/CLPage.h>
 
-static int CLControlBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
+static int CLControlBridge_init(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"string", "page", "_bridgeObject", NULL};
   PyObject *bridgeCapsule = NULL;
   CLString *string = nil;
   id page = nil;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&O!:__init__", kwlist,
@@ -19,22 +22,25 @@ static int CLControlBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *
     return -1;
 
   if (!bridgeCapsule) {
-    self->bridgeObject = [[CLControl alloc] initFromString:string onPage:page];
-    [self->bridgeObject setPythonObject:(PyObject *) self];
+    pySelf->bridgeObject = [[CLControl alloc] initFromString:string onPage:page];
+    [pySelf->bridgeObject setPythonObject:(PyObject *) pySelf];
   }
   else
-    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
+    pySelf->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
 
-static void CLControlBridge_dealloc(CLPyBridgeLink *self)
+static void CLControlBridge_dealloc(CLPyBridgeLink *pySelf)
 {
-  [self->bridgeObject release];
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
+  [pySelf->bridgeObject release];
   return;
 }
 
-static PyObject *CLControl_navigateTo(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
+static PyObject *CLControl_navigateTo(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"owner", "selector", NULL};
   id owner;
@@ -50,12 +56,12 @@ static PyObject *CLControl_navigateTo(CLPyBridgeLink *self, PyObject *args, PyOb
   if ([selector characterAtIndex:[selector length] - 1] != ':')
     selector = [selector stringByAppendingString:@":"];
   if (!owner) {
-    [self->bridgeObject setPage:nil];
+    [pySelf->bridgeObject setPage:nil];
     CLRedirectBrowserToPage(selector, NO);
     success = YES;
   }
   else
-    success = [owner replacePage:self->bridgeObject selector:CLSelectorFromString(selector)];
+    success = [owner replacePage:pySelf->bridgeObject selector:CLSelectorFromString(selector)];
 
   return PyLong_FromLong(success);
 }
@@ -68,14 +74,14 @@ static PyMethodDef CLControlBridge_methods[] = {
   {NULL},
 };
 
-static PyObject *CLControlBridge_visible(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLControlBridge_visible(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return PyBool_FromLong([self->bridgeObject isVisible]);
+  return PyBool_FromLong([pySelf->bridgeObject isVisible]);
 }
 
-static int CLControlBridge_setVisible(CLPyBridgeLink *self, PyObject *value, void *closure)
+static int CLControlBridge_setVisible(CLPyBridgeLink *pySelf, PyObject *value, void *closure)
 {
-  [self->bridgeObject setVisible:PyObject_IsTrue(value)];
+  [pySelf->bridgeObject setVisible:PyObject_IsTrue(value)];
   return 0;
 }
 

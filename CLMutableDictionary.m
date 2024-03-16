@@ -29,6 +29,10 @@
 
 @implementation CLMutableDictionary
 
+#if DEBUG_RETAIN
+#undef alloc
+#endif
+
 +(id) alloc
 {
   if (self == CLMutableDictionaryClass)

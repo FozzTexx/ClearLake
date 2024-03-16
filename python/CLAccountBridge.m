@@ -3,80 +3,80 @@
 #import "CLPythonModule.h"
 #import <ClearLake/CLAccount.h>
 
-static PyObject *CLAccountBridge_email(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLAccountBridge_email(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject email]);
+  return CLNativeToPython([pySelf->bridgeObject email]);
 }
 
-static int CLAccountBridge_setEmail(CLPyBridgeLink *self, PyObject *value, void *closure)
+static int CLAccountBridge_setEmail(CLPyBridgeLink *pySelf, PyObject *value, void *closure)
 {
-  [self->bridgeObject setEmail:CLPythonToNative(value)];
+  [pySelf->bridgeObject setEmail:CLPythonToNative(value)];
   return 0;
 }
 
-static PyObject *CLAccountBridge_name(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLAccountBridge_name(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject name]);
+  return CLNativeToPython([pySelf->bridgeObject name]);
 }
 
-static int CLAccountBridge_setName(CLPyBridgeLink *self, PyObject *value, void *closure)
+static int CLAccountBridge_setName(CLPyBridgeLink *pySelf, PyObject *value, void *closure)
 {
-  [self->bridgeObject setName:CLPythonToNative(value)];
+  [pySelf->bridgeObject setName:CLPythonToNative(value)];
   return 0;
 }
 
-static PyObject *CLAccountBridge_password(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLAccountBridge_password(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject password]);
+  return CLNativeToPython([pySelf->bridgeObject password]);
 }
 
-static int CLAccountBridge_setPassword(CLPyBridgeLink *self, PyObject *value, void *closure)
+static int CLAccountBridge_setPassword(CLPyBridgeLink *pySelf, PyObject *value, void *closure)
 {
-  [self->bridgeObject setPassword:CLPythonToNative(value)];
+  [pySelf->bridgeObject setPassword:CLPythonToNative(value)];
   return 0;
 }
 
-static PyObject *CLAccountBridge_flags(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLAccountBridge_flags(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject flags]);
+  return CLNativeToPython([pySelf->bridgeObject flags]);
 }
 
-static int CLAccountBridge_setFlags(CLPyBridgeLink *self, PyObject *value, void *closure)
+static int CLAccountBridge_setFlags(CLPyBridgeLink *pySelf, PyObject *value, void *closure)
 {
-  [self->bridgeObject setFlags:CLPythonToNative(value)];
+  [pySelf->bridgeObject setFlags:CLPythonToNative(value)];
   return 0;
 }
 
-static PyObject *CLAccountBridge_created(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLAccountBridge_created(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject created]);
+  return CLNativeToPython([pySelf->bridgeObject created]);
 }
 
-static int CLAccountBridge_setCreated(CLPyBridgeLink *self, PyObject *value, void *closure)
+static int CLAccountBridge_setCreated(CLPyBridgeLink *pySelf, PyObject *value, void *closure)
 {
-  [self->bridgeObject setCreated:CLPythonToNative(value)];
+  [pySelf->bridgeObject setCreated:CLPythonToNative(value)];
   return 0;
 }
 
-static PyObject *CLAccountBridge_ipAddress(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLAccountBridge_ipAddress(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject ipAddress]);
+  return CLNativeToPython([pySelf->bridgeObject ipAddress]);
 }
 
-static int CLAccountBridge_setIpAddress(CLPyBridgeLink *self, PyObject *value, void *closure)
+static int CLAccountBridge_setIpAddress(CLPyBridgeLink *pySelf, PyObject *value, void *closure)
 {
-  [self->bridgeObject setIpAddress:CLPythonToNative(value)];
+  [pySelf->bridgeObject setIpAddress:CLPythonToNative(value)];
   return 0;
 }
 
-static PyObject *CLAccountBridge_lastSeen(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLAccountBridge_lastSeen(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject lastSeen]);
+  return CLNativeToPython([pySelf->bridgeObject lastSeen]);
 }
 
-static int CLAccountBridge_setLastSeen(CLPyBridgeLink *self, PyObject *value, void *closure)
+static int CLAccountBridge_setLastSeen(CLPyBridgeLink *pySelf, PyObject *value, void *closure)
 {
-  [self->bridgeObject setLastSeen:CLPythonToNative(value)];
+  [pySelf->bridgeObject setLastSeen:CLPythonToNative(value)];
   return 0;
 }
 

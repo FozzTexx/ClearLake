@@ -10,7 +10,8 @@ CLASSES_M=CLPageBridge.m CLStreamBridge.m CLStringBridge.m		\
           CLMutableDictionaryBridge.m CLNumberBridge.m CLDataBridge.m	\
           CLFormBridge.m CLControlBridge.m CLOriginalFileBridge.m	\
           CLManagerBridge.m CLSessionBridge.m CLPythonBridge.m		\
-          CLAccountBridge.m CLInputBridge.m CLDecimalNumberBridge.m
+          CLAccountBridge.m CLInputBridge.m CLDecimalNumberBridge.m	\
+          CLGenericRecordBridge.m
 CLASSES_H=$(CLASSES_M:.m=.h)
 
 $(MODULE_LIB): CLPythonModule.m $(CLASSES_M) $(CLASSES_H) setup.py pyproject.toml

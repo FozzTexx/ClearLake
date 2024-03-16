@@ -143,8 +143,10 @@ static int _modelInitState = MODEL_UNINIT;
     }
 
     fqTable = [CLString stringWithFormat:@"%@.%@", aDatabase, aTable];
+#if 0
     fprintf(stderr, "Creating recordDef for %s in %s\n",
 	    [[aClass className] UTF8String], [fqTable UTF8String]);
+#endif
     recordDef = [[CLRecordDefinition alloc]
 		  initFromTable:fqTable class:aClass fields:fields relationships:relations];
     [aSchema setObject:recordDef forKey:aTable];
@@ -340,10 +342,14 @@ static int _modelInitState = MODEL_UNINIT;
   _modelInitState = MODEL_INITIALIZING;
 
   /* For CLRecordDefinition category */
-  _classDefs = CLHashTableAlloc(CLHashTableDefaultSize);
-  _tableDefs = CLHashTableAlloc(CLHashTableDefaultSize);
-  _classTable = CLHashTableAlloc(CLHashTableDefaultSize);
-  _tableClass = CLHashTableAlloc(CLHashTableDefaultSize);
+  if (!_classDefs)
+    _classDefs = CLHashTableAlloc(CLHashTableDefaultSize);
+  if (!_tableDefs)
+    _tableDefs = CLHashTableAlloc(CLHashTableDefaultSize);
+  if (!_classTable)
+    _classTable = CLHashTableAlloc(CLHashTableDefaultSize);
+  if (!_tableClass)
+    _tableClass = CLHashTableAlloc(CLHashTableDefaultSize);
 
   if ((aString = [CLManager configOption:@"Model"]) &&
       (aString = [CLString stringWithContentsOfFile:
@@ -353,7 +359,7 @@ static int _modelInitState = MODEL_UNINIT;
     _model = [[aString decodePropertyList] mutableCopy];
   else {
     if (![CLManager configOption:@"Database"]) {
-      _modelInitState = MODEL_ABORTED;
+      _modelInitState = MODEL_UNINIT;
       return nil;
     }
 
@@ -798,6 +804,12 @@ static int _modelInitState = MODEL_UNINIT;
 
   if (!(realObject = CLHashTableDataForKey(insTable, primaryKey, [primaryKey hash],
                                            @selector(isEqual:)))) {
+#if 0
+    fprintf(stderr, "0x%lx Registering %s (0x%lx) in %s with primary key %s\n",
+	    (unsigned long) self,
+	    [[anObject className] UTF8String], (unsigned long) anObject,
+	    [table UTF8String], [[primaryKey description] UTF8String]);
+#endif
     realObject = anObject;
     /* Could be a mutable dictionary */
     primaryKey = [primaryKey copy];
@@ -847,8 +859,8 @@ static int _modelInitState = MODEL_UNINIT;
 
 
 #if 0
-  fprintf(stderr, "Looking for %s %s...", [table UTF8String],
-          [[primaryKey description] UTF8String]);
+  fprintf(stderr, "0x%lx Searching %s for primary key %s\n", (unsigned long) self,
+	    [table UTF8String], [[primaryKey description] UTF8String]);
 #endif
   if ((insTable = CLHashTableDataForKey(instancesTable, table, [table hash],
                                         @selector(isEqual:))))

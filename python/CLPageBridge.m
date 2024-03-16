@@ -4,12 +4,15 @@
 #import "CLPythonModule.h"
 #import <ClearLake/CLPage.h>
 
-static int CLPageBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
+static int CLPageBridge_init(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"path", "owner", "_bridgeObject"};
   PyObject *bridgeCapsule = NULL;
   CLString *path = nil;
   id owner = nil;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&O!:__init__", kwlist,
@@ -19,50 +22,53 @@ static int CLPageBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwd
     return -1;
 
   if (!bridgeCapsule) {
-    self->bridgeObject = [[CLPage alloc] initFromFile:path owner:owner];
-    [self->bridgeObject setPythonObject:(PyObject *) self];
+    pySelf->bridgeObject = [[CLPage alloc] initFromFile:path owner:owner];
+    [pySelf->bridgeObject setPythonObject:(PyObject *) pySelf];
   }
   else
-    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
+    pySelf->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
 
-static void CLPageBridge_dealloc(CLPyBridgeLink *self)
+static void CLPageBridge_dealloc(CLPyBridgeLink *pySelf)
 {
-  [self->bridgeObject release];
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
+  [pySelf->bridgeObject release];
   return;
 }
 
-static PyObject *CLPageBridge_display(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLPageBridge_display(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  [self->bridgeObject display];
+  [pySelf->bridgeObject display];
   Py_RETURN_NONE;
 }
 
-static PyObject *CLPageBridge_updateBindings(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLPageBridge_updateBindings(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  [self->bridgeObject updateBindings];
+  [pySelf->bridgeObject updateBindings];
   Py_RETURN_NONE;
 }
 
-static PyObject *CLPageBridge_status(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLPageBridge_status(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return PyLong_FromLong([self->bridgeObject status]);
+  return PyLong_FromLong([pySelf->bridgeObject status]);
 }
 
-static PyObject *CLPageBridge_owner(CLPyBridgeLink *self, PyObject *Py_UNUSED(ignored))
+static PyObject *CLPageBridge_owner(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject owner]);
+  return CLNativeToPython([pySelf->bridgeObject owner]);
 }
 
-static int CLPageBridge_setOwner(CLPyBridgeLink *self, PyObject *value, void *closure)
+static int CLPageBridge_setOwner(CLPyBridgeLink *pySelf, PyObject *value, void *closure)
 {
-  [self->bridgeObject setOwner:CLPythonToNative(value)];
+  [pySelf->bridgeObject setOwner:CLPythonToNative(value)];
   return 0;
 }
 
-static PyObject *CLPageBridge_writeHTML(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
+static PyObject *CLPageBridge_writeHTML(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"htmlStream", "headerStream", NULL};
   CLStream *htmlStream = nil, *headerStream = nil;
@@ -73,11 +79,11 @@ static PyObject *CLPageBridge_writeHTML(CLPyBridgeLink *self, PyObject *args, Py
                                    CLPyBridgeConvertStream, &headerStream))
     return NULL;
 
-  [self->bridgeObject writeHTML:htmlStream headers:headerStream];
+  [pySelf->bridgeObject writeHTML:htmlStream headers:headerStream];
   Py_RETURN_NONE;
 }
 
-static PyObject *CLPageBridge_getItem(CLPyBridgeLink *self, PyObject *key)
+static PyObject *CLPageBridge_getItem(CLPyBridgeLink *pySelf, PyObject *key)
 {
   id element;
 
@@ -87,7 +93,7 @@ static PyObject *CLPageBridge_getItem(CLPyBridgeLink *self, PyObject *key)
     return NULL;
   }
 
-  element = [self->bridgeObject objectWithID:CLPythonToNative(key)];
+  element = [pySelf->bridgeObject objectWithID:CLPythonToNative(key)];
   if (!element) {
     if (!PyErr_Occurred()) {
       PyErr_SetObject(PyExc_KeyError, key);

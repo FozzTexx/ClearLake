@@ -16,7 +16,9 @@
 -(void) dealloc;
 @end
 
+#if 0
 extern PyTypeObject CLPyBridgeIteratorType;
+#endif
 extern PyTypeObject CLMutableDictionaryBridgeType;
 
 #endif /* _CLMUTABLEDICTIONARYBRIDGE_H */

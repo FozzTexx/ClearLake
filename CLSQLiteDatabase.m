@@ -28,6 +28,9 @@ static int CLSQLiteRowData(void *data, int argc, char **argv, char **azColName)
   int idx;
   CLMutableDictionary *mDict;
   CLMutableArray *rows, *mArray;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   mDict = data;

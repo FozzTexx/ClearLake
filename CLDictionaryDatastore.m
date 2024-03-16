@@ -248,8 +248,8 @@
 
 -(void) dealloc
 {
-  [super dealloc];
   [self _datastoreDealloc];
+  [super dealloc];
   return;
 }
 
@@ -320,8 +320,8 @@
 
 -(void) dealloc
 {
-  [super dealloc];
   [self _datastoreDealloc];
+  [super dealloc];
   return;
 }
 

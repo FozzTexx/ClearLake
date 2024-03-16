@@ -3,10 +3,13 @@
 #import "CLPythonModule.h"
 #import <ClearLake/CLManager.h>
 
-static int CLManagerBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *kwds)
+static int CLManagerBridge_init(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
 {
   static char *kwlist[] = {"_bridgeObject", NULL};
   PyObject *bridgeCapsule = NULL;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
 
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O!:__init__", kwlist,
@@ -14,23 +17,26 @@ static int CLManagerBridge_init(CLPyBridgeLink *self, PyObject *args, PyObject *
     return -1;
 
   if (!bridgeCapsule)
-    self->bridgeObject = [[CLManager manager] retain];
+    pySelf->bridgeObject = [[CLManager manager] retain];
   else
-    self->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
+    pySelf->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
 
   return 0;
 }
 
-static void CLManagerBridge_dealloc(CLPyBridgeLink *self)
+static void CLManagerBridge_dealloc(CLPyBridgeLink *pySelf)
 {
-  [self->bridgeObject release];
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
+  [pySelf->bridgeObject release];
   return;
 }
 
-static PyObject *CLManagerBridge_activeSession(CLPyBridgeLink *self,
+static PyObject *CLManagerBridge_activeSession(CLPyBridgeLink *pySelf,
 					       PyObject *Py_UNUSED(ignored))
 {
-  return CLNativeToPython([self->bridgeObject activeSession]);
+  return CLNativeToPython([pySelf->bridgeObject activeSession]);
 }
 
 static PyGetSetDef CLManagerBridge_getsetters[] = {

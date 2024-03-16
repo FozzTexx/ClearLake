@@ -219,7 +219,8 @@
   id anObject;
 
 
-  self = [super read:stream];
+  /* Purposely does not call [super read:] */
+  //self = [super read:stream];
   [stream readTypes:@"@@", &pk, &_table];
   _record = CLHashTableAlloc(MAX_HASH);
   if (_table)
@@ -233,8 +234,8 @@
   _dbPrimaryKey = nil;
 
   if (pk) {
-    anObject = [CLDefaultContext registerInstance:self inTable:[_recordDef table]
-                                   withPrimaryKey:pk];
+    anObject = [[self editingContext] registerInstance:self inTable:[_recordDef table]
+					withPrimaryKey:pk];
     if (anObject != self) {
       [anObject retain];
       [self release];
@@ -252,7 +253,8 @@
   id pk;
 
 
-  [super write:stream];
+  /* Purposely does not call [super write:] */
+  //[super write:stream];
   pk = [self primaryKey];
   [stream writeTypes:@"@@", &pk, &_table];
   return;
@@ -1034,19 +1036,7 @@
     aRange.length = 0;
 
   if (aRange.length && [[anInvocation methodSignature] numberOfArguments] == 3) {
-    if (!strncmp(aBinding, "set", 3) && isupper(aBinding[3])) {
-      if ([self setIvarFromInvocation:anInvocation]) {
-        anObject = nil;
-        [anInvocation setReturnValue:&anObject];
-        return;
-      }
-      else if ([self setFieldFromInvocation:anInvocation]) {
-        anObject = nil;
-        [anInvocation setReturnValue:&anObject];
-        return;
-      }
-    }
-    else if (!strncmp(aBinding, "addTo", 5)) {
+    if (!strncmp(aBinding, "addTo", 5)) {
       if ([self addToFromInvocation:anInvocation]) {
         anObject = nil;
         [anInvocation setReturnValue:&anObject];
@@ -1060,7 +1050,8 @@
         return;
       }
     }
-    else if (*[[anInvocation methodSignature] getArgumentTypeAtIndex:2] == _C_ID) {
+    else if ((strncmp(aBinding, "set", 3) || !isupper(aBinding[3])) &&
+	     *[[anInvocation methodSignature] getArgumentTypeAtIndex:2] == _C_ID) {
       [anInvocation getArgument:&sender atIndex:2];
       if (!strncmp(aBinding, "new", 3) && isupper(aBinding[3])) {
         CLString *aString;
@@ -1082,88 +1073,6 @@
         return;
       }
     }
-  }
-  else {
-#if 1
-    [self error:@"Not implemented"];
-#else
-    CLString *bString;
-
-
-    bString = [[CLString alloc] initWithUTF8String:aBinding];
-    anObject = [self objectValueForBinding:bString found:&found];
-    [bString release];
-    if (found) {
-      pos = [[anInvocation methodSignature] methodReturnType];
-      switch (*pos) {
-      case _C_ID:
-        [anInvocation setReturnValue:&anObject];
-        break;
-      case _C_CHR:
-      case _C_SHT:
-      case _C_INT:
-        {
-          int c = [anObject intValue];
-          [anInvocation setReturnValue:&c];
-        }
-        break;
-      case _C_UCHR:
-      case _C_USHT:
-      case _C_UINT:
-        {
-          unsigned int c = [anObject unsignedIntValue];
-          [anInvocation setReturnValue:&c];
-        }
-        break;
-      case _C_LNG:
-        {
-          long c = [anObject longValue];
-          [anInvocation setReturnValue:&c];
-        }
-        break;
-      case _C_ULNG:
-        {
-          unsigned long c = [anObject unsignedLongValue];
-          [anInvocation setReturnValue:&c];
-        }
-        break;
-
-        /* For some reason a nil object can't set a long long or unsigned long long to 0 */
-      case _C_LNG_LNG:
-        {
-          long long c;
-
-
-          if (anObject)
-            c = [anObject longLongValue];
-          else
-            c = 0;
-          [anInvocation setReturnValue:&c];
-        }
-        break;
-      case _C_ULNG_LNG:
-        {
-          unsigned long long c;
-
-
-          if (anObject)
-            c = [anObject unsignedLongLongValue];
-          else
-            c = 0;
-          [anInvocation setReturnValue:&c];
-        }
-        break;
-
-      case _C_FLT:
-      case _C_DBL:
-        {
-          double c = [anObject doubleValue];
-          [anInvocation setReturnValue:&c];
-        }
-      }
-      return;
-    }
-#endif
   }
 
   [super forwardInvocation:anInvocation];
