@@ -221,9 +221,11 @@ static int CLMutableDictionaryBridge_init(CLPyBridgeLink *pySelf, PyObject *args
   }
 
   if (kwds && PyDict_Check(kwds)) {
-    while (PyDict_Next(kwds, &pos, &key, &value))
-      [pySelf->bridgeObject setObject:CLPythonToNative(value)
-			     forKey:CLPythonToNative(key)];
+    while (PyDict_Next(kwds, &pos, &key, &value)) {
+      if (!PyCapsule_CheckExact(value))
+	[pySelf->bridgeObject setObject:CLPythonToNative(value)
+				 forKey:CLPythonToNative(key)];
+    }
 
     if (PyErr_Occurred()) {
       err++;
@@ -268,15 +270,11 @@ static PyObject *CLMutableDictionaryBridge_getItem(CLPyBridgeLink *pySelf, PyObj
   id value;
 
 
-  value = [pySelf->bridgeObject objectForKey:CLPythonToNative(key)];
-  if (!value) {
-    if (!PyErr_Occurred()) {
-      PyErr_SetObject(PyExc_KeyError, key);
-    }
-    return NULL;
-  }
+  if ((value = [pySelf->bridgeObject objectForKey:CLPythonToNative(key)]))
+    return CLNativeToPython(value);
 
-  return CLNativeToPython(value);
+  PyErr_SetObject(PyExc_KeyError, key);
+  return NULL;
 }
 
 static int CLMutableDictionaryBridge_setItem(CLPyBridgeLink *pySelf, PyObject *key,
@@ -292,6 +290,16 @@ static int CLMutableDictionaryBridge_setItem(CLPyBridgeLink *pySelf, PyObject *k
     [pySelf->bridgeObject setObject:CLPythonToNative(value) forKey:aKey];
 
   return 0;
+}
+
+static PyObject *CLMutableDictionaryBridge_contains(CLPyBridgeLink *pySelf, PyObject *key)
+{
+  if (!PyUnicode_Check(key)) {
+    PyErr_SetString(PyExc_TypeError, "key must be a string");
+    return NULL;
+  }
+
+  return PyBool_FromLong([pySelf->bridgeObject objectForKey:CLPythonToNative(key)]);
 }
 
 #if 0
@@ -316,6 +324,10 @@ static PyMappingMethods CLMutableDictionaryBridge_mapping = {
   (objobjargproc) CLMutableDictionaryBridge_setItem
 };
 
+static PySequenceMethods CLMutableDictionaryBridge_sequence = {
+  .sq_contains = (objobjproc) CLMutableDictionaryBridge_contains,
+};
+
 static PyMethodDef CLMutableDictionaryBridge_methods[] = {
   {"keys", (PyCFunction) CLMutableDictionaryBridge_keys, METH_NOARGS,
    "return a list of all keys"},
@@ -335,6 +347,7 @@ PyTypeObject CLMutableDictionaryBridgeType = {
   .tp_dealloc = (destructor) CLMutableDictionaryBridge_dealloc,
   .tp_methods = CLMutableDictionaryBridge_methods,
   .tp_as_mapping = &CLMutableDictionaryBridge_mapping,
+  .tp_as_sequence = &CLMutableDictionaryBridge_sequence,
 #if 0
   .tp_iter = (getiterfunc) CLMutableDictionaryBridge_iter,
 #endif

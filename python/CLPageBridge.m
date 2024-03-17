@@ -104,8 +104,22 @@ static PyObject *CLPageBridge_getItem(CLPyBridgeLink *pySelf, PyObject *key)
   return CLNativeToPython(element);
 }
 
+static PyObject *CLPageBridge_contains(CLPyBridgeLink *pySelf, PyObject *key)
+{
+  if (!PyUnicode_Check(key)) {
+    PyErr_SetString(PyExc_TypeError, "key must be a string");
+    return NULL;
+  }
+
+  return PyBool_FromLong([pySelf->bridgeObject objectWithID:CLPythonToNative(key)]);
+}
+
 static PyMappingMethods CLPageBridge_mapping = {
   NULL, (binaryfunc) CLPageBridge_getItem, NULL
+};
+
+static PySequenceMethods CLPageBridge_sequence = {
+  .sq_contains = (objobjproc) CLPageBridge_contains,
 };
 
 static PyMethodDef CLPageBridge_methods[] = {
@@ -139,4 +153,5 @@ PyTypeObject CLPageBridgeType = {
   .tp_methods = CLPageBridge_methods,
   .tp_getset = CLPageBridge_getsetters,
   .tp_as_mapping = &CLPageBridge_mapping,
+  .tp_as_sequence = &CLPageBridge_sequence,
 };
