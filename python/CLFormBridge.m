@@ -72,15 +72,11 @@ static PyObject *CLFormBridge_getItem(CLPyBridgeLink *pySelf, PyObject *key)
     return NULL;
   }
 
-  field = [pySelf->bridgeObject fieldNamed:CLPythonToNative(key)];
-  if (!field) {
-    if (!PyErr_Occurred()) {
-      PyErr_SetObject(PyExc_KeyError, key);
-    }
-    return NULL;
-  }
+  if ((field = [pySelf->bridgeObject fieldNamed:CLPythonToNative(key)]))
+    return CLNativeToPython([field value]);
 
-  return CLNativeToPython([field value]);
+  PyErr_SetObject(PyExc_KeyError, key);
+  return NULL;
 }
 
 static int CLFormBridge_setItem(CLPyBridgeLink *pySelf, PyObject *key, PyObject *value)
@@ -102,8 +98,24 @@ static int CLFormBridge_setItem(CLPyBridgeLink *pySelf, PyObject *key, PyObject 
   return 0;
 }
 
+static PyObject *CLFormBridge_contains(CLPyBridgeLink *pySelf, PyObject *key)
+{
+  if (!PyUnicode_Check(key)) {
+    PyErr_SetString(PyExc_TypeError, "key must be a string");
+    return NULL;
+  }
+
+  return PyBool_FromLong([pySelf->bridgeObject fieldNamed:CLPythonToNative(key)]);
+}
+
 static PyMappingMethods CLFormBridge_mapping = {
-  NULL, (binaryfunc) CLFormBridge_getItem, (objobjargproc) CLFormBridge_setItem
+  .mp_length = NULL,
+  .mp_subscript = (binaryfunc) CLFormBridge_getItem,
+  .mp_ass_subscript = (objobjargproc) CLFormBridge_setItem,
+};
+
+static PySequenceMethods CLFormBridge_sequence = {
+  .sq_contains = (objobjproc) CLFormBridge_contains,
 };
 
 static PyGetSetDef CLFormBridge_getsetters[] = {
@@ -133,4 +145,5 @@ PyTypeObject CLFormBridgeType = {
   .tp_methods = CLFormBridge_methods,
   .tp_getset = CLFormBridge_getsetters,
   .tp_as_mapping = &CLFormBridge_mapping,
+  .tp_as_sequence = &CLFormBridge_sequence,
 };

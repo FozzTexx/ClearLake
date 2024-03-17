@@ -65,7 +65,7 @@ static PyObject *CLGenericRecordBridge_hasFlag(CLPyBridgeLink *pySelf, PyObject 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "C", kwlist, &flag))
     return NULL;
 
-  return CLNativeToPython([CLNumber numberWithBool:[pySelf->bridgeObject hasFlag:flag]]);
+  return PyBool_FromLong([pySelf->bridgeObject hasFlag:flag]);
 }
 
 static PyObject *CLGenericRecordBridge_addFlag(CLPyBridgeLink *pySelf, PyObject *args,
