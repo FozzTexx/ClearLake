@@ -52,7 +52,7 @@ static int CLGenericRecordBridge_setattro(CLPyBridgeLink *pySelf, PyObject *attr
       return 0;
   }
 
-  return PyObject_GenericSetAttr(pySelf, attr, value);
+  return PyObject_GenericSetAttr((PyObject *) pySelf, attr, value);
 }
 
 static PyObject *CLGenericRecordBridge_hasFlag(CLPyBridgeLink *pySelf, PyObject *args,

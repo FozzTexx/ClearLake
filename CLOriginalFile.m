@@ -20,6 +20,7 @@
  */
 
 #import "CLOriginalFile.h"
+#import "CLPage.h"
 #import "CLData.h"
 #import "CLInput.h"
 #import "CLMutableDictionary.h"
@@ -268,34 +269,46 @@
   return mimeType;
 }
 
--(void) download:(id) sender
+-(void) sendAsAttachment:(BOOL) asAttachment
 {
-  printf("Status: 200\n");
-  printf("Content-Type: %s\n", [[self mimeType] UTF8String]);
-  printf("Content-Length: %llu\n", [self bytes]);
-  printf("Content-Disposition: attachment; filename=\"%s\"\n", [[self filename] UTF8String]);
-  printf("\n");
+  CLStream *htmlStream, *headerStream;
+
+
+  htmlStream = CLPageDisplayHTML;
+  headerStream = CLPageDisplayHeaders;
+  if (!htmlStream)
+    htmlStream = [CLStream openDescriptor:1 mode:CLWriteOnly];
+  if (!headerStream)
+    headerStream = htmlStream;
+
+  CLPageDisplayStatus = 200;
+
+  CLPrintf(headerStream, @"Status: 200\r\n");
+  CLPrintf(headerStream, @"Content-Type: %@\r\n", [self mimeType]);
+  CLPrintf(headerStream, @"Content-Length: %llu\r\n", [self bytes]);
+  CLPrintf(headerStream, @"Content-Disposition: filename=\"%@\"", [self filename]);
+  if (asAttachment)
+    CLPrintf(headerStream, @"; attachment");
+  CLPrintf(headerStream, @"\r\n"); /* end of Content-Disposition */
+  CLPrintf(headerStream, @"\r\n"); /* end of headers */
 
   [self load];
-  fwrite([data bytes], 1, [data length], stdout);
-  fflush(stdout);
+  [htmlStream writeData:data];
 
-  /* Normally the program should exit here but let caller handle it in
-     case they want to do some logging or cleanup. */
+  return;
+}
+
+-(void) download:(id) sender
+{
+  [self sendAsAttachment:YES];
+  [sender setPage:nil];
   return;
 }
 
 -(void) view:(id) sender
 {
-  printf("Status: 200\n");
-  printf("Content-Type: %s\n", [[self mimeType] UTF8String]);
-  printf("Content-Length: %llu\n", [self bytes]);
-  printf("Content-Disposition: filename=\"%s\"\n", [[self filename] UTF8String]);
-  printf("\n");
-
-  [self load];
-  fwrite([data bytes], 1, [data length], stdout);
-  fflush(stdout);
+  [self sendAsAttachment:NO];
+  [sender setPage:nil];
   return;
 }
 

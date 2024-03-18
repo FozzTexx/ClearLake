@@ -8,42 +8,6 @@
 #import <ClearLake/CLForm.h>
 #import <ClearLake/CLInput.h>
 
-static int CLFormBridge_init(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
-{
-  static char *kwlist[] = {"string", "page", "_bridgeObject", NULL};
-  PyObject *bridgeCapsule = NULL;
-  CLString *string = nil;
-  id page = nil;
-#if DEBUG_LEAK || DEBUG_RETAIN
-  id self = nil;
-#endif
-
-
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&O!:__init__", kwlist,
-                                   CLPyBridgeConvert, &string,
-                                   CLPyBridgeConvert, &page,
-				   &PyCapsule_Type, &bridgeCapsule))
-    return -1;
-
-  if (!bridgeCapsule) {
-    pySelf->bridgeObject = [[CLForm alloc] initFromString:string onPage:page];
-    [pySelf->bridgeObject setPythonObject:(PyObject *) pySelf];
-  }
-  else
-    pySelf->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
-
-  return 0;
-}
-
-static void CLFormBridge_dealloc(CLPyBridgeLink *pySelf)
-{
-#if DEBUG_LEAK || DEBUG_RETAIN
-  id self = nil;
-#endif
-  [pySelf->bridgeObject release];
-  return;
-}
-
 static PyObject *CLFormBridge_page(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
   return CLNativeToPython([pySelf->bridgeObject page]);
@@ -64,7 +28,7 @@ static PyObject *CLFormBridge_fieldsNamed(CLPyBridgeLink *pySelf, PyObject *args
 
 static PyObject *CLFormBridge_getItem(CLPyBridgeLink *pySelf, PyObject *key)
 {
-  id field;
+  CLInput *aField;
 
 
   if (!PyUnicode_Check(key)) {
@@ -72,8 +36,8 @@ static PyObject *CLFormBridge_getItem(CLPyBridgeLink *pySelf, PyObject *key)
     return NULL;
   }
 
-  if ((field = [pySelf->bridgeObject fieldNamed:CLPythonToNative(key)]))
-    return CLNativeToPython([field value]);
+  if ((aField = [pySelf->bridgeObject fieldNamed:CLPythonToNative(key)]))
+    return CLNativeToPython([aField value]);
 
   PyErr_SetObject(PyExc_KeyError, key);
   return NULL;
@@ -98,14 +62,36 @@ static int CLFormBridge_setItem(CLPyBridgeLink *pySelf, PyObject *key, PyObject 
   return 0;
 }
 
-static PyObject *CLFormBridge_contains(CLPyBridgeLink *pySelf, PyObject *key)
+static int CLFormBridge_contains(CLPyBridgeLink *pySelf, PyObject *key)
 {
   if (!PyUnicode_Check(key)) {
     PyErr_SetString(PyExc_TypeError, "key must be a string");
-    return NULL;
+    return -1;
   }
 
-  return PyBool_FromLong([pySelf->bridgeObject fieldNamed:CLPythonToNative(key)]);
+  return !![pySelf->bridgeObject fieldNamed:CLPythonToNative(key)];
+}
+
+static PyObject *CLFormBridge_get(CLPyBridgeLink *pySelf, PyObject *args)
+{
+  PyObject *key, *defaultVal = Py_None;
+  CLInput *aField;
+
+
+  if (!PyArg_ParseTuple(args, "U|O", &key, &defaultVal))
+    return NULL;
+
+  if ((aField = [pySelf->bridgeObject fieldNamed:CLPythonToNative(key)]))
+    return CLNativeToPython([aField value]);
+
+  Py_INCREF(defaultVal);
+  return defaultVal;
+}
+
+static PyObject *CLFormBridge_copyValuesFrom(CLPyBridgeLink *pySelf, PyObject *form)
+{
+  [pySelf->bridgeObject copyValuesFrom:CLPythonToNative(form)];
+  Py_RETURN_NONE;
 }
 
 static PyMappingMethods CLFormBridge_mapping = {
@@ -124,10 +110,12 @@ static PyGetSetDef CLFormBridge_getsetters[] = {
 };
 
 PyMethodDef CLFormBridge_methods[] = {
-  {
-    "fieldsNamed", (PyCFunction) CLFormBridge_fieldsNamed, METH_VARARGS | METH_KEYWORDS,
-    "returns all the fields with ID matching name",
-  },
+  {"fieldsNamed", (PyCFunction) CLFormBridge_fieldsNamed, METH_VARARGS | METH_KEYWORDS,
+    "returns all the fields with ID matching name"},
+  {"get", (PyCFunction) CLFormBridge_get, METH_VARARGS,
+   "gets the contents of the named field, else default"},
+  {"copyValuesFrom", (PyCFunction) CLFormBridge_copyValuesFrom, METH_O,
+   "copy values into fields from the passed form or dict"},
   {NULL},
 };
 
@@ -140,8 +128,6 @@ PyTypeObject CLFormBridgeType = {
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
   .tp_base = &CLControlBridgeType,
   .tp_new = PyType_GenericNew,
-  .tp_init = (initproc) CLFormBridge_init,
-  .tp_dealloc = (destructor) CLFormBridge_dealloc,
   .tp_methods = CLFormBridge_methods,
   .tp_getset = CLFormBridge_getsetters,
   .tp_as_mapping = &CLFormBridge_mapping,

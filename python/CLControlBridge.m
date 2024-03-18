@@ -1,46 +1,13 @@
 #import "CLControlBridge.h"
+#import "CLElementBridge.h"
+#import "CLPythonModule.h"
 #import "CLPythonBridge.h"
 #import "CLStringBridge.h"
 #import <ClearLake/CLControl.h>
 #import <ClearLake/CLPage.h>
 
-static int CLControlBridge_init(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
-{
-  static char *kwlist[] = {"string", "page", "_bridgeObject", NULL};
-  PyObject *bridgeCapsule = NULL;
-  CLString *string = nil;
-  id page = nil;
-#if DEBUG_LEAK || DEBUG_RETAIN
-  id self = nil;
-#endif
-
-
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&O!:__init__", kwlist,
-                                   CLPyBridgeConvert, &string,
-                                   CLPyBridgeConvert, &page,
-				   &PyCapsule_Type, &bridgeCapsule))
-    return -1;
-
-  if (!bridgeCapsule) {
-    pySelf->bridgeObject = [[CLControl alloc] initFromString:string onPage:page];
-    [pySelf->bridgeObject setPythonObject:(PyObject *) pySelf];
-  }
-  else
-    pySelf->bridgeObject = [(id) PyCapsule_GetPointer(bridgeCapsule, NULL) retain];
-
-  return 0;
-}
-
-static void CLControlBridge_dealloc(CLPyBridgeLink *pySelf)
-{
-#if DEBUG_LEAK || DEBUG_RETAIN
-  id self = nil;
-#endif
-  [pySelf->bridgeObject release];
-  return;
-}
-
-static PyObject *CLControl_navigateTo(CLPyBridgeLink *pySelf, PyObject *args, PyObject *kwds)
+static PyObject *CLControlBridge_navigateTo(CLPyBridgeLink *pySelf, PyObject *args,
+					    PyObject *kwds)
 {
   static char *kwlist[] = {"owner", "selector", NULL};
   id owner;
@@ -60,15 +27,19 @@ static PyObject *CLControl_navigateTo(CLPyBridgeLink *pySelf, PyObject *args, Py
     CLRedirectBrowserToPage(selector, NO);
     success = YES;
   }
-  else
+  else {
     success = [owner replacePage:pySelf->bridgeObject selector:CLSelectorFromString(selector)];
+    if (!success)
+      success = [owner replacePage:pySelf->bridgeObject
+			  filename:[selector substringToIndex:[selector length] - 1]];
+  }
 
   return PyLong_FromLong(success);
 }
 
 static PyMethodDef CLControlBridge_methods[] = {
   {
-    "navigateTo", (PyCFunction) CLControl_navigateTo, METH_VARARGS | METH_KEYWORDS,
+    "navigateTo", (PyCFunction) CLControlBridge_navigateTo, METH_VARARGS | METH_KEYWORDS,
     "replace the control's page with the selector using owner as the page owner",
   },
   {NULL},
@@ -85,9 +56,22 @@ static int CLControlBridge_setVisible(CLPyBridgeLink *pySelf, PyObject *value, v
   return 0;
 }
 
+static PyObject *CLControlBridge_target(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
+{
+  return CLNativeToPython([pySelf->bridgeObject target]);
+}
+
+static int CLControlBridge_setTarget(CLPyBridgeLink *pySelf, PyObject *value, void *closure)
+{
+  [pySelf->bridgeObject setTarget:CLPythonToNative(value)];
+  return 0;
+}
+
 static PyGetSetDef CLControlBridge_getsetters[] = {
   {"visible", (getter) CLControlBridge_visible, (setter) CLControlBridge_setVisible,
    "boolean represinting if element is visible", "set if the element is visible"},
+  {"target", (getter) CLControlBridge_target, (setter) CLControlBridge_setTarget,
+   "object that will be called to do action", "set object to receive action"},
   {NULL},
 };
 
@@ -98,10 +82,8 @@ PyTypeObject CLControlBridgeType = {
   .tp_basicsize = sizeof(CLPyBridgeLink),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-  .tp_base = &CLPyBridgeType,
+  .tp_base = &CLElementBridgeType,
   .tp_new = PyType_GenericNew,
-  .tp_init = (initproc) CLControlBridge_init,
-  .tp_dealloc = (destructor) CLControlBridge_dealloc,
   .tp_getset = CLControlBridge_getsetters,
   .tp_methods = CLControlBridge_methods,
 };

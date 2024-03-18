@@ -987,8 +987,11 @@ static CLMutableDictionary *CLConfig = nil;
   if ([CLDelegate respondsTo:@selector(didLogout:)])
     [CLDelegate didLogout:sender];
 
-  if (sender)
+  if (sender) {
     CLRedirectBrowserToPage([[sender page] filename], YES);
+    [sender setPage:nil];
+  }
+
   return;
 }
 

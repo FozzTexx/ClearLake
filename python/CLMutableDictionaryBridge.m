@@ -292,14 +292,14 @@ static int CLMutableDictionaryBridge_setItem(CLPyBridgeLink *pySelf, PyObject *k
   return 0;
 }
 
-static PyObject *CLMutableDictionaryBridge_contains(CLPyBridgeLink *pySelf, PyObject *key)
+static int CLMutableDictionaryBridge_contains(CLPyBridgeLink *pySelf, PyObject *key)
 {
   if (!PyUnicode_Check(key)) {
     PyErr_SetString(PyExc_TypeError, "key must be a string");
     return NULL;
   }
 
-  return PyBool_FromLong([pySelf->bridgeObject objectForKey:CLPythonToNative(key)]);
+  return !![pySelf->bridgeObject objectForKey:CLPythonToNative(key)];
 }
 
 #if 0

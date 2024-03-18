@@ -1579,8 +1579,6 @@ void CLRedirectBrowser(CLString *newURL, BOOL includeQuery, int status)
   CLStream *htmlStream, *headerStream;
 
 
-  CLPageDisplayStatus = status;
-
   aRange = [newURL rangeOfString:@"?"];
   if (!aRange.length && [CLQuery count] && includeQuery) {
     mString = [newURL mutableCopy];
@@ -1606,17 +1604,18 @@ void CLRedirectBrowser(CLString *newURL, BOOL includeQuery, int status)
     newURL = [mString autorelease];
   }
 
-  statusString = nil;
-  for (i = 0; CLStatusStrings[i].status && status >= CLStatusStrings[i].status; i++)
-    if (CLStatusStrings[i].status == status)
-      statusString = CLStatusStrings[i].string;
-
   htmlStream = CLPageDisplayHTML;
   headerStream = CLPageDisplayHeaders;
   if (!htmlStream)
     htmlStream = [CLStream openDescriptor:1 mode:CLWriteOnly];
   if (!headerStream)
     headerStream = htmlStream;
+
+  CLPageDisplayStatus = status;
+  statusString = nil;
+  for (i = 0; CLStatusStrings[i].status && status >= CLStatusStrings[i].status; i++)
+    if (CLStatusStrings[i].status == status)
+      statusString = CLStatusStrings[i].string;
 
   CLPrintf(headerStream, @"Status: %i", status);
   if (statusString)

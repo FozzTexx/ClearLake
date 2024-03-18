@@ -33,6 +33,12 @@ static void CLManagerBridge_dealloc(CLPyBridgeLink *pySelf)
   return;
 }
 
+static PyObject *CLManagerBridge_login(CLPyBridgeLink *pySelf, PyObject *sender)
+{
+  [pySelf->bridgeObject login:CLPythonToNative(sender)];
+  Py_RETURN_NONE;
+}
+
 static PyObject *CLManagerBridge_activeSession(CLPyBridgeLink *pySelf,
 					       PyObject *Py_UNUSED(ignored))
 {
@@ -42,6 +48,12 @@ static PyObject *CLManagerBridge_activeSession(CLPyBridgeLink *pySelf,
 static PyGetSetDef CLManagerBridge_getsetters[] = {
   {"activeSession", (getter) CLManagerBridge_activeSession, NULL,
    "active ClearLake session", NULL},
+  {NULL},
+};
+
+static PyMethodDef CLManagerBridge_methods[] = {
+  {"login", (PyCFunction) CLManagerBridge_login, METH_O,
+    "try to login with the credentials provided in sender"},
   {NULL},
 };
 
@@ -56,5 +68,6 @@ PyTypeObject CLManagerBridgeType = {
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLManagerBridge_init,
   .tp_dealloc = (destructor) CLManagerBridge_dealloc,
+  .tp_methods = CLManagerBridge_methods,
   .tp_getset = CLManagerBridge_getsetters,
 };
