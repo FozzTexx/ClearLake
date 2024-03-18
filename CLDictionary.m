@@ -80,9 +80,23 @@
   }
   va_end(ap);
 
-  anObject = [[[self alloc] initWithObjects:objects forKeys:keys count:i]
-               autorelease];
+  anObject = [[[self alloc] initWithObjects:objects andKeys:keys count:i caseInsensitive:NO]
+	       autorelease];
   return anObject;
+}
+
+-(id) init
+{
+  return [self initAsCaseInsensitive:NO];
+}
+
+-(id) initAsCaseInsensitive:(BOOL) caseFlag
+{
+  if ([self class] == CLDictionaryClass || [self class] == CLMutableDictionaryClass)
+    [self error:@"%s: %s must be implemented by subclass",
+          object_getClassName(self), sel_getName(_cmd)];
+  caseInsensitiveFlag = caseFlag;
+  return [super init];
 }
 
 -(id) initFromDictionary:(CLDictionary *) aDict
@@ -102,7 +116,7 @@
   [[aDict allKeys] getObjects:keys];
   [[aDict allValues] getObjects:objects];
 
-  [self initWithObjects:objects forKeys:keys count:count];
+  [self initWithObjects:objects andKeys:keys count:count caseInsensitive:NO];
 
   return self;
 }
@@ -135,8 +149,13 @@
   }
   va_end(ap);
 
-  anObject = [self initWithObjects:objects forKeys:keys count:i];
+  anObject = [self initWithObjects:objects andKeys:keys count:i caseInsensitive:NO];
   return anObject;
+}
+
+-(id) initWithObjects:(id *) objects andKeys:(id *) keys count:(CLUInteger) count
+{
+  return [self initWithObjects:objects andKeys:keys count:count caseInsensitive:NO];
 }
 
 -(id) read:(CLStream *) stream
@@ -155,7 +174,12 @@
 
 -(id) mutableCopy
 {
-  return [[CLMutableDictionary alloc] initFromDictionary:self];
+  CLMutableDictionary *mDict;
+
+
+  mDict = [[CLMutableDictionary alloc] initFromDictionary:self];
+  [mDict setCaseInsensitive:caseInsensitiveFlag];
+  return mDict;
 }
 
 -(id) objectValueForKey:(CLString *) aKey found:(BOOL *) found
@@ -202,6 +226,17 @@
   }
 
   return res;
+}
+
+-(BOOL) isCaseInsensitive
+{
+  return caseInsensitiveFlag;
+}
+
+-(void) setCaseInsensitive:(BOOL) caseFlag
+{
+  caseInsensitiveFlag = caseFlag;
+  return;
 }
 
 -(CLString *) description
@@ -321,15 +356,8 @@
 
 @implementation CLDictionary (CLSubclassMethods)
 
--(id) init
-{
-  if ([self class] == CLDictionaryClass || [self class] == CLMutableDictionaryClass)
-    [self error:@"%s: %s must be implemented by subclass",
-          object_getClassName(self), sel_getName(_cmd)];
-  return [super init];
-}
-
--(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count
+-(id) initWithObjects:(id *) objects andKeys:(id *) keys count:(CLUInteger) count
+      caseInsensitive:(BOOL) caseFlag
 {
   [self error:@"%s: %s must be implemented by subclass",
           object_getClassName(self), sel_getName(_cmd)];
@@ -367,12 +395,14 @@
   return nil;
 }
 
+#if 0
 -(id) objectForCaseInsensitiveString:(CLString *) aKey
 {
   [self error:@"%s: %s must be implemented by subclass",
         object_getClassName(self), sel_getName(_cmd)];
   return nil;
 }
+#endif
 
 -(CLArray *) allKeys
 {

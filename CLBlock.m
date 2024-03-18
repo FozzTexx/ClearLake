@@ -54,7 +54,7 @@
   [super initFromElement:anElement onPage:aPage];
 
 #if 0 /* FIXME - is this valid for anything except CLField? */
-  if ((aString = [attributes objectForCaseInsensitiveString:@"VALUE"]))
+  if ((aString = [attributes objectForKey:@"VALUE"]))
     [self setContent:aString];
 #endif
 
@@ -136,7 +136,7 @@
           replaced:(CLMutableDictionary *) replaced
 {
   int i, j;
-  CLMutableDictionary *mDict;
+  CLMutableDictionary *objAttribs;
   CLString *aString, *newString;
 
 
@@ -145,22 +145,22 @@
       [self autonumber:[anObject objectAtIndex:i] position:index replaced:replaced];
   }
   else if ([anObject isKindOfClass:CLElementClass]) {
-    if ((mDict = [anObject attributes])) {
-      if ((aString = [mDict objectForCaseInsensitiveString:@"NAME"]) &&
+    if ((objAttribs = [anObject attributes])) {
+      if ((aString = [objAttribs objectForKey:@"NAME"]) &&
           (![anObject isKindOfClass:CLInputClass] ||
            [anObject type] != CLRadioInputType ||
-           [attributes objectForCaseInsensitiveString:@"CL_AUTORADIO"])) {
+           [attributes objectForKey:@"CL_AUTORADIO"])) {
         aString = [aString stringByAppendingFormat:@"_%i", index];
-        [mDict setObject:aString forCaseInsensitiveString:@"NAME"];
+        [objAttribs setObject:aString forKey:@"NAME"];
       }
-      if ((aString = [mDict objectForCaseInsensitiveString:@"ID"])) {
+      if ((aString = [objAttribs objectForKey:@"ID"])) {
         newString = [aString stringByAppendingFormat:@"_%i", index];
         [replaced setObject:newString forKey:aString];
-        [mDict setObject:newString forCaseInsensitiveString:@"ID"];
+        [objAttribs setObject:newString forKey:@"ID"];
       }
-      if ((aString = [mDict objectForCaseInsensitiveString:@"FOR"])) {
+      if ((aString = [objAttribs objectForKey:@"FOR"])) {
         aString = [aString stringByAppendingFormat:@"_%i", index];
-        [mDict setObject:aString forCaseInsensitiveString:@"FOR"];
+        [objAttribs setObject:aString forKey:@"FOR"];
       }
     }
 
@@ -219,7 +219,7 @@
 -(void) autonumber:(id) anObject newIDs:(CLDictionary *) replaced
 {
   int i, j;
-  CLMutableDictionary *mDict;
+  CLMutableDictionary *objAttribs;
   CLString *aString, *aKey;
   CLArray *anArray;
 
@@ -229,15 +229,15 @@
       [self autonumber:[anObject objectAtIndex:i] newIDs:replaced];
   }
   else if ([anObject isKindOfClass:CLElementClass]) {
-    if ((mDict = [anObject attributes])) {
-      anArray = [mDict allKeys];
+    if ((objAttribs = [anObject attributes])) {
+      anArray = [objAttribs allKeys];
       for (i = 0, j = [anArray count]; i < j; i++) {
         aKey = [anArray objectAtIndex:i];
         if ([aKey hasPrefix:@"cl_"]) {
-          aString = [mDict objectForKey:aKey];
+          aString = [objAttribs objectForKey:aKey];
           if ([aString isKindOfClass:CLStringClass]) {
             aString = [self fixIDs:aString newIDs:replaced];
-            [mDict setObject:aString forKey:aKey];
+            [objAttribs setObject:aString forKey:aKey];
           }
         }
       }
@@ -298,8 +298,7 @@
 
 -(void) setVisible:(BOOL) flag
 {
-  [attributes setObject:[CLNumber numberWithBool:flag]
-              forCaseInsensitiveString:@"CL_VISIBLE"];
+  [attributes setObject:[CLNumber numberWithBool:flag] forKey:@"CL_VISIBLE"];
   return;
 }
 
@@ -371,17 +370,17 @@
   CLRange aRange;
 
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_BINDING"])) {
+  if ((aString = [attributes objectForKey:@"CL_BINDING"])) {
     aRange.length = 0;
     if ([aString hasPrefix:@"="]) {
       aRange = [aString rangeOfString:@".objects." options:0
                                 range:CLMakeRange(0, [aString length])];
-      if (aRange.length && ![attributes objectForCaseInsensitiveString:@"CL_AUTONUMBER"])
-        [attributes setObject:CLTrueObject forCaseInsensitiveString:@"CL_AUTONUMBER"];
+      if (aRange.length && ![attributes objectForKey:@"CL_AUTONUMBER"])
+        [attributes setObject:CLTrueObject forKey:@"CL_AUTONUMBER"];
     }
 
     if (aRange.length &&
-        (sortString = [attributes objectForCaseInsensitiveString:@"CL_SORT"])) {
+        (sortString = [attributes objectForKey:@"CL_SORT"])) {
       sortString = [self expandBinding:sortString success:&success];
       anObject = [self expandBinding:[aString substringToIndex:aRange.location]
                              success:&found];
@@ -393,14 +392,14 @@
     else {
       anObject = [self expandBinding:aString success:&found];
       if ([anObject isKindOfClass:CLArrayClass] &&
-          (sortString = [attributes objectForCaseInsensitiveString:@"CL_SORT"])) {
+          (sortString = [attributes objectForKey:@"CL_SORT"])) {
         sortString = [self expandBinding:sortString success:&success];
         anObject = [anObject sortedArrayUsingDescriptors:
                                [CLSortDescriptor sortDescriptorsFromString:sortString]];
       }
     }
 
-    if ((aString = [attributes objectForCaseInsensitiveString:@"CL_FORMAT"])) {
+    if ((aString = [attributes objectForKey:@"CL_FORMAT"])) {
       if ([anObject isKindOfClass:CLNumberClass]) {
         aFormatter = [CLNumberFormatter numberFormatterFromFormat:
                                               [self expandBinding:aString success:&success]];
@@ -424,7 +423,7 @@
   [self updateBindingFor:content];
 
   if ([content isKindOfClass:CLArrayClass] &&
-      (anObject = [attributes objectForCaseInsensitiveString:@"CL_AUTONUMBER"]) &&
+      (anObject = [attributes objectForKey:@"CL_AUTONUMBER"]) &&
       (anObject == CLNullObject || [self expandBoolean:anObject]))
     [self autonumber:content];
 
@@ -440,9 +439,8 @@
   [stream readType:@"@" data:&anObject];
   [self setDatasource:anObject];
   [stream readTypes:@"@", &aString];
-  [attributes setObject:aString forCaseInsensitiveString:@"ID"];
-  [attributes setObject:[CLQuery objectForKey:CL_URLSEL]
-              forCaseInsensitiveString:@"CL_DBINDING"];
+  [attributes setObject:aString forKey:@"ID"];
+  [attributes setObject:[CLQuery objectForKey:CL_URLSEL] forKey:@"CL_DBINDING"];
 
   return;
 }
@@ -453,12 +451,11 @@
   id anObject;
 
 
-  aString = [attributes objectForCaseInsensitiveString:@"ID"];
+  aString = [attributes objectForKey:@"ID"];
   anObject = [self datasource];
   [stream writeType:@"@" data:&anObject];
   [stream writeTypes:@"@", &aString];
-  [CLQuery setObject:[attributes objectForCaseInsensitiveString:@"CL_DBINDING"]
-           forKey:CL_URLSEL];
+  [CLQuery setObject:[attributes objectForKey:@"CL_DBINDING"] forKey:CL_URLSEL];
   return;
 }
 
@@ -490,7 +487,7 @@
 
   if (content)
     CLWriteHTMLObject(stream, content);
-  else if ([attributes objectForCaseInsensitiveString:@"CL_DBINDING"]) {
+  else if ([attributes objectForKey:@"CL_DBINDING"]) {
     aString = [self generateAjaxURL];
     [stream writeFormat:
               @"<span id=\"%s\"></span><script>\n"
@@ -506,8 +503,8 @@
             "window.onload = ajaxTest;\n"
             "//]]>\n"
             "</script>" usingEncoding:CLUTF8StringEncoding,
-            [[attributes objectForCaseInsensitiveString:@"ID"] UTF8String],
-            [[attributes objectForCaseInsensitiveString:@"ID"] UTF8String],
+            [[attributes objectForKey:@"ID"] UTF8String],
+            [[attributes objectForKey:@"ID"] UTF8String],
             [aString UTF8String]];
   }
 
@@ -552,7 +549,7 @@
   BOOL found;
 
 
-  if ((aString = [CLQuery objectForCaseInsensitiveString:CL_URLDATA]) &&
+  if ((aString = [CLQuery objectForKey:CL_URLDATA]) &&
       [aString length]) {
     aData = [aString decodeBase64];
     stream = [CLStream openWithData:aData mode:CLReadOnly];
@@ -563,8 +560,8 @@
   printf("Content-Type: text/javascript\n");
   printf("\n");
   printf("var test = document.getElementById('%s');\n",
-         [[attributes objectForCaseInsensitiveString:@"ID"] UTF8String]);
-  aValue = [self expandBinding:[attributes objectForCaseInsensitiveString:@"CL_DBINDING"]
+         [[attributes objectForKey:@"ID"] UTF8String]);
+  aValue = [self expandBinding:[attributes objectForKey:@"CL_DBINDING"]
                        success:&found];
   printf("test.innerHTML = '%s';\n",
          aValue ? [[aValue description] UTF8String] : "");

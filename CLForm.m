@@ -96,7 +96,7 @@ typedef struct ContentInfo {
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-        [[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
+        [[[anObject attributes] objectForKey:@"NAME"]
           isEqualToString:aField] &&
         (!aValue || [[anObject value] isEqual:aValue]))
       return anObject;
@@ -130,8 +130,7 @@ typedef struct ContentInfo {
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-        [[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
-          isEqualToString:field])
+        [[[anObject attributes] objectForKey:@"NAME"] isEqualToString:field])
       [anArray2 addObject:anObject];
 
     if ([anObject respondsTo:@selector(content)] &&
@@ -166,7 +165,7 @@ typedef struct ContentInfo {
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-        (aString = [[anObject attributes] objectForCaseInsensitiveString:@"NAME"]))
+        (aString = [[anObject attributes] objectForKey:@"NAME"]))
       [mArray addObject:aString];
 
     if ([anObject respondsTo:@selector(content)] &&
@@ -231,8 +230,7 @@ typedef struct ContentInfo {
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-        [[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
-          isEqualToString:field]) {
+        [[[anObject attributes] objectForKey:@"NAME"] isEqualToString:field]) {
       [anArray removeObjectAtIndex:i];
       return YES;
     }
@@ -262,7 +260,7 @@ typedef struct ContentInfo {
 
   for (i = 0, j = [content count]; i < j; i++)
     if ([(anObject = [content objectAtIndex:i]) isKindOfClass:CLInputClass] &&
-        (aString = [[anObject attributes] objectForCaseInsensitiveString:@"NAME"])) {
+        (aString = [[anObject attributes] objectForKey:@"NAME"])) {
       if ([mString length])
         [mString appendString:@"&"];
       [mString appendString:[[aString description] stringByAddingPercentEscapes]];
@@ -340,10 +338,9 @@ typedef struct ContentInfo {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
         [anObject type] == CLRadioInputType &&
-        [[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
-          isEqualToString:aName] &&
+        [[[anObject attributes] objectForKey:@"NAME"] isEqualToString:aName] &&
         ([anObject value] ||
-         ![[anObject attributes] objectForCaseInsensitiveString:@"CL_BINDING"])) {
+         ![[anObject attributes] objectForKey:@"CL_BINDING"])) {
       if ([[anObject value] isEqual:aValue])
         [anObject setChecked:YES];
       else
@@ -370,7 +367,7 @@ typedef struct ContentInfo {
   id anObject;
 
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"ID"]) &&
+  if ((aString = [attributes objectForKey:@"ID"]) &&
       (anObject = [page objectWithID:aString]) &&
       [anObject isKindOfClass:CLFormClass])
     return anObject;
@@ -647,7 +644,7 @@ typedef struct ContentInfo {
           *a = 0;
           a++;
           [aDict setObject:[CLString stringWithUTF8String:a]
-                 forCaseInsensitiveString:[CLString stringWithUTF8String:*r]];
+                 forKey:[CLString stringWithUTF8String:*r]];
         }
 
         s = [self seek:q length:len to:b];
@@ -661,7 +658,7 @@ typedef struct ContentInfo {
           CLString *aString;
 
 
-          if ((aString = [aDict objectForCaseInsensitiveString:@"filename"])) {
+          if ((aString = [aDict objectForKey:@"filename"])) {
             CLOriginalFile *aFile;
             CLData *aData;
 
@@ -782,7 +779,7 @@ typedef struct ContentInfo {
   else {
     if (*aValue) {
       aType = [self databaseTypeOfBinding:aBinding forObject:anObject];
-      if ((format = [[aField attributes] objectForCaseInsensitiveString:@"CL_FORMAT"])) {
+      if ((format = [[aField attributes] objectForKey:@"CL_FORMAT"])) {
         format = [self expandBinding:format success:&success];
         if ([format isKindOfClass:[CLArray class]])
           format = [((CLArray *) format) componentsJoinedByString:@" "];
@@ -856,21 +853,20 @@ typedef struct ContentInfo {
   for (i = 0, j = [anArray count]; i < j; i++) {
     aField = [anArray objectAtIndex:i];
     if ([aField isKindOfClass:CLInputClass] &&
-        (fName = [[aField attributes] objectForCaseInsensitiveString:@"NAME"])) {
+        (fName = [[aField attributes] objectForKey:@"NAME"])) {
       if ([aField isKindOfClass:CLSelectClass])
-        aBinding = [[aField attributes] objectForCaseInsensitiveString:@"CL_SELECTED"];
+        aBinding = [[aField attributes] objectForKey:@"CL_SELECTED"];
       else {
         switch ([aField type]) {
         case CLCheckboxInputType:
         case CLRadioInputType:
-          if ((aBinding = [[aField attributes]
-                            objectForCaseInsensitiveString:@"CL_CHECKED"]) &&
+          if ((aBinding = [[aField attributes] objectForKey:@"CL_CHECKED"]) &&
               ![aBinding isKindOfClass:CLStringClass])
             aBinding = nil;
           break;
 
         default:
-          aBinding = [[aField attributes] objectForCaseInsensitiveString:@"CL_BINDING"];
+          aBinding = [[aField attributes] objectForKey:@"CL_BINDING"];
           break;
         }
       }
@@ -926,10 +922,10 @@ typedef struct ContentInfo {
 
   aControl = [[CLControl alloc] init];
 
-  if ((aString = [[aForm attributes] objectForCaseInsensitiveString:@"CL_VTARGET"]))
+  if ((aString = [[aForm attributes] objectForKey:@"CL_VTARGET"]))
     [aControl setTarget:[self expandBinding:aString success:&success]];
 
-  if ((aString = [[aForm attributes] objectForCaseInsensitiveString:@"CL_VACTION"])) {
+  if ((aString = [[aForm attributes] objectForKey:@"CL_VACTION"])) {
     aRange = [aString rangeOfString:@":"];
     if (!aRange.length)
       aString = [aString stringByAppendingString:@":"];
@@ -949,7 +945,7 @@ typedef struct ContentInfo {
     return aControl;
   }
 
-  if ((aString = [[aForm attributes] objectForCaseInsensitiveString:@"CL_VPAGE"])) {
+  if ((aString = [[aForm attributes] objectForKey:@"CL_VPAGE"])) {
     [aControl setTarget:[[[CLPageTarget alloc] initFromPath:
                                         [self expandBinding:aString success:&success]]
                           autorelease]];
@@ -971,7 +967,7 @@ typedef struct ContentInfo {
   int err = 0;
 
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"ID"]) &&
+  if ((aString = [attributes objectForKey:@"ID"]) &&
       (aForm = [page objectWithID:aString]) &&
       [aForm isKindOfClass:CLFormClass]) {
     errors = [[CLMutableDictionary alloc] init];
@@ -1103,7 +1099,7 @@ typedef struct ContentInfo {
   CLControl *aControl;
 
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"ID"]) &&
+  if ((aString = [attributes objectForKey:@"ID"]) &&
       (aForm = [page objectWithID:aString]) &&
       [aForm isKindOfClass:CLFormClass] &&
       (aControl = [self prepareVaction:aForm]))
@@ -1158,10 +1154,10 @@ typedef struct ContentInfo {
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-        (aString = [[anObject attributes] objectForCaseInsensitiveString:@"NAME"])) {
+        (aString = [[anObject attributes] objectForKey:@"NAME"])) {
       aValue = nil;
-      if ([aForm respondsTo:@selector(objectForCaseInsensitiveString:)])
-        aValue = [aForm objectForCaseInsensitiveString:aString];
+      if ([aForm respondsTo:@selector(objectForKey:)])
+        aValue = [aForm objectForKey:aString];
       else if ([aForm respondsTo:@selector(valueOfFieldNamed:)])
         aValue = [aForm valueOfFieldNamed:aString];
 
@@ -1274,9 +1270,9 @@ typedef struct ContentInfo {
   if ([self isEnabled]) {
     [stream writeString:@"<FORM" usingEncoding:CLUTF8StringEncoding];
     if (target && action) {
-      if (!(aString = [attributes objectForCaseInsensitiveString:@"METHOD"])
+      if (!(aString = [attributes objectForKey:@"METHOD"])
           || [aString caseInsensitiveCompare:@"GET"])
-        [attributes setObject:@"POST" forCaseInsensitiveString:@"METHOD"];
+        [attributes setObject:@"POST" forKey:@"METHOD"];
       else
         get = YES;
 

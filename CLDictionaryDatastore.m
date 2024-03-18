@@ -28,13 +28,12 @@
 #import "CLNull.h"
 
 @interface CLDictionary (CLDictionaryDatastoreCommon)
--(id) _datastoreInitWithObjects:(id *) objects forKeys:(id *) keys
+-(id) _datastoreInitWithObjects:(id *) objects andKeys:(id *) keys
 			  count:(CLUInteger) count size:(CLUInteger) size;
 -(id) _datastoreRead:(CLStream *) stream;
 -(void) _datastoreWrite:(CLStream *) stream;
 -(CLUInteger) _datastoreCount;
--(id) _datastoreObjectForKey:(id) aKey;
--(id) _datastoreObjectForCaseInsensitiveString:(CLString *) aKey;
+-(id) _datastoreObjectForKey:(id) aKey caseInsensitive:(BOOL) caseFlag;
 -(CLArray *) _datastoreAllKeys;
 -(CLArray *) _datastoreAllKeysForObject:(id) anObject;
 -(CLArray *) _datastoreAllValues;
@@ -42,7 +41,7 @@
 
 @implementation CLDictionary (CLDictionaryDatastoreCommon)
 
--(id) _datastoreInitWithObjects:(id *) objects forKeys:(id *) keys
+-(id) _datastoreInitWithObjects:(id *) objects andKeys:(id *) keys
 			  count:(CLUInteger) count size:(CLUInteger) size
 {
   CLDictionaryStorage *storage;
@@ -110,18 +109,25 @@
 
 -(void) _datastoreWrite:(CLStream *) stream
 {
-  CLArray *anArray;
+  CLDictionaryStorage *storage = dictionaryData;
   id aKey, aValue;
-  CLUInteger idx, count;
+  CLUInteger idx;
+  id *data, *keys;
 
 
   [super write:stream];
-  anArray = [self allKeys];
-  count = [anArray count];
-  [stream writeTypes:@"I", &count];
-  for (idx = 0; idx < count; idx++) {
-    aKey = [anArray objectAtIndex:idx];
-    aValue = [self objectForKey:aKey];
+
+  if (!(data = alloca(sizeof(id) * storage->table->count)))
+    [self error:@"Unable to allocate memory"];
+  CLHashTableGetData(storage->table, (void **) data);
+  if (!(keys = alloca(sizeof(id) * storage->table->count)))
+    [self error:@"Unable to allocate memory"];
+  CLHashTableGetKeys(storage->table, keys);
+
+  [stream writeTypes:@"I", &storage->table->count];
+  for (idx = 0; idx < storage->table->count; idx++) {
+    aKey = keys[idx];
+    aValue = data[idx];
     if (!aKey || !aValue)
       [self error:@"Bogus key/value"];
     [stream writeTypes:@"@@", &aKey, &aValue];
@@ -138,21 +144,14 @@
   return storage->table->count;
 }
 
--(id) _datastoreObjectForKey:(id) aKey
+-(id) _datastoreObjectForKey:(id) aKey caseInsensitive:(BOOL) caseFlag
 {
   CLDictionaryStorage *storage = dictionaryData;
+  SEL aSel;
 
 
-  return CLHashTableDataForKey(storage->table, aKey, [aKey hash], @selector(isEqual:));
-}
-
--(id) _datastoreObjectForCaseInsensitiveString:(CLString *) aKey
-{
-  CLDictionaryStorage *storage = dictionaryData;
-
-
-  return CLHashTableDataForKey(storage->table, aKey, [aKey hash],
-                               @selector(isEqualToCaseInsensitiveString:));
+  aSel = caseFlag ? @selector(isEqualToCaseInsensitiveString:) : @selector(isEqual:);
+  return CLHashTableDataForKey(storage->table, aKey, [aKey hash], aSel);
 }
 
 -(CLArray *) _datastoreAllKeys
@@ -236,14 +235,16 @@
 
 @implementation CLDictionaryDatastore
 
--(id) init
+-(id) initAsCaseInsensitive:(BOOL) caseFlag
 {
-  return [self initWithObjects:NULL forKeys:NULL count:0];
+  return [self initWithObjects:NULL andKeys:NULL count:0 caseInsensitive:NO];
 }
 
--(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count
+-(id) initWithObjects:(id *) objects andKeys:(id *) keys count:(CLUInteger) count
+      caseInsensitive:(BOOL) caseFlag
 {
-  return [self _datastoreInitWithObjects:objects forKeys:keys count:count size:0];
+  caseInsensitiveFlag = caseFlag;
+  return [self _datastoreInitWithObjects:objects andKeys:keys count:count size:0];
 }
 
 -(void) dealloc
@@ -271,12 +272,12 @@
 
 -(id) objectForKey:(id) aKey
 {
-  return [self _datastoreObjectForKey:aKey];
+  return [self _datastoreObjectForKey:aKey caseInsensitive:caseInsensitiveFlag];
 }
 
 -(id) objectForCaseInsensitiveString:(CLString *) aKey
 {
-  return [self _datastoreObjectForCaseInsensitiveString:aKey];
+  return [self _datastoreObjectForKey:aKey caseInsensitive:YES];
 }
 
 -(CLArray *) allKeys
@@ -303,19 +304,27 @@
 
 @implementation CLMutableDictionaryDatastore
 
--(id) init
+-(id) initAsCaseInsensitive:(BOOL) caseFlag
 {
-  return [self initWithObjects:NULL forKeys:NULL count:0];
+  return [self initWithObjects:NULL andKeys:NULL count:0 caseInsensitive:NO];
 }
 
--(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count
+-(id) initWithObjects:(id *) objects andKeys:(id *) keys count:(CLUInteger) count
+      caseInsensitive:(BOOL) caseFlag
 {
-  return [self _datastoreInitWithObjects:objects forKeys:keys count:count size:0];
+  caseInsensitiveFlag = caseFlag;
+  return [self _datastoreInitWithObjects:objects andKeys:keys count:count size:0];
 }
 
 -(id) initWithSize:(CLUInteger) size
 {
-  return [self _datastoreInitWithObjects:NULL forKeys:NULL count:0 size:size];
+  return [self initWithSize:size caseInsensitive:NO];
+}
+
+-(id) initWithSize:(CLUInteger) size caseInsensitive:(BOOL) caseFlag
+{
+  caseInsensitiveFlag = caseFlag;
+  return [self _datastoreInitWithObjects:NULL andKeys:NULL count:0 size:size];
 }
 
 -(void) dealloc
@@ -343,12 +352,12 @@
 
 -(id) objectForKey:(id) aKey
 {
-  return [self _datastoreObjectForKey:aKey];
+  return [self _datastoreObjectForKey:aKey caseInsensitive:caseInsensitiveFlag];
 }
 
 -(id) objectForCaseInsensitiveString:(CLString *) aKey
 {
-  return [self _datastoreObjectForCaseInsensitiveString:aKey];
+  return [self _datastoreObjectForKey:aKey caseInsensitive:YES];
 }
 
 /* Doing an extra retain & autorelease on allKeys because we are
@@ -405,6 +414,7 @@
   return;
 }
 
+#if 0
 -(void) removeObjectForCaseInsensitiveString:(CLString *) aKey
 {
   CLDictionaryStorage *storage = dictionaryData;
@@ -427,17 +437,20 @@
 
   return;
 }
+#endif
 
 -(void) removeObjectForKey:(id) aKey
 {
   CLDictionaryStorage *storage = dictionaryData;
   id oldKey, oldObject;
+  SEL aSel;
 
 
-  if ((oldKey = CLHashTableKeyForKey(storage->table, aKey, [aKey hash],
-                                     @selector(isEqual:)))) {
-    oldObject = CLHashTableRemoveDataForKey(storage->table, oldKey, [oldKey hash],
-                                            @selector(isEqual:));
+  aSel = caseInsensitiveFlag ?
+    @selector(isEqualToCaseInsensitiveString:) : @selector(isEqual:);
+
+  if ((oldKey = CLHashTableKeyForKey(storage->table, aKey, [aKey hash], aSel))) {
+    oldObject = CLHashTableRemoveDataForIdenticalKey(storage->table, oldKey, [oldKey hash]);
     [oldKey release];
     [oldObject release];
 
@@ -459,7 +472,7 @@
   id oldObject;
 
 
-  if (storage->table->count) {
+  if (storage && storage->table && storage->table->count) {
     if (!(keys = alloca(sizeof(id) * storage->table->count)))
       [self error:@"Unable to allocate memory"];
     CLHashTableGetKeys(storage->table, keys);

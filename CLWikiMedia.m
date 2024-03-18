@@ -39,7 +39,7 @@
 
 -(CLNumber *) fileID
 {
-  return [attributes objectForCaseInsensitiveString:OBJECTID_BINDING];
+  return [attributes objectForKey:OBJECTID_BINDING];
 }
 
 -(CLOriginalFile *) file
@@ -55,7 +55,7 @@
 
 -(void) setFileID:(CLNumber *) aValue
 {
-  [attributes setObject:aValue forCaseInsensitiveString:OBJECTID_BINDING];
+  [attributes setObject:aValue forKey:OBJECTID_BINDING];
   return;
 }
 

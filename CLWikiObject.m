@@ -122,7 +122,7 @@
   CLString *template;
 
 
-  if (!(template = [attributes objectForCaseInsensitiveString:@"template"]))
+  if (!(template = [attributes objectForKey:@"template"]))
     template = @"inline";
   aPage = [[CLPage alloc] initFromFile:[self findFileForKey:template] owner:self];
   if (!aPage && ![template isEqualToString:@"inline"])
@@ -144,9 +144,9 @@
 -(void) setObject:(id) anObject forAttribute:(CLString *) aString
 {
   if (!anObject)
-    [attributes removeObjectForCaseInsensitiveString:aString];
+    [attributes removeObjectForKey:aString];
   else
-    [attributes setObject:anObject forCaseInsensitiveString:aString];
+    [attributes setObject:anObject forKey:aString];
   return;
 }
 

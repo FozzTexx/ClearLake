@@ -242,7 +242,7 @@
   [super init];
   page = aPage;
   title = [aString copy];
-  attributes = [[CLMutableDictionary alloc] initWithSize:MAX_HASH];
+  attributes = [[CLMutableDictionary alloc] initWithSize:MAX_HASH caseInsensitive:YES];
 
   if (aString) {
     if (!(buf = calloc([aString length]+1, sizeof(unichar))))
@@ -289,9 +289,9 @@
         val = [[CLString alloc] initWithCharacters:p length:q-p];
       }
       if (val)
-        [attributes setObject:[val entityDecodedString] forCaseInsensitiveString:key];
+        [attributes setObject:[val entityDecodedString] forKey:key];
       else
-        [attributes setObject:CLNullObject forCaseInsensitiveString:key];
+        [attributes setObject:CLNullObject forKey:key];
       [key release];
       [val release];
 
@@ -330,7 +330,7 @@
 -(id) read:(CLStream *) stream
 {
   self = [super read:stream];
-  attributes = [[CLMutableDictionary alloc] initWithSize:MAX_HASH];
+  attributes = [[CLMutableDictionary alloc] initWithSize:MAX_HASH caseInsensitive:YES];
   return self;
 }
 
@@ -397,7 +397,7 @@
   if (datasource)
     return datasource;
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_DATASOURCE"])) {
+  if ((aString = [attributes objectForKey:@"CL_DATASOURCE"])) {
     if (parentBlock)
       aDatasource = [parentBlock expandBinding:aString success:&success];
     else
@@ -545,8 +545,8 @@
 
   for (i = 0, j = [ignore count]; i < j; i++) {
     aKey = [ignore objectAtIndex:i];
-    if ([mDict objectForCaseInsensitiveString:aKey])
-      [mDict removeObjectForCaseInsensitiveString:aKey];
+    if ([mDict objectForKey:aKey])
+      [mDict removeObjectForKey:aKey];
   }
 
   [[self class] writeAttributes:mDict using:self to:stream];
@@ -587,7 +587,7 @@
   id aBinding;
 
 
-  if ((aBinding = [attributes objectForCaseInsensitiveString:@"CL_VISIBLE"]))
+  if ((aBinding = [attributes objectForKey:@"CL_VISIBLE"]))
     val = [[self class] expandBoolean:aBinding using:self];
   return val;
 }

@@ -269,17 +269,17 @@ void CLWriteURL(CLStream *stream, id object,
 
   [super initFromElement:anElement onPage:aPage];
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_PAGE"])) {
+  if ((aString = [attributes objectForKey:@"CL_PAGE"])) {
     [self setTarget:[[[CLPageTarget alloc] initFromPath:
                                     [self expandBinding:aString success:&success]]
                       autorelease]];
     [self setAction:@selector(showPage:)];
   }
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_TARGET"]))
+  if ((aString = [attributes objectForKey:@"CL_TARGET"]))
     [self setTarget:[self expandBinding:aString success:&success]];
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_ACTION"])) {
+  if ((aString = [attributes objectForKey:@"CL_ACTION"])) {
     CLRange aRange;
 
 
@@ -293,17 +293,17 @@ void CLWriteURL(CLStream *stream, id object,
     if ([aString length] && [aString characterAtIndex:[aString length]-1] != ':')
       aString = [aString stringByAppendingString:@":"];
     [self setAction:CLSelectorFromString(aString)];
-    if (!target && ![attributes objectForCaseInsensitiveString:@"CL_TARGET"])
+    if (!target && ![attributes objectForKey:@"CL_TARGET"])
       [self setTarget:[page owner]];
   }
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_JSON"])) {
+  if ((aString = [attributes objectForKey:@"CL_JSON"])) {
     [self setTarget:[[[CLJSONTarget alloc] initFromDatasource:[self datasource]
                                                       binding:aString] autorelease]];
     [self setAction:@selector(showPage:)];
   }
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_WRITECONTENTS"])) {
+  if ((aString = [attributes objectForKey:@"CL_WRITECONTENTS"])) {
     [self setWriteContents:[aString boolValue]];
   }
 
@@ -345,8 +345,7 @@ void CLWriteURL(CLStream *stream, id object,
 
 -(void) setEnabled:(BOOL) flag
 {
-  [attributes setObject:[CLNumber numberWithBool:flag]
-              forCaseInsensitiveString:@"CL_ENABLED"];
+  [attributes setObject:[CLNumber numberWithBool:flag] forKey:@"CL_ENABLED"];
   return;
 }
 
@@ -370,7 +369,7 @@ void CLWriteURL(CLStream *stream, id object,
   CLStream *stream;
 
 
-  if ((aString = [CLQuery objectForCaseInsensitiveString:CL_URLDATA]) &&
+  if ((aString = [CLQuery objectForKey:CL_URLDATA]) &&
       [aString length]) {
     aData = [aString decodeBase64];
     stream = [CLStream openWithData:aData mode:CLReadOnly];
@@ -415,7 +414,7 @@ void CLWriteURL(CLStream *stream, id object,
   id anObject;
 
 
-  if ((anObject = [attributes objectForCaseInsensitiveString:@"CL_ENABLED"]))
+  if ((anObject = [attributes objectForKey:@"CL_ENABLED"]))
     val = [self expandBoolean:anObject];
   return val;
 }
@@ -451,7 +450,7 @@ void CLWriteURL(CLStream *stream, id object,
 
 
   if (!action) {
-    if ((aString = [attributes objectForCaseInsensitiveString:@"CL_IMAGE"])) {
+    if ((aString = [attributes objectForKey:@"CL_IMAGE"])) {
       CLImageElement *anImage;
       CLImageRep *aRep;
 
@@ -459,21 +458,19 @@ void CLWriteURL(CLStream *stream, id object,
       anImage = [[CLImageElement alloc] init];
       [anImage setDatasource:[self datasource]];
       [anImage setParentBlock:self];
-      [[anImage attributes] setObject:aString forCaseInsensitiveString:@"CL_BINDING"];
-      if ((aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"]))
-        [[anImage attributes] setObject:aString forCaseInsensitiveString:@"CL_EFFECTS"];
+      [[anImage attributes] setObject:aString forKey:@"CL_BINDING"];
+      if ((aString = [attributes objectForKey:@"CL_EFFECTS"]))
+        [[anImage attributes] setObject:aString forKey:@"CL_EFFECTS"];
       [anImage updateBinding];
       aURL = [anImage generateURL];
       aRep = [anImage imageRep];
-      if ((aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"]))
+      if ((aString = [attributes objectForKey:@"CL_EFFECTS"]))
         aRep = [aRep imageRepFromEffects:aString];
-      [attributes setObject:[CLNumber numberWithInt:[aRep size].width]
-                  forCaseInsensitiveString:@"WIDTH"];
-      [attributes setObject:[CLNumber numberWithInt:[aRep size].height]
-                  forCaseInsensitiveString:@"HEIGHT"];
+      [attributes setObject:[CLNumber numberWithInt:[aRep size].width] forKey:@"WIDTH"];
+      [attributes setObject:[CLNumber numberWithInt:[aRep size].height] forKey:@"HEIGHT"];
       [anImage release];
     }
-    else if ((aString = [attributes objectForCaseInsensitiveString:@"CL_HREF"]))
+    else if ((aString = [attributes objectForKey:@"CL_HREF"]))
       aURL = [self expandBinding:aString success:&success];
   }
   else {
@@ -523,7 +520,7 @@ void CLWriteURL(CLStream *stream, id object,
     filename = [filename lastPathComponent];
 
   if (aString)
-    [attributes setObject:aString forCaseInsensitiveString:@"ID"];
+    [attributes setObject:aString forKey:@"ID"];
   aString = [CLQuery objectForKey:CL_URLSEL];
   if ([aString length] && [aString characterAtIndex:[aString length]-1] != ':')
     aString = [aString stringByAppendingString:@":"];
@@ -569,8 +566,8 @@ void CLWriteURL(CLStream *stream, id object,
   }
 
   anObject = [page owner];
-  if (!(aString = [attributes objectForCaseInsensitiveString:@"ID"]) &&
-      (aString = [attributes objectForCaseInsensitiveString:@"CL_ID"])) {
+  if (!(aString = [attributes objectForKey:@"ID"]) &&
+      (aString = [attributes objectForKey:@"CL_ID"])) {
     aString = [self expandBinding:aString success:&success];
   }
   [stream writeType:@"@" data:&target];
@@ -609,15 +606,14 @@ void CLWriteURL(CLStream *stream, id object,
   pool = [[CLAutoreleasePool alloc] init];
 
   if ([self isEnabled] &&
-      (action ||
-       [attributes objectForCaseInsensitiveString:@"CL_HREF"] ||
+      (action || [attributes objectForKey:@"CL_HREF"] ||
        ![title caseInsensitiveCompare:@"A"]))
     writeATag = YES;
 
   if (writeATag) {
     CLPrintf(stream, @"<A");
-    if (action || [attributes objectForCaseInsensitiveString:@"CL_HREF"] ||
-        [attributes objectForCaseInsensitiveString:@"CL_IMAGE"])
+    if (action || [attributes objectForKey:@"CL_HREF"] ||
+	[attributes objectForKey:@"CL_IMAGE"])
       CLPrintf(stream, @" HREF=\"%@\"", [self generateURL]);
 
 #if 0
@@ -633,11 +629,11 @@ void CLWriteURL(CLStream *stream, id object,
 
 
       /* FIXME - don't do this unless the page is actually writing us out */
-      if ((aString = [attributes objectForCaseInsensitiveString:@"HREF"]) &&
+      if ((aString = [attributes objectForKey:@"HREF"]) &&
           [aString length] && [aString characterAtIndex:0] == '#' && CLWebName)
         [attributes setObject:[CLString stringWithFormat:@"%@%s%@",
                                         CLWebName, getenv("PATH_INFO"), aString]
-                    forCaseInsensitiveString:@"HREF"];
+                    forKey:@"HREF"];
     }
 #endif
 

@@ -1559,7 +1559,7 @@ void CLInit()
   if ((p = getenv("SCRIPT_FILENAME")))
     SCRIPT_FILENAME = [CLString stringWithUTF8String:p];
 
-  CLQuery = [[CLMutableDictionary alloc] init];
+  CLQuery = [[CLMutableDictionary alloc] initAsCaseInsensitive:YES];
   CLAddToCleanup(CLQuery);
 
 #if 0

@@ -45,7 +45,7 @@
 {
   [super initFromString:aString onPage:aPage];
   imageRep = nil;
-  [attributes setObject:[CLNumber numberWithInt:0] forCaseInsensitiveString:@"BORDER"];
+  [attributes setObject:[CLNumber numberWithInt:0] forKey:@"BORDER"];
   return self;
 }
 
@@ -54,7 +54,7 @@
   [self initFromString:nil onPage:aPage];
   imageRep = [aRep retain];
   if (anAlt)
-    [attributes setObject:anAlt forCaseInsensitiveString:@"ALT"];
+    [attributes setObject:anAlt forKey:@"ALT"];
   return self;
 }
 
@@ -66,8 +66,8 @@
 
 
   [super initFromElement:anElement onPage:aPage];
-  if ([attributes objectForCaseInsensitiveString:@"CL_EFFECTS"] &&
-      (aString = [attributes objectForCaseInsensitiveString:@"SRC"]) &&
+  if ([attributes objectForKey:@"CL_EFFECTS"] &&
+      (aString = [attributes objectForKey:@"SRC"]) &&
       !([aString isURL])) {
     if ([aString isAbsolutePath])
       prefix = [CLString stringWithUTF8String:getenv("DOCUMENT_ROOT")];
@@ -76,7 +76,7 @@
     aString = [prefix stringByAppendingPathComponent:aString];
     if ((aRep = [CLImageRep imageRepFromFile:aString])) {
       [self setImageRep:aRep];
-      [attributes removeObjectForCaseInsensitiveString:@"SRC"];
+      [attributes removeObjectForKey:@"SRC"];
     }
   }
 
@@ -118,7 +118,7 @@
     imageRep = anObject;
     [stream readTypes:@"@", &effects];
     if (effects)
-      [attributes setObject:effects forCaseInsensitiveString:@"CL_EFFECTS"];
+      [attributes setObject:effects forKey:@"CL_EFFECTS"];
   }
 
   return;
@@ -132,7 +132,7 @@
   if ((aString = [aRep path]))
     [stream writeTypes:@"@", &aString];
   else {
-    aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"];
+    aString = [attributes objectForKey:@"CL_EFFECTS"];
     [stream writeTypes:@"@@", &imageRep, &aString];
   }
 
@@ -166,7 +166,7 @@
     }
     else {
       /* FIXME - find a way to allow bindings in CL_EFFECTS */
-      if ((aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"]))
+      if ((aString = [attributes objectForKey:@"CL_EFFECTS"]))
         newRep = [imageRep imageRepFromEffects:aString];
       else
         newRep = imageRep;
@@ -193,7 +193,7 @@
 
 
   if (imageRep) {
-    if ((aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"]))
+    if ((aString = [attributes objectForKey:@"CL_EFFECTS"]))
       newRep = [imageRep imageRepFromEffects:aString];
     else
       newRep = imageRep;
@@ -246,8 +246,8 @@
 
   for (i = 0, j = [ignore count]; i < j; i++) {
     aKey = [ignore objectAtIndex:i];
-    if ([mDict objectForCaseInsensitiveString:aKey])
-      [mDict removeObjectForCaseInsensitiveString:aKey];
+    if ([mDict objectForKey:aKey])
+      [mDict removeObjectForKey:aKey];
   }
 
   [super writeAttributes:mDict to:stream];
@@ -268,14 +268,14 @@
   [stream writeString:@"<IMG" usingEncoding:CLUTF8StringEncoding];
 
   if (imageRep) {
-    if ((aString = [attributes objectForCaseInsensitiveString:@"CL_EFFECTS"]))
+    if ((aString = [attributes objectForKey:@"CL_EFFECTS"]))
       newRep = [imageRep imageRepFromEffects:aString];
     else
       newRep = imageRep;
 
-    if ([attributes objectForCaseInsensitiveString:@"CL_NOSIZE"]) {
-      [attributes removeObjectForCaseInsensitiveString:@"WIDTH"];
-      [attributes removeObjectForCaseInsensitiveString:@"HEIGHT"];
+    if ([attributes objectForKey:@"CL_NOSIZE"]) {
+      [attributes removeObjectForKey:@"WIDTH"];
+      [attributes removeObjectForKey:@"HEIGHT"];
     }
     else {
       /* FIXME - I have no idea how I'm supposed to convert a struct
@@ -285,10 +285,8 @@
         [newRep fault];
 
       aSize = [newRep size];
-      [attributes setObject:[CLNumber numberWithInt:aSize.width]
-                  forCaseInsensitiveString:@"WIDTH"];
-      [attributes setObject:[CLNumber numberWithInt:aSize.height]
-                  forCaseInsensitiveString:@"HEIGHT"];
+      [attributes setObject:[CLNumber numberWithInt:aSize.width] forKey:@"WIDTH"];
+      [attributes setObject:[CLNumber numberWithInt:aSize.height] forKey:@"HEIGHT"];
     }
 
     [stream writeFormat:@" SRC=\"%@\"" usingEncoding:CLUTF8StringEncoding, [self generateURL]];
@@ -324,7 +322,7 @@
   BOOL found;
 
 
-  if ((binding = [attributes objectForCaseInsensitiveString:@"CL_BINDING"])) {
+  if ((binding = [attributes objectForKey:@"CL_BINDING"])) {
     anObject = [self expandBinding:binding success:&found];
     if (found) {
       if ([anObject isKindOfClass:CLStringClass])
@@ -333,7 +331,7 @@
     }
   }
 
-  if (!imageRep && (binding = [attributes objectForCaseInsensitiveString:@"CL_SRC"])) {
+  if (!imageRep && (binding = [attributes objectForKey:@"CL_SRC"])) {
     anObject = [self expandBinding:binding success:&found];
     if (anObject && found)
       [attributes setObject:anObject forKey:@"SRC"];
