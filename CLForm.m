@@ -1083,8 +1083,10 @@ typedef struct ContentInfo {
   else if (perform && [CLDelegate respondsTo:@selector(controlShouldPerform:)])
     perform = [CLDelegate controlShouldPerform:aControl];
   if (perform) {
-    if ([[aControl target] isKindOfClass:CLPageTargetClass])
+    if ([[aControl target] isKindOfClass:CLPageTargetClass]) {
       CLRedirectBrowserToPage([[aControl target] path], YES);
+      [self setPage:nil];
+    }
     else {
       [[aControl target] perform:[aControl action] with:self];
       [page display];

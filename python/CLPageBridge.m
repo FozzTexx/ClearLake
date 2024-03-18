@@ -15,7 +15,7 @@ static int CLPageBridge_init(CLPyBridgeLink *pySelf, PyObject *args, PyObject *k
 #endif
 
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&O!:__init__", kwlist,
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&O&O!:__init__", kwlist,
                                    CLPyBridgeConvert, &path,
                                    CLPyBridgeConvert, &owner,
 				   &PyCapsule_Type, &bridgeCapsule))
@@ -104,14 +104,14 @@ static PyObject *CLPageBridge_getItem(CLPyBridgeLink *pySelf, PyObject *key)
   return CLNativeToPython(element);
 }
 
-static PyObject *CLPageBridge_contains(CLPyBridgeLink *pySelf, PyObject *key)
+static int CLPageBridge_contains(CLPyBridgeLink *pySelf, PyObject *key)
 {
   if (!PyUnicode_Check(key)) {
     PyErr_SetString(PyExc_TypeError, "key must be a string");
     return NULL;
   }
 
-  return PyBool_FromLong([pySelf->bridgeObject objectWithID:CLPythonToNative(key)]);
+  return !![pySelf->bridgeObject objectWithID:CLPythonToNative(key)];
 }
 
 static PyMappingMethods CLPageBridge_mapping = {

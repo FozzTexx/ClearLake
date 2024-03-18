@@ -1,5 +1,6 @@
 #import "CLDataBridge.h"
 #import <ClearLake/CLData.h>
+#import <ClearLake/CLString.h>
 
 @implementation CLData (CLPythonExtensions)
 
@@ -10,7 +11,20 @@
 
 -(id) initFromPythonObject:(PyObject *) pyBytes
 {
-  return [self initWithBytes:PyBytes_AsString(pyBytes) length:PyBytes_Size(pyBytes)];
+  char *buf;
+  Py_ssize_t length;
+
+
+  if (PyBytes_Check(pyBytes))
+    PyBytes_AsStringAndSize(pyBytes, &buf, &length);
+  else if (PyByteArray_Check(pyBytes)) {
+    buf = PyByteArray_AsString(pyBytes);
+    length = PyByteArray_Size(pyBytes);
+  }
+  else
+    [self error:@"Not a bytes or bytearray"];
+
+  return [self initWithBytes:buf length:length];
 }
 
 -(PyObject *) pythonObject

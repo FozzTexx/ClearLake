@@ -14,6 +14,7 @@
 #import "CLAccountBridge.h"
 #import "CLInputBridge.h"
 #import "CLGenericRecordBridge.h"
+#import "CLElementBridge.h"
 
 #import <ClearLake/CLAutoreleasePool.h>
 #import <ClearLake/CLDictionary.h>
@@ -48,6 +49,7 @@ static struct {
   BRIDGE_TYPE(CLAccount),
   BRIDGE_TYPE(CLInput),
   BRIDGE_TYPE(CLGenericRecord),
+  BRIDGE_TYPE(CLElement),
   {NULL, NULL},
 };
 
@@ -171,11 +173,22 @@ BOOL CLIsBridgeClass(PyTypeObject *pyType)
   CLUInteger idx;
 
 
+  for (idx = 0; CLBridgeTypes[idx].name; idx++) {
+    if (CLBridgeTypes[idx].type == pyType)
+      return YES;
+  }
+
+  return NO;
+}
+
+BOOL CLInheritsFromBridgeClass(PyTypeObject *pyType)
+{
+  CLUInteger idx;
+
+
   while (pyType) {
-    for (idx = 0; CLBridgeTypes[idx].name; idx++) {
-      if (CLBridgeTypes[idx].type == pyType)
-	return YES;
-    }
+    if (CLIsBridgeClass(pyType))
+      return YES;
     pyType = pyType->tp_base;
   }
 
@@ -215,9 +228,13 @@ Class CLClassForPythonClass(PyTypeObject *pyClass)
 
   aClass = CLHashTableDataForIdenticalKey(_classMapping, (id) pyClass, (size_t) pyClass);
   if (!aClass) {
-    _creatingClass++;
-    aClass = [CLPythonBridge createBridgeClassFromPythonClass:pyClass];
-    _creatingClass--;
+    if (CLIsBridgeClass(pyClass))
+      aClass = CLNativeSuperclassForPythonClass((PyObject *) pyClass);
+    else {
+      _creatingClass++;
+      aClass = [CLPythonBridge createBridgeClassFromPythonClass:pyClass];
+      _creatingClass--;
+    }
     if (!aClass) {
       fprintf(stderr, "Failed to create class");
       abort();

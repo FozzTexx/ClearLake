@@ -11,6 +11,7 @@
 extern PyTypeObject *CLPythonClassFromString(CLString *aString);
 extern PyTypeObject *CLPythonBridgeTypeForClass(Class aClass);
 extern BOOL CLIsBridgeClass(PyTypeObject *pyType);
+extern BOOL CLInheritsFromBridgeClass(PyTypeObject *pyType);
 extern Class CLNativeSuperclassForPythonClass(PyObject *pyClass);
 extern Class CLClassForPythonClass(PyTypeObject *pyClass);
 extern Class CLClassForPythonObject(PyObject *pyObject);

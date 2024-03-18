@@ -506,7 +506,7 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
 	pyClass = &CLPyBridgeType;
     }
 
-    if (CLIsBridgeClass(pyClass)) {
+    if (CLInheritsFromBridgeClass(pyClass)) {
       kwargs = PyDict_New();
       PyDict_SetItemString(kwargs, "_bridgeObject", PyCapsule_New(self, NULL, NULL));
     }

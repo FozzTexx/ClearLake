@@ -44,6 +44,12 @@ static void CLOriginalFileBridge_dealloc(CLPyBridgeLink *pySelf)
   return;
 }
 
+static PyObject *CLOriginalFileBridge_download(CLPyBridgeLink *pySelf, PyObject *arg)
+{
+  [pySelf->bridgeObject download:CLPythonToNative(arg)];
+  Py_RETURN_NONE;
+}
+
 static PyObject *CLOriginalFileBridge_data(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
   return CLNativeToPython([pySelf->bridgeObject data]);
@@ -77,6 +83,12 @@ static PyGetSetDef CLOriginalFileBridge_getsetters[] = {
   {NULL},
 };
 
+static PyMethodDef CLOriginalFileBridge_methods[] = {
+  {"download", (PyCFunction) CLOriginalFileBridge_download, METH_O,
+    "send the contents of the file to the browser"},
+  {NULL},
+};
+
 PyTypeObject CLOriginalFileBridgeType = {
   .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
   .tp_name = "ClearLake.CLOriginalFile",
@@ -88,5 +100,6 @@ PyTypeObject CLOriginalFileBridgeType = {
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLOriginalFileBridge_init,
   .tp_dealloc = (destructor) CLOriginalFileBridge_dealloc,
+  .tp_methods = CLOriginalFileBridge_methods,
   .tp_getset = CLOriginalFileBridge_getsetters,
 };
