@@ -132,7 +132,7 @@
   CLData *aData;
 
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_VARIABLES"])) {
+  if ((aString = [attributes objectForKey:@"CL_VARIABLES"])) {
     aDict = [self expandVariables:aString];
     anArray = [aDict allKeys];
     for (i = 0, j = [anArray count]; i < j; i++) {
@@ -157,7 +157,7 @@
     }
   }
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_INCLUDE"])) {
+  if ((aString = [attributes objectForKey:@"CL_INCLUDE"])) {
   }
 
   if (content)
@@ -176,7 +176,7 @@
 
   [stream writeFormat:@"<%@" usingEncoding:CLUTF8StringEncoding, title];
   [self writeAttributes:stream ignore:nil];
-  if ((xss = [attributes objectForCaseInsensitiveString:@"CL_XSS"]))
+  if ((xss = [attributes objectForKey:@"CL_XSS"]))
     [stream writeFormat:@" SRC=\"%@%@\"" usingEncoding:CLUTF8StringEncoding,
             CLServerURL, [[self generateURL] entityEncodedString]];
   [stream writeString:@">" usingEncoding:CLUTF8StringEncoding];
@@ -196,7 +196,7 @@
   CLStream *stream;
 
 
-  if ((aString = [CLQuery objectForCaseInsensitiveString:CL_URLDATA]) &&
+  if ((aString = [CLQuery objectForKey:CL_URLDATA]) &&
       [aString length]) {
     aData = [aString decodeBase64];
     stream = [CLStream openWithData:aData mode:CLReadOnly];

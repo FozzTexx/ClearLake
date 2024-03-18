@@ -96,7 +96,7 @@ static CLString *CLInputTypes[] = {
 
   [super initFromElement:anElement onPage:aPage];
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"TYPE"])) {
+  if ((aString = [attributes objectForKey:@"TYPE"])) {
     if (![aString caseInsensitiveCompare:@"TEXT"])
       type = CLTextInputType;
     else if (![aString caseInsensitiveCompare:@"RADIO"])
@@ -117,20 +117,20 @@ static CLString *CLInputTypes[] = {
       type = CLFileInputType;
     else if (![aString caseInsensitiveCompare:@"BUTTON"])
       type = CLButtonInputType;
-    [attributes removeObjectForCaseInsensitiveString:@"TYPE"];
+    [attributes removeObjectForKey:@"TYPE"];
   }
 
   if (![title caseInsensitiveCompare:@"TEXTAREA"])
     type = CLTextareaInputType;
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"VALUE"])) {
+  if ((aString = [attributes objectForKey:@"VALUE"])) {
     [self setValue:aString];
-    [attributes removeObjectForCaseInsensitiveString:@"VALUE"];
+    [attributes removeObjectForKey:@"VALUE"];
   }
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"DISABLED"])) {
+  if ((aString = [attributes objectForKey:@"DISABLED"])) {
     [self setDisabled:YES];
-    [attributes removeObjectForCaseInsensitiveString:@"DISABLED"];
+    [attributes removeObjectForKey:@"DISABLED"];
   }
 
   return self;
@@ -163,14 +163,14 @@ static CLString *CLInputTypes[] = {
   case CLCheckboxInputType:
   case CLImageInputType:
     if (aCols)
-      [attributes setObject:[CLNumber numberWithInt:aCols] forCaseInsensitiveString:@"SIZE"];
+      [attributes setObject:[CLNumber numberWithInt:aCols] forKey:@"SIZE"];
     break;
 
   case CLTextareaInputType:
     if (aCols)
-      [attributes setObject:[CLNumber numberWithInt:aCols] forCaseInsensitiveString:@"SIZE"];
+      [attributes setObject:[CLNumber numberWithInt:aCols] forKey:@"SIZE"];
     if (aRows)
-      [attributes setObject:[CLNumber numberWithInt:aRows] forCaseInsensitiveString:@"ROWS"];
+      [attributes setObject:[CLNumber numberWithInt:aRows] forKey:@"ROWS"];
     break;
 
   case CLButtonInputType:
@@ -181,7 +181,7 @@ static CLString *CLInputTypes[] = {
   [self setValue:aValue];
 
   if (aTitle)
-    [attributes setObject:aTitle forCaseInsensitiveString:@"NAME"];
+    [attributes setObject:aTitle forKey:@"NAME"];
 
   return self;
 }
@@ -227,9 +227,9 @@ static CLString *CLInputTypes[] = {
   id anObject, aValue;
 
 
-  if ((anObject = [attributes objectForCaseInsensitiveString:@"CL_CHECKED"])) {
+  if ((anObject = [attributes objectForKey:@"CL_CHECKED"])) {
     aValue = [self expandBinding:anObject success:&success];
-    if (!aValue && [attributes objectForCaseInsensitiveString:@"CHECKED"])
+    if (!aValue && [attributes objectForKey:@"CHECKED"])
       val = YES;
     else {
       if (type == CLRadioInputType)
@@ -240,7 +240,7 @@ static CLString *CLInputTypes[] = {
         val = !!aValue;
     }
   }
-  else if ([attributes objectForCaseInsensitiveString:@"CHECKED"])
+  else if ([attributes objectForKey:@"CHECKED"])
     val = YES;
 
   return val;
@@ -252,7 +252,7 @@ static CLString *CLInputTypes[] = {
   id anObject;
 
 
-  if ((anObject = [attributes objectForCaseInsensitiveString:@"CL_DISABLED"]))
+  if ((anObject = [attributes objectForKey:@"CL_DISABLED"]))
     val = [self expandBoolean:anObject];
   return val;
 }
@@ -260,17 +260,16 @@ static CLString *CLInputTypes[] = {
 -(void) setChecked:(BOOL) flag
 {
   if (flag)
-    [attributes setObject:CLTrueObject forCaseInsensitiveString:@"CHECKED"];
+    [attributes setObject:CLTrueObject forKey:@"CHECKED"];
   else
-    [attributes removeObjectForCaseInsensitiveString:@"CHECKED"];
-  [attributes removeObjectForCaseInsensitiveString:@"CL_CHECKED"];
+    [attributes removeObjectForKey:@"CHECKED"];
+  [attributes removeObjectForKey:@"CL_CHECKED"];
   return;
 }
 
 -(void) setDisabled:(BOOL) flag
 {
-  [attributes setObject:[CLNumber numberWithBool:flag]
-              forCaseInsensitiveString:@"CL_DISABLED"];
+  [attributes setObject:[CLNumber numberWithBool:flag] forKey:@"CL_DISABLED"];
   return;
 }
 
@@ -301,8 +300,7 @@ static CLString *CLInputTypes[] = {
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLElementClass]) {
-      if ([[[anObject attributes] objectForCaseInsensitiveString:@"FOR"]
-            isEqualToString:aString])
+      if ([[[anObject attributes] objectForKey:@"FOR"] isEqualToString:aString])
         return anObject;
       if ([anObject respondsTo:@selector(content)] &&
           [[anObject content] isKindOfClass:CLArrayClass] &&
@@ -324,8 +322,7 @@ static CLString *CLInputTypes[] = {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLElementClass]) {
       if ([anObject isKindOfClass:CLInputClass] &&
-          [[[anObject attributes] objectForCaseInsensitiveString:@"NAME"]
-            isEqualToString:aString])
+          [[[anObject attributes] objectForKey:@"NAME"] isEqualToString:aString])
         return anObject;
       if ([anObject respondsTo:@selector(content)] &&
           [[anObject content] isKindOfClass:CLArrayClass] &&
@@ -355,19 +352,18 @@ static CLString *CLInputTypes[] = {
   message = [[CLInfoMessage alloc] initWithMessage:errorString isError:YES];
   [page addInfoMessage:message];
 
-  pageInput = [[page objectWithID:[[[self form] attributes]
-                                    objectForCaseInsensitiveString:@"ID"]]
-                      fieldNamed:[attributes objectForCaseInsensitiveString:@"NAME"]];
-  idString = [[pageInput attributes] objectForCaseInsensitiveString:@"ID"];
+  pageInput = [[page objectWithID:[[[self form] attributes] objectForKey:@"ID"]]
+                      fieldNamed:[attributes objectForKey:@"NAME"]];
+  idString = [[pageInput attributes] objectForKey:@"ID"];
 
   /* FIXME - let the label find the field */
   anObject = [self labelFor:idString inArray:[page body]];
-  if (!(aString = [[anObject attributes] objectForCaseInsensitiveString:@"CLASS"]))
+  if (!(aString = [[anObject attributes] objectForKey:@"CLASS"]))
     aString = @"";
   else
     aString = [aString stringByAppendingString:@" "];
   aString = [aString stringByAppendingString:@"cl_error"];
-  [[anObject attributes] setObject:aString forCaseInsensitiveString:@"CLASS"];
+  [[anObject attributes] setObject:aString forKey:@"CLASS"];
 
   anObject = [self inputNamed:idString inArray:[page body]];
   [anObject setMessage:message];
@@ -385,7 +381,7 @@ static CLString *CLInputTypes[] = {
   [message release];
   message = [[CLInfoMessage alloc] initWithMessage:aString isError:NO];
   [message setAssociatedObject:self];
-  idString = [attributes objectForCaseInsensitiveString:@"NAME"];
+  idString = [attributes objectForKey:@"NAME"];
   anObject = [self inputNamed:idString inArray:[page body]];
   [anObject setMessage:message];
   [page addInfoMessage:message];
@@ -472,14 +468,14 @@ static CLString *CLInputTypes[] = {
     return;
 
   if ((type == CLCheckboxInputType || type == CLRadioInputType) && [self isChecked])
-    [attributes setObject:CLNullObject forCaseInsensitiveString:@"CHECKED"];
+    [attributes setObject:CLNullObject forKey:@"CHECKED"];
   else
-    [attributes removeObjectForCaseInsensitiveString:@"CHECKED"];
+    [attributes removeObjectForKey:@"CHECKED"];
 
   if ([self isDisabled])
-    [attributes setObject:CLNullObject forCaseInsensitiveString:@"DISABLED"];
+    [attributes setObject:CLNullObject forKey:@"DISABLED"];
   else
-    [attributes removeObjectForCaseInsensitiveString:@"DISABLED"];
+    [attributes removeObjectForKey:@"DISABLED"];
 
   aValue = [self originalValue];
 
@@ -532,10 +528,10 @@ static CLString *CLInputTypes[] = {
   if (ignoreBinding)
     return;
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_BINDING"])) {
+  if ((aString = [attributes objectForKey:@"CL_BINDING"])) {
     anObject = [self expandBinding:aString success:&found];
 
-    if ((aString = [attributes objectForCaseInsensitiveString:@"CL_FORMAT"])) {
+    if ((aString = [attributes objectForKey:@"CL_FORMAT"])) {
       if ([anObject isKindOfClass:CLNumberClass]) {
         aFormatter = [CLNumberFormatter numberFormatterFromFormat:
                                               [self expandBinding:aString success:&success]];

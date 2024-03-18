@@ -33,14 +33,14 @@
 
   [super initFromElement:anElement onPage:aPage];
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_INTERVAL"])) {
+  if ((aString = [attributes objectForKey:@"CL_INTERVAL"])) {
     interval = [aString intValue];
-    [attributes removeObjectForCaseInsensitiveString:@"CL_INTERVAL"];
+    [attributes removeObjectForKey:@"CL_INTERVAL"];
   }
   else
     interval = 4;
 
-  byColumn = !![attributes objectForCaseInsensitiveString:@"CL_BYCOLUMN"];
+  byColumn = !![attributes objectForKey:@"CL_BYCOLUMN"];
 
   return self;
 }

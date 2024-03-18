@@ -437,7 +437,7 @@
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLInputClass] &&
-        (aString = [[anObject attributes] objectForCaseInsensitiveString:@"NAME"]))
+        (aString = [[anObject attributes] objectForKey:@"NAME"]))
       [mArray addObject:aString];
 
     if ([anObject respondsTo:@selector(content)] &&
@@ -529,8 +529,7 @@
                                                         FIELD_WKLINKID "_%i", i+1]];
         for (k = 0, l = [anArray count]; k < l; k++) {
           aLink = [anArray objectAtIndex:k];
-          if ([aString isEqualToString:
-                         [[aLink attributes] objectForCaseInsensitiveString:@"href"]])
+          if ([aString isEqualToString:[[aLink attributes] objectForKey:@"href"]])
             break;
         }
         if (k == l) {
@@ -627,7 +626,7 @@
     anArray = [sender allFields];
     for (i = 0, j = [anArray count]; i < j; i++) {
       aField = [anArray objectAtIndex:i];
-      aString = [[aField attributes] objectForCaseInsensitiveString:@"NAME"];
+      aString = [[aField attributes] objectForKey:@"NAME"];
       if ([aString hasPrefix:FIELD_GALLERYID @"_"])
         [mArray addObject:[CLNumber numberWithInt:[[aField value] intValue]]];
     }
@@ -1328,8 +1327,7 @@
 
 -(BOOL) formShouldUseAutomaticPropertyList:(CLForm *) aForm
 {
-  if ([[[aForm attributes] objectForCaseInsensitiveString:@"ID"]
-        isEqualToString:@"theForm"])
+  if ([[[aForm attributes] objectForKey:@"ID"] isEqualToString:@"theForm"])
     return YES;
   return NO;
 }

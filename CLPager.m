@@ -44,9 +44,9 @@
   [super initFromElement:anElement onPage:aPage];
   maxPages = 9;
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_MAXPAGES"])) {
+  if ((aString = [attributes objectForKey:@"CL_MAXPAGES"])) {
     maxPages = [[self expandBinding:aString success:&success] intValue];
-    [attributes removeObjectForCaseInsensitiveString:@"CL_MAXPAGES"];
+    [attributes removeObjectForKey:@"CL_MAXPAGES"];
   }
 
   return self;
@@ -82,7 +82,7 @@
   [stream readTypes:@"@ii", &aString, &maxPages, &start];
   if (![CLQuery objectForKey:QUERY_START])
     [CLQuery setObject:[CLNumber numberWithUnsignedInt:start] forKey:QUERY_START];
-  [attributes setObject:aString forCaseInsensitiveString:@"CL_DATASOURCE"];
+  [attributes setObject:aString forKey:@"CL_DATASOURCE"];
   return self;
 }
 
@@ -94,7 +94,7 @@
 
   [super write:stream];
   aRange = [[self datasource] range];
-  aString = [attributes objectForCaseInsensitiveString:@"CL_DATASOURCE"];
+  aString = [attributes objectForKey:@"CL_DATASOURCE"];
   [stream writeTypes:@"@ii", &aString, &maxPages, &aRange.location];
   return;
 }
@@ -174,7 +174,7 @@
   CLString *aString;
 
 
-  aString = [attributes objectForCaseInsensitiveString:@"CL_DATASOURCE"];
+  aString = [attributes objectForKey:@"CL_DATASOURCE"];
   /* FIXME - should probably do expandBinding but I'm not sure if the
      page is significant. */
   aView = [[sender page] datasourceForBinding:[aString substringFromIndex:1]];
@@ -203,7 +203,7 @@
   CLString *aString;
 
 
-  aString = [attributes objectForCaseInsensitiveString:@"CL_DATASOURCE"];
+  aString = [attributes objectForKey:@"CL_DATASOURCE"];
   /* FIXME - should probably do expandBinding but I'm not sure if the
      page is significant. */
   aView = [[sender page] datasourceForBinding:[aString substringFromIndex:1]];
@@ -222,7 +222,7 @@
   CLUInteger maxItems;
 
 
-  aString = [attributes objectForCaseInsensitiveString:@"CL_DATASOURCE"];
+  aString = [attributes objectForKey:@"CL_DATASOURCE"];
   /* FIXME - should probably do expandBinding but I'm not sure if the
      page is significant. */
   aView = [[sender page] datasourceForBinding:[aString substringFromIndex:1]];
@@ -257,8 +257,7 @@
   }
 
   if ([aValue isKindOfClass:CLBlockClass] &&
-      [[[aValue attributes] objectForCaseInsensitiveString:@"name"]
-        isEqualToString:aString])
+      [[[aValue attributes] objectForKey:@"name"] isEqualToString:aString])
     return aValue;
 
   if ([aValue respondsTo:@selector(content)] &&
@@ -318,7 +317,7 @@
     for (i = k = nf = 0, j = [aValue count]; i < j && nf < 2; i++) {
       aBlock = [aValue objectAtIndex:i];
       if ([aBlock isKindOfClass:CLBlockClass]) {
-        aString = [[aBlock attributes] objectForCaseInsensitiveString:@"name"];
+        aString = [[aBlock attributes] objectForKey:@"name"];
         if ([aString isEqualToString:@"cl_active"] ||
             [aString isEqualToString:@"cl_inactive"]) {
           if (!nf)

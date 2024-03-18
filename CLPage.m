@@ -532,9 +532,9 @@ void CLSetDelegate(id anObject)
   else if (![aString caseInsensitiveCompare:@"CL_PAGE"]) {
     /* FIXME - these should be checking for the = at the beginning of
        the string instead of just skipping it. */
-    if (!owner && (aString = [[aTag attributes] objectForCaseInsensitiveString:@"CL_OWNER"]))
+    if (!owner && (aString = [[aTag attributes] objectForKey:@"CL_OWNER"]))
       owner = [[self datasourceForBinding:[aString substringFromIndex:1]] retain];
-    if ((aString = [[aTag attributes] objectForCaseInsensitiveString:@"CL_DATASOURCE"]))
+    if ((aString = [[aTag attributes] objectForKey:@"CL_DATASOURCE"]))
       datasource = [self datasourceForBinding:[aString substringFromIndex:1]];
     result = CL_DISCARD;
   }
@@ -1357,7 +1357,7 @@ void CLSetDelegate(id anObject)
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject respondsTo:@selector(attributes)] &&
-        (aString = [[anObject attributes] objectForCaseInsensitiveString:@"ID"]))
+        (aString = [[anObject attributes] objectForKey:@"ID"]))
       [mArray addObject:aString];
 
     if ([anObject respondsTo:@selector(content)] &&
@@ -1516,10 +1516,9 @@ void CLSetDelegate(id anObject)
   for (idx = 0, count = [anArray count]; idx < count; idx++) {
     anObject = [anArray objectAtIndex:idx];
     if ([anObject respondsTo:@selector(attributes)]) {
-      if ([[[anObject attributes] objectForCaseInsensitiveString:@"ID"]
-            isEqualToString:idString])
+      if ([[[anObject attributes] objectForKey:@"ID"] isEqualToString:idString])
         return anObject;
-      if ((aString = [[anObject attributes] objectForCaseInsensitiveString:@"CL_ID"])) {
+      if ((aString = [[anObject attributes] objectForKey:@"CL_ID"])) {
         aString = [[anObject expandBinding:aString success:&success] description];
         if ([aString isEqualToString:idString])
           return anObject;

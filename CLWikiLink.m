@@ -46,9 +46,9 @@
   CLString *aString;
 
 
-  aString = [attributes objectForCaseInsensitiveString:@"text"];
+  aString = [attributes objectForKey:@"text"];
   if (!aString)
-    aString = [attributes objectForCaseInsensitiveString:@"href"];
+    aString = [attributes objectForKey:@"href"];
   return aString;
 }
 

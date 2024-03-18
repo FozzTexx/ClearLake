@@ -30,26 +30,37 @@
 @interface CLDictionary:CLObject <CLCopying, CLMutableCopying, CLPropertyList>
 {
   void *dictionaryData;
+  BOOL caseInsensitiveFlag;
 }
 
 +(id) dictionary;
 +(id) dictionaryWithObjectsAndKeys:(id) firstObject, ...;
 
+-(id) initAsCaseInsensitive:(BOOL) caseFlag;
 -(id) initFromDictionary:(CLDictionary *) aDict;
 -(id) initWithObjectsAndKeys:(id) firstObject, ...;
+#if 0
+-(id) initWithObjects:(id *) objects andKeys:(id *) keys count:(CLUInteger) count;
+#endif
 
+-(BOOL) isCaseInsensitive;
+-(void) setCaseInsensitive:(BOOL) caseFlag;
 -(CLString *) description;
 -(CLString *) encodeXML;
+
+#if 0
+-(id) objectForCaseInsensitiveString:(CLString *) aKey;
+#endif
 
 @end
 
 @protocol CLDictionarySubclass <CLArchiving>
--(id) initWithObjects:(id *) objects forKeys:(id *) keys count:(CLUInteger) count;
+-(id) initWithObjects:(id *) objects andKeys:(id *) keys count:(CLUInteger) count
+      caseInsensitive:(BOOL) caseFlag;
 -(CLUInteger) count;
 -(id) objectForKey:(id) aKey;
 -(CLArray *) allKeys;
 -(CLArray *) allValues;
--(id) objectForCaseInsensitiveString:(CLString *) aKey;
 -(CLUInteger) hash;
 @end
 

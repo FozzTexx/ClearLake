@@ -1314,8 +1314,8 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
                   entityDecodedString] retain];
     }
     if (!anObject)
-      anObject = [[CLMutableDictionary alloc] init];
-    [anObject setObject:aValue forCaseInsensitiveString:aKey];
+      anObject = [[CLMutableDictionary alloc] initAsCaseInsensitive:YES];
+    [anObject setObject:aValue forKey:aKey];
     [aKey release];
     [aValue release];
 

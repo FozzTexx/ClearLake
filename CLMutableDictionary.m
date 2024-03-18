@@ -47,6 +47,7 @@
   return [super init];
 }
 
+#if 0
 -(void) setObject:(id) anObject forCaseInsensitiveString:(CLString *) aString
 {
   if (!anObject || !aString)
@@ -61,6 +62,7 @@
 
   return;
 }
+#endif
 
 -(void) setObjectValue:(id) anObject forVariable:(CLString *) aField
 {

@@ -64,10 +64,10 @@
 {
   if ([anObject isKindOfClass:CLElementClass]) {
     [self addOption:nil withValue:[[anObject attributes]
-                                    objectForCaseInsensitiveString:@"VALUE"]];
-    if ([[anObject attributes] objectForCaseInsensitiveString:@"SELECTED"])
+				    objectForKey:@"VALUE"]];
+    if ([[anObject attributes] objectForKey:@"SELECTED"])
       [self selectOptionWithValue:[[anObject attributes]
-                                    objectForCaseInsensitiveString:@"VALUE"]];
+                                    objectForKey:@"VALUE"]];
   }
   else
     [self addOption:anObject withValue:nil];
@@ -163,7 +163,7 @@
   if (![self isVisible])
     return;
 
-  if ((aValue = [attributes objectForCaseInsensitiveString:@"CL_SELECTED"])) {
+  if ((aValue = [attributes objectForKey:@"CL_SELECTED"])) {
     aValue = [self objectValueForSpecialBinding:[aValue substringFromIndex:1] allowConstant:NO
                                           found:&found wasConstant:NULL];
     [self selectOptionWithValue:aValue];

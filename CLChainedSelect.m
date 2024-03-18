@@ -109,10 +109,10 @@
   id cssClass;
 
 
-  name = [attributes objectForCaseInsensitiveString:@"NAME"];
+  name = [attributes objectForKey:@"NAME"];
   if (!name)
     name = [CLString stringWithFormat:@"CL%u", (size_t) self];
-  otherValue = [attributes objectForCaseInsensitiveString:@"CL_OTHER"];
+  otherValue = [attributes objectForKey:@"CL_OTHER"];
 
   javascript = [[CLBlock alloc] init];
   levelBlock = [[CLBlock alloc] init];
@@ -128,10 +128,10 @@
                                    [CLString stringWithFormat:@"%@_depth", name]
                                  withValue:[CLNumber numberWithInt:depth]]];
 
-  if ((cssClass = [attributes objectForCaseInsensitiveString:@"CL_CLASS"]))
+  if ((cssClass = [attributes objectForKey:@"CL_CLASS"]))
     cssClass = [CLElement expandClass:cssClass using:self];
   else
-    cssClass = [attributes objectForCaseInsensitiveString:@"CLASS"];
+    cssClass = [attributes objectForKey:@"CLASS"];
 
   for (i = 0; i < depth; i++) {
     mString = [CLMutableString stringWithFormat:

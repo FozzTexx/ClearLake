@@ -37,16 +37,14 @@
 
   [super initFromElement:anElement onPage:aPage];
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_MAXITEMS"])) {
+  if ((aString = [attributes objectForKey:@"CL_MAXITEMS"])) {
     maxItems = [[self expandBinding:aString success:&success] intValue];
-    [attributes removeObjectForCaseInsensitiveString:@"CL_MAXITEMS"];
+    [attributes removeObjectForKey:@"CL_MAXITEMS"];
   }
   else
     maxItems = 10;
-  [self setRange:CLMakeRange([[self expandBinding:
-                                      [attributes objectForCaseInsensitiveString:@"CL_START"]
-                                          success:&success]
-                               intValue], maxItems)];
+  [self setRange:CLMakeRange([[self expandBinding:[attributes objectForKey:@"CL_START"]
+                                          success:&success] intValue], maxItems)];
 
   return self;
 }
@@ -137,10 +135,10 @@
                        range:CLMakeRange(CLMaxRange(aRange),
                                          [aBinding length] - CLMaxRange(aRange))];
     [attributes setObject:[aBinding substringFromIndex:CLMaxRange(aRange)]
-                forCaseInsensitiveString:@"CL_ARRAYVALUE"];
+                forKey:@"CL_ARRAYVALUE"];
   }
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_SORT"])) {
+  if ((aString = [attributes objectForKey:@"CL_SORT"])) {
     aString = [self expandBinding:aString success:&found];
     if (found)
       aValue = [aValue sortedArrayUsingDescriptors:
@@ -158,10 +156,10 @@
   CLUInteger i;
 
 
-  if ((aBinding = [attributes objectForCaseInsensitiveString:@"CL_BINDING"])) {
+  if ((aBinding = [attributes objectForKey:@"CL_BINDING"])) {
     anArray = [[self findArray:[aBinding substringFromIndex:1] source:nil] retain];
-    if (!(aBinding = [attributes objectForCaseInsensitiveString:@"CL_ARRAYVALUE"]))
-      aBinding = [attributes objectForCaseInsensitiveString:@"CL_ARRAYBINDING"];
+    if (!(aBinding = [attributes objectForKey:@"CL_ARRAYVALUE"]))
+      aBinding = [attributes objectForKey:@"CL_ARRAYBINDING"];
     [self setContent:[CLMutableArray array]];
     count = [anArray count];
 
@@ -178,7 +176,7 @@
     }
   }
 
-  if ([attributes objectForCaseInsensitiveString:@"CL_AUTONUMBER"])
+  if ([attributes objectForKey:@"CL_AUTONUMBER"])
     [self autonumber:content];
 
   return;

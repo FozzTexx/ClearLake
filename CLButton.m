@@ -131,21 +131,21 @@
   }
   else if ([anObject isKindOfClass:CLElementClass]) {
     if ((mDict = [anObject attributes])) {
-      if ((aString = [mDict objectForCaseInsensitiveString:@"NAME"]) &&
+      if ((aString = [mDict objectForKey:@"NAME"]) &&
           (![anObject isKindOfClass:CLInputClass] ||
            [anObject type] != CLRadioInputType ||
-           [attributes objectForCaseInsensitiveString:@"CL_AUTORADIO"])) {
+           [attributes objectForKey:@"CL_AUTORADIO"])) {
         aString = [aString stringByAppendingFormat:@"_%i", index];
-        [mDict setObject:aString forCaseInsensitiveString:@"NAME"];
+        [mDict setObject:aString forKey:@"NAME"];
       }
-      if ((aString = [mDict objectForCaseInsensitiveString:@"ID"])) {
+      if ((aString = [mDict objectForKey:@"ID"])) {
         newString = [aString stringByAppendingFormat:@"_%i", index];
         [replaced setObject:newString forKey:aString];
-        [mDict setObject:newString forCaseInsensitiveString:@"ID"];
+        [mDict setObject:newString forKey:@"ID"];
       }
-      if ((aString = [mDict objectForCaseInsensitiveString:@"FOR"])) {
+      if ((aString = [mDict objectForKey:@"FOR"])) {
         aString = [aString stringByAppendingFormat:@"_%i", index];
-        [mDict setObject:aString forCaseInsensitiveString:@"FOR"];
+        [mDict setObject:aString forKey:@"FOR"];
       }
     }
 
@@ -292,14 +292,14 @@
   CLRange aRange;
 
 
-  if ((aString = [attributes objectForCaseInsensitiveString:@"CL_BINDING"])) {
+  if ((aString = [attributes objectForKey:@"CL_BINDING"])) {
     aRange = [aString rangeOfString:@".objects." options:0
                       range:CLMakeRange(0, [aString length])];
-    if (aRange.length && ![attributes objectForCaseInsensitiveString:@"CL_AUTONUMBER"])
-      [attributes setObject:CLTrueObject forCaseInsensitiveString:@"CL_AUTONUMBER"];
+    if (aRange.length && ![attributes objectForKey:@"CL_AUTONUMBER"])
+      [attributes setObject:CLTrueObject forKey:@"CL_AUTONUMBER"];
 
     if (aRange.length &&
-        (sortString = [attributes objectForCaseInsensitiveString:@"CL_SORT"])) {
+        (sortString = [attributes objectForKey:@"CL_SORT"])) {
       sortString = [self expandBinding:sortString success:&success];
       anObject = [self expandBinding:[aString substringToIndex:aRange.location]
                              success:&found];
@@ -311,14 +311,14 @@
     else {
       anObject = [self expandBinding:aString success:&found];
       if ([anObject isKindOfClass:CLArrayClass] &&
-          (sortString = [attributes objectForCaseInsensitiveString:@"CL_SORT"])) {
+          (sortString = [attributes objectForKey:@"CL_SORT"])) {
         sortString = [self expandBinding:sortString success:&success];
         anObject = [anObject sortedArrayUsingDescriptors:
                                [CLSortDescriptor sortDescriptorsFromString:sortString]];
       }
     }
 
-    if ((aString = [attributes objectForCaseInsensitiveString:@"CL_FORMAT"])) {
+    if ((aString = [attributes objectForKey:@"CL_FORMAT"])) {
       if ([anObject isKindOfClass:CLNumberClass]) {
         aFormatter = [CLNumberFormatter numberFormatterFromFormat:
                                               [self expandBinding:aString success:&success]];
@@ -342,7 +342,7 @@
   [self updateBindingFor:content];
 
   if ([content isKindOfClass:CLArrayClass] &&
-      (anObject = [attributes objectForCaseInsensitiveString:@"CL_AUTONUMBER"]) &&
+      (anObject = [attributes objectForKey:@"CL_AUTONUMBER"]) &&
       (anObject == CLNullObject || [self expandBoolean:anObject]))
     [self autonumber:content];
 
