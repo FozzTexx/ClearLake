@@ -1636,6 +1636,7 @@ void CLInit()
   if (CLWebPath)
     CLAddToCleanup(CLWebPath);
 
+  [CLCookies removeAllObjects];
   if ((p = getenv("HTTP_COOKIE"))) {
     CLString *key, *val;
 #if DEBUG_LEAK || DEBUG_RETAIN
@@ -1711,7 +1712,8 @@ void CLInit()
 
   [pool release];
 
-  didInit = 1;
+  if (CLAppName)
+    didInit = 1;
   return;
 }
 

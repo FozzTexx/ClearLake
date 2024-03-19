@@ -32,9 +32,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#if 0
 static CLMutableArray *CLQsortStack = nil;
-#endif
 static SEL CLQsortComparator;
 
 static int CLQsortCompareBySelector(const void *ptr1, const void *ptr2)
@@ -61,7 +59,6 @@ static int CLQsortCompareBySelector(const void *ptr1, const void *ptr2)
   return CLOrderedSame;
 }
 
-#if 0
 static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 {
   int i;
@@ -92,7 +89,6 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
   return res;
 }
-#endif
 
 @implementation CLMutableArray
 
@@ -240,7 +236,24 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 
 -(void) sortUsingDescriptors:(CLArray *) sortDescriptors
 {
-  [self error:@"Not implemented"];
+  CLUInteger count = [self count];
+  id *data;
+
+
+  if (count < 2)
+    return;
+
+  [CLQsortStack addObject:sortDescriptors];
+
+  if (!(data = alloca(sizeof(id) * count)))
+    [self error:@"Unable to allocate memory"];
+  [self getObjects:data];
+  qsort(data, count, sizeof(id), CLQsortCompareByDescriptors);
+  [CLQsortStack removeLastObject];
+
+  [self addObjects:data count:count];
+  [self removeObjectsInRange:CLMakeRange(0, count)];
+
   return;
 }
 
@@ -250,17 +263,18 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   id *data;
 
 
-  if (count > 1) {
-    CLQsortComparator = comparator;
+  if (count < 2)
+    return;
 
-    if (!(data = alloca(sizeof(id) * count)))
-      [self error:@"Unable to allocate memory"];
-    [self getObjects:data];
+  CLQsortComparator = comparator;
 
-    qsort(data, count, sizeof(id), CLQsortCompareBySelector);
-    [self addObjects:data count:count];
-    [self removeObjectsInRange:CLMakeRange(0, count)];
-  }
+  if (!(data = alloca(sizeof(id) * count)))
+    [self error:@"Unable to allocate memory"];
+  [self getObjects:data];
+
+  qsort(data, count, sizeof(id), CLQsortCompareBySelector);
+  [self addObjects:data count:count];
+  [self removeObjectsInRange:CLMakeRange(0, count)];
 
   return;
 }
