@@ -15,6 +15,7 @@
 #import "CLInputBridge.h"
 #import "CLGenericRecordBridge.h"
 #import "CLElementBridge.h"
+#import "CLEditingContextBridge.h"
 
 #import <ClearLake/CLAutoreleasePool.h>
 #import <ClearLake/CLDictionary.h>
@@ -50,6 +51,7 @@ static struct {
   BRIDGE_TYPE(CLInput),
   BRIDGE_TYPE(CLGenericRecord),
   BRIDGE_TYPE(CLElement),
+  BRIDGE_TYPE(CLEditingContext),
   {NULL, NULL},
 };
 
@@ -397,7 +399,7 @@ static PyModuleDef ClearLake_module = {
 
 PyMODINIT_FUNC PyInit_ClearLake(void)
 {
-  PyObject *m;
+  PyObject *module;
   ClearLake_python_state *state;
   CLUInteger idx;
 #if DEBUG_LEAK || DEBUG_RETAIN
@@ -413,22 +415,29 @@ PyMODINIT_FUNC PyInit_ClearLake(void)
       return NULL;
   }
 
-  m = PyModule_Create(&ClearLake_module);
-  if (m == NULL)
+  if (!(module = PyModule_Create(&ClearLake_module)))
     return NULL;
 
   for (idx = 0; CLBridgeTypes[idx].name; idx++) {
-    if (PyModule_AddObjectRef(m, CLBridgeTypes[idx].name,
+    if (PyModule_AddObjectRef(module, CLBridgeTypes[idx].name,
 			      (PyObject *) CLBridgeTypes[idx].type) < 0) {
-      Py_DECREF(m);
+      Py_DECREF(module);
       return NULL;
     }
   }
 
-  state = (ClearLake_python_state *) PyModule_GetState(m);
+  if (!CLDefaultContext) {
+    CLDefaultContext = [[CLEditingContext alloc] init];
+    CLAddToCleanup(CLDefaultContext);
+  }
+
+  state = (ClearLake_python_state *) PyModule_GetState(module);
   state->pool = [[CLAutoreleasePool alloc] init];
+
+  PyModule_AddObjectRef(module, "CLDefaultContext", CLNativeToPython(CLDefaultContext));
+  PyModule_AddObjectRef(module, "CLManager", CLNativeToPython([CLManager manager]));
 
   objc_setGetUnknownClassHandler(CLPyBridgeClassFromName);
 
-  return m;
+  return module;
 }

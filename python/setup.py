@@ -28,6 +28,7 @@ setup(ext_modules=[
       "CLDecimalNumberBridge.m",
       "CLGenericRecordBridge.m",
       "CLElementBridge.m",
+      "CLEditingContextBridge.m",
     ],
     extra_compile_args=[
       "-fconstant-string-class=CLConstantString",

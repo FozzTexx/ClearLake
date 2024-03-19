@@ -39,6 +39,24 @@ static PyObject *CLManagerBridge_login(CLPyBridgeLink *pySelf, PyObject *sender)
   Py_RETURN_NONE;
 }
 
+static PyObject *CLManagerBridge_createAccount(CLPyBridgeLink *pySelf, PyObject *args,
+					       PyObject *kwds)
+{
+  static char *kwlist[] = {"info", "requirements", NULL};
+  id info;
+  unsigned int requirements;
+  id account;
+  CLDictionary *errors;
+
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&I", kwlist,
+                                   CLPyBridgeConvert, &info, &requirements))
+    return NULL;
+
+  account = [pySelf->bridgeObject createAccount:info requirements:requirements errors:&errors];
+  return PyTuple_Pack(2, CLNativeToPython(account), CLNativeToPython(errors));
+}
+
 static PyObject *CLManagerBridge_activeSession(CLPyBridgeLink *pySelf,
 					       PyObject *Py_UNUSED(ignored))
 {
@@ -54,6 +72,8 @@ static PyGetSetDef CLManagerBridge_getsetters[] = {
 static PyMethodDef CLManagerBridge_methods[] = {
   {"login", (PyCFunction) CLManagerBridge_login, METH_O,
     "try to login with the credentials provided in sender"},
+  {"createAccount", (PyCFunction) CLManagerBridge_createAccount, METH_VARARGS | METH_KEYWORDS,
+    "create an account using the provided info and verify it meets requirements"},
   {NULL},
 };
 
