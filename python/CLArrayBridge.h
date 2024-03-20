@@ -13,5 +13,6 @@
 
 extern void CLPythonTupleFromArray(CLArray *anArray, PyObject **pyObject);
 //extern PyObject *CLPythonTupleFromArray(CLArray *anArray);
+extern PyObject *CLPythonListFromArray(CLArray *anArray);
 
 #endif /* _CLARRAYBRDIGE_H */

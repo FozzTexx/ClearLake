@@ -62,8 +62,8 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
   Class aClass, bridgeClass;
   CLMethodInfo *methods, *aMethod;
   CLUInteger idx, idx2, count;
-  CLString *className, *moduleName;
-  PyObject *pyModule = NULL;
+  CLString *className, *moduleName, *mainName;
+  PyObject *pyModule = NULL, *pyMain;
 
 
   aClass = CLNativeSuperclassForPythonClass((PyObject *) pyClass);
@@ -80,13 +80,20 @@ static void *_dynamicSuperCall(id receiver, SEL sel, ...)
 	  [moduleName UTF8String], [className UTF8String]);
 #endif
 
-  if (![moduleName isEqualToString:@"__main__"]) {
+  pyMain = PyDict_GetItemString(PyEval_GetGlobals(), "__name__");
+  mainName = CLPythonToNative(pyMain);
+#if 0
+    fprintf(stderr, "Actual __main__:");
+    PyObject_Print(module_name, stderr, 0);
+    fprintf(stderr, "\n");
+#endif
+  if (![moduleName isEqualToString:mainName]) {
     PyObject *mainModule;
 
 
-    mainModule = PyImport_AddModule("__main__");
+    mainModule = PyImport_AddModuleObject(pyMain);
     if (!mainModule)
-      [self error:@"Unable to find Python module __main__"];
+      [self error:@"Unable to find Python module %@", mainName];
 
     if (PyObject_HasAttrString(mainModule, [className UTF8String]))
       className = [CLString stringWithFormat:@"%@.%@", moduleName, className];

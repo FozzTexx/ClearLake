@@ -130,7 +130,7 @@ PyTypeObject *CLPythonClassFromString(CLString *aString)
   if (!pyClass) {
     aRange = [aString rangeOfString:@"."];
     if (!aRange.length) {
-      moduleName = @"__main__";
+      moduleName = CLPythonToNative(PyDict_GetItemString(PyEval_GetGlobals(), "__name__"));
       className = aString;
     }
     else {
@@ -141,8 +141,10 @@ PyTypeObject *CLPythonClassFromString(CLString *aString)
     pyModule = PyImport_AddModule([moduleName UTF8String]);
     pyModuleDict = PyModule_GetDict(pyModule);
 
+#if 1
+    fprintf(stderr, "Searching for %s.%s\n", [moduleName UTF8String], [className UTF8String]);
+#endif
 #ifdef DICT_DEBUG
-    printf("Searching for %s.%s\n", [moduleName UTF8String], [className UTF8String]);
     print_dict_keys(pyModuleDict);
 #endif
 
@@ -151,6 +153,10 @@ PyTypeObject *CLPythonClassFromString(CLString *aString)
       fprintf(stderr, "Not a Python class\n");
       abort();
     }
+#if 1
+    if (!pyClass)
+      fprintf(stderr, "Not found: %s.%s\n", [moduleName UTF8String], [className UTF8String]);
+#endif
   }
 
   return pyClass;
@@ -244,7 +250,7 @@ Class CLClassForPythonClass(PyTypeObject *pyClass)
     CLHashTableSetData(_classMapping, aClass, (id) pyClass, (size_t) pyClass);
     className = [aClass className];
     CLHashTableSetData(_nameMapping, pyClass, className, [className hash]);
-#if 0
+#if 1
     fprintf(stderr, "Added name map: %s\n", [className UTF8String]);
 #endif
   }
@@ -375,11 +381,14 @@ static PyObject *CLRun_bridge(PyObject *pySelf, PyObject *args, PyObject *kwds)
     }
   }
 
-  result = [CLArray arrayWithObjects:statusString, [htmlStream data], splitHeaders, nil];
+  pyResult = PyTuple_New(3);
+  PyTuple_SetItem(pyResult, 0, CLNativeToPython(statusString));
+  PyTuple_SetItem(pyResult, 1, CLNativeToPython([htmlStream data]));
+  PyTuple_SetItem(pyResult, 2, CLPythonListFromArray(splitHeaders));
+
   [splitHeaders release];
   [statusString release];
 
-  pyResult = CLNativeToPython(result);
   [[CLManager manager] setActiveSession:nil];
   [pool release];
 
