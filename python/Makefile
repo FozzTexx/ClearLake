@@ -16,7 +16,7 @@ CLASSES_H=$(CLASSES_M:.m=.h)
 
 $(MODULE_LIB): CLPythonModule.m $(CLASSES_M) $(CLASSES_H) setup.py pyproject.toml
 	python3 setup.py clean --all
-	python3 -m pip install --prefix=/usr .
+	python3 -m pip install $(INSTALL_PREFIX) .
 	python3 -c 'import ClearLake'
 
 clean:

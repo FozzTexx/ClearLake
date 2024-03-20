@@ -256,7 +256,8 @@ void CLFaultLoadRelationship(id anObject, CLString *aKey, CLFaultData *data,
       }
 
       if ([data->info.faultData.primaryKey count] < [need count])
-	[self error:@"Insufficient data"];
+	[self error:@"Insufficient data: need: %@ have: %@", need,
+	      data->info.faultData.primaryKey];
     }
   }
 

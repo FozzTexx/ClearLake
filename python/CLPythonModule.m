@@ -315,6 +315,8 @@ static PyObject *CLRun_bridge(PyObject *pySelf, PyObject *args, PyObject *kwds)
   CLUInteger status;
   CLArray *result;
   PyObject *pyResult;
+  CLMutableArray *splitHeaders;
+  CLString *statusString = nil;
 #if DEBUG_LEAK || DEBUG_RETAIN
   id self = nil;
 #endif
@@ -348,8 +350,35 @@ static PyObject *CLRun_bridge(PyObject *pySelf, PyObject *args, PyObject *kwds)
   status = CLHandleRequest(mainObjectName, htmlStream, headerStream, inputStream);
   [CLDefaultContext saveChanges];
 
-  result = [CLArray arrayWithObjects:[CLNumber numberWithUnsignedInt:status],
-                    [htmlStream data], [headerStream data], nil];
+  {
+    CLArray *headers, *split;
+    CLUInteger idx, count;
+    CLString *aHeader;
+    CLRange aRange;
+
+
+    headers = [[CLString stringWithData:[headerStream data] encoding:CLUTF8StringEncoding]
+		componentsSeparatedByString:@"\r\n"];
+    splitHeaders = [[CLMutableArray alloc] init];
+    for (idx = 0, count = [headers count]; idx < count; idx++) {
+      aHeader = [headers objectAtIndex:idx];
+      if (![aHeader length])
+	continue;
+      aRange = [aHeader rangeOfString:@":"];
+      split = [CLArray arrayWithObjects:[aHeader substringToIndex:aRange.location],
+		       [[aHeader substringFromIndex:CLMaxRange(aRange)]
+			 stringByTrimmingWhitespaceAndNewlines], nil];
+      if ([[split objectAtIndex:0] isEqualToCaseInsensitiveString:@"Status"])
+	statusString = [[split objectAtIndex:1] retain];
+      else
+	[splitHeaders addObject:split];
+    }
+  }
+
+  result = [CLArray arrayWithObjects:statusString, [htmlStream data], splitHeaders, nil];
+  [splitHeaders release];
+  [statusString release];
+
   pyResult = CLNativeToPython(result);
   [[CLManager manager] setActiveSession:nil];
   [pool release];
