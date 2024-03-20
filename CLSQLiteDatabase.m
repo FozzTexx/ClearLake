@@ -77,6 +77,7 @@ static int CLSQLiteRowData(void *data, int argc, char **argv, char **azColName)
   conn = NULL;
   rc = sqlite3_open([aFilename UTF8String], &conn);
   if (rc != SQLITE_OK) {
+    fprintf(stderr, "Failed to open database: %s\n", [aFilename UTF8String]);
     [self release];
     return nil;
   }

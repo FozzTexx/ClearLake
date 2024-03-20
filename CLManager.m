@@ -1601,7 +1601,7 @@ void CLInit()
     CLAppName = [SCRIPT_FILENAME lastPathComponent];
 #endif
 
-  if ([CLAppName hasSuffix:@".cgi"])
+  if ([CLAppName hasSuffix:@".cgi"] || [CLAppName hasSuffix:@".py"])
     CLAppName = [CLAppName stringByDeletingPathExtension];
 
   CLWebPath = [@"/" stringByAppendingString:CLAppName];
