@@ -108,7 +108,7 @@ static int CLPageBridge_contains(CLPyBridgeLink *pySelf, PyObject *key)
 {
   if (!PyUnicode_Check(key)) {
     PyErr_SetString(PyExc_TypeError, "key must be a string");
-    return NULL;
+    return -1;
   }
 
   return !![pySelf->bridgeObject objectWithID:CLPythonToNative(key)];

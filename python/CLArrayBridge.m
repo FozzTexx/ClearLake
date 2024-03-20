@@ -58,3 +58,23 @@ void CLPythonTupleFromArray(CLArray *anArray, PyObject **pyObject)
   *pyObject = pyTuple;
   return;
 }
+
+PyObject *CLPythonListFromArray(CLArray *anArray)
+{
+  PyObject *pyList, *value;
+  CLUInteger idx, count;
+
+
+  count = [anArray count];
+  pyList = PyList_New(count);
+  for (idx = 0; idx < count; idx++) {
+    value = CLNativeToPython([anArray objectAtIndex:idx]);
+    if (PyList_SetItem(pyList, idx, value) != 0) {
+      PyErr_SetString(PyExc_Exception, "Failed to set tuple item");
+      Py_DECREF(pyList);
+      return NULL;
+    }
+  }
+
+  return pyList;
+}

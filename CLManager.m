@@ -233,6 +233,9 @@ static CLMutableDictionary *CLConfig = nil;
       }
     }
 
+#if 0
+    fprintf(stderr, "Searching for config: %s\n", [[mArray description] UTF8String]);
+#endif
     for (i = 0, j = [mArray count]; i < j; i++) {
       aString = [mArray objectAtIndex:i];
       if (!access([aString UTF8String], R_OK))
