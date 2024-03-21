@@ -233,7 +233,7 @@ static CLMutableDictionary *CLConfig = nil;
       }
     }
 
-#if 0
+#if 1
     fprintf(stderr, "Searching for config: %s\n", [[mArray description] UTF8String]);
 #endif
     for (i = 0, j = [mArray count]; i < j; i++) {
@@ -1612,10 +1612,13 @@ void CLInit()
   /* Store DOCUMENT_ROOT/"program name" in CLAppPath */
   if (DOCUMENT_ROOT) {
     CLAppPath = [DOCUMENT_ROOT stringByAppendingPathComponent:CLAppName];
-    if (access([CLAppPath UTF8String], X_OK)) {
-      CLAppPath = [[[SCRIPT_FILENAME stringByDeletingLastPathComponent]
-                     stringByDeletingLastPathComponent]
-                    stringByAppendingPathComponent:CLAppName];
+    if (access([CLAppPath UTF8String], X_OK) != 0) {
+      if (access([DOCUMENT_ROOT UTF8String], X_OK) == 0)
+	CLAppPath = [DOCUMENT_ROOT retain];
+      else
+	CLAppPath = [[[SCRIPT_FILENAME stringByDeletingLastPathComponent]
+		       stringByDeletingLastPathComponent]
+		      stringByAppendingPathComponent:CLAppName];
     }
   }
   else {
@@ -1715,8 +1718,13 @@ void CLInit()
 
   [pool release];
 
-  if (CLAppName)
+  if (CLAppName) {
+    fprintf(stderr, "CLAppName: %s\n", [CLAppName UTF8String]);
+    fprintf(stderr, "CLWebName: %s\n", [CLWebName UTF8String]);
+    fprintf(stderr, "CLAppPath: %s\n", [CLAppPath UTF8String]);
+    fprintf(stderr, "CLWebPath: %s\n", [CLWebPath UTF8String]);
     didInit = 1;
+  }
   return;
 }
 
