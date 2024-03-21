@@ -57,6 +57,27 @@ static PyObject *CLManagerBridge_createAccount(CLPyBridgeLink *pySelf, PyObject 
   return PyTuple_Pack(2, CLNativeToPython(account), CLNativeToPython(errors));
 }
 
+static PyObject *CLManagerBridge_setConfigurationFile(CLPyBridgeLink *pySelf, PyObject *path)
+{
+  if (!PyUnicode_Check(path)) {
+    PyErr_SetString(PyExc_TypeError, "path must be a string");
+    return NULL;
+  }
+
+  [[pySelf->bridgeObject class] setConfigurationFile:CLPythonToNative(path)];
+  Py_RETURN_NONE;
+}
+
+static PyMethodDef CLManagerBridge_methods[] = {
+  {"login", (PyCFunction) CLManagerBridge_login, METH_O,
+    "try to login with the credentials provided in sender"},
+  {"createAccount", (PyCFunction) CLManagerBridge_createAccount, METH_VARARGS | METH_KEYWORDS,
+    "create an account using the provided info and verify it meets requirements"},
+  {"setConfigurationFile", (PyCFunction) CLManagerBridge_setConfigurationFile, METH_O,
+    "set the path to the .conf file"},
+  {NULL},
+};
+
 static PyObject *CLManagerBridge_activeSession(CLPyBridgeLink *pySelf,
 					       PyObject *Py_UNUSED(ignored))
 {
@@ -66,14 +87,6 @@ static PyObject *CLManagerBridge_activeSession(CLPyBridgeLink *pySelf,
 static PyGetSetDef CLManagerBridge_getsetters[] = {
   {"activeSession", (getter) CLManagerBridge_activeSession, NULL,
    "active ClearLake session", NULL},
-  {NULL},
-};
-
-static PyMethodDef CLManagerBridge_methods[] = {
-  {"login", (PyCFunction) CLManagerBridge_login, METH_O,
-    "try to login with the credentials provided in sender"},
-  {"createAccount", (PyCFunction) CLManagerBridge_createAccount, METH_VARARGS | METH_KEYWORDS,
-    "create an account using the provided info and verify it meets requirements"},
   {NULL},
 };
 

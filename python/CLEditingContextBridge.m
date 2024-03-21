@@ -9,10 +9,10 @@ static PyObject *CLEditingContextBridge_loadTableWithClass(CLPyBridgeLink *pySel
 {
   static char *kwlist[] = {"class", "qualifier", "orderBy", NULL};
   PyObject *pyClass;
-  CLString *qualifier, *orderBy = nil;
+  CLString *qualifier = nil, *orderBy = nil;
 
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO&|O&", kwlist,
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O&O&", kwlist,
                                    &pyClass,
                                    CLPyBridgeConvertString, &qualifier,
 				   CLPyBridgeConvertString, &orderBy))
@@ -24,10 +24,18 @@ static PyObject *CLEditingContextBridge_loadTableWithClass(CLPyBridgeLink *pySel
 			      qualifier:qualifier orderBy:orderBy]);
 }
 
+static PyObject *CLEditingContextBridge_database(PyObject *cls,
+						 PyObject *Py_UNUSED(ignored))
+{
+  return CLNativeToPython([CLEditingContext database]);
+}
+
 static PyMethodDef CLEditingContextBridge_methods[] = {
   {"loadTableWithClass", (PyCFunction) CLEditingContextBridge_loadTableWithClass,
    METH_VARARGS | METH_KEYWORDS,
    "load table which represents class using qualifier and optionally sorting by orderBy"},
+  {"database", (PyCFunction) CLEditingContextBridge_database, METH_NOARGS | METH_CLASS,
+    "get the main database object"},
   {NULL},
 };
 

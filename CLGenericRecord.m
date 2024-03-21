@@ -518,7 +518,11 @@
     [oldObject release];
     [_autoretain removeObject:aField];
   }
-  if ([self shouldRetain:aField]) {
+  if (![self shouldRetain:aField]) {
+    /* Reverse the retain/copy above */
+    [anObject release];
+  }
+  else {
     id dup;
 
 
@@ -528,10 +532,7 @@
     [_autoretain addObject:dup];
     [dup release];
   }
-  else {
-    [anObject release];
-    anObject = nil;
-  }
+
   return anObject;
 }
 
