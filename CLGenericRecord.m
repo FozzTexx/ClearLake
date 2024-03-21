@@ -576,7 +576,7 @@
 	    ![self allowZeroPrimaryKey])
 	  [self error:@"Trying to set primary key to 0"];
       }
-      [self retainField:aKey object:anObject oldObject:oldObject];
+      anObject = [self retainField:aKey object:anObject oldObject:oldObject];
       if (!oldKey)
 	oldKey = [aKey copy];
       CLHashTableSetData(_record, anObject, oldKey, [oldKey hash]);
@@ -609,8 +609,8 @@
         if ((!oldObject && anObject) ||
             (oldObject && ![oldObject isEqual:anObject])) {
           [self willChange];
+          anObject = [self retainField:aField object:anObject oldObject:oldObject];
           *(id *) var = anObject;
-          [self retainField:aField object:anObject oldObject:oldObject];
         }
       }
       break;
@@ -692,7 +692,7 @@
 	    ![self allowZeroPrimaryKey])
 	  [self error:@"Trying to set primary key to 0"];
       }
-      [self retainField:aField object:anObject oldObject:oldObject];
+      anObject = [self retainField:aField object:anObject oldObject:oldObject];
       if (!oldKey)
 	oldKey = [aField copy];
       CLHashTableSetData(_record, anObject, oldKey, [oldKey hash]);
@@ -724,8 +724,8 @@
         id oldObject = *(id *) var;
         if ((!oldObject && anObject) ||
             (oldObject && ![oldObject isEqual:anObject])) {
+          anObject = [self retainField:aKey object:anObject oldObject:oldObject];
           *(id *) var = anObject;
-          [self retainField:aKey object:anObject oldObject:oldObject];
         }
       }
       break;
@@ -770,7 +770,7 @@
           ![self allowZeroPrimaryKey])
         [self error:@"Trying to set primary key to 0"];
     }
-    [self retainField:aKey object:anObject oldObject:oldObject];
+    anObject = [self retainField:aKey object:anObject oldObject:oldObject];
     if (!oldKey)
       oldKey = [aKey copy];
     CLHashTableSetData(_record, anObject, oldKey, [oldKey hash]);
@@ -835,8 +835,8 @@
         if ((!anObject && *(id *) var) ||
             (anObject && ![anObject isEqual:*(id *)var]))
           [self willChange];
-        [self retainField:[CLString stringWithUTF8String:fieldName]
-                   object:*(id *) var oldObject:anObject];
+        *(id *) var = [self retainField:[CLString stringWithUTF8String:fieldName]
+				 object:*(id *) var oldObject:anObject];
       }
       break;
     case _C_CHR:
@@ -966,7 +966,7 @@
     oldKey = CLHashTableKeyForKey(_record, fieldName, [fieldName hash], @selector(isEqual:));
     oldObject = CLHashTableRemoveDataForKey(_record, fieldName, [fieldName hash],
                                             @selector(isEqual:));
-    [self retainField:fieldName object:anObject oldObject:oldObject];
+    anObject = [self retainField:fieldName object:anObject oldObject:oldObject];
     if (!oldKey)
       oldKey = [fieldName copy];
     CLHashTableSetData(_record, anObject, oldKey, [oldKey hash]);

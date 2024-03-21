@@ -7,6 +7,7 @@
 #import "CLArrayBridge.h"
 
 #import <ClearLake/CLConstantString.h>
+#import <ClearLake/CLNull.h>
 
 @implementation CLMutableArray (CLPythonExtensions)
 
@@ -88,7 +89,13 @@
 
 -(id) objectAtIndex:(CLUInteger) index
 {
-  return CLPythonToNative(PyList_GetItem(arrayData, index));
+  id value;
+
+
+  value = CLPythonToNative(PyList_GetItem(arrayData, index));
+  if (!value)
+    value = CLNullObject;
+  return value;
 }
 
 -(void) write:(CLStream *) stream
