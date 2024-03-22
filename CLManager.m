@@ -233,7 +233,7 @@ static CLMutableDictionary *CLConfig = nil;
       }
     }
 
-#if 1
+#if 0
     fprintf(stderr, "Searching for config: %s\n", [[mArray description] UTF8String]);
 #endif
     for (i = 0, j = [mArray count]; i < j; i++) {
@@ -1719,10 +1719,12 @@ void CLInit()
   [pool release];
 
   if (CLAppName) {
+#if 0
     fprintf(stderr, "CLAppName: %s\n", [CLAppName UTF8String]);
     fprintf(stderr, "CLWebName: %s\n", [CLWebName UTF8String]);
     fprintf(stderr, "CLAppPath: %s\n", [CLAppPath UTF8String]);
     fprintf(stderr, "CLWebPath: %s\n", [CLWebPath UTF8String]);
+#endif
     didInit = 1;
   }
   return;

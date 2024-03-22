@@ -142,7 +142,7 @@ PyTypeObject *CLPythonClassFromString(CLString *aString)
     pyModule = PyImport_AddModule([moduleName UTF8String]);
     pyModuleDict = PyModule_GetDict(pyModule);
 
-#if 1
+#if 0
     fprintf(stderr, "Searching for %s.%s\n", [moduleName UTF8String], [className UTF8String]);
 #endif
 #ifdef DICT_DEBUG
@@ -154,7 +154,7 @@ PyTypeObject *CLPythonClassFromString(CLString *aString)
       fprintf(stderr, "Not a Python class\n");
       abort();
     }
-#if 1
+#if 0
     if (!pyClass)
       fprintf(stderr, "Not found: %s.%s\n", [moduleName UTF8String], [className UTF8String]);
 #endif
@@ -248,7 +248,7 @@ Class CLClassForPythonClass(PyTypeObject *pyClass)
     CLHashTableSetData(_classMapping, aClass, (id) pyClass, (size_t) pyClass);
     className = [aClass className];
     CLHashTableSetData(_nameMapping, pyClass, className, [className hash]);
-#if 1
+#if 0
     fprintf(stderr, "Added name map: %s\n", [className UTF8String]);
 #endif
   }
