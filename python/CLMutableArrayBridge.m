@@ -208,6 +208,48 @@ static PySequenceMethods CLMutableArrayBridge_sequence = {
   .sq_ass_item = (ssizeobjargproc) CLMutableArrayBridge_setItem,
 };
 
+static PyObject *CLMutableArrayBridge_subscript(CLPyBridgeLink *pySelf, PyObject *item)
+{
+  id value;
+  Py_ssize_t idx;
+
+
+  if (PySlice_Check(item)) {
+    Py_ssize_t start, stop, step, slicelength;
+    PyObject *result = NULL;
+
+
+    if (PySlice_GetIndicesEx(item, [pySelf->bridgeObject count],
+			     &start, &stop, &step, &slicelength) < 0)
+      return NULL;
+
+    if (!(result = PyList_New(slicelength)))
+      return NULL;
+
+    for (idx = 0; idx < slicelength; idx++) {
+      value = [pySelf->bridgeObject objectAtIndex:start + idx * step];
+      PyList_SET_ITEM(result, idx, CLNativeToPython(value));
+    }
+
+    return result;
+  }
+
+  if (!PyLong_Check(item)) {
+    PyErr_SetString(PyExc_TypeError, "argument must be int");
+    return NULL;
+  }
+
+  idx = PyLong_AsSsize_t(item);
+  if (PyErr_Occurred())
+    return NULL;
+
+  return CLMutableArrayBridge_getItem(pySelf, idx);
+}
+
+static PyMappingMethods CLMutableArrayBridge_mapping = {
+  .mp_subscript = (binaryfunc) CLMutableArrayBridge_subscript,
+};
+
 PyTypeObject CLMutableArrayBridgeType = {
   .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
   .tp_name = "ClearLake.CLMutableArray",
@@ -219,5 +261,6 @@ PyTypeObject CLMutableArrayBridgeType = {
   .tp_new = PyType_GenericNew,
   .tp_init = (initproc) CLMutableArrayBridge_init,
   .tp_dealloc = (destructor) CLMutableArrayBridge_dealloc,
+  .tp_as_mapping = &CLMutableArrayBridge_mapping,
   .tp_as_sequence = &CLMutableArrayBridge_sequence,
 };

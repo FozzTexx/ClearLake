@@ -3,6 +3,11 @@
 #import "CLPythonModule.h"
 #import <ClearLake/CLAccount.h>
 
+static PyObject *CLAccountBridge_objectID(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
+{
+  return PyLong_FromLong([pySelf->bridgeObject objectID]);
+}
+
 static PyObject *CLAccountBridge_email(CLPyBridgeLink *pySelf, PyObject *Py_UNUSED(ignored))
 {
   return CLNativeToPython([pySelf->bridgeObject email]);
@@ -81,6 +86,8 @@ static int CLAccountBridge_setLastSeen(CLPyBridgeLink *pySelf, PyObject *value, 
 }
 
 static PyGetSetDef CLAccountBridge_getsetters[] = {
+  {"objectID", (getter) CLAccountBridge_objectID, NULL,
+   "get the objectID (primary key) of the acccount", NULL},
   {"email", (getter) CLAccountBridge_email, (setter) CLAccountBridge_setEmail,
    "get the email address of the acccount", "set the email address for the account"},
   {"name", (getter) CLAccountBridge_name, (setter) CLAccountBridge_setName,

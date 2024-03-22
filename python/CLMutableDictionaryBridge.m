@@ -319,9 +319,9 @@ PyObject *CLMutableDictionaryBridge_iter(CLPyBridgeLink *pySelf)
 #endif
 
 static PyMappingMethods CLMutableDictionaryBridge_mapping = {
-  (lenfunc) CLMutableDictionaryBridge_length,
-  (binaryfunc) CLMutableDictionaryBridge_getItem,
-  (objobjargproc) CLMutableDictionaryBridge_setItem
+  .mp_length = (lenfunc) CLMutableDictionaryBridge_length,
+  .mp_subscript = (binaryfunc) CLMutableDictionaryBridge_getItem,
+  .mp_ass_subscript = (objobjargproc) CLMutableDictionaryBridge_setItem,
 };
 
 static PySequenceMethods CLMutableDictionaryBridge_sequence = {

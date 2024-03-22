@@ -83,6 +83,16 @@ static PyObject *CLPageBridge_writeHTML(CLPyBridgeLink *pySelf, PyObject *args, 
   Py_RETURN_NONE;
 }
 
+static PyMethodDef CLPageBridge_methods[] = {
+  {"display", (PyCFunction) CLPageBridge_display, METH_NOARGS,
+    "render the page and send it to stdout"},
+  {"updateBindings", (PyCFunction) CLPageBridge_updateBindings, METH_NOARGS,
+    "update all the dynamic content on the page"},
+  {"writeHTML", (PyCFunction) CLPageBridge_writeHTML, METH_VARARGS | METH_KEYWORDS,
+    "write out the HTML and optionally the headers"},
+  {NULL},
+};
+
 static PyObject *CLPageBridge_getItem(CLPyBridgeLink *pySelf, PyObject *key)
 {
   id element;
@@ -120,16 +130,6 @@ static PyMappingMethods CLPageBridge_mapping = {
 
 static PySequenceMethods CLPageBridge_sequence = {
   .sq_contains = (objobjproc) CLPageBridge_contains,
-};
-
-static PyMethodDef CLPageBridge_methods[] = {
-  {"display", (PyCFunction) CLPageBridge_display, METH_NOARGS,
-    "render the page and send it to stdout"},
-  {"updateBindings", (PyCFunction) CLPageBridge_updateBindings, METH_NOARGS,
-    "update all the dynamic content on the page"},
-  {"writeHTML", (PyCFunction) CLPageBridge_writeHTML, METH_VARARGS | METH_KEYWORDS,
-    "write out the HTML and optionally the headers"},
-  {NULL},
 };
 
 static PyGetSetDef CLPageBridge_getsetters[] = {
