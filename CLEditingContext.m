@@ -143,7 +143,7 @@ static int _modelInitState = MODEL_UNINIT;
     }
 
     fqTable = [CLString stringWithFormat:@"%@.%@", aDatabase, aTable];
-#if 1
+#if 0
     fprintf(stderr, "Creating recordDef for %s in %s\n",
 	    [[aClass className] UTF8String], [fqTable UTF8String]);
 #endif
