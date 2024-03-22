@@ -47,6 +47,7 @@
 
 +(CLPage *) pageFromFile:(CLString *) aFilename owner:(id) anOwner;
 +(CLArray *) pageExtensions;
++(CLString *) stringForStatusCode:(CLUInteger) status;
 +(CLString *) findFile:(CLString *) aFilename directory:(CLString *) aDir;
 +(CLString *) findFile:(CLString *) aFilename directories:(CLArray *) anArray;
 +(CLHashTable *) objectsForTags;

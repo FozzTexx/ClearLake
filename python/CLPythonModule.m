@@ -25,6 +25,7 @@
 #import <ClearLake/CLNumber.h>
 #import <ClearLake/CLRuntime.h>
 #import <ClearLake/CLEditingContext.h>
+#import <ClearLake/CLPage.h>
 
 #include <stdlib.h>
 
@@ -191,9 +192,6 @@ BOOL CLIsBridgeClass(PyTypeObject *pyType)
 
 BOOL CLInheritsFromBridgeClass(PyTypeObject *pyType)
 {
-  CLUInteger idx;
-
-
   while (pyType) {
     if (CLIsBridgeClass(pyType))
       return YES;
@@ -319,7 +317,6 @@ static PyObject *CLRun_bridge(PyObject *pySelf, PyObject *args, PyObject *kwds)
   CLDictionary *environment = nil;
   CLStream *htmlStream, *headerStream, *inputStream = nil;
   CLUInteger status;
-  CLArray *result;
   PyObject *pyResult;
   CLMutableArray *splitHeaders;
   CLString *statusString = nil;
@@ -354,6 +351,7 @@ static PyObject *CLRun_bridge(PyObject *pySelf, PyObject *args, PyObject *kwds)
   htmlStream = [CLStream openMemoryForWriting];
   headerStream = [CLStream openMemoryForWriting];
   status = CLHandleRequest(mainObjectName, htmlStream, headerStream, inputStream);
+  statusString = [CLString stringWithFormat:@"%i COOL", status];
   [CLDefaultContext saveChanges];
 
   {
@@ -374,11 +372,17 @@ static PyObject *CLRun_bridge(PyObject *pySelf, PyObject *args, PyObject *kwds)
       split = [CLArray arrayWithObjects:[aHeader substringToIndex:aRange.location],
 		       [[aHeader substringFromIndex:CLMaxRange(aRange)]
 			 stringByTrimmingWhitespaceAndNewlines], nil];
-      if ([[split objectAtIndex:0] isEqualToCaseInsensitiveString:@"Status"])
-	statusString = [[split objectAtIndex:1] retain];
-      else
+      if (![[split objectAtIndex:0] isEqualToCaseInsensitiveString:@"Status"])
 	[splitHeaders addObject:split];
     }
+  }
+
+  {
+    CLString *aString;
+
+
+    if ((aString = [CLPage stringForStatusCode:status]))
+      statusString = [CLString stringWithFormat:@"%i %@", status, aString];
   }
 
   pyResult = PyTuple_New(3);
@@ -387,7 +391,6 @@ static PyObject *CLRun_bridge(PyObject *pySelf, PyObject *args, PyObject *kwds)
   PyTuple_SetItem(pyResult, 2, CLPythonListFromArray(splitHeaders));
 
   [splitHeaders release];
-  [statusString release];
 
   [[CLManager manager] setActiveSession:nil];
   [pool release];
