@@ -20,9 +20,6 @@
 {
   CLObjectReserved *reserved;
   CLBridgeData *data;
-#if DEBUG_LEAK || DEBUG_RETAIN
-  id self = nil;
-#endif
 
 
   reserved = ((void *) self) - sizeof(CLObjectReserved);

@@ -201,6 +201,18 @@ void CLSetDelegate(id anObject)
   return CLPageExtensions;
 }
 
++(CLString *) stringForStatusCode:(CLUInteger) status
+{
+  int idx;
+
+
+  for (idx = 0; CLStatusStrings[idx].status && status >= CLStatusStrings[idx].status; idx++)
+    if (CLStatusStrings[idx].status == status)
+      return CLStatusStrings[idx].string;
+
+  return nil;
+}
+
 +(CLString *) findFile:(CLString *) aFilename directory:(CLString *) aDir
 {
   CLMutableArray *dirs = nil;
@@ -1131,14 +1143,7 @@ void CLSetDelegate(id anObject)
 
 -(CLString *) statusString
 {
-  int i;
-
-
-  for (i = 0; CLStatusStrings[i].status && status >= CLStatusStrings[i].status; i++)
-    if (CLStatusStrings[i].status == status)
-      return CLStatusStrings[i].string;
-
-  return nil;
+  return [CLPage stringForStatusCode:status];
 }
 
 -(void) setStatus:(CLUInteger) aValue
@@ -1611,10 +1616,7 @@ void CLRedirectBrowser(CLString *newURL, BOOL includeQuery, int status)
     headerStream = htmlStream;
 
   CLPageDisplayStatus = status;
-  statusString = nil;
-  for (i = 0; CLStatusStrings[i].status && status >= CLStatusStrings[i].status; i++)
-    if (CLStatusStrings[i].status == status)
-      statusString = CLStatusStrings[i].string;
+  statusString = [CLPage stringForStatusCode:status];
 
   CLPrintf(headerStream, @"Status: %i", status);
   if (statusString)
