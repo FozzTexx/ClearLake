@@ -46,6 +46,7 @@
 #import "CLStackString.h"
 #import "CLJSONTarget.h"
 #import "CLClassConstants.h"
+#import "CLEditingContext.h"
 
 #include <stdlib.h>
 
@@ -118,8 +119,11 @@ void CLWriteURLForGet(CLStream *stream, id object,
     else
       CLPrintf(stream2, @"0");
 
-    CLPrintf(stream2, @"/%@", [object className]);
-    CLPrintf(stream2, @"/%@", [aData encodeBase64]);
+    if (object) {
+      CLPrintf(stream2, @"/%@", [object className]);
+      if (aData)
+	CLPrintf(stream2, @"/%@", [aData encodeBase64]);
+    }
     [mDict removeObjectForKey:CL_URLCLASS];
     [mDict removeObjectForKey:CL_URLDATA];
   }
@@ -367,17 +371,30 @@ void CLWriteURL(CLStream *stream, id object,
   CLString *aString;
   CLData *aData;
   CLStream *stream;
+  Class targetClass;
 
 
   if ((aString = [CLQuery objectForKey:CL_URLDATA]) &&
       [aString length]) {
     aData = [aString decodeBase64];
+#if 1
+    aString = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
+    targetClass = CLClassFromString([CLQuery objectForKey:CL_URLCLASS]);
+    target = [[CLDefaultContext loadExistingObjectWithClass:targetClass
+						 primaryKey:[aString decodeJSON]] retain];
+    if (!target)
+      target = [[targetClass alloc] init];
+    aString = [CLString stringWithFormat:@"%@:", [CLQuery objectForKey:CL_URLSEL]];
+    action = CLSelectorFromString(aString);
+    [target replacePage:self selector:action];
+#else
     stream = [CLStream openWithData:aData mode:CLReadOnly];
     [self readURL:stream];
     [stream readTypes:@"i", &writeContents];
     if (writeContents)
       [stream readTypes:@"@", &content];
     [stream close];
+#endif
   }
 
   {
@@ -475,6 +492,31 @@ void CLWriteURL(CLStream *stream, id object,
       aURL = [self expandBinding:aString success:&success];
   }
   else {
+#if 1
+    CLString *pageOrSel = nil;
+    id targetClass = nil;
+    CLData *state = nil;
+    id pk;
+
+
+    if ([target isKindOfClass:CLPageTargetClass])
+      pageOrSel = [target path];
+    else if (target) {
+      pageOrSel = CLStringFromSelector(action);
+      targetClass = [target class];
+      pk = [[target editingContext] primaryKeyForRecord:target];
+      if (!pk)
+	[self error:@"How to restore state then?"];
+      state = [[pk json] dataUsingEncoding:CLUTF8StringEncoding];
+    }
+    [CLQuery setObject:pageOrSel forKey:CL_URLSEL];
+    stream = [CLStream openMemoryForWriting];
+    CLWriteURL(stream, targetClass, state, localQuery);
+    [CLQuery removeObjectForKey:CL_URLSEL];
+    aData = [stream data];
+    aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
+    [stream close];
+#else
     stream = [CLStream openMemoryForWriting];
     stream2 = [CLStream openMemoryForWriting];
     [self writeURL:stream2];
@@ -491,6 +533,7 @@ void CLWriteURL(CLStream *stream, id object,
     aData = [stream data];
     aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
     [stream close];
+#endif
   }
 
   aURL = [[self class] rewriteURL:[aURL entityDecodedString]];
