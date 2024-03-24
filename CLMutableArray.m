@@ -243,6 +243,11 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
   if (count < 2)
     return;
 
+  if (!CLQsortStack) {
+    CLQsortStack = [[CLMutableArray alloc] init];
+    CLAddToCleanup(CLQsortStack);
+  }
+
   [CLQsortStack addObject:sortDescriptors];
 
   if (!(data = alloca(sizeof(id) * count)))

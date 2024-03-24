@@ -1506,14 +1506,60 @@ id CLDelegate = nil;
 id CLMainObject = nil;
 CLPage *CLMainPage = nil;
 
+void CLInitCookies()
+{
+  const char *p;
+  char *r, *s, *t, *w;
+  id anObject;
+
+
+  [CLCookies removeAllObjects];
+  if ((p = getenv("HTTP_COOKIE"))) {
+    CLString *key, *val;
+#if DEBUG_LEAK || DEBUG_RETAIN
+  id self = nil;
+#endif
+
+
+    w = strdup(p);
+
+    for (r = w; r && *r; ) {
+      if ((s = strchr(r, '=')))
+        *s++ = 0;
+      if (!s)
+        break;
+      if ((t = strchr(s, ';')))
+        *t++ = 0;
+
+      anObject = [[CLCookie alloc] init];
+      key = [[CLString stringWithUTF8String:r] stringByReplacingPercentEscapes];
+      val = [[CLString stringWithUTF8String:s] stringByReplacingPercentEscapes];
+      [anObject setKey:key];
+      [anObject setValue:val];
+      [anObject setFromBrowser:YES];
+      CLAddCookie(anObject);
+      [anObject release];
+
+      r = t;
+      while (r && *r && isspace(*r))
+        r++;
+    }
+
+    free(w);
+
+    if (CLCookieWithKey(COOKIE_SESSION, YES))
+      CLCookiesEnabled = YES;
+  }
+
+  return;
+}
+
 void CLInit()
 {
   const char *p, *q;
-  char *r, *s, *t, *w;
   int i, j;
   CLAutoreleasePool *pool;
   CLRange aRange;
-  id anObject;
   static int didInit = 0;
   char **env;
   CLString *DOCUMENT_ROOT = nil, *SCRIPT_NAME = nil, *SCRIPT_FILENAME = nil;
@@ -1642,44 +1688,6 @@ void CLInit()
   if (CLWebPath)
     CLAddToCleanup(CLWebPath);
 
-  [CLCookies removeAllObjects];
-  if ((p = getenv("HTTP_COOKIE"))) {
-    CLString *key, *val;
-#if DEBUG_LEAK || DEBUG_RETAIN
-  id self = nil;
-#endif
-
-
-    w = strdup(p);
-
-    for (r = w; r && *r; ) {
-      if ((s = strchr(r, '=')))
-        *s++ = 0;
-      if (!s)
-        break;
-      if ((t = strchr(s, ';')))
-        *t++ = 0;
-
-      anObject = [[CLCookie alloc] init];
-      key = [[CLString stringWithUTF8String:r] stringByReplacingPercentEscapes];
-      val = [[CLString stringWithUTF8String:s] stringByReplacingPercentEscapes];
-      [anObject setKey:key];
-      [anObject setValue:val];
-      [anObject setFromBrowser:YES];
-      CLAddCookie(anObject);
-      [anObject release];
-
-      r = t;
-      while (r && *r && isspace(*r))
-        r++;
-    }
-
-    free(w);
-
-    if (CLCookieWithKey(COOKIE_SESSION, YES))
-      CLCookiesEnabled = YES;
-  }
-
   if ((p = getenv("SERVER_URL")))
     CLServerURL = [[CLString alloc] initWithUTF8String:p];
   else {
@@ -1739,6 +1747,7 @@ void CLRun(CLString *mainObjectName)
 
 
   CLInit();
+  CLInitCookies();
 
   PATH_INFO = getenv("PATH_INFO");
   PATH_TRANSLATED = getenv("PATH_TRANSLATED");
@@ -1860,12 +1869,12 @@ void CLInitializeQuery(CLString *aString)
 #endif
 
 
+  [CLQuery removeAllObjects];
   if (aString) {
     CLString *key;
     id val;
 
 
-    [CLQuery removeAllObjects];
     w = strdup([aString UTF8String]);
 
     for (r = w; r && *r; ) {
