@@ -1823,9 +1823,25 @@ void CLRun(CLString *mainObjectName)
     if ([CLMainObject respondsTo:@selector(showPage:)])
       mainAction = @selector(showPage:);
     else {
-      CLMainObject = [[CLPage alloc] initFromFile:mainObjectName owner:CLMainObject];
+      CLMainObject = nil;
+      if ([[CLQuery objectForKey:CL_URLSEL] length]) {
+	CLMainObject = [[CLPage alloc] initFromFile:[CLQuery objectForKey:CL_URLSEL]
+					      owner:CLMainObject];
+	/* FIXME - return a 404 */
+      }
+      if (!CLMainObject)
+	CLMainObject = [[CLPage alloc] initFromFile:mainObjectName owner:CLMainObject];
       mainAction = @selector(display);
     }
+  }
+
+  if (![CLMainObject respondsTo:mainAction]) {
+    CLControl *aControl;
+
+
+    aControl = [[CLControl alloc] initFromString:nil onPage:nil];
+    [CLMainObject release];
+    CLMainObject = aControl;
   }
 
   [CLMainObject perform:mainAction with:nil];
