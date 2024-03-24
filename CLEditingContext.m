@@ -620,7 +620,7 @@ static int _modelInitState = MODEL_UNINIT;
       [mDict setObject:value forKey:[anAttr key]];
     }
 
-    if (i < j) {
+    if (i < j || !j) {
       [mDict release];
       mDict = nil;
     }
@@ -764,14 +764,15 @@ static int _modelInitState = MODEL_UNINIT;
 
 -(id) primaryKeyForRecord:(id) aRecord
 {
-  id pk;
+  id pk = nil;
   CLRecordDefinition *recordDef;
 
 
   if (!(pk = CLHashTableDataForIdenticalKey(primaryKeys, aRecord, (size_t) aRecord))) {
     recordDef = [CLEditingContext recordDefinitionForClass:[aRecord class]];
-    pk = [[self class] constructPrimaryKey:aRecord recordDef:recordDef
-                              fromDatabase:NO asDictionary:NO];
+    if (recordDef)
+      pk = [[self class] constructPrimaryKey:aRecord recordDef:recordDef
+				fromDatabase:NO asDictionary:NO];
   }
 
   return pk;
