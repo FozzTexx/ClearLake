@@ -467,16 +467,17 @@
 -(void) removeAllObjects
 {
   CLDictionaryStorage *storage = dictionaryData;
-  CLUInteger idx;
+  CLUInteger idx, count;
   id *keys;
   id oldObject;
 
 
   if (storage && storage->table && storage->table->count) {
-    if (!(keys = alloca(sizeof(id) * storage->table->count)))
+    count = storage->table->count;
+    if (!(keys = alloca(sizeof(id) * count)))
       [self error:@"Unable to allocate memory"];
     CLHashTableGetKeys(storage->table, keys);
-    for (idx = 0; idx < storage->table->count; idx++) {
+    for (idx = 0; idx < count; idx++) {
       oldObject = CLHashTableRemoveDataForKey(storage->table, keys[idx], [keys[idx] hash],
                                               @selector(isEqual:));
       [keys[idx] release];

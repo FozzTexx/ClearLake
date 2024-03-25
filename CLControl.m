@@ -416,6 +416,10 @@ void CLWriteURL(CLStream *stream, id object,
         [CLDelegate respondsTo:@selector(controlShouldPerform:)])
       perform = [CLDelegate controlShouldPerform:self];
     if (perform) {
+      if ([target isKindOfClass:CLPageTargetClass] && action == @selector(showPage:)) {
+	CLRedirectBrowser([self generateURL], YES, 301);
+	return;
+      }
       [target perform:action with:self];
       [page display];
     }
@@ -489,6 +493,15 @@ void CLWriteURL(CLStream *stream, id object,
     }
     else if ((aString = [attributes objectForKey:@"CL_HREF"]))
       aURL = [self expandBinding:aString success:&success];
+  }
+  else if ([target isKindOfClass:CLPageTargetClass]) {
+    [CLQuery setObject:[target path] forKey:CL_URLSEL];
+    stream = [CLStream openMemoryForWriting];
+    CLWriteURL(stream, nil, nil, localQuery);
+    [CLQuery removeObjectForKey:CL_URLSEL];
+    aData = [stream data];
+    aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
+    [stream close];
   }
   else {
 #if 1
