@@ -32,6 +32,7 @@
   CLDatetime;
 
 extern CLString *CLTargetFrame;
+extern CLString *CLURLOrder[];
 
 @interface CLControl:CLBlock <CLCopying>
 {
@@ -82,10 +83,10 @@ extern CLString *CLTargetFrame;
 
 extern CLMutableDictionary *CLControlState;
 
-extern void CLWriteURLForGet(CLStream *stream, id object,
-                             CLData *aData, CLDictionary *localQuery,
-                             BOOL withoutQuery);
-extern void CLWriteURL(CLStream *stream, id object,
-                       CLData *aData, CLDictionary *localQuery);
+extern void CLWriteURLForGet(CLStream *stream, id object, CLData *stateData, SEL action,
+			     CLDictionary *localQuery, BOOL withoutQuery);
+extern void CLWriteURL(CLStream *stream, id object, CLData *stateData, SEL action,
+		       CLDictionary *localQuery);
+extern Class CLClassFromURLString(CLString *objectName);
 
 #endif /* _CLCONTROL_H */

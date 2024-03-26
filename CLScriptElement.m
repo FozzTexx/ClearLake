@@ -109,7 +109,7 @@
   stream2 = [CLStream openMemoryForWriting];
   [self writeURL:stream2];
   aData = [stream2 data];
-  CLWriteURL(stream, self, aData, nil);
+  CLWriteURL(stream, self, aData, NULL, nil);
   [stream2 close];
   /* FIXME - we should be using nocopy to move the stream buffer into the string */
   aData = [stream data];

@@ -93,6 +93,7 @@ typedef struct {
 -(BOOL) replacePage:(id) sender selector:(SEL) aSel;
 -(void) redirectTo:(id) anObject selector:(SEL) aSel;
 -(CLString *) urlForMethod:(SEL) aSelector;
+-(BOOL) selectorIsPage:(SEL) aSel;
 @end
 
 extern CLString *CLPropertyListString(id anObject);

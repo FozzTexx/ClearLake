@@ -52,17 +52,21 @@
 
 #define QUERY_SESSIONID @"CLsid"
 
-void CLWriteURLForGet(CLStream *stream, id object,
-                      CLData *aData, CLDictionary *localQuery,
-                      BOOL withoutQuery)
+CLString *CLURLOrder[] = {
+  CL_URLCLASS, CL_URLDATA, CL_URLSEL, // New order
+  CL_URLSEL, CL_URLCLASS, CL_URLDATA, // Old order
+};
+
+void CLWriteURLForGet(CLStream *stream, id object, CLData *stateData, SEL action,
+		      CLDictionary *localQuery, BOOL withoutQuery)
 {
   int c;
   CLStream *stream2;
-  CLString *aURL;
+  CLString *aURL, *simpleURL;
   BOOL dumbBrowser = NO;
-  CLString *aString;
   CLAutoreleasePool *pool;
   CLMutableDictionary *mDict;
+  CLUInteger idx, count;
 
 
 #if DEBUG_RETAIN
@@ -72,6 +76,8 @@ void CLWriteURLForGet(CLStream *stream, id object,
 
   mDict = [localQuery mutableCopy];
   [mDict addEntriesFromDictionary:CLQuery];
+  for (idx = 0, count = 3; idx < count; idx++)
+    [mDict removeObjectForKey:CLURLOrder[idx]];
 
   /* AvantGo can't parse HTML escape codes in A tags. */
   /* Neither can some crazy proxy server that the Arabians like to use */
@@ -97,35 +103,65 @@ void CLWriteURLForGet(CLStream *stream, id object,
       [object respondsTo:@selector(target)] &&
       [object respondsTo:@selector(action)] &&
 #endif
-      (aString = [CLDelegate delegateEncodeSimpleURL:object
-                             localQuery:mDict])) {
-    if (![aString isAbsolutePath])
-      [stream2 writeFormat:@"%@/%@" usingEncoding:CLUTF8StringEncoding, CLWebName, aString];
-    else
-      [stream2 writeString:aString usingEncoding:CLUTF8StringEncoding];
-    [mDict removeObjectForKey:CL_URLSEL];
-    [mDict removeObjectForKey:CL_URLCLASS];
-    [mDict removeObjectForKey:CL_URLDATA];
+      (simpleURL = [CLDelegate delegateEncodeSimpleURL:object localQuery:mDict])) {
+    if (![simpleURL isAbsolutePath])
+      simpleURL = [CLString stringWithFormat:@"%@/%@", CLWebName, simpleURL];
+    [stream2 writeString:simpleURL usingEncoding:CLUTF8StringEncoding];
   }
   else {
-    [stream2 writeFormat:@"%@/" usingEncoding:CLUTF8StringEncoding, CLWebName];
+    CLMutableDictionary *urlComponents;
 
-    if ((aString = [mDict objectForKey:CL_URLSEL])) {
-      if ([aString length] && [aString characterAtIndex:[aString length]-1] == ':')
-        aString = [aString substringToIndex:[aString length]-1];
-      CLPrintf(stream2, @"%@", aString);
-      [mDict removeObjectForKey:CL_URLSEL];
+
+    urlComponents = [[CLMutableDictionary alloc] init];
+    if (action) {
+      CLString *actionName;
+
+
+      actionName = CLStringFromSelector(action);
+      if ([actionName characterAtIndex:[actionName length] - 1] == ':')
+        actionName = [actionName substringToIndex:[actionName length]-1];
+      if (![actionName isEqualToString:@"detail"])
+	[urlComponents setObject:actionName forKey:CL_URLSEL];
     }
-    else
-      CLPrintf(stream2, @"0");
 
     if (object) {
-      CLPrintf(stream2, @"/%@", [object className]);
-      if (aData)
-	CLPrintf(stream2, @"/%@", [aData encodeBase64]);
+      CLString *objectName;
+
+
+      if ([object isKindOfClass:CLStringClass])
+	objectName = object;
+      else if (!(objectName = [CLEditingContext tableForClass:[object class]]))
+	objectName = [object className];
+      else if ([[CLEditingContext model] count] == 1) {
+	CLRange aRange;
+
+
+	aRange = [objectName rangeOfString:@"."];
+	if (aRange.length)
+	  objectName = [objectName substringFromIndex:CLMaxRange(aRange)];
+      }
+      [urlComponents setObject:objectName forKey:CL_URLCLASS];
     }
-    [mDict removeObjectForKey:CL_URLCLASS];
-    [mDict removeObjectForKey:CL_URLDATA];
+
+    if (stateData)
+      [urlComponents setObject:[stateData encodeBase64] forKey:CL_URLDATA];
+
+    {
+      id anObject;
+
+
+      [stream2 writeFormat:@"%@/" usingEncoding:CLUTF8StringEncoding, CLWebName];
+      for (idx = 0, count = 3; idx < count; idx++) {
+	anObject = [urlComponents objectForKey:CLURLOrder[idx]];
+	if (!anObject)
+	  break;
+	if (idx)
+	  CLPrintf(stream2, @"/");
+	CLPrintf(stream2, @"%@", anObject);
+      }
+    }
+
+    [urlComponents release];
   }
 
   /* FIXME - find a way to differentiate between a browser with no
@@ -159,12 +195,17 @@ void CLWriteURLForGet(CLStream *stream, id object,
     }
   }
 
-  aString = [[CLString alloc] initWithBytes:[stream2 bytes] length:[stream2 length]
-                                   encoding:CLUTF8StringEncoding];
-  [stream writeString:dumbBrowser ? aString : [aString entityEncodedString]
-        usingEncoding:CLUTF8StringEncoding];
-  [stream2 close];
-  [aString release];
+  {
+    CLString *urlString;
+
+
+    urlString = [[CLString alloc] initWithBytes:[stream2 bytes] length:[stream2 length]
+				       encoding:CLUTF8StringEncoding];
+    [stream writeString:dumbBrowser ? urlString : [urlString entityEncodedString]
+	  usingEncoding:CLUTF8StringEncoding];
+    [stream2 close];
+    [urlString release];
+  }
 
 #if 0
   if (!withoutQuery) {
@@ -187,10 +228,31 @@ void CLWriteURLForGet(CLStream *stream, id object,
   return;
 }
 
-void CLWriteURL(CLStream *stream, id object,
-                CLData *aData, CLDictionary *localQuery)
+void CLWriteURL(CLStream *stream, id object, CLData *stateData, SEL action,
+		CLDictionary *localQuery)
 {
-  CLWriteURLForGet(stream, object, aData, localQuery, NO);
+  CLWriteURLForGet(stream, object, stateData, action, localQuery, NO);
+}
+
+Class CLClassFromURLString(CLString *objectName)
+{
+  CLRange aRange;
+  Class targetClass = nil;
+  CLString *aString;
+
+
+  aRange = [objectName rangeOfString:@"."];
+  if (!aRange.length && [[CLEditingContext model] count] == 1) {
+    aString = [CLString stringWithFormat:@"%@.%@",
+			[[[CLEditingContext model] allKeys] objectAtIndex:0], objectName];
+    targetClass = [CLEditingContext classForTable:aString];
+  }
+  else
+    targetClass = [CLEditingContext classForTable:objectName];
+  if (!targetClass)
+    targetClass = CLClassFromString(objectName);
+
+  return targetClass;
 }
 
 @implementation CLControl
@@ -370,31 +432,38 @@ void CLWriteURL(CLStream *stream, id object,
 {
   CLString *aString;
   CLData *aData;
-  CLStream *stream;
   Class targetClass;
 
 
   if ((aString = [CLQuery objectForKey:CL_URLDATA]) &&
       [aString length]) {
     aData = [aString decodeBase64];
-#if 1
     aString = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
-    targetClass = CLClassFromString([CLQuery objectForKey:CL_URLCLASS]);
-    target = [[CLDefaultContext loadExistingObjectWithClass:targetClass
-						 primaryKey:[aString decodeJSON]] retain];
-    if (!target)
-      target = [[targetClass alloc] init];
-    aString = [CLString stringWithFormat:@"%@:", [CLQuery objectForKey:CL_URLSEL]];
-    action = CLSelectorFromString(aString);
-    [target replacePage:self selector:action];
-#else
-    stream = [CLStream openWithData:aData mode:CLReadOnly];
-    [self readURL:stream];
-    [stream readTypes:@"i", &writeContents];
-    if (writeContents)
-      [stream readTypes:@"@", &content];
-    [stream close];
-#endif
+    targetClass = CLClassFromURLString([CLQuery objectForKey:CL_URLCLASS]);
+
+    if ([CLEditingContext recordDefinitionForClass:targetClass]) {
+      target = [[CLDefaultContext loadExistingObjectWithClass:targetClass
+						   primaryKey:[aString decodeJSON]] retain];
+      if (!target)
+	target = [[targetClass alloc] init];
+      aString = [CLQuery objectForKey:CL_URLSEL];
+      if (!aString)
+	aString = @"detail";
+      aString = [CLString stringWithFormat:@"%@:", aString];
+      action = CLSelectorFromString(aString);
+      [target replacePage:self selector:action];
+    }
+    else {
+      CLStream *stream;
+
+
+      stream = [CLStream openWithData:aData mode:CLReadOnly];
+      [self readURL:stream];
+      [stream readTypes:@"i", &writeContents];
+      if (writeContents)
+	[stream readTypes:@"@", &content];
+      [stream close];
+    }
   }
 
   {
@@ -416,7 +485,8 @@ void CLWriteURL(CLStream *stream, id object,
         [CLDelegate respondsTo:@selector(controlShouldPerform:)])
       perform = [CLDelegate controlShouldPerform:self];
     if (perform) {
-      if ([target isKindOfClass:CLPageTargetClass] && action == @selector(showPage:)) {
+      if (([target isKindOfClass:CLPageTargetClass] && action == @selector(showPage:))
+	  || [[CLQuery objectForKey:CL_URLCLASS] isEqualToString:@"CLControl"]) {
 	CLRedirectBrowser([self generateURL], YES, 301);
 	return;
       }
@@ -495,40 +565,37 @@ void CLWriteURL(CLStream *stream, id object,
       aURL = [self expandBinding:aString success:&success];
   }
   else if ([target isKindOfClass:CLPageTargetClass]) {
-    [CLQuery setObject:[target path] forKey:CL_URLSEL];
+    CLString *path;
+
+
+    path = [target path];
+    if ([path hasPathPrefix:CLAppPath])
+      path = [path stringByDeletingPathPrefix:CLAppPath];
+    path = [path stringByDeletingPathExtension];
     stream = [CLStream openMemoryForWriting];
-    CLWriteURL(stream, nil, nil, localQuery);
-    [CLQuery removeObjectForKey:CL_URLSEL];
+    CLWriteURL(stream, path, nil, NULL, localQuery);
     aData = [stream data];
     aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
     [stream close];
   }
-  else {
-#if 1
-    CLString *pageOrSel = nil;
+  else if (target && [CLEditingContext recordDefinitionForClass:[target class]]
+	   && [[target editingContext] primaryKeyForRecord:target]
+	   && [target selectorIsPage:action]) {
     id targetClass = nil;
     CLData *state = nil;
     id pk;
 
 
-    if ([target isKindOfClass:CLPageTargetClass])
-      pageOrSel = [target path];
-    else if (target) {
-      pageOrSel = CLStringFromSelector(action);
-      targetClass = [target class];
-      pk = [[target editingContext] primaryKeyForRecord:target];
-      if (!pk)
-	[self error:@"How to restore state then?"];
-      state = [[pk json] dataUsingEncoding:CLUTF8StringEncoding];
-    }
-    [CLQuery setObject:pageOrSel forKey:CL_URLSEL];
+    targetClass = [target class];
+    pk = [[target editingContext] primaryKeyForRecord:target];
+    state = [[pk json] dataUsingEncoding:CLUTF8StringEncoding];
     stream = [CLStream openMemoryForWriting];
-    CLWriteURL(stream, targetClass, state, localQuery);
-    [CLQuery removeObjectForKey:CL_URLSEL];
+    CLWriteURL(stream, targetClass, state, action, localQuery);
     aData = [stream data];
     aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
     [stream close];
-#else
+  }
+  else {
     stream = [CLStream openMemoryForWriting];
     stream2 = [CLStream openMemoryForWriting];
     [self writeURL:stream2];
@@ -536,8 +603,7 @@ void CLWriteURL(CLStream *stream, id object,
     if (writeContents)
       [stream2 writeTypes:@"@", &content];
     aData = [stream2 data];
-    CLWriteURL(stream, self, aData, localQuery);
-    [CLQuery removeObjectForKey:CL_URLSEL];
+    CLWriteURL(stream, self, aData, action, localQuery);
     [stream2 close];
     if (anchor)
       [stream writeFormat:@"#%@" usingEncoding:CLUTF8StringEncoding, anchor];
@@ -545,7 +611,6 @@ void CLWriteURL(CLStream *stream, id object,
     aData = [stream data];
     aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
     [stream close];
-#endif
   }
 
   aURL = [[self class] rewriteURL:[aURL entityDecodedString]];
@@ -581,7 +646,6 @@ void CLWriteURL(CLStream *stream, id object,
   if ([aString length] && [aString characterAtIndex:[aString length]-1] != ':')
     aString = [aString stringByAppendingString:@":"];
   action = CLSelectorFromString(aString);
-  [CLQuery removeObjectForKey:CL_URLSEL];
   if ([self isKindOfClass:CLFormClass])
     [((CLForm *) self) restoreObject:anObject];
 
@@ -602,7 +666,7 @@ void CLWriteURL(CLStream *stream, id object,
 
 -(void) writeURL:(CLStream *) stream
 {
-  unistr filename, ustr;
+  unistr filename;
   id anObject;
   BOOL success;
   CLString *aString, *fString;
@@ -632,10 +696,6 @@ void CLWriteURL(CLStream *stream, id object,
   if ([target respondsTo:@selector(control:writePersistentData:)])
     [target control:self writePersistentData:stream];
 
-  ustr = CLCloneStackString(CLStringFromSelector(action));
-  if (ustr.len && ustr.str[ustr.len-1] == ':')
-    ustr.len--;
-  [CLQuery setObject:[((CLString *) &ustr) copy] forKey:CL_URLSEL];
   return;
 }
 
