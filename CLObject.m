@@ -1692,6 +1692,16 @@ static IMP CLFindForwardFunction(SEL sel);
   return [CLServerURL stringByAppendingPathComponent:aURL];
 }
 
+-(BOOL) selectorIsPage:(SEL) aSel
+{
+  unistr ustr;
+
+
+  ustr = CLCloneStackString(CLStringFromSelector(aSel));
+  ustr.len--;
+  return !![self findFileForKey:(CLString *) &ustr];
+}
+
 @end
 
 CLString *CLPropertyListString(id anObject)

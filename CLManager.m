@@ -1799,39 +1799,49 @@ void CLRun(CLString *mainObjectName)
 
   if (PATH_INFO && *PATH_INFO && *(PATH_INFO+1)) {
     CLArray *anArray;
+    CLUInteger idx, count;
 
 
     aString = [CLString stringWithUTF8String:PATH_INFO+1];
     anArray = [aString pathComponents];
-    [CLQuery setObject:[anArray objectAtIndex:0] forKey:CL_URLSEL];
-    if ([anArray count] > 1)
-      [CLQuery setObject:[anArray objectAtIndex:1] forKey:CL_URLCLASS];
-    if ([anArray count] > 2)
-      [CLQuery setObject:[anArray objectAtIndex:2] forKey:CL_URLDATA];
+    for (idx = 0, count = CLMin(3, [anArray count]); idx < count; idx++)
+      [CLQuery setObject:[anArray objectAtIndex:idx] forKey:CLURLOrder[idx]];
+
+    if ([[CLQuery objectForKey:CL_URLDATA] isEqualToString:@"CLControl"]) {
+      /* Old URL order - rearrange */
+      for (idx = 0, count = CLMin(3, [anArray count]); idx < count; idx++)
+	[CLQuery setObject:[anArray objectAtIndex:idx] forKey:CLURLOrder[idx + 3]];
+    }
   }
 
   CLMainObject = nil;
 
 #if DEBUG_RETAIN
-    id self = nil;
+  id self = nil;
 #endif
-  if (isValidURL && (aString = [CLQuery objectForKey:CL_URLCLASS]) &&
-      (CLMainObject = [[CLClassFromString(aString) alloc] init]))
-    mainAction = @selector(performAction);
-  else {
-    CLMainObject = [[CLClassFromString(mainObjectName) alloc] init];
-    if ([CLMainObject respondsTo:@selector(showPage:)])
-      mainAction = @selector(showPage:);
+  {
+    Class targetClass;
+
+
+    if (isValidURL
+	&& (targetClass = CLClassFromURLString([CLQuery objectForKey:CL_URLCLASS]))
+	&& (CLMainObject = [[targetClass alloc] init]))
+      mainAction = @selector(performAction);
     else {
-      CLMainObject = nil;
-      if ([[CLQuery objectForKey:CL_URLSEL] length]) {
-	CLMainObject = [[CLPage alloc] initFromFile:[CLQuery objectForKey:CL_URLSEL]
-					      owner:CLMainObject];
-	/* FIXME - return a 404 */
+      CLMainObject = [[CLClassFromString(mainObjectName) alloc] init];
+      if ([CLMainObject respondsTo:@selector(showPage:)])
+	mainAction = @selector(showPage:);
+      else {
+	CLMainObject = nil;
+	if ([[CLQuery objectForKey:CLURLOrder[0]] length]) {
+	  CLMainObject = [[CLPage alloc] initFromFile:[CLQuery objectForKey:CLURLOrder[0]]
+						owner:CLMainObject];
+	  /* FIXME - return a 404 */
+	}
+	if (!CLMainObject)
+	  CLMainObject = [[CLPage alloc] initFromFile:mainObjectName owner:CLMainObject];
+	mainAction = @selector(display);
       }
-      if (!CLMainObject)
-	CLMainObject = [[CLPage alloc] initFromFile:mainObjectName owner:CLMainObject];
-      mainAction = @selector(display);
     }
   }
 

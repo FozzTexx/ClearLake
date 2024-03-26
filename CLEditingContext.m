@@ -1576,16 +1576,19 @@ static int _modelInitState = MODEL_UNINIT;
 
   if (!aTable)
     return nil;
+  aRange = [aTable rangeOfString:@"."];
+  if (!aRange.length)
+    return nil;
 
   if (!_tableDefs)
     [self model];
+
 
   if (!(recordDef = CLHashTableDataForKey(_tableDefs, aTable, [aTable hash],
                                           @selector(isEqual:)))) {
     pool = [[CLAutoreleasePool alloc] init];
     model = [CLEditingContext model];
 
-    aRange = [aTable rangeOfString:@"."];
     database = [aTable substringToIndex:aRange.location];
     table = [aTable substringFromIndex:CLMaxRange(aRange)];
 
