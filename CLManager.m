@@ -991,7 +991,39 @@ static CLMutableDictionary *CLConfig = nil;
     [CLDelegate didLogout:sender];
 
   if (sender) {
-    CLRedirectBrowserToPage([[sender page] filename], YES);
+    CLString *path;
+    id owner;
+    CLArray *anArray;
+    CLString *targetName;
+    SEL action;
+
+
+    path = [[sender page] filename];
+    owner = [[sender page] owner];
+    anArray = [[[path lastPathComponent] stringByDeletingPathExtension]
+		componentsSeparatedByString:@"_"];
+    if ([anArray count] == 2) {
+      targetName = [[[CLEditingContext recordDefinitionForClass:[owner class]] databaseTable]
+		     upperCamelCaseString];
+      action = CLSelectorFromString([[anArray objectAtIndex:1] stringByAppendingString:@":"]);
+      if ([targetName isEqualToString:[anArray objectAtIndex:0]]
+	  && [owner selectorIsPage:action]) {
+	CLControl *aControl;
+	CLString *newURL;
+
+
+	aControl = [[CLControl alloc] init];
+	[aControl setTarget:owner];
+	[aControl setAction:action];
+	newURL = [aControl generateURL];
+	[aControl release];
+	CLRedirectBrowser(newURL, YES, 303);
+	[sender setPage:nil];
+	return;
+      }
+    }
+
+    CLRedirectBrowserToPage(path, YES);
     [sender setPage:nil];
   }
 

@@ -486,15 +486,19 @@ Class CLClassFromURLString(CLString *objectName)
       perform = [CLDelegate controlShouldPerform:self];
     if (perform) {
       if (([target isKindOfClass:CLPageTargetClass] && action == @selector(showPage:))
-	  || [[CLQuery objectForKey:CL_URLCLASS] isEqualToString:@"CLControl"]) {
-	CLRedirectBrowser([self generateURL], YES, 301);
+	  || ([[CLQuery objectForKey:CL_URLCLASS] isEqualToString:@"CLControl"]
+	      && [CLEditingContext recordDefinitionForClass:[target class]]
+	      && [[target editingContext] primaryKeyForRecord:target]
+	      && [target selectorIsPage:action])) {
+	aString = [self generateURL];
+	fprintf(stderr, "Redirecting: %s\n", [aString UTF8String]);
+	CLRedirectBrowser(aString, YES, 301);
 	return;
       }
       [target perform:action with:self];
       [page display];
     }
   }
-
 
   return;
 }
