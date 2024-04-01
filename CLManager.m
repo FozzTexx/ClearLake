@@ -1797,6 +1797,7 @@ void CLRun(CLString *mainObjectName)
 
  done:
   [[CLEditingContext sessionClass] deleteExpiredSessions];
+  [CLEditingContext closeDatabases];
 
   exit(0);
 

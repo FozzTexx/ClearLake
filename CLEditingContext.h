@@ -50,6 +50,7 @@
 +(void) createSelect:(CLMutableString **) select andAttributes:(CLArray **) attributes
  forRecordDefinition:(CLRecordDefinition *) recordDef;
 +(int) generatePrimaryKey:(CLMutableDictionary *) mDict forRecord:(id) aRecord;
++(void) closeDatabases;
 
 -(id) init;
 -(void) dealloc;

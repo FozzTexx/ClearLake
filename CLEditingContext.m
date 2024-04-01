@@ -319,6 +319,7 @@ static int _modelInitializing = 0;
   CLArray *anArray;
   int i, j;
   CLString *aString;
+  CLAutoreleasePool *pool;
 
   
   if (_model)
@@ -338,12 +339,16 @@ static int _modelInitializing = 0;
       (aString = [CLString stringWithContentsOfFile:
 			     [[CLManager configurationDirectory]
 			       stringByAppendingPathComponent:aString]
-			   encoding:CLASCIIStringEncoding]))
+					   encoding:CLASCIIStringEncoding])) {
+    pool = [[CLAutoreleasePool alloc] init];
     _model = [[aString decodePropertyList] mutableCopy];
+    [pool release];
+  }
   else {
     if (![CLManager configOption:@"Database"])
       return nil;
 
+    pool = [[CLAutoreleasePool alloc] init];
     _model = [[CLMutableDictionary alloc] init];    
     mDict = [[CLMutableDictionary alloc] init];
     mDict2 = [[CLMutableDictionary alloc] init];
@@ -363,7 +368,7 @@ static int _modelInitializing = 0;
 	(aString = [CLString stringWithContentsOfFile:
 			       [[CLManager configurationDirectory]
 				 stringByAppendingPathComponent:aString]
-			     encoding:CLASCIIStringEncoding]))
+					     encoding:CLASCIIStringEncoding]))
       mDict3 = [[aString decodePropertyList] mutableCopy];
     else
       mDict3 = [[CLMutableDictionary alloc] init];
@@ -378,7 +383,10 @@ static int _modelInitializing = 0;
     [mDict3 release];
     [mDict2 release];
     [mDict release];
+    [pool release];
   }
+
+  pool = [[CLAutoreleasePool alloc] init];
 
   anArray = [_model allKeys];
   for (i = 0, j = [anArray count]; i < j; i++) {
@@ -393,6 +401,8 @@ static int _modelInitializing = 0;
     [self findDependencies:[[_model objectForKey:aString]
 			     objectForKey:@"schema"] databaseName:aString];
   }
+
+  [pool release];
 
   return _model;
 }
@@ -442,6 +452,7 @@ static int _modelInitializing = 0;
       [db setDateFormat:format];
     
     [mDict setObject:db forKey:@"database"];
+    [db release];
   }
 
   return db;
@@ -682,6 +693,13 @@ static int _modelInitializing = 0;
   return oid;
 }
 
++(void) closeDatabases
+{
+  [_model release];
+  _model = nil;
+  return;
+}
+
 -(id) init
 {
   [super init];
@@ -744,7 +762,7 @@ static int _modelInitializing = 0;
     pk = [[self class] constructPrimaryKey:aRecord recordDef:recordDef
 			      fromDatabase:NO asDictionary:NO];
   }
-  
+
   return pk;
 }
 
