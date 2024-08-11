@@ -400,7 +400,8 @@ void CLWriteURL(CLStream *stream, id object,
 	[CLDelegate respondsTo:@selector(controlShouldPerform:)])
       perform = [CLDelegate controlShouldPerform:self];
     if (perform) {
-      [target perform:action with:self];
+      if ([target respondsTo:action])
+	[target perform:action with:self];
       [page display];
     }
   }
