@@ -85,6 +85,12 @@ static int CLAccountBridge_setLastSeen(CLPyBridgeLink *pySelf, PyObject *value, 
   return 0;
 }
 
+static PyObject *CLAccountBridge_isActiveAccount(CLPyBridgeLink *pySelf,
+						 PyObject *Py_UNUSED(ignored))
+{
+  return PyBool_FromLong([pySelf->bridgeObject isActiveAccount]);
+}
+
 static PyGetSetDef CLAccountBridge_getsetters[] = {
   {"objectID", (getter) CLAccountBridge_objectID, NULL,
    "get the objectID (primary key) of the acccount", NULL},
@@ -102,6 +108,8 @@ static PyGetSetDef CLAccountBridge_getsetters[] = {
    "get the most recent IP address", "set the most recent IP address"},
   {"lastSeen", (getter) CLAccountBridge_lastSeen, (setter) CLAccountBridge_setLastSeen,
    "get when the acccount last logged in", "set when the account last logged in"},
+  {"isActiveAccount", (getter) CLAccountBridge_isActiveAccount, NULL,
+   "return True if the account is the one logged into the active session", NULL},
   {NULL},
 };
 

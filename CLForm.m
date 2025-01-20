@@ -1085,6 +1085,43 @@ typedef struct ContentInfo {
     }
     else {
       [[aControl target] perform:[aControl action] with:self];
+
+      {
+	CLString *path;
+	id owner;
+	CLArray *anArray;
+	CLString *targetName;
+	SEL pageAction;
+
+
+	path = [[self page] filename];
+	owner = [[self page] owner];
+	anArray = [[[path lastPathComponent] stringByDeletingPathExtension]
+		    componentsSeparatedByString:@"_"];
+	if ([anArray count] == 2) {
+	  targetName = [[[CLEditingContext recordDefinitionForClass:[owner class]]
+			  databaseTable]
+			 upperCamelCaseString];
+	  pageAction = CLSelectorFromString([[anArray objectAtIndex:1]
+					      stringByAppendingString:@":"]);
+	  if ([targetName isEqualToString:[anArray objectAtIndex:0]]
+	      && [owner selectorIsPage:pageAction]) {
+	    CLControl *aControl;
+	    CLString *newURL;
+
+
+	    aControl = [[CLControl alloc] init];
+	    [aControl setTarget:owner];
+	    [aControl setAction:pageAction];
+	    newURL = [aControl generateURL];
+	    [aControl release];
+	    CLRedirectBrowser(newURL, YES, 303);
+	    [self setPage:nil];
+	    return perform;
+	  }
+	}
+      }
+
       [page display];
     }
   }

@@ -82,6 +82,8 @@ static int CLSQLiteRowData(void *data, int argc, char **argv, char **azColName)
     return nil;
   }
 
+  sqlite3_exec(conn, "PRAGMA journal_mode=WAL;", 0, 0, 0);
+
   return self;
 }
 
