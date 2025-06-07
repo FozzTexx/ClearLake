@@ -41,6 +41,7 @@
 #import "CLStandardContent.h"
 #import "CLDatetime.h"
 #import "CLClassConstants.h"
+#import "CLFQTableName.h"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -1099,9 +1100,8 @@ typedef struct ContentInfo {
 	anArray = [[[path lastPathComponent] stringByDeletingPathExtension]
 		    componentsSeparatedByString:@"_"];
 	if ([anArray count] == 2) {
-	  targetName = [[[CLEditingContext recordDefinitionForClass:[owner class]]
-			  databaseTable]
-			 upperCamelCaseString];
+	  targetName = [[[[CLEditingContext recordDefinitionForClass:[owner class]] table]
+			  tableName] upperCamelCaseString];
 	  pageAction = CLSelectorFromString([[anArray objectAtIndex:1]
 					      stringByAppendingString:@":"]);
 	  if ([targetName isEqualToString:[anArray objectAtIndex:0]]

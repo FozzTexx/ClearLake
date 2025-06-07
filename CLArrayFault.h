@@ -24,9 +24,12 @@
 
 #import <ClearLake/CLFault.h>
 
+@class CLFQTableName;
+
 @interface CLArrayFault:CLFault
 @end
 
-extern id CLNewArrayFault(CLString *aQualifier, CLString *aTable, CLEditingContext *aContext);
+extern id CLNewArrayFault(CLString *aQualifier, CLFQTableName *aTable,
+			  CLEditingContext *aContext);
 
 #endif /* _CLFAULT_H */

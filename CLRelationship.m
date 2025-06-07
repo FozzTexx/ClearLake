@@ -31,6 +31,7 @@
 #import "CLRecordDefinition.h"
 #import "CLDatetime.h"
 #import "CLClassConstants.h"
+#import "CLFQTableName.h"
 
 @implementation CLRelationship
 
@@ -77,15 +78,11 @@
     else
       ourID = [aString substringToIndex:aRange.location];
 
-    theirTable = [[aString substringWithRange:
+    theirTable = [[CLFQTableName alloc] initFromTable:[aString substringWithRange:
                             CLMakeRange(CLMaxRange(aRange),
-                                     aRange2.location - CLMaxRange(aRange))] retain];
+                                     aRange2.location - CLMaxRange(aRange))]
+					   inDatabase:aDatabase];
     theirID = [aString substringFromIndex:CLMaxRange(aRange2)];
-    aRange = [theirTable rangeOfString:@"."];
-    if (!aRange.length) {
-      [theirTable autorelease];
-      theirTable = [[CLString stringWithFormat:@"%@.%@", aDatabase, theirTable] retain];
-    }
 
     mArray = [[CLMutableArray alloc] init];
     anArray = [ourID componentsSeparatedByString:@","];
@@ -138,7 +135,7 @@
   return aCopy;
 }
 
--(CLString *) theirTable
+-(CLFQTableName *) theirTable
 {
   return theirTable;
 }
@@ -318,9 +315,9 @@
   return;
 }
 
--(BOOL) isReciprocal:(CLRelationship *) aRelationship forTable:(CLString *) aTable
+-(BOOL) isReciprocal:(CLRelationship *) aRelationship forTable:(CLFQTableName *) aTable
 {
-  if (![aTable isEqualToString:theirTable])
+  if (![aTable isEqual:theirTable])
     return NO;
 
   if (![ourKeys isEqual:aRelationship->theirKeys] ||

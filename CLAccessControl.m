@@ -34,6 +34,7 @@
 #import "CLArray.h"
 #import "CLRecordDefinition.h"
 #import "CLClassConstants.h"
+#import "CLFQTableName.h"
 
 @implementation CLAccessControl
 
@@ -135,10 +136,8 @@
     actionString = CLStringFromSelector([anObject action]);
 
     if ([target isKindOfClass:CLGenericRecordClass]) {
-      localTable = [target table];
-      recordDef = [CLEditingContext recordDefinitionForTable:localTable];
-      aRange = [localTable rangeOfString:@"."];
-      localTable = [[localTable substringFromIndex:CLMaxRange(aRange)] upperCamelCaseString];
+      recordDef = [CLEditingContext recordDefinitionForTable:[target table]];
+      localTable = [[[target table] tableName] upperCamelCaseString];
       localClass = [[recordDef class] className];
     }
 

@@ -24,12 +24,12 @@
 
 #import <ClearLake/CLObject.h>
 
-@class CLArray, CLString, CLDictionary, CLMutableDictionary;
+@class CLArray, CLString, CLDictionary, CLMutableDictionary, CLFQTableName;
 
 @interface CLRelationship:CLObject <CLCopying>
 {
   CLArray *ourKeys, *theirKeys;
-  CLString *theirTable;
+  CLFQTableName *theirTable;
   int isOwner:1;
   int toMany:1;
   int isDependent:1;
@@ -41,7 +41,7 @@
 -(id) initFromString:(CLString *) aString databaseName:(CLString *) aDatabase;
 -(void) dealloc;
 
--(CLString *) theirTable;
+-(CLFQTableName *) theirTable;
 -(CLArray *) ourKeys;
 -(CLArray *) theirKeys;
 -(BOOL) isOwner;
@@ -55,7 +55,7 @@
           usingObject:(id) anObject fieldDefinition:(CLDictionary *) fields;
 -(void) setDictionary:(CLMutableDictionary *) aDict
           usingRecord:(id) anObject fieldDefinition:(CLDictionary *) fields;
--(BOOL) isReciprocal:(CLRelationship *) aRelationship forTable:(CLString *) aTable;
+-(BOOL) isReciprocal:(CLRelationship *) aRelationship forTable:(CLFQTableName *) aTable;
 
 @end
 

@@ -26,7 +26,7 @@
 #import <ClearLake/CLHashTable.h>
 
 @class CLMutableArray, CLDictionary, CLMutableDictionary, CLDatabase, CLRecordDefinition,
-  CLMutableString, CLArray;
+  CLMutableString, CLArray, CLFQTableName;
 
 @interface CLEditingContext:CLObject
 {
@@ -57,10 +57,11 @@
 
 -(id) primaryKeyForRecord:(id) aRecord;
 -(id) registerInstance:(id) anObject;
--(id) registerInstance:(id) anObject inTable:(CLString *) table withPrimaryKey:(id) primaryKey;
+-(id) registerInstance:(id) anObject inTable:(CLFQTableName *) table
+	withPrimaryKey:(id) primaryKey;
 -(void) unregisterInstance:(id) anObject;
 -(BOOL) instanceIsRegistered:(id) anObject;
--(id) recordForPrimaryKey:(id) primaryKey inTable:(CLString *) table;
+-(id) recordForPrimaryKey:(id) primaryKey inTable:(CLFQTableName *) table;
 -(BOOL) recordHasChanges:(id) aRecord;
 
 -(void) addToIgnoreChanges:(id) anObject;
@@ -93,10 +94,11 @@
 @end
 
 @interface CLEditingContext (CLRecordDefinition)
-+(id) classForTable:(CLString *) aString;
-+(CLString *) tableForClass:(id) aClass;
++(id) classForTable:(CLFQTableName *) aTable;
++(id) classForTable:(CLString *) aTable inDatabase:(CLString *) aDatabase;
++(CLFQTableName *) tableForClass:(id) aClass;
 +(CLRecordDefinition *) recordDefinitionForClass:(Class) aClass;
-+(CLRecordDefinition *) recordDefinitionForTable:(CLString *) aTable;
++(CLRecordDefinition *) recordDefinitionForTable:(CLFQTableName *) aTable;
 @end
 
 extern CLEditingContext *CLDefaultContext;

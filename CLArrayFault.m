@@ -26,6 +26,7 @@
 #import "CLGenericRecord.h"
 #import "CLEditingContext.h"
 #import "CLClassConstants.h"
+#import "CLFQTableName.h"
 
 #include <stdlib.h>
 
@@ -145,7 +146,7 @@
 
 @end
 
-id CLNewArrayFault(CLString *aQualifier, CLString *aTable, CLEditingContext *aContext)
+id CLNewArrayFault(CLString *aQualifier, CLFQTableName *aTable, CLEditingContext *aContext)
 {
   void *buf;
   CLObjectReserved *reserved;

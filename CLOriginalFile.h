@@ -24,7 +24,7 @@
 
 #import <ClearLake/CLGenericRecord.h>
 
-@class CLInput;
+@class CLInput, CLFQTableName;
 
 @protocol CLFileTypeIdentification
 -(BOOL) isAudio;
@@ -43,13 +43,13 @@
   CLString *_filename; /* Not called filename so that CLGenericRecord doesn't find it */
 }
 
-+(id) fileFromField:(CLInput *) aField table:(CLString *) aTable;
-+(id) fileFromFile:(CLString *) aFilename table:(CLString *) aTable;
-+(id) fileFromData:(CLData *) aData table:(CLString *) aTable;
-+(id) fileFromPath:(CLString *) aPath table:(CLString *) aTable hardlink:(BOOL) hardlink;
++(id) fileFromField:(CLInput *) aField table:(CLFQTableName *) aTable;
++(id) fileFromFile:(CLString *) aFilename table:(CLFQTableName *) aTable;
++(id) fileFromData:(CLData *) aData table:(CLFQTableName *) aTable;
++(id) fileFromPath:(CLString *) aPath table:(CLFQTableName *) aTable hardlink:(BOOL) hardlink;
 
 -(id) init;
--(id) initFromData:(CLData *) aData table:(CLString *) aTable;
+-(id) initFromData:(CLData *) aData table:(CLFQTableName *) aTable;
 -(void) dealloc;
 
 -(CLString *) path;

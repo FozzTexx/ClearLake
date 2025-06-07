@@ -31,12 +31,12 @@
 
 @class CLDictionary, CLMutableDictionary, CLArray, CLMutableArray,
   CLDatabase, CLDatetime, CLEditingContext, CLAttribute, CLRelationship,
-  CLRecordDefinition;
+  CLRecordDefinition, CLFQTableName;
 
 @interface CLGenericRecord:CLObject <CLArchiving, CLCopying>
 {
   int objectID;
-  CLString *_table;
+  CLFQTableName *_table;
   CLHashTable *_record;
   CLRecordDefinition *_recordDef;
   CLDictionary *_primaryKey, *_dbPrimaryKey;
@@ -48,7 +48,7 @@
 }
 
 -(id) init;
--(id) initFromDictionary:(CLDictionary *) aDict table:(CLString *) aTable;
+-(id) initFromDictionary:(CLDictionary *) aDict table:(CLFQTableName *) aTable;
 -(void) dealloc;
 -(void) new:(id) sender;
 
@@ -59,7 +59,7 @@
 #if 0
 -(id) objectForCachedBinding:(CLCachedBinding *) cachedBinding;
 #endif
--(CLString *) table;
+-(CLFQTableName *) table;
 -(CLUInteger) objectID;
 -(void) setObjectID:(CLUInteger) oid;
 -(BOOL) exists;

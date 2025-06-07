@@ -40,6 +40,7 @@
 #import "CLDatetime.h"
 #import "CLStackString.h"
 #import "CLClassConstants.h"
+#import "CLFQTableName.h"
 
 #include <stdlib.h>
 #include <wctype.h>
@@ -60,7 +61,7 @@
   return [self initFromDictionary:nil table:[CLEditingContext tableForClass:[self class]]];
 }
 
--(id) initFromDictionary:(CLDictionary *) aDict table:(CLString *) aTable
+-(id) initFromDictionary:(CLDictionary *) aDict table:(CLFQTableName *) aTable
 {
   id aValue;
   int i, j;
@@ -326,7 +327,7 @@
   return _primaryKey;
 }
 
--(CLString *) table
+-(CLFQTableName *) table
 {
   return _table;
 }
@@ -1105,7 +1106,7 @@
 
 
   aString = [CLString stringWithFormat:@"select count(*) from %@ where %@",
-                      [_recordDef databaseTable], [self generateQualifier]];
+                      [[_recordDef table] tableName], [self generateQualifier]];
   results = [db runQuery:aString];
   anArray = [results objectForKey:@"rows"];
   if ([anArray count] && [[[anArray objectAtIndex:0] objectAtIndex:0] intValue])
@@ -1120,7 +1121,8 @@
   CLRecordDefinition *theirDef;
   CLAttribute *anAttr;
   CLRelationship *aRelationship;
-  CLString *ourTable, *aKey;
+  CLFQTableName *ourTable;
+  CLString *aKey;
   CLArray *fields, *relationships;
   int i, j, k, l;
 
@@ -1132,7 +1134,7 @@
     aKey = [relationships objectAtIndex:i];
     aRelationship = [aDict objectForKey:aKey];
     ourTable = [aRelationship theirTable];
-    if ([ourTable isEqualToString:_table] && ![aRelationship toMany]) {
+    if ([ourTable isEqual:_table] && ![aRelationship toMany]) {
       if (![[aRecord objectValueForBinding:aKey] isEqual:self])
         continue;
 
@@ -1738,7 +1740,7 @@
   int i, j;
   CLArray *anArray;
   CLRelationship *theirs;
-  CLString *table;
+  CLFQTableName *table;
 
 
   *aName = nil;

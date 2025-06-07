@@ -37,22 +37,22 @@
 
 @implementation CLOriginalImage
 
-+(CLOriginalImage *) imageFromField:(CLInput *) aField table:(CLString *) aTable
++(CLOriginalImage *) imageFromField:(CLInput *) aField table:(CLFQTableName *) aTable
 {
   return [self fileFromField:aField table:aTable];
 }
 
-+(CLOriginalImage *) imageFromFile:(CLString *) aFilename table:(CLString *) aTable
++(CLOriginalImage *) imageFromFile:(CLString *) aFilename table:(CLFQTableName *) aTable
 {
   return [self fileFromFile:aFilename table:aTable];
 }
 
-+(CLOriginalImage *) imageFromData:(CLData *) aData table:(CLString *) aTable
++(CLOriginalImage *) imageFromData:(CLData *) aData table:(CLFQTableName *) aTable
 {
   return [self fileFromData:aData table:aTable];
 }
 
-+(CLOriginalImage *) imageFromPath:(CLString *) aPath table:(CLString *) aTable
++(CLOriginalImage *) imageFromPath:(CLString *) aPath table:(CLFQTableName *) aTable
                          hardlink:(BOOL) hardlink
 {
   return [self fileFromPath:aPath table:aTable hardlink:hardlink];

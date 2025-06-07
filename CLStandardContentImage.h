@@ -32,8 +32,8 @@
   BOOL willDelete;
 }
 
-+(CLStandardContentImage *) imageFromField:(CLInput *) aField table:(CLString *) aTable;
-+(CLStandardContentImage *) imageFromFile:(CLString *) aFilename table:(CLString *) aTable;
++(CLStandardContentImage *) imageFromField:(CLInput *) aField table:(CLFQTableName *) aTable;
++(CLStandardContentImage *) imageFromFile:(CLString *) aFilename table:(CLFQTableName *) aTable;
 -(CLComparisonResult) comparePosition:(id) anObject;
 
 -(BOOL) willDelete;

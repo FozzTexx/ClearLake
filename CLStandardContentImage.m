@@ -26,7 +26,7 @@
 
 @implementation CLStandardContentImage
 
-+(CLStandardContentImage *) imageFromField:(CLInput *) aField table:(CLString *) aTable
++(CLStandardContentImage *) imageFromField:(CLInput *) aField table:(CLFQTableName *) aTable
 {
   CLStandardContentImage *pImage = nil;
   CLOriginalImage *anImage;
@@ -44,7 +44,7 @@
   return pImage;
 }
 
-+(CLStandardContentImage *) imageFromFile:(CLString *) aFilename table:(CLString *) aTable
++(CLStandardContentImage *) imageFromFile:(CLString *) aFilename table:(CLFQTableName *) aTable
 {
   CLStandardContentImage *pImage = nil;
   CLOriginalImage *anImage;
