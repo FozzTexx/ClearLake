@@ -66,4 +66,9 @@
   return [fqTableName isEqual:anObject];
 }
 
+-(id) copy
+{
+  return [self retain];
+}
+
 @end

@@ -135,7 +135,7 @@ static int CLQsortCompareByDescriptors(const void *ptr1, const void *ptr2)
 #else
 -(id) copy
 {
-  return [[[CLMutableArrayDatastore alloc] initWithArray:self] autorelease];
+  return [[CLMutableArrayDatastore alloc] initWithArray:self];
 }
 #endif
 
