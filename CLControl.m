@@ -47,6 +47,7 @@
 #import "CLJSONTarget.h"
 #import "CLClassConstants.h"
 #import "CLEditingContext.h"
+#import "CLFQTableName.h"
 
 #include <stdlib.h>
 
@@ -126,20 +127,15 @@ void CLWriteURLForGet(CLStream *stream, id object, CLData *stateData, SEL action
 
     if (object) {
       CLString *objectName;
+      CLFQTableName *aTable;
 
 
       if ([object isKindOfClass:CLStringClass])
 	objectName = object;
-      else if (!(objectName = [CLEditingContext tableForClass:[object class]]))
+      else if (!(aTable = [CLEditingContext tableForClass:[object class]]))
 	objectName = [object className];
-      else if ([[CLEditingContext model] count] == 1) {
-	CLRange aRange;
-
-
-	aRange = [objectName rangeOfString:@"."];
-	if (aRange.length)
-	  objectName = [objectName substringFromIndex:CLMaxRange(aRange)];
-      }
+      else if ([[CLEditingContext model] count] == 1)
+	objectName = [aTable tableName];
       [urlComponents setObject:objectName forKey:CL_URLCLASS];
     }
 
@@ -238,17 +234,20 @@ Class CLClassFromURLString(CLString *objectName)
 {
   CLRange aRange;
   Class targetClass = nil;
-  CLString *aString;
+  CLString *tableName, *databaseID;
 
 
-  aRange = [objectName rangeOfString:@"."];
+  aRange = [objectName rangeOfString:@"." options:CLBackwardsSearch];
   if (!aRange.length && [[CLEditingContext model] count] == 1) {
-    aString = [CLString stringWithFormat:@"%@.%@",
-			[[[CLEditingContext model] allKeys] objectAtIndex:0], objectName];
-    targetClass = [CLEditingContext classForTable:aString];
+    databaseID = [[[CLEditingContext model] allKeys] objectAtIndex:0];
+    tableName = objectName;
   }
-  else
-    targetClass = [CLEditingContext classForTable:objectName];
+  else {
+    databaseID = [objectName substringToIndex:aRange.location];
+    tableName = [objectName substringFromIndex:CLMaxRange(aRange)];
+  }
+
+  targetClass = [CLEditingContext classForTable:tableName inDatabase:databaseID];
   if (!targetClass)
     targetClass = CLClassFromString(objectName);
 

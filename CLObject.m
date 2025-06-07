@@ -43,6 +43,7 @@
 #import "CLRelationship.h"
 #import "CLDictionary.h"
 #import "CLFault.h"
+#import "CLFQTableName.h"
 
 #include <stdlib.h>
 #include <wctype.h>
@@ -122,7 +123,7 @@ static IMP CLFindForwardFunction(SEL sel);
     if (len < [rname length])
       len = [rname length];
 
-    if ((tname = [recordDef databaseTable])) {
+    if ((tname = [[recordDef table] tableName])) {
       pstr = alloca(sizeof(unistr));
       *pstr = CLCopyStackString(tname, 0);
       [((CLMutableString *) pstr) upperCamelCase];
@@ -247,7 +248,7 @@ static IMP CLFindForwardFunction(SEL sel);
   if (([self isKindOfClass:CLGenericRecordClass] &&
        (recordDef = [((CLGenericRecord *) self) recordDef])) ||
       (recordDef = [CLEditingContext recordDefinitionForClass:[self class]])) {
-    anArray = [self pagesForPrefix:[[recordDef databaseTable] upperCamelCaseString]];
+    anArray = [self pagesForPrefix:[[[recordDef table] tableName] upperCamelCaseString]];
     for (idx = 0, count = [anArray count]; idx < count; idx++) {
       aString = [anArray objectAtIndex:idx];
       if (![mArray containsObject:aString])
@@ -2028,6 +2029,7 @@ CLString *_NSNewStringFromCString(const char *cString)
 #import "CLStandardContentImage.h"
 #import "CLStandardContentCategory.h"
 #import "CLFileType.h"
+#import "CLDictionaryDatastore.h"
 
 static void CLLinkerIsBorked()
 {
@@ -2037,6 +2039,7 @@ static void CLLinkerIsBorked()
   [CLStandardContentImage linkerIsBorked];
   [CLStandardContentCategory linkerIsBorked];
   [CLFileType linkerIsBorked];
+  [CLDictionaryDatastore linkerIsBorked];
   CLShutupAboutUnused();
   return;
 }

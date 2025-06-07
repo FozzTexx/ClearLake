@@ -395,7 +395,7 @@
   return nil;
 }
 
-#if 0
+#if 1
 -(id) objectForCaseInsensitiveString:(CLString *) aKey
 {
   [self error:@"%s: %s must be implemented by subclass",

@@ -24,7 +24,7 @@
 
 #import <ClearLake/CLPrimitiveObject.h>
 
-@class CLDictionary, CLRecordDefinition, CLMethodSignature, CLMutableArray;
+@class CLDictionary, CLRecordDefinition, CLMethodSignature, CLMutableArray, CLFQTableName;
 
 typedef struct {
   Class original;
@@ -37,7 +37,7 @@ typedef struct {
     } faultData;
     struct {
       CLString *qualifier;
-      CLString *table;
+      CLFQTableName *table;
       CLMutableArray *objects;
     } arrayData;
   } info;

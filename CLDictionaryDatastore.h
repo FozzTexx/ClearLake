@@ -37,4 +37,8 @@ typedef struct {
   CLMutableDictionarySubclass>
 @end
 
+@interface CLDictionaryDatastore (LinkerIsBorked)
++(void) linkerIsBorked;
+@end
+
 #endif /* _CLDICTIONARYDATASTORE_H */

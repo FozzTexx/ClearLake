@@ -34,7 +34,7 @@ CLASSES= CLArray.m CLAutoreleasePool.m CLCharacterSet.m			\
          CLPipeStream.m CLMemoryStream.m CLInfoMessage.m		\
          CLStackString.m CLJSONTarget.m CLCSVDecoder.m CLScanner.m	\
          CLMarkdown.m CLArrayDatastore.m CLDictionaryDatastore.m	\
-         CLSQLiteDatabase.m
+         CLSQLiteDatabase.m CLFQTableName.m
 MFILES= CLDecimal.m CLDecimalMPZ.m CLStringFunctions.m CLGetArgs.m      \
         CLRuntime.m CLClassConstants.m
 CFILES=

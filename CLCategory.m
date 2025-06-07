@@ -30,6 +30,7 @@
 #import "CLEditingContext.h"
 #import "CLStandardContent.h"
 #import "CLClassConstants.h"
+#import "CLFQTableName.h"
 
 #include <stdlib.h>
 
@@ -63,14 +64,13 @@ static CLMutableArray *categories = nil;
   CLArray *attr, *rows;
   CLString *qual;
   CLDatabase *db;
-  CLString *fullTable, *localTable;
-  CLRange aRange;
+  CLFQTableName *fullTable;
+  CLString *localTable;
 
 
   fullTable = [CLEditingContext tableForClass:[self class]];
-  aRange = [fullTable rangeOfString:@"."];
-  db = [CLEditingContext databaseNamed:[fullTable substringToIndex:aRange.location]];
-  localTable = [fullTable substringFromIndex:CLMaxRange(aRange)];
+  db = [CLEditingContext databaseNamed:[fullTable databaseID]];
+  localTable = [fullTable tableName];
 
   attr = CLAttributes(@"id:i", nil);
   if (anID)

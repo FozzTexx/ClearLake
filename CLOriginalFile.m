@@ -43,7 +43,7 @@
 
 @implementation CLOriginalFile
 
-+(id) fileFromField:(CLInput *) aField table:(CLString *) aTable
++(id) fileFromField:(CLInput *) aField table:(CLFQTableName *) aTable
 {
   CLOriginalFile *aFile;
   id aValue;
@@ -64,7 +64,7 @@
   return nil;
 }
 
-+(id) fileFromFile:(CLString *) aFilename table:(CLString *) aTable
++(id) fileFromFile:(CLString *) aFilename table:(CLFQTableName *) aTable
 {
   CLOriginalFile *aFile = nil;
 
@@ -75,12 +75,12 @@
   return aFile;
 }
 
-+(id) fileFromData:(CLData *) aData table:(CLString *) aTable
++(id) fileFromData:(CLData *) aData table:(CLFQTableName *) aTable
 {
   return [[[self alloc] initFromData:aData table:aTable] autorelease];
 }
 
-+(id) fileFromPath:(CLString *) aPath table:(CLString *) aTable hardlink:(BOOL) hardlink
++(id) fileFromPath:(CLString *) aPath table:(CLFQTableName *) aTable hardlink:(BOOL) hardlink
 {
   int oid;
   CLString *dbPath;
@@ -109,7 +109,7 @@
   return [self initFromData:nil table:nil];
 }
 
--(id) initFromData:(CLData *) aData table:(CLString *) aTable
+-(id) initFromData:(CLData *) aData table:(CLFQTableName *) aTable
 {
   if (aTable)
     [super initFromDictionary:nil table:aTable];

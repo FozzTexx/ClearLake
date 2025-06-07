@@ -24,11 +24,11 @@
 
 #include <ClearLake/CLObject.h>
 
-@class CLDictionary, CLDatabase, CLArray;
+@class CLDictionary, CLDatabase, CLArray, CLFQTableName;
 
 @interface CLRecordDefinition:CLObject
 {
-  CLString *table, *databaseTable;
+  CLFQTableName *table;
   CLDatabase *db;
   Class recordClass;
   CLDictionary *fields, *relationships;
@@ -37,12 +37,11 @@
 }
 
 -(id) init;
--(id) initFromTable:(CLString *) aTable class:(Class) aClass
+-(id) initFromTable:(CLFQTableName *) aTable class:(Class) aClass
              fields:(CLDictionary *) fieldsDict relationships:(CLDictionary *) relDict;
 -(void) dealloc;
 
--(CLString *) table; /* Complete table name as dbname.tablename */
--(CLString *) databaseTable; /* Name of table in db, with no dbname. */
+-(CLFQTableName *) table;
 -(CLDatabase *) database;
 -(Class) recordClass;
 -(CLDictionary *) fields;

@@ -48,10 +48,6 @@
 -(CLString *) description;
 -(CLString *) encodeXML;
 
-#if 0
--(id) objectForCaseInsensitiveString:(CLString *) aKey;
-#endif
-
 @end
 
 @protocol CLDictionarySubclass <CLArchiving>
@@ -65,6 +61,7 @@
 @end
 
 @interface CLDictionary (CLSubclassMethods) <CLDictionarySubclass>
+-(id) objectForCaseInsensitiveString:(CLString *) aKey;
 @end
 
 #endif /* _CLDICTIONARY_H */

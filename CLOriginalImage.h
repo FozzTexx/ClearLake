@@ -25,17 +25,17 @@
 #import <ClearLake/CLOriginalFile.h>
 #import <ClearLake/CLImageElement.h>
 
-@class CLImageRep, CLInput, CLData, CLCachedImage;
+@class CLImageRep, CLInput, CLData, CLCachedImage, CLFQTableName;
 
 @interface CLOriginalImage:CLOriginalFile <CLImagePresentation>
 {
   CLImageRep *imageRep;
 }
 
-+(CLOriginalImage *) imageFromField:(CLInput *) aField table:(CLString *) aTable;
-+(CLOriginalImage *) imageFromFile:(CLString *) aFilename table:(CLString *) aTable;
-+(CLOriginalImage *) imageFromData:(CLData *) aData table:(CLString *) aTable;
-+(CLOriginalImage *) imageFromPath:(CLString *) aPath table:(CLString *) aTable
++(CLOriginalImage *) imageFromField:(CLInput *) aField table:(CLFQTableName *) aTable;
++(CLOriginalImage *) imageFromFile:(CLString *) aFilename table:(CLFQTableName *) aTable;
++(CLOriginalImage *) imageFromData:(CLData *) aData table:(CLFQTableName *) aTable;
++(CLOriginalImage *) imageFromPath:(CLString *) aPath table:(CLFQTableName *) aTable
                           hardlink:(BOOL) hardlink;
 +(Class) imageClass;
 -(CLCachedImage *) cachedImageForEffects:(CLString *) aString;

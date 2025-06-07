@@ -31,6 +31,7 @@
 #import "CLEditingContext.h"
 #import "CLRecordDefinition.h"
 #import "CLDictionary.h"
+#import "CLFQTableName.h"
 
 @implementation CLPayPalToken
 
@@ -54,11 +55,12 @@
 
   aDate = [CLDatetime now];
   query = [CLString stringWithFormat:@"delete from %@ where expires < '%@'",
-                    [recordDef databaseTable],
+                    [[recordDef table] tableName],
                     [aDate descriptionWithFormat:[db dateFormat] timeZone:[db timeZone]]];
   [db runQuery:query];
 
-  query = [CLString stringWithFormat:@"select id from %@ limit 1", [recordDef databaseTable]];
+  query = [CLString stringWithFormat:@"select id from %@ limit 1",
+		    [[recordDef table] tableName]];
   rows = [db read:CLAttributes(@"id:i", nil) qualifier:query errors:NULL];
   if ([rows count]) {
     aToken = [CLDefaultContext loadObjectWithClass:[CLPayPalToken class]

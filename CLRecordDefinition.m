@@ -30,6 +30,7 @@
 #import "CLStackString.h"
 #import "CLRelationship.h"
 #import "CLClassConstants.h"
+#import "CLFQTableName.h"
 
 @implementation CLRecordDefinition
 
@@ -38,16 +39,11 @@
   return [self initFromTable:nil class:nil fields:nil relationships:nil];
 }
 
--(id) initFromTable:(CLString *) aTable class:(Class) aClass
+-(id) initFromTable:(CLFQTableName *) aTable class:(Class) aClass
              fields:(CLDictionary *) fieldsDict relationships:(CLDictionary *) relDict
 {
-  CLRange aRange;
-
-
   [super init];
-  table = [aTable copy];
-  aRange = [table rangeOfString:@"."];
-  databaseTable = [[table substringFromIndex:CLMaxRange(aRange)] retain];
+  table = [aTable retain];
   db = nil;
   recordClass = aClass;
   fields = [fieldsDict copy];
@@ -59,7 +55,6 @@
 -(void) dealloc
 {
   [table release];
-  [databaseTable release];
   [fields release];
   [relationships release];
   [_primaryKeys release];
@@ -67,28 +62,15 @@
   return;
 }
 
--(CLString *) table
+-(CLFQTableName *) table
 {
   return table;
 }
 
--(CLString *) databaseTable
-{
-  return databaseTable;
-}
-
 -(CLDatabase *) database
 {
-  CLRange aRange;
-  unistr ustr;
-
-
-  if (!db) {
-    aRange = [table rangeOfString:@"."];
-    ustr = CLCloneStackString(table);
-    ustr.len = aRange.location;
-    db = [CLEditingContext databaseNamed:(CLString *) &ustr];
-  }
+  if (!db)
+    db = [CLEditingContext databaseNamed:[table databaseID]];
 
   return db;
 }

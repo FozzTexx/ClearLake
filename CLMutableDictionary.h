@@ -25,10 +25,6 @@
 #import <ClearLake/CLDictionary.h>
 
 @interface CLMutableDictionary:CLDictionary <CLCopying>
-#if 0
--(void) setObject:(id) anObject forCaseInsensitiveString:(CLString *) aString;
--(void) removeObjectForCaseInsensitiveString:(CLString *) aString;
-#endif
 -(void) addEntriesFromDictionary:(CLDictionary *) otherDictionary;
 @end
 
@@ -40,6 +36,8 @@
 @end
 
 @interface CLMutableDictionary (CLSubclassMethods) <CLMutableDictionarySubclass>
+-(void) setObject:(id) anObject forCaseInsensitiveString:(CLString *) aString;
+-(void) removeObjectForCaseInsensitiveString:(CLString *) aString;
 @end
 
 #endif /* _CLMUTABLEDICTIONARY_H */

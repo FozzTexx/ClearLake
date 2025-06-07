@@ -54,6 +54,7 @@
 #import "CLRuntime.h"
 #import "CLInfoMessage.h"
 #import "CLClassConstants.h"
+#import "CLFQTableName.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -504,7 +505,7 @@ static CLMutableDictionary *CLConfig = nil;
     return;
 
   db = [sessionDef database];
-  localTable = [sessionDef databaseTable];
+  localTable = [[sessionDef table] tableName];
 
   browserHash = 0;
   if ((p = getenv("REMOTE_ADDR")) && (q = strchr(p, '.')))
@@ -673,7 +674,7 @@ static CLMutableDictionary *CLConfig = nil;
 
   attr = CLAttributes(@"id:i", @"password:*", @"flags:*", nil);
   mString = [CLMutableString stringWithFormat:@"select id, password, flags from %@ where",
-                      [recordDef databaseTable]];
+                      [[recordDef table] tableName]];
   if (ignore) {
     [mString appendFormat:@" (flags is null or flags not like '%%%c%%')", CLAccountFlagInternalUseOnly];
     if (!(mask & CLNameNotUnique) || !(mask & CLEmailNotUnique))
@@ -1003,8 +1004,8 @@ static CLMutableDictionary *CLConfig = nil;
     anArray = [[[path lastPathComponent] stringByDeletingPathExtension]
 		componentsSeparatedByString:@"_"];
     if ([anArray count] == 2) {
-      targetName = [[[CLEditingContext recordDefinitionForClass:[owner class]] databaseTable]
-		     upperCamelCaseString];
+      targetName = [[[[CLEditingContext recordDefinitionForClass:[owner class]] table]
+		      tableName] upperCamelCaseString];
       action = CLSelectorFromString([[anArray objectAtIndex:1] stringByAppendingString:@":"]);
       if ([targetName isEqualToString:[anArray objectAtIndex:0]]
 	  && [owner selectorIsPage:action]) {
@@ -1267,14 +1268,13 @@ static CLMutableDictionary *CLConfig = nil;
 {
   CLDatabase *db;
   CLArray *rows;
-  CLString *fullTable, *localTable;
-  CLRange aRange;
+  CLFQTableName *fullTable;
+  CLString *localTable;
 
 
   fullTable = [CLEditingContext tableForClass:[CLEditingContext accountClass]];
-  aRange = [fullTable rangeOfString:@"."];
-  db = [CLEditingContext databaseNamed:[fullTable substringToIndex:aRange.location]];
-  localTable = [fullTable substringFromIndex:CLMaxRange(aRange)];
+  db = [CLEditingContext databaseNamed:[fullTable databaseID]];
+  localTable = [fullTable tableName];
 
   rows = [db read:CLAttributes(@"id:i", nil) qualifier:
                [CLString stringWithFormat:@"select id from %@ where name = '%@'",
@@ -1291,14 +1291,13 @@ static CLMutableDictionary *CLConfig = nil;
 {
   CLDatabase *db;
   CLArray *rows;
-  CLString *fullTable, *localTable;
-  CLRange aRange;
+  CLFQTableName *fullTable;
+  CLString *localTable;
 
 
   fullTable = [CLEditingContext tableForClass:[CLEditingContext accountClass]];
-  aRange = [fullTable rangeOfString:@"."];
-  db = [CLEditingContext databaseNamed:[fullTable substringToIndex:aRange.location]];
-  localTable = [fullTable substringFromIndex:CLMaxRange(aRange)];
+  db = [CLEditingContext databaseNamed:[fullTable databaseID]];
+  localTable = [fullTable tableName];
 
   rows = [db read:CLAttributes(@"id:i", nil) qualifier:
                [CLString stringWithFormat:@"select id from %@ where email = '%@'",
