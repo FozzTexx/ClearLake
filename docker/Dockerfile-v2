@@ -1,0 +1,82 @@
+# -*- indent-tabs-mode: nil -*-
+
+FROM debian:12.5
+ARG CL_VERS_MAJOR
+ENV WWWDIR=/var/www
+
+SHELL ["/bin/bash", "-e", "-o", "pipefail", "-c"]
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN : \
+    ; apt-get update \
+    ; apt-get install -y --no-install-recommends \
+        default-libmysqlclient-dev \
+        file \
+        freetds-dev \
+        git \
+        gobjc \
+        libffi-dev \
+        libgmp-dev \
+        libjpeg-dev \
+        libpcre3-dev \
+        libpng-dev \
+        libssl-dev \
+        libtiff-dev \
+        make \
+    ; rm -rf /var/lib/apt/lists/* \
+    ;
+
+# DEBUG
+COPY debug.cgi /usr/local/bin/
+RUN : \
+    ; apt-get update \
+    ; apt-get install -y --no-install-recommends \
+        gdb \
+        emacs-nox \
+        less \
+        telnet \
+    ; rm -rf /var/lib/apt/lists/* \
+    ;
+# END DEBUG
+
+###################
+# Apache config
+
+RUN : \
+    ; apt-get update \
+    ; apt-get install -y --no-install-recommends \
+        apache2 \
+        patch \
+    ; rm -rf /var/lib/apt/lists/* \
+    ;
+
+COPY 000-default.conf-${CL_VERS_MAJOR}.patch apache2.conf.patch /tmp/
+RUN : \
+    ; a2enmod rewrite \
+    ; cd /etc/apache2 \
+    ; ln -s ../mods-available/cgi.load mods-enabled/ \
+    ; patch -p1 < /tmp/apache2.conf.patch \
+    ; patch -p1 < /tmp/000-default.conf-${CL_VERS_MAJOR}.patch \
+    ; rm /tmp/*.patch \
+    ;
+
+# end Apache config
+###################
+
+COPY \
+     ClearLake-${CL_VERS_MAJOR}.bundle \
+     fozzlib.bundle \
+     fzlocal.bundle \
+     hoedown.bundle \
+     install-clearlake.sh \
+     piclib.bundle \
+     /tmp/
+
+RUN : \
+    ; /tmp/install-clearlake.sh \
+    ; rm /tmp/*.bundle /tmp/install-clearlake.sh \
+    ; ln -s /var/www/html/live/ckeditor /var/www/html/ckeditor \
+    ;
+
+COPY httpd-foreground /usr/local/bin/
+CMD ["httpd-foreground"]

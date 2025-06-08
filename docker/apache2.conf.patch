@@ -1,0 +1,29 @@
+*** a/apache2.conf	2020-06-22 13:14:50.825344524 -0700
+--- b/apache2.conf	2020-06-22 13:31:18.244176808 -0700
+***************
+*** 131,137 ****
+  # logged here.  If you *do* define an error logfile for a <VirtualHost>
+  # container, that host's errors will be logged there and not here.
+  #
+! ErrorLog ${APACHE_LOG_DIR}/error.log
+  
+  #
+  # LogLevel: Control the severity of messages logged to the error_log.
+--- 131,137 ----
+  # logged here.  If you *do* define an error logfile for a <VirtualHost>
+  # container, that host's errors will be logged there and not here.
+  #
+! ErrorLog /dev/stderr
+  
+  #
+  # LogLevel: Control the severity of messages logged to the error_log.
+***************
+*** 211,216 ****
+--- 211,217 ----
+  #
+  LogFormat "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" vhost_combined
+  LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined
++ LogFormat "%{X-Forwarded-For}i %h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %{ms}T" proxy
+  LogFormat "%h %l %u %t \"%r\" %>s %O" common
+  LogFormat "%{Referer}i -> %U" referer
+  LogFormat "%{User-agent}i" agent
