@@ -113,7 +113,7 @@
   aDate = [[CLDatetime now]
             dateByAddingYears:0 months:0 days:0 hours:0 minutes:0 seconds:-sessionExpire];
   /* FIXME - get column names from record def */
-  query = [CLString stringWithFormat:@"%@ < '%@' and %@ <= %u",
+  query = [CLString stringWithFormat:@"%@ < '%@' and %@ <= %u limit 20",
                     [recordDef columnNameForKey:@"lastSeen"],
                     [aDate descriptionWithFormat:@"%Y-%m-%d %H:%M:%S"
                                         timeZone:[[recordDef database] timeZone]],
