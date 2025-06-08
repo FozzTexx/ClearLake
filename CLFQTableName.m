@@ -88,7 +88,7 @@
 -(void) write:(CLStream *) stream
 {
   [super write:stream];
-  [fqTableName write:stream];
+  [stream writeTypes:@"@", &fqTableName];
   return;
 }
 
