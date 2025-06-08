@@ -23,7 +23,7 @@
 
 #import <ClearLake/CLObject.h>
 
-@interface CLFQTableName:CLObject
+@interface CLFQTableName:CLObject <CLArchiving, CLCopying>
 {
   CLString *databaseID;
   CLString *tableName;
