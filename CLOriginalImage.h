@@ -38,6 +38,7 @@
 +(CLOriginalImage *) imageFromPath:(CLString *) aPath table:(CLFQTableName *) aTable
                           hardlink:(BOOL) hardlink;
 +(Class) imageClass;
+-(id) initWithRep:(CLImageRep *) aRep;
 -(CLCachedImage *) cachedImageForEffects:(CLString *) aString;
 -(void) didDeleteFromDatabase;
 @end
