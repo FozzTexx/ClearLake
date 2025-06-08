@@ -82,6 +82,8 @@
     _recordDef = [[CLEditingContext recordDefinitionForTable:aTable] retain];
   else
     _recordDef = [[CLEditingContext recordDefinitionForClass:[self class]] retain];
+  if (!_recordDef)
+    [self error:@"Unable to find record definition"];
   _table = [[_recordDef table] retain];
   _autoretain = nil;
   _db = nil;
@@ -230,6 +232,8 @@
     _recordDef = [[CLEditingContext recordDefinitionForClass:[self class]] retain];
     _table = [[_recordDef table] retain];
   }
+  if (!_recordDef)
+    [self error:@"Unable to find record definition"];
   _autoretain = nil;
   _db = nil;
   _dbPrimaryKey = nil;
@@ -340,7 +344,24 @@
 
 -(void) setObjectID:(CLUInteger) oid
 {
+  CLAttribute *anAttr;
+  CLArray *anArray;
+  CLNumber *pk;
+  CLString *key;
+
+
+  anArray = [_recordDef primaryKeys];
+  if ([anArray count] != 1)
+    [self error:@"Can't set objectID for multi-key record"];
+
   objectID = oid;
+  if (!_primaryKey) {
+    anAttr = [self attributeForField:[anArray objectAtIndex:0]];
+    pk = [CLNumber numberWithUnsignedInt:oid];
+    key = [anAttr key];
+    _primaryKey = [[CLDictionary alloc] initWithObjectsAndKeys:pk, key, nil];
+    CLHashTableSetData(_record, pk, key, [key hash]);
+  }
   //[self setObjectValue:[CLNumber numberWithUnsignedInt:oid] forBinding:OBJECTID_BINDING];
   return;
 }
@@ -574,9 +595,12 @@
       if ([[self attributeForField:aKey] isPrimaryKey]) {
 	if (oldObject && ![oldObject isEqual:anObject])
 	  [self error:@"Changing primary key"];
-	if ([anObject isKindOfClass:CLNumberClass] && ![anObject intValue] &&
-	    ![self allowZeroPrimaryKey])
-	  [self error:@"Trying to set primary key to 0"];
+	if ([anObject isKindOfClass:CLNumberClass]) {
+	  if (![anObject intValue] && ![self allowZeroPrimaryKey])
+	    [self error:@"Trying to set primary key to 0"];
+	  if ([[_recordDef primaryKeys] count] == 1)
+	    [self setObjectID:[anObject intValue]];
+	}
       }
       anObject = [self retainField:aKey object:anObject oldObject:oldObject];
       if (!oldKey)
