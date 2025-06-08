@@ -1,0 +1,36 @@
+#!/bin/sh
+set -e
+
+SRCDIR="${WWWDIR}/src"
+CGIDIR="${WWWDIR}/cgi-bin"
+APACHE_GROUP=www-data
+
+if [ -d "${SRCDIR}" ] ; then
+    cp -R "${SRCDIR}" /tmp/.
+    cd /tmp/src
+
+    export OSTYPE=${OSTYPE-`/bin/bash -c 'echo $OSTYPE'`}
+    export ARCH=$(arch)
+
+    make clean
+    make
+    mkdir -p "${CGIDIR}"
+    cp ${OSTYPE}-${ARCH}_bin/cl "${WWWDIR}/cgi-bin/live"
+fi
+
+FILEDB="${WWWDIR}/html/filedb"
+if [ -d "${FILEDB}" ] ; then
+    chgrp -R "${APACHE_GROUP}" "${FILEDB}"
+    chmod -R g+rwX "${FILEDB}"
+fi
+
+CACHE="${WWWDIR}/cache"
+mkdir -p "${CACHE}"
+chgrp -R "${APACHE_GROUP}" "${CACHE}"
+chmod -R g+rwX "${CACHE}"
+
+# Apache gets grumpy about PID files pre-existing
+mkdir -p /var/run/apache2
+rm -f /var/run/apache2/apache2.pid
+
+exec apachectl -DFOREGROUND "$@"
