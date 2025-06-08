@@ -65,6 +65,13 @@
   return CLOriginalImageClass;
 }
 
+-(id) initWithRep:(CLImageRep *) aRep
+{
+  [super init];
+  imageRep = [aRep retain];
+  return self;
+}
+
 -(void) dealloc
 {
   [imageRep release];
@@ -134,7 +141,7 @@
     aRep = aRep2;
 
     if ((aData = [aRep representationUsingFormat:format]) && (oid = CLStoreImage(aData))) {
-      cImage = [[CLCachedImage alloc] init];
+      cImage = [[CLCachedImage alloc] initWithRep:aRep];
       [cImage setObjectID:oid];
       [cImage setEffects:aString];
       [cImage addObject:self toBothSidesOfRelationship:@"parent"];
@@ -185,8 +192,12 @@
 
 -(void) didDeleteFromDatabase
 {
+  CLString *path;
+
+
   [super didDeleteFromDatabase];
-  unlink([CLPathForImageID([self objectID]) UTF8String]);
+  if ((path = CLPathForImageID([super objectID])))
+    unlink([path UTF8String]);
   return;
 }
 

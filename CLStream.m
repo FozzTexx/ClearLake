@@ -958,7 +958,9 @@ BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint
 
     if ([extension length]) {
       aString = [aPath stringByAppendingPathExtension:extension];
-      link([aPath UTF8String], [aString UTF8String]);
+      if (link([aPath UTF8String], [aString UTF8String]) != 0)
+	fprintf(stderr, "Unable to link %s to %s\n",
+		[aPath UTF8String], [aString UTF8String]);
       unlink([aPath UTF8String]);
     }
   }

@@ -376,8 +376,12 @@
 
 -(void) didDeleteFromDatabase
 {
+  CLString *path;
+
+
   [super didDeleteFromDatabase];
-  unlink([CLPathForFileID([super objectID]) UTF8String]);
+  if ((path = CLPathForFileID([super objectID])))
+    unlink([path UTF8String]);
   return;
 }
 
