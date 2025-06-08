@@ -39,8 +39,14 @@ WSGIApplicationGroup %{GLOBAL}
 	#Include conf-available/serve-cgi-bin.conf
 
 	RewriteEngine on
-	RewriteRule ^/([^/]+)\.cl(/?.*) /cl/$1$2 [PT,L]
-	#RewriteRule ^/$ /cgi-bin/live/ [QSA,PT,L]
-	RewriteRule ^/$ /cl/ [QSA,PT,L]
+	RewriteRule ^/([0-9]+)(.cl)? /a.cl/$1 [R=301,L]
+
+	# For ClearLake via Python:
+	#RewriteRule ^/([^/]+)\.cl(/?.*) /cl/$1$2 [PT,L]
+	#RewriteRule ^/$ /cl/ [QSA,PT,L]
+
+	# For ClearLake via cgi-bin:
+	RewriteRule ^/([^/]+)\.cl(/?.*) /cgi-bin/live/$1$2 [PT,L]
+	RewriteRule ^/$ /cgi-bin/live/ [QSA,PT,L]
 
 </VirtualHost>

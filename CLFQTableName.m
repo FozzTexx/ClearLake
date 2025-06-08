@@ -20,6 +20,7 @@
 
 #import "CLFQTableName.h"
 #import "CLString.h"
+#import "CLStream.h"
 
 @implementation CLFQTableName
 
@@ -69,6 +70,26 @@
 -(id) copy
 {
   return [self retain];
+}
+
+-(id) read:(CLStream *) stream
+{
+  CLString *fqEncoded;
+  CLRange aRange;
+
+
+  self = [super read:stream];
+  [stream readTypes:@"@", &fqEncoded];
+  aRange = [fqEncoded rangeOfString:@"." options:CLBackwardsSearch];
+  return [self initFromTable:[fqEncoded substringFromIndex:CLMaxRange(aRange)]
+		  inDatabase:[fqEncoded substringToIndex:aRange.location]];
+}
+
+-(void) write:(CLStream *) stream
+{
+  [super write:stream];
+  [fqTableName write:stream];
+  return;
 }
 
 @end
