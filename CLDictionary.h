@@ -39,6 +39,7 @@
 -(id) initAsCaseInsensitive:(BOOL) caseFlag;
 -(id) initFromDictionary:(CLDictionary *) aDict;
 -(id) initWithObjectsAndKeys:(id) firstObject, ...;
+-(id) initWithObject:(id) firstObject andVA:(va_list) ap_orig;
 #if 0
 -(id) initWithObjects:(id *) objects andKeys:(id *) keys count:(CLUInteger) count;
 #endif

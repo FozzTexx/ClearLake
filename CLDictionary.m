@@ -54,35 +54,15 @@
 
 +(id) dictionaryWithObjectsAndKeys:(id) firstObject , ...
 {
-  CLUInteger i;
-  id *objects, *keys;
-  va_list ap;
   id anObject;
+  va_list ap;
 
 
   va_start(ap, firstObject);
-  for (i = 1; va_arg(ap, id); i++)
-    ;
-  va_end(ap);
-  i /= 2;
-  if (!(objects = alloca(sizeof(id) * i)))
-    [self error:@"Unable to allocate memory"];
-  if (!(keys = alloca(sizeof(id) * i)))
-    [self error:@"Unable to allocate memory"];
-
-  va_start(ap, firstObject);
-  objects[0] = firstObject;
-  keys[0] = va_arg(ap, id);
-
-  for (i = 1; (anObject = va_arg(ap, id)); i ++) {
-    objects[i] = anObject;
-    keys[i] = va_arg(ap, id);
-  }
+  anObject = [[self alloc] initWithObject:firstObject andVA:ap];
   va_end(ap);
 
-  anObject = [[[self alloc] initWithObjects:objects andKeys:keys count:i caseInsensitive:NO]
-	       autorelease];
-  return anObject;
+  return [anObject autorelease];
 }
 
 -(id) init
@@ -123,33 +103,47 @@
 
 -(id) initWithObjectsAndKeys:(id) firstObject, ...
 {
-  CLUInteger i;
+  id anObject;
+  va_list ap;
+
+
+  va_start(ap, firstObject);
+  anObject = [self initWithObject:firstObject andVA:ap];
+  va_end(ap);
+
+  return anObject;
+}
+
+-(id) initWithObject:(id) firstObject andVA:(va_list) ap_orig
+{
+  CLUInteger idx, len;
   id *objects, *keys;
   va_list ap;
   id anObject;
 
 
-  va_start(ap, firstObject);
-  for (i = 1; va_arg(ap, id); i++)
+  va_copy(ap, ap_orig);
+  for (idx = 1; va_arg(ap, id); idx++)
     ;
+  len = idx / 2;
   va_end(ap);
-  i /= 2;
-  if (!(objects = alloca(sizeof(id) * i)))
+
+  if (!(objects = alloca(sizeof(id) * len)))
     [self error:@"Unable to allocate memory"];
-  if (!(keys = alloca(sizeof(id) * i)))
+  if (!(keys = alloca(sizeof(id) * len)))
     [self error:@"Unable to allocate memory"];
 
-  va_start(ap, firstObject);
+  va_copy(ap, ap_orig);
   objects[0] = firstObject;
   keys[0] = va_arg(ap, id);
 
-  for (i = 1; (anObject = va_arg(ap, id)); i ++) {
-    objects[i] = anObject;
-    keys[i] = va_arg(ap, id);
+  for (idx = 1; idx < len; idx++) {
+    objects[idx] = anObject;
+    keys[idx] = va_arg(ap, id);
   }
   va_end(ap);
 
-  anObject = [self initWithObjects:objects andKeys:keys count:i caseInsensitive:NO];
+  anObject = [self initWithObjects:objects andKeys:keys count:len caseInsensitive:NO];
   return anObject;
 }
 
