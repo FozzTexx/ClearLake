@@ -34,7 +34,7 @@
   [super init];
   databaseID = [dbName copy];
   tableName = [tName copy];
-  fqTableName = [[CLString alloc] initWithFormat:@"%@.%@", databaseID, tableName];
+  fqTableName = [[CLString alloc] initWithFormat:@"%@:%@", databaseID, tableName];
   return self;
 }
 
@@ -80,7 +80,7 @@
 
   self = [super read:stream];
   [stream readTypes:@"@", &fqEncoded];
-  aRange = [fqEncoded rangeOfString:@"." options:CLBackwardsSearch];
+  aRange = [fqEncoded rangeOfString:@":" options:CLBackwardsSearch];
   return [self initFromTable:[fqEncoded substringFromIndex:CLMaxRange(aRange)]
 		  inDatabase:[fqEncoded substringToIndex:aRange.location]];
 }
@@ -90,6 +90,11 @@
   [super write:stream];
   [stream writeTypes:@"@", &fqTableName];
   return;
+}
+
+-(CLString *) description
+{
+  return fqTableName;
 }
 
 @end

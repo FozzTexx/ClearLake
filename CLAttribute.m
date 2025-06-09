@@ -150,6 +150,11 @@
   return;
 }
 
+-(CLString *) description
+{
+  return [CLString stringWithFormat:@"<%@ %@/%@>", [self className], key, column];
+}
+
 @end
 
 CLAttributeType CLAttributeTypeFor(int aType)

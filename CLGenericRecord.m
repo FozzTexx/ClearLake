@@ -356,11 +356,11 @@
 
   objectID = oid;
   if (!_primaryKey) {
-    anAttr = [self attributeForField:[anArray objectAtIndex:0]];
+    anAttr = [anArray objectAtIndex:0];
     pk = [CLNumber numberWithUnsignedInt:oid];
     key = [anAttr key];
-    _primaryKey = [[CLDictionary alloc] initWithObjectsAndKeys:pk, key, nil];
     CLHashTableSetData(_record, pk, key, [key hash]);
+    [self primaryKey];
   }
   //[self setObjectValue:[CLNumber numberWithUnsignedInt:oid] forBinding:OBJECTID_BINDING];
   return;
