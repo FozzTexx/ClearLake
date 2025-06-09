@@ -226,6 +226,11 @@
   //self = [super read:stream];
   [stream readTypes:@"@@", &pk, &_table];
   _record = CLHashTableAlloc(MAX_HASH);
+
+  // Fixup legacy table names
+  if ([_table isKindOfClass:CLStringClass])
+    _table = [[CLFQTableName alloc] initFromFullyQualifiedTableName:(CLString *) _table];
+
   if (_table)
     _recordDef = [[CLEditingContext recordDefinitionForTable:_table] retain];
   else {
