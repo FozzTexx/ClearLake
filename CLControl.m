@@ -240,22 +240,18 @@ void CLWriteURL(CLStream *stream, id object, CLData *stateData, SEL action,
 
 Class CLClassFromURLString(CLString *objectName)
 {
-  CLRange aRange;
   Class targetClass = nil;
-  CLString *tableName, *databaseID;
+  CLFQTableName *table;
 
 
-  aRange = [objectName rangeOfString:@"." options:CLBackwardsSearch];
-  if (!aRange.length && [[CLEditingContext model] count] == 1) {
-    databaseID = [[[CLEditingContext model] allKeys] objectAtIndex:0];
-    tableName = objectName;
-  }
-  else {
-    databaseID = [objectName substringToIndex:aRange.location];
-    tableName = [objectName substringFromIndex:CLMaxRange(aRange)];
-  }
-
-  targetClass = [CLEditingContext classForTable:tableName inDatabase:databaseID];
+  if ([CLFQTableName isFullyQualifiedTableName:objectName])
+    table = [[CLFQTableName alloc] initFromFullyQualifiedTableName:objectName];
+  else
+    table = [[CLFQTableName alloc] initFromTable:objectName
+				      inDatabase:[[[CLEditingContext model] allKeys]
+						   objectAtIndex:0]];
+  targetClass = [CLEditingContext classForTable:table];
+  [table release];
   if (!targetClass)
     targetClass = CLClassFromString(objectName);
 
@@ -634,6 +630,7 @@ Class CLClassFromURLString(CLString *objectName)
   CLString *filename, *aString;
   CLPage *aPage = nil;
   id anObject;
+  Class targetClass;
 
 
   if ([CLDelegate respondsTo:@selector(control:readPersistentData:)])
@@ -643,6 +640,10 @@ Class CLClassFromURLString(CLString *objectName)
   [stream readTypes:@"@@@", &filename, &aString, &anObject];
   [filename autorelease];
   [aString autorelease];
+
+  if ([target isKindOfClass:CLStringClass] &&
+      (targetClass = CLClassFromURLString(target)))
+    target = [[targetClass alloc] init];
 
   if ([target respondsTo:@selector(control:readPersistentData:)])
     [target control:self readPersistentData:stream];
