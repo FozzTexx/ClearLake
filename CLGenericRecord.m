@@ -358,7 +358,7 @@
   if (!_primaryKey) {
     anAttr = [anArray objectAtIndex:0];
     pk = [[CLNumber alloc] initWithUnsignedInt:oid];
-    key = [anAttr key];
+    key = [[anAttr key] copy];
     CLHashTableSetData(_record, pk, key, [key hash]);
     [self primaryKey];
   }
