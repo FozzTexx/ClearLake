@@ -357,7 +357,7 @@
   objectID = oid;
   if (!_primaryKey) {
     anAttr = [anArray objectAtIndex:0];
-    pk = [CLNumber numberWithUnsignedInt:oid];
+    pk = [[CLNumber alloc] initWithUnsignedInt:oid];
     key = [anAttr key];
     CLHashTableSetData(_record, pk, key, [key hash]);
     [self primaryKey];
