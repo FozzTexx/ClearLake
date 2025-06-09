@@ -245,13 +245,11 @@ Class CLClassFromURLString(CLString *objectName)
 
 
   if ([CLFQTableName isFullyQualifiedTableName:objectName])
-    table = [[CLFQTableName alloc] initFromFullyQualifiedTableName:objectName];
+    table = [CLFQTableName fullyQualifiedTableName:objectName];
   else
-    table = [[CLFQTableName alloc] initFromTable:objectName
-				      inDatabase:[[[CLEditingContext model] allKeys]
-						   objectAtIndex:0]];
+    table = [CLFQTableName tableName:objectName inDatabase:[[[CLEditingContext model] allKeys]
+							     objectAtIndex:0]];
   targetClass = [CLEditingContext classForTable:table];
-  [table release];
   if (!targetClass)
     targetClass = CLClassFromString(objectName);
 

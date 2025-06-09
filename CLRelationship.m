@@ -78,10 +78,12 @@
     else
       ourID = [aString substringToIndex:aRange.location];
 
-    theirTable = [[CLFQTableName alloc] initFromTable:[aString substringWithRange:
-                            CLMakeRange(CLMaxRange(aRange),
-                                     aRange2.location - CLMaxRange(aRange))]
-					   inDatabase:aDatabase];
+    theirTable = [[CLFQTableName alloc]
+		   initFromTableName:[aString substringWithRange:
+						CLMakeRange(CLMaxRange(aRange),
+							    aRange2.location
+							    - CLMaxRange(aRange))]
+			  inDatabase:aDatabase];
     theirID = [aString substringFromIndex:CLMaxRange(aRange2)];
 
     mArray = [[CLMutableArray alloc] init];

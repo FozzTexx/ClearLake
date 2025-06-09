@@ -144,7 +144,7 @@ static int _modelInitState = MODEL_UNINIT;
       }
     }
 
-    fqTable = [CLFQTableName table:aTable inDatabase:aDatabase];
+    fqTable = [CLFQTableName tableName:aTable inDatabase:aDatabase];
 #if 0
     fprintf(stderr, "Creating recordDef for %s in %s\n",
 	    [[aClass className] UTF8String], [fqTable UTF8String]);
@@ -377,6 +377,8 @@ static int _modelInitState = MODEL_UNINIT;
       [connectionInfo setObject:aString forKey:@"password"];
     if ((aString = [CLManager configOption:@"Host"]))
       [connectionInfo setObject:aString forKey:@"host"];
+    if ((aString = [CLManager configOption:@"Path"]))
+      [connectionInfo setObject:aString forKey:@"path"];
     if ((aString = [CLManager configOption:@"Interface"]))
       [connectionInfo setObject:aString forKey:@"interface"];
     [dbConfig setObject:connectionInfo forKey:@"connection"];
@@ -427,7 +429,7 @@ static int _modelInitState = MODEL_UNINIT;
   CLDatabase *db;
   CLString *interface;
   CLDictionary *aDict;
-  CLString *user, *database, *password, *host, *encoding, *zone, *format;
+  CLString *user, *database, *password, *host, *path, *encoding, *zone, *format;
 
 
   mDict = [model objectForKey:aString];
@@ -438,6 +440,7 @@ static int _modelInitState = MODEL_UNINIT;
     database = [aDict objectForKey:@"database"];
     password = [aDict objectForKey:@"password"];
     host = [aDict objectForKey:@"host"];
+    path = [aDict objectForKey:@"path"];
     encoding = [aDict objectForKey:@"encoding"];
     zone = [aDict objectForKey:@"timezone"];
     format = [aDict objectForKey:@"dateformat"];
@@ -450,7 +453,7 @@ static int _modelInitState = MODEL_UNINIT;
     else if (![interface caseInsensitiveCompare:@"sqlite"]
 	     || ![interface caseInsensitiveCompare:@"sqlite3"])
       db = [[CLSQLiteDatabase alloc]
-             initWithDatabase:database user:user password:password host:host];
+             initWithDatabase:path user:user password:password host:host];
 
     if (encoding) {
       if (![encoding caseInsensitiveCompare:@"UTF8"])
@@ -1476,7 +1479,7 @@ static int _modelInitState = MODEL_UNINIT;
 
 +(id) classForTable:(CLString *) aTable inDatabase:(CLString *) aDatabase
 {
-  return [self classForTable:[CLFQTableName table:aTable inDatabase:aDatabase]];
+  return [self classForTable:[CLFQTableName tableName:aTable inDatabase:aDatabase]];
 }
 
 +(CLFQTableName *) tableForClass:(id) aClass
@@ -1508,8 +1511,8 @@ static int _modelInitState = MODEL_UNINIT;
       keys = [schema allKeys];
       for (i = 0, j = [keys count]; i < j; i++) {
         if ([[schema objectForKey:[keys objectAtIndex:i]] recordClass] == aClass) {
-          aTable = [CLFQTableName table:[keys objectAtIndex:i]
-			     inDatabase:[anArray objectAtIndex:k]];
+          aTable = [CLFQTableName tableName:[keys objectAtIndex:i]
+				 inDatabase:[anArray objectAtIndex:k]];
           break;
         }
       }
@@ -1529,7 +1532,7 @@ static int _modelInitState = MODEL_UNINIT;
           aString = [keys objectAtIndex:i];
           if ([className isEqualToString:aString] ||
               [[className underscore_case_string] isEqualToString:aString]) {
-            aTable = [CLFQTableName table:aString inDatabase:[anArray objectAtIndex:k]];
+            aTable = [CLFQTableName tableName:aString inDatabase:[anArray objectAtIndex:k]];
             break;
           }
         }
@@ -1581,6 +1584,9 @@ static int _modelInitState = MODEL_UNINIT;
 
   if (!aTable)
     return nil;
+
+  if ([aTable isKindOfClass:CLStringClass])
+    aTable = [CLFQTableName fullyQualifiedTableName:(CLString *) aTable];
 
   if (!_tableDefs)
     [self model];

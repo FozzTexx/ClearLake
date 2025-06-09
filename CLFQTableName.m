@@ -35,12 +35,17 @@
   return aRange.length;
 }
 
-+(id) table:(CLString *) tName inDatabase:(CLString *) dbName
++(id) tableName:(CLString *) tName inDatabase:(CLString *) dbName
 {
-  return [[[self alloc] initFromTable:tName inDatabase:dbName] autorelease];
+  return [[[self alloc] initFromTableName:tName inDatabase:dbName] autorelease];
 }
 
--(id) initFromTable:(CLString *) tName inDatabase:(CLString *) dbName
++(id) fullyQualifiedTableName:(CLString *) fqTable
+{
+  return [[[self alloc] initFromFullyQualifiedTableName:fqTable] autorelease];
+}
+
+-(id) initFromTableName:(CLString *) tName inDatabase:(CLString *) dbName
 {
   [super init];
   databaseID = [dbName copy];
@@ -56,11 +61,15 @@
 
 
   aRange = [fqTable rangeOfString:FQ_SEPARATOR options:CLBackwardsSearch];
-  if (!aRange.length)
-    [self error:@"Invalid fully qualified table"];
+  if (!aRange.length) {
+    // Legacy FQ table names used '.' instead of ':'
+    aRange = [fqTable rangeOfString:@"." options:CLBackwardsSearch];
+    if (!aRange.length)
+      [self error:@"Invalid fully qualified table"];
+  }
 
-  return [self initFromTable:[fqTable substringFromIndex:CLMaxRange(aRange)]
-		  inDatabase:[fqTable substringToIndex:aRange.location]];
+  return [self initFromTableName:[fqTable substringFromIndex:CLMaxRange(aRange)]
+		      inDatabase:[fqTable substringToIndex:aRange.location]];
 }
 
 -(void) dealloc

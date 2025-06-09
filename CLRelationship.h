@@ -30,9 +30,9 @@
 {
   CLArray *ourKeys, *theirKeys;
   CLFQTableName *theirTable;
-  int isOwner:1;
-  int toMany:1;
-  int isDependent:1;
+  BOOL isOwner:1;
+  BOOL toMany:1;
+  BOOL isDependent:1;
 
   /* Needs some flags about cascade or nullify */
 }

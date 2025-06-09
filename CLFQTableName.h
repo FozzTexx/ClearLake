@@ -31,8 +31,9 @@
 }
 
 +(BOOL) isFullyQualifiedTableName:(CLString *) aString;
-+(id) table:(CLString *) tName inDatabase:(CLString *) dbName;
--(id) initFromTable:(CLString *) tName inDatabase:(CLString *) dbName;
++(id) tableName:(CLString *) tName inDatabase:(CLString *) dbName;
++(id) fullyQualifiedTableName:(CLString *) fqTable;
+-(id) initFromTableName:(CLString *) tName inDatabase:(CLString *) dbName;
 -(id) initFromFullyQualifiedTableName:(CLString *) fqTable;
 -(void) dealloc;
 
