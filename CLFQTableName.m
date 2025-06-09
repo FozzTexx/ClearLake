@@ -22,7 +22,18 @@
 #import "CLString.h"
 #import "CLStream.h"
 
+#define FQ_SEPARATOR	@":"
+
 @implementation CLFQTableName
+
++(BOOL) isFullyQualifiedTableName:(CLString *) aString
+{
+  CLRange aRange;
+
+
+  aRange = [aString rangeOfString:FQ_SEPARATOR options:CLBackwardsSearch];
+  return aRange.length;
+}
 
 +(id) table:(CLString *) tName inDatabase:(CLString *) dbName
 {
@@ -34,8 +45,22 @@
   [super init];
   databaseID = [dbName copy];
   tableName = [tName copy];
-  fqTableName = [[CLString alloc] initWithFormat:@"%@:%@", databaseID, tableName];
+  fqTableName = [[CLString alloc] initWithFormat:@"%@%@%@",
+				  databaseID, FQ_SEPARATOR, tableName];
   return self;
+}
+
+-(id) initFromFullyQualifiedTableName:(CLString *) fqTable
+{
+  CLRange aRange;
+
+
+  aRange = [fqTable rangeOfString:FQ_SEPARATOR options:CLBackwardsSearch];
+  if (!aRange.length)
+    [self error:@"Invalid fully qualified table"];
+
+  return [self initFromTable:[fqTable substringFromIndex:CLMaxRange(aRange)]
+		  inDatabase:[fqTable substringToIndex:aRange.location]];
 }
 
 -(void) dealloc
@@ -75,14 +100,11 @@
 -(id) read:(CLStream *) stream
 {
   CLString *fqEncoded;
-  CLRange aRange;
 
 
   self = [super read:stream];
   [stream readTypes:@"@", &fqEncoded];
-  aRange = [fqEncoded rangeOfString:@":" options:CLBackwardsSearch];
-  return [self initFromTable:[fqEncoded substringFromIndex:CLMaxRange(aRange)]
-		  inDatabase:[fqEncoded substringToIndex:aRange.location]];
+  return [self initFromFullyQualifiedTableName:fqEncoded];
 }
 
 -(void) write:(CLStream *) stream
