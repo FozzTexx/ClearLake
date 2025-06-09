@@ -410,8 +410,7 @@ void CLSetDelegate(id anObject)
   preHeader = [[CLMutableArray alloc] init];
   fileStack = nil;
   bodyAttributes = nil;
-  title = [[CLBlock alloc] init];
-  [title setPage:self];
+  title = [[CLBlock alloc] initFromString:nil onPage:self];
   [title setContent:aTitle];
   usedFiles = nil;
   filename = nil;

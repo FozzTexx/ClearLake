@@ -36,11 +36,13 @@
 
 #include <unistd.h>
 
+#define IMAGEID_BINDING @"id"
+
 @implementation CLWikiImage
 
 -(CLNumber *) imageID
 {
-  return [attributes objectForKey:OBJECTID_BINDING];
+  return [attributes objectForKey:IMAGEID_BINDING];
 }
 
 -(CLOriginalImage *) image
@@ -56,7 +58,7 @@
 
 -(void) setImageID:(CLNumber *) aValue
 {
-  [attributes setObject:aValue forKey:OBJECTID_BINDING];
+  [attributes setObject:aValue forKey:IMAGEID_BINDING];
   return;
 }
 

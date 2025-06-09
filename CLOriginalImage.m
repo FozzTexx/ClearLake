@@ -84,16 +84,19 @@
   CLArray *anArray;
   int i, j;
   CLCachedImage *anImage = nil;
-  CLString *origPath, *cachedPath;
+  CLString *origPath, *cachedPath, *cEffects;
   struct stat orig, cached;
+  time_t most_recent;
 
 
   anArray = [self cachedImages];
-  for (i = 0, j = [anArray count]; i < j; i++)
-    if ([[[anArray objectAtIndex:i] effects] isEqualToString:effects]) {
+  for (i = 0, j = [anArray count]; i < j; i++) {
+    cEffects = [[anArray objectAtIndex:i] effects];
+    if ([cEffects isEqualToString:effects]) {
       anImage = [anArray objectAtIndex:i];
       break;
     }
+  }
 
   if (anImage && (!(cachedPath = [anImage path]) || access([cachedPath UTF8String], R_OK))) {
     [[anImage editingContext] deleteObject:anImage];
@@ -104,7 +107,8 @@
   if (anImage && (origPath = [self path])) {
     stat([origPath UTF8String], &orig);
     stat([cachedPath UTF8String], &cached);
-    if (orig.st_mtime > cached.st_mtime || orig.st_ctime > cached.st_mtime) {
+    most_recent = orig.st_mtime; //CLMax(orig.st_mtime, orig.st_ctime);
+    if (most_recent > cached.st_mtime) {
       [[anImage editingContext] deleteObject:anImage];
       [[anImage editingContext] saveChanges];
       [self removeObject:anImage fromBothSidesOfRelationship:@"cachedImages"];
