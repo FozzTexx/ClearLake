@@ -99,15 +99,23 @@ void CLWriteURLForGet(CLStream *stream, id object, CLData *stateData, SEL action
     [stream2 writeString:aURL usingEncoding:CLUTF8StringEncoding];
 
   if (CLDelegate &&
-      [CLDelegate respondsTo:@selector(delegateEncodeSimpleURL:localQuery:)] &&
+      [CLDelegate respondsTo:@selector(delegateEncodeSimpleURL:localQuery:)]) {
+    CLControl *aControl = object;
+    if (![aControl isKindOfClass:CLControlClass]) {
+      aControl = [[CLControl alloc] init];
+      [aControl setTarget:object];
+      [aControl setAction:action];
+    }
+    if (
 #if 0
-      [object respondsTo:@selector(target)] &&
-      [object respondsTo:@selector(action)] &&
+	[object respondsTo:@selector(target)] &&
+	[object respondsTo:@selector(action)] &&
 #endif
-      (simpleURL = [CLDelegate delegateEncodeSimpleURL:object localQuery:mDict])) {
-    if (![simpleURL isAbsolutePath])
-      simpleURL = [CLString stringWithFormat:@"%@/%@", CLWebName, simpleURL];
-    [stream2 writeString:simpleURL usingEncoding:CLUTF8StringEncoding];
+	(simpleURL = [CLDelegate delegateEncodeSimpleURL:aControl localQuery:mDict])) {
+      if (![simpleURL isAbsolutePath])
+	simpleURL = [CLString stringWithFormat:@"%@/%@", CLWebName, simpleURL];
+      [stream2 writeString:simpleURL usingEncoding:CLUTF8StringEncoding];
+    }
   }
   else {
     CLMutableDictionary *urlComponents;
@@ -584,16 +592,16 @@ Class CLClassFromURLString(CLString *objectName)
   else if (target && [CLEditingContext recordDefinitionForClass:[target class]]
 	   && [[target editingContext] primaryKeyForRecord:target]
 	   && [target selectorIsPage:action]) {
-    id targetClass = nil;
+    //id targetClass = nil;
     CLData *state = nil;
     id pk;
 
 
-    targetClass = [target class];
+    //targetClass = [target class];
     pk = [[target editingContext] primaryKeyForRecord:target];
     state = [[pk json] dataUsingEncoding:CLUTF8StringEncoding];
     stream = [CLStream openMemoryForWriting];
-    CLWriteURL(stream, targetClass, state, action, localQuery);
+    CLWriteURL(stream, target, state, action, localQuery);
     aData = [stream data];
     aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
     [stream close];
