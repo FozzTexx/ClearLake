@@ -98,74 +98,77 @@ void CLWriteURLForGet(CLStream *stream, id object, CLData *stateData, SEL action
   if (aURL && ![CLServerURL isEqual:aURL])
     [stream2 writeString:aURL usingEncoding:CLUTF8StringEncoding];
 
-  if (CLDelegate &&
-      [CLDelegate respondsTo:@selector(delegateEncodeSimpleURL:localQuery:)]) {
+  {
     CLControl *aControl = object;
+
+
     if (![aControl isKindOfClass:CLControlClass]) {
       aControl = [[CLControl alloc] init];
       [aControl setTarget:object];
       [aControl setAction:action];
     }
-    if (
+
+    if (CLDelegate
+	&& [CLDelegate respondsTo:@selector(delegateEncodeSimpleURL:localQuery:)]
 #if 0
-	[object respondsTo:@selector(target)] &&
-	[object respondsTo:@selector(action)] &&
+	&& [object respondsTo:@selector(target)]
+	&& [object respondsTo:@selector(action)]
 #endif
-	(simpleURL = [CLDelegate delegateEncodeSimpleURL:aControl localQuery:mDict])) {
+	&& (simpleURL = [CLDelegate delegateEncodeSimpleURL:aControl localQuery:mDict])) {
       if (![simpleURL isAbsolutePath])
 	simpleURL = [CLString stringWithFormat:@"%@/%@", CLWebName, simpleURL];
       [stream2 writeString:simpleURL usingEncoding:CLUTF8StringEncoding];
     }
-  }
-  else {
-    CLMutableDictionary *urlComponents;
+    else {
+      CLMutableDictionary *urlComponents;
 
 
-    urlComponents = [[CLMutableDictionary alloc] init];
-    if (action) {
-      CLString *actionName;
+      urlComponents = [[CLMutableDictionary alloc] init];
+      if (action) {
+	CLString *actionName;
 
 
-      actionName = CLStringFromSelector(action);
-      if ([actionName characterAtIndex:[actionName length] - 1] == ':')
-        actionName = [actionName substringToIndex:[actionName length]-1];
-      if (![actionName isEqualToString:@"detail"])
-	[urlComponents setObject:actionName forKey:CL_URLSEL];
-    }
-
-    if (object) {
-      CLString *objectName;
-      CLFQTableName *aTable;
-
-
-      if ([object isKindOfClass:CLStringClass])
-	objectName = object;
-      else if (!(aTable = [CLEditingContext tableForClass:[object class]]))
-	objectName = [object className];
-      else if ([[CLEditingContext model] count] == 1)
-	objectName = [aTable tableName];
-      [urlComponents setObject:objectName forKey:CL_URLCLASS];
-    }
-
-    if (stateData)
-      [urlComponents setObject:[stateData encodeBase64] forKey:CL_URLDATA];
-
-    {
-      id anObject;
-
-
-      [stream2 writeFormat:@"%@/" usingEncoding:CLUTF8StringEncoding, CLWebName];
-      for (idx = 0, count = 3; idx < count; idx++) {
-	anObject = [urlComponents objectForKey:CLURLOrder[idx]];
-	if (!anObject)
-	  break;
-	if (idx)
-	  CLPrintf(stream2, @"/");
-	CLPrintf(stream2, @"%@", anObject);
+	actionName = CLStringFromSelector(action);
+	if ([actionName characterAtIndex:[actionName length] - 1] == ':')
+	  actionName = [actionName substringToIndex:[actionName length]-1];
+	if (![actionName isEqualToString:@"detail"])
+	  [urlComponents setObject:actionName forKey:CL_URLSEL];
       }
-    }
 
-    [urlComponents release];
+      if (object) {
+	CLString *objectName;
+	CLFQTableName *aTable;
+
+
+	if ([object isKindOfClass:CLStringClass])
+	  objectName = object;
+	else if (!(aTable = [CLEditingContext tableForClass:[object class]]))
+	  objectName = [object className];
+	else if ([[CLEditingContext model] count] == 1)
+	  objectName = [aTable tableName];
+	[urlComponents setObject:objectName forKey:CL_URLCLASS];
+      }
+
+      if (stateData)
+	[urlComponents setObject:[stateData encodeBase64] forKey:CL_URLDATA];
+
+      {
+	id anObject;
+
+
+	[stream2 writeFormat:@"%@/" usingEncoding:CLUTF8StringEncoding, CLWebName];
+	for (idx = 0, count = 3; idx < count; idx++) {
+	  anObject = [urlComponents objectForKey:CLURLOrder[idx]];
+	  if (!anObject)
+	    break;
+	  if (idx)
+	    CLPrintf(stream2, @"/");
+	  CLPrintf(stream2, @"%@", anObject);
+	}
+      }
+
+      [urlComponents release];
+    }
   }
 
   /* FIXME - find a way to differentiate between a browser with no
