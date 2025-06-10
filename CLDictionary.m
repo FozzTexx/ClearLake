@@ -119,7 +119,6 @@
   CLUInteger idx, len;
   id *objects, *keys;
   va_list ap;
-  id anObject;
 
 
   va_copy(ap, ap_orig);
@@ -138,13 +137,12 @@
   keys[0] = va_arg(ap, id);
 
   for (idx = 1; idx < len; idx++) {
-    objects[idx] = anObject;
+    objects[idx] = va_arg(ap, id);
     keys[idx] = va_arg(ap, id);
   }
   va_end(ap);
 
-  anObject = [self initWithObjects:objects andKeys:keys count:len caseInsensitive:NO];
-  return anObject;
+  return [self initWithObjects:objects andKeys:keys count:len caseInsensitive:NO];
 }
 
 -(id) initWithObjects:(id *) objects andKeys:(id *) keys count:(CLUInteger) count
