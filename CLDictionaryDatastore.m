@@ -390,16 +390,17 @@
 {
   CLDictionaryStorage *storage = dictionaryData;
   id oldObject, oldObject2;
+  SEL aSel;
 
 
   if (!anObject || !aKey)
     [self error:@"Can't set nil objects!"];
 
+  aSel = caseInsensitiveFlag ?
+    @selector(isEqualToCaseInsensitiveString:) : @selector(isEqual:);
   [anObject retain];
-  if ((oldObject = CLHashTableKeyForKey(storage->table, aKey, [aKey hash],
-                                        @selector(isEqual:)))) {
-    oldObject2 = CLHashTableRemoveDataForKey(storage->table, aKey, [aKey hash],
-                                             @selector(isEqual:));
+  if ((oldObject = CLHashTableKeyForKey(storage->table, aKey, [aKey hash], aSel))) {
+    oldObject2 = CLHashTableRemoveDataForKey(storage->table, aKey, [aKey hash], aSel);
     [oldObject release];
     [oldObject2 release];
   }
