@@ -44,6 +44,8 @@ typedef struct CLHashTable {
   CLInteger length, count;
   CLBucket **table;
   CLInteger first;
+  CLInteger iterIdx;
+  CLBucket *iterBucket;
 } CLHashTable;
 
 #if 0
@@ -333,6 +335,52 @@ CL_INLINE void CLHashTableGetData(CLHashTable *ht, void **buf)
 
   return;
 }
+
+CL_INLINE void CLHashTableResetIterator(CLHashTable *ht)
+{
+  ht->iterIdx = -1;
+  ht->iterBucket = NULL;
+  return;
+}
+
+CL_INLINE id CLHashTableNextKey(CLHashTable *ht)
+{
+  id key;
+
+
+  if (!ht->iterBucket) {
+    if (ht->iterIdx < 0)
+      ht->iterIdx = ht->first;
+    else
+      ht->iterIdx = ht->table[ht->iterIdx]->nv;
+    if (ht->iterIdx < 0)
+      return nil;
+    ht->iterBucket = ht->table[ht->iterIdx];
+  }
+  key = ht->iterBucket->key;
+  ht->iterBucket = ht->iterBucket->next;
+  return key;
+}
+
+CL_INLINE void *CLHashTableNextData(CLHashTable *ht)
+{
+  void *data;
+
+
+  if (!ht->iterBucket) {
+    if (ht->iterIdx < 0)
+      ht->iterIdx = ht->first;
+    else
+      ht->iterIdx = ht->table[ht->iterIdx]->nv;
+    if (ht->iterIdx < 0)
+      return nil;
+    ht->iterBucket = ht->table[ht->iterIdx];
+  }
+  data = ht->iterBucket->data;
+  ht->iterBucket = ht->iterBucket->next;
+  return data;
+}
+
 #endif /* INLINE */
 
 typedef u_int32_t CLUInteger32;
