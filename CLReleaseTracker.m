@@ -88,7 +88,7 @@
   reserved = buf - sizeof(CLObjectReserved);
 
   isa = reserved->privateData;
-  [self error:@"Trying to send \"%s\" to already released \"0x%lu\"\n",
+  [self error:@"Trying to send \"%s\" to already released \"0x%lx\"\n",
         sel_getName(aSel), (unsigned long) self];
   return NULL;
 }
