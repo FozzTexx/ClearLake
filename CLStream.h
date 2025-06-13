@@ -114,6 +114,7 @@ extern void CLPrintf(CLStream *stream, CLString *format, ...);
 extern CLString *CLGets(FILE *file, CLStringEncoding enc);
 extern CLString *CLGetsfd(int fd, CLStringEncoding enc);
 
+extern void CLFindFileDirectory();
 extern CLString *CLPathForFileID(int image_id);
 extern BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint,
                             int seq);
@@ -127,6 +128,8 @@ extern int CLDeflate(const void *data, int len, int level, CLData **aData);
 #define CL_FROMSTART    SEEK_SET
 #define CL_FROMCURRENT  SEEK_CUR
 #define CL_FROMEND      SEEK_END
+
+extern CLString *CLFileDirectory;
 
 @protocol CLStreamDelegate
 -(CLString *) delegateGetFileDirectory;
