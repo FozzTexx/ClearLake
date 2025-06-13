@@ -80,7 +80,7 @@
 #define ALTFILE_CMD     "/usr/bin/file"
 #define MIME_TYPES      @"/etc/mime.types"
 
-static CLString *CLFileDirectory = nil;
+CLString *CLFileDirectory = nil;
 
 @implementation CLStream
 
