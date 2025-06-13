@@ -56,8 +56,12 @@ typedef struct {
   unsigned int retainerCount;
 } CLLeak;
 int CLLeakNumObjects = 0;
+#ifdef LEAK_USEARRAY
 CLLeak *CLLeakArray = NULL;
 int CLLeakArrayLength = 0, CLLeakArrayPos = 0;
+#else /* !LEAK_USEARRAY */
+CLHashTable *CLLeakTable = NULL;
+#endif /* LEAK_USEARRAY */
 unsigned int CLLeakSequence = 0;
 
 CLLeak *CLLeakFindObject(id anObject);
@@ -214,7 +218,7 @@ id CLDisposeInstance(id object)
   if (CLLeakPrint) {
     int pl = CLLeakPrint;
     CLLeakPrint = 0;
-    const char *className = [[[self class] className] UTF8String];
+    const char *className = object_getClassName([self class]);
     if (!className)
       [self error:@"Unknown class!"];
     fprintf(stdout, "0x%lx %u/%i init %s %i\n", (unsigned long) self,
@@ -228,10 +232,11 @@ id CLDisposeInstance(id object)
 -(void) dealloc
 {
 #if DEBUG_LEAK || DEBUG_RETAIN || DEBUG_ALLOC
+  CLLeakNumObjects--;
+
+#ifdef LEAK_USEARRAY
   int pos;
 
-
-  CLLeakNumObjects--;
 
   for (pos = CLLeakArrayPos - 1; pos >= 0; pos--)
     if (CLLeakArray[pos].object == self)
@@ -243,8 +248,11 @@ id CLDisposeInstance(id object)
     memmove(&CLLeakArray[pos], &CLLeakArray[pos+1], sizeof(CLLeak) * (CLLeakArrayPos - pos));
   CLLeakArrayPos--;
 #endif
+#else /* !LEAK_USEARRAY */
+  CLHashTableRemoveDataForIdenticalKey(CLLeakTable, self, (size_t) self);
+#endif /* LEAK_USEARRAY */
+#endif /* DEBUG_LEAK || DEBUG_RETAIN || DEBUG_ALLOC */
 
-#endif
 #if DEBUG_LEAK || DEBUG_RETAIN
   if (CLLeakNumObjects < 0)
     [self error:@"We released more than we allocated!"];
@@ -255,7 +263,7 @@ id CLDisposeInstance(id object)
     const char *className = [[[self class] className] UTF8String];
     if (!className)
       [self error:@"Unknown class!"];
-    fprintf(stdout, "0x%lx dealloc %s %i\n", (unsigned long) self, className, pos);
+    fprintf(stdout, "0x%lx dealloc %s\n", (unsigned long) self, className);
     CLLeakPrint = pl;
   }
 #endif
@@ -532,7 +540,7 @@ id CLDisposeInstance(id object)
 -(void) release
 {
   if (CLDecrementExtraRefCountWasZero(self)) {
-#if 0 || DEBUG_LEAK
+#if DEBUG_LEAK
     if ([CLAutoreleasePool hasObject:self])
       [self error:@"Double release!"];
 #endif
@@ -949,6 +957,7 @@ void CLCleanup()
 #endif
 
 #if DEBUG_LEAK || DEBUG_RETAIN
+#ifdef LEAK_USEARRAY
   if (CLLeakArrayPos) {
     int i;
 
@@ -958,6 +967,18 @@ void CLCleanup()
       fprintf(stdout, "0x%lx %s\n", (unsigned long) CLLeakArray[i].object,
               [[CLLeakArray[i].object className] UTF8String]);
   }
+#else /* !LEAK_USEARRAY */
+  if (CLLeakTable->count) {
+    CLLeak *data;
+
+
+    fprintf(stdout, "\n------------ Leaked Objects ------------\n");
+    CLHashTableResetIterator(CLLeakTable);
+    while ((data = CLHashTableNextData(CLLeakTable)))
+      fprintf(stdout, "0x%lx %s\n", (unsigned long) data->object,
+              [[data->object className] UTF8String]);
+  }
+#endif /* LEAK_USEARRAY */
 
   if (CLLeakNumBlocks) {
     int i;
@@ -968,7 +989,7 @@ void CLCleanup()
       fprintf(stdout, "0x%lx %i %i\n", (unsigned long) CLLeakBlocks[i].object,
               CLLeakBlocks[i].size, CLLeakBlocks[i].flag);
   }
-#endif
+#endif /* DEBUG_LEAK || DEBUG_RETAIN */
 
   return;
 }
@@ -976,8 +997,11 @@ void CLCleanup()
 #if DEBUG_LEAK || DEBUG_RETAIN
 CLLeak *CLLeakFindObject(id anObject)
 {
-  int i;
   CLLeak *aLeak;
+
+
+#ifdef LEAK_USEARRAY
+  int i;
 
 
   /* FIXME - use a hash table */
@@ -985,12 +1009,23 @@ CLLeak *CLLeakFindObject(id anObject)
     if (CLLeakArray[i].object == anObject)
       return &CLLeakArray[i];
 
-  CLLeakNumObjects++;
   if (CLLeakArrayPos + 1 > CLLeakArrayLength) {
     CLLeakArrayLength += 256;
     CLLeakArray = realloc(CLLeakArray, sizeof(CLLeak) * CLLeakArrayLength);
   }
   aLeak = &CLLeakArray[CLLeakArrayPos++];
+#else /* !LEAK_USEARRAY */
+  if (!CLLeakTable)
+    CLLeakTable = CLHashTableAlloc(256);
+
+  if ((aLeak = CLHashTableDataForIdenticalKey(CLLeakTable, anObject, (size_t) anObject)))
+    return aLeak;
+
+  aLeak = calloc(1, sizeof(CLLeak));
+  CLHashTableSetData(CLLeakTable, aLeak, anObject, (size_t) anObject);
+#endif /* LEAK_USEARRAY */
+
+  CLLeakNumObjects++;
   aLeak->object = anObject;
   aLeak->sequence = CLLeakSequence++;
   aLeak->flag = 0;
@@ -1039,12 +1074,20 @@ void CLLeakReleaseObject(id anObject, id retainer)
 
 int CLLeakDump(int all)
 {
-  int i, j, k;
+  int j, k;
   CLLeak *aLeak;
+
+
+#ifdef LEAK_USEARRAY
+  int i;
 
 
   for (i = j = 0; i < CLLeakArrayPos; i++) {
     aLeak = &CLLeakArray[i];
+#else /* !LEAK_USEARRAY */
+  CLHashTableResetIterator(CLLeakTable);
+  while ((aLeak = CLHashTableNextData(CLLeakTable))) {
+#endif /* LEAK_USEARRAY */
     if (all || aLeak->line) {
       fprintf(stdout, "0x%lx %s - %u/%i",
               (unsigned long) aLeak->object, [[aLeak->object className] UTF8String],
@@ -1064,12 +1107,20 @@ int CLLeakDump(int all)
 
 int CLLeakCount()
 {
-  int i, j;
+  int j;
   CLLeak *aLeak;
+
+
+#ifdef LEAK_USEARRAY
+  int i;
 
 
   for (i = j = 0; i < CLLeakArrayPos; i++) {
     aLeak = &CLLeakArray[i];
+#else /* !LEAK_USEARRAY */
+  CLHashTableResetIterator(CLLeakTable);
+  while ((aLeak = CLHashTableNextData(CLLeakTable))) {
+#endif /* LEAK_USEARRAY */
     if (aLeak->line)
       j++;
   }
