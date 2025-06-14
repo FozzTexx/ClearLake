@@ -64,8 +64,8 @@
 
 
   if ((upk = [[self imageID] unsignedPK]))
-    anImage = [CLDefaultContext loadObjectWithClass:[CLOriginalImage imageClass] primaryKey:
-		    [CLNumber numberWithPK:upk]];
+    anImage = [CLDefaultContext loadObjectWithClass:[CLOriginalImage imageClass]
+					 unsignedPK:upk];
   return [anImage autorelease];
 }
 

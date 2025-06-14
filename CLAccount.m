@@ -417,8 +417,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   }
   free(buf);
 
-  return [CLDefaultContext loadExistingObjectWithClass:[self class] primaryKey:
-		       [CLNumber numberWithUnsignedInt:tkn]];
+  return [CLDefaultContext loadExistingObjectWithClass:[self class] unsignedPK:tkn];
 }
 
 -(void) reset:(id) sender

@@ -868,9 +868,9 @@ CLString *CLPathForFileID(CLUnsignedPK file_id)
   CLFindFileDirectory();
 
   aPath = [CLFileDirectory stringByAppendingPathComponent:
-                               [CLString stringWithFormat:@"%i/%i",
+                               [CLString stringWithFormat:@"%u/%u",
                                          file_id % 10, (file_id / 10) % 10]];
-  sprintf(buf, "%i", file_id);
+  sprintf(buf, "%u", file_id);
 
   if (!(dir = opendir([aPath UTF8String])))
     return nil;
@@ -917,12 +917,12 @@ BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint
   CLFindFileDirectory();
 
   aPath = [CLFileDirectory stringByAppendingPathComponent:
-                               [CLString stringWithFormat:@"%i", seq % 10]];
+                               [CLString stringWithFormat:@"%u", seq % 10]];
   CLCreateWorldWritableDirectory(aPath);
   aPath = [aPath stringByAppendingPathComponent:
-                     [CLString stringWithFormat:@"%i", (seq / 10) % 10]];
+                     [CLString stringWithFormat:@"%u", (seq / 10) % 10]];
   CLCreateWorldWritableDirectory(aPath);
-  aPath = [aPath stringByAppendingPathComponent:[CLString stringWithFormat:@"%i", seq]];
+  aPath = [aPath stringByAppendingPathComponent:[CLString stringWithFormat:@"%u", seq]];
   if ((file = fopen([aPath UTF8String], "w"))) {
     if ([aData length])
       fwrite([aData bytes], 1, [aData length], file);
@@ -975,7 +975,7 @@ CLUnsignedPK CLNextFileSequence()
 {
   int fd;
   FILE *file;
-  int seq = 1, iseq = 0;
+  CLUnsignedPK seq = 1, iseq = 0;
   CLString *aPath, *aString;
   const char *p;
 
@@ -987,7 +987,7 @@ CLUnsignedPK CLNextFileSequence()
   aPath = [CLString stringWithFormat:@"%s/%@/%@", p, IMAGE_DIR, IMAGE_SEQ];
   if ((file = fopen([aPath UTF8String], "r"))) {
     if ((aString = CLGets(file, CLUTF8StringEncoding)))
-      iseq = [aString intValue];
+      iseq = [aString unsignedPK];
     fclose(file);
   }
 
@@ -999,13 +999,10 @@ CLUnsignedPK CLNextFileSequence()
   if ((fd = open([aPath UTF8String], O_RDWR | O_CREAT, 0644)) >= 0) {
     if (!flock(fd, LOCK_EX) && (file = fdopen(fd, "r+"))) {
       if ((aString = CLGets(file, CLUTF8StringEncoding)))
-        seq = [aString intValue];
-      if (!seq)
-        seq = 1;
-      if (iseq > seq)
-        seq = iseq;
+        seq = [aString unsignedPK];
+      seq = CLMax(CLMax(1, seq), iseq);
       rewind(file);
-      fprintf(file, "%i\n", seq + 1);
+      fprintf(file, "%u\n", seq + 1);
       fclose(file);
     }
     else

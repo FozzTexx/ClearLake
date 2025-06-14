@@ -54,8 +54,7 @@ static CLMutableArray *categories = nil;
     if ([[(aCat = [categories objectAtIndex:i]) primaryKey] unsignedPK] == anID)
       return aCat;
 
-  aCat = [CLDefaultContext loadObjectWithClass:CLCategoryClass primaryKey:
-	       [CLNumber numberWithPK:anID]];
+  aCat = [CLDefaultContext loadObjectWithClass:CLCategoryClass unsignedPK:anID];
   [categories addObject:aCat];
   [aCat release];
   return aCat;

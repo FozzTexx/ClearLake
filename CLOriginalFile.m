@@ -91,7 +91,7 @@
       unlink([dbPath UTF8String]);
       if (!link([aPath UTF8String], [dbPath UTF8String])) {
         aFile = [[self alloc] initFromDictionary:nil table:aTable];
-	[aFile setObjectValue:[CLNumber numberWithPK:upk] forBinding:PRIMARYKEY_BINDING];
+	[aFile setPrimaryKey:[CLNumber numberWithPK:upk]];
       }
     }
   }
@@ -163,7 +163,7 @@
 
   if (![self primaryKey] && loaded) {
     if ((upk = CLStoreFile(data, nil, [aString pathExtension])))
-      [self setObjectValue:[CLNumber numberWithPK:upk] forBinding:PRIMARYKEY_BINDING];
+      [self setPrimaryKey:[CLNumber numberWithPK:upk]];
     else
       return NO;
   }

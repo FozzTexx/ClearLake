@@ -621,8 +621,7 @@ static CLMutableDictionary *CLConfig = nil;
 
 
     sessionContext = [[CLEditingContext alloc] init];
-    session = [sessionContext loadObjectWithClass:sessionClass primaryKey:
-				[CLNumber numberWithPK:anID]];
+    session = [sessionContext loadObjectWithClass:sessionClass unsignedPK:anID];
     [session setLastSeen:[CLDatetime now]];
     [sessionContext saveChanges];
     [sessionContext release];
@@ -631,8 +630,7 @@ static CLMutableDictionary *CLConfig = nil;
        needs to be refreshed. */
   }
 
-  [self setActiveSession:[CLDefaultContext loadObjectWithClass:sessionClass primaryKey:
-			       [CLNumber numberWithPK:anID]]];
+  [self setActiveSession:[CLDefaultContext loadObjectWithClass:sessionClass unsignedPK:anID]];
   if (newSession && [CLDelegate respondsTo:@selector(didCreateSession:)])
     [CLDelegate didCreateSession:[self activeSession]];
 

@@ -53,6 +53,7 @@
 
 -(CLDatabase *) database;
 -(id) primaryKey;
+-(void) setPrimaryKey:(id) anObject;
 -(BOOL) hasFieldNamed:(CLString *) aString;
 -(CLAttribute *) attributeForField:(CLString *) aString;
 #if 0
