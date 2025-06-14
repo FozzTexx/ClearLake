@@ -89,6 +89,12 @@
   return;
 }
 
+-(id) copy
+{
+  [self fault];
+  return [self copy];
+}
+
 -(BOOL) isEqual:(id) anObject
 {
   if (self == anObject)

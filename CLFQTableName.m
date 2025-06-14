@@ -98,7 +98,13 @@
 
 -(BOOL) isEqual:(id) anObject
 {
-  return [fqTableName isEqual:anObject];
+  if (anObject == self)
+    return YES;
+
+  if (![anObject isKindOfClass:[self class]])
+    return NO;
+
+  return [fqTableName isEqual:((CLFQTableName *) anObject)->fqTableName];
 }
 
 -(id) copy
