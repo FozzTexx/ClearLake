@@ -312,7 +312,7 @@
 
   anArray = [self images];
   for (i = 0, j = [anArray count]; i < j; i++)
-    unlink([CLPathForImageID([[[anArray objectAtIndex:i] imageID] intValue]) UTF8String]);
+    unlink([CLPathForImageID([[[anArray objectAtIndex:i] imageID] unsignedPK]) UTF8String]);
 
   return;
 }
@@ -325,7 +325,7 @@
 
   anArray = [self media];
   for (i = 0, j = [anArray count]; i < j; i++)
-    unlink([CLPathForFileID([[[anArray objectAtIndex:i] fileID] intValue]) UTF8String]);
+    unlink([CLPathForFileID([[[anArray objectAtIndex:i] fileID] unsignedPK]) UTF8String]);
 
   return;
 }

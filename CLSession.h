@@ -24,11 +24,11 @@
 
 #import <ClearLake/CLGenericRecord.h>
 
-@class CLDatetime, CLAccount, CLDecimalNumber;
+@class CLDatetime, CLAccount, CLDecimalNumber, CLNumber;
 
 @interface CLSession:CLObject <CLArchiving>
 {
-  int objectID;
+  CLNumber *primaryKey;
   CLAccount *account;
   CLDecimalNumber *browserHash;
   CLDatetime *lastSeen;
@@ -37,7 +37,7 @@
 
 +(void) deleteExpiredSessions;
 
--(int) objectID;
+-(id) primaryKey;
 -(id) account;
 -(CLDecimalNumber *) browserHash;
 -(CLDatetime *) lastSeen;

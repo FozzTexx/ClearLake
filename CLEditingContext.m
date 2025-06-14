@@ -610,7 +610,7 @@ static int _modelInitState = MODEL_UNINIT;
       pk = [[record objectForKey:[[primaryKeys objectAtIndex:0] column]] retain];
     else
       pk = [[record objectValueForBinding:[[primaryKeys objectAtIndex:0] key]] retain];
-    if ([pk isKindOfClass:[CLNumber class]] && ![pk unsignedIntValue])
+    if ([pk isKindOfClass:[CLNumber class]] && ![pk unsignedPK])
       pk = nil;
   }
   else {
@@ -675,7 +675,8 @@ static int _modelInitState = MODEL_UNINIT;
 {
   CLArray *pKeys;
   CLRecordDefinition *recordDef;
-  int i, j, k, oid = 0, tid = 0;
+  CLUInteger i, j, k;
+  CLUnsignedPK oid = 0, tid = 0;
   CLAttribute *anAttr;
   CLDatabase *db;
   id aValue;
@@ -688,7 +689,7 @@ static int _modelInitState = MODEL_UNINIT;
     anAttr = [pKeys objectAtIndex:i];
     aValue = [mDict objectForKey:[anAttr column]];
     if (!aValue || aValue == CLNullObject ||
-        ([aValue isKindOfClass:CLNumberClass] && !(tid = [aValue intValue])))
+        ([aValue isKindOfClass:CLNumberClass] && !(tid = [aValue unsignedPK])))
       k++;
     else
       oid = tid;
@@ -703,10 +704,10 @@ static int _modelInitState = MODEL_UNINIT;
     for (i = 0, j = [pKeys count]; i < j; i++) {
       anAttr = [pKeys objectAtIndex:i];
       aValue = [mDict objectForKey:[anAttr column]];
-      if (aValue == CLNullObject || ![aValue intValue]) {
+      if (aValue == CLNullObject || ![aValue unsignedPK]) {
         /* FIXME - should we be doing it this way and bypassing willChange? */
-        [aRecord setObjectValue:[CLNumber numberWithInt:oid] forKey:[anAttr key] found:&found];
-        [mDict setObject:[CLNumber numberWithInt:oid] forKey:[anAttr column]];
+        [aRecord setObjectValue:[CLNumber numberWithPK:oid] forKey:[anAttr key] found:&found];
+        [mDict setObject:[CLNumber numberWithPK:oid] forKey:[anAttr column]];
         break;
       }
     }
@@ -964,7 +965,7 @@ static int _modelInitState = MODEL_UNINIT;
                                       recordDefinition:recordDef]];
   results = [[recordDef database] runQuery:aString];
   anArray = [results objectForKey:@"rows"];
-  if ([anArray count] && [[[anArray objectAtIndex:0] objectAtIndex:0] intValue])
+  if ([anArray count] && [[[anArray objectAtIndex:0] objectAtIndex:0] unsignedIntValue])
     return YES;
 
   return NO;
@@ -1273,17 +1274,6 @@ static int _modelInitState = MODEL_UNINIT;
   _savingChanges = DONE;
 
   return errors;
-}
-
--(id) loadObjectWithClass:(Class) aClass objectID:(CLUInteger) anID
-{
-  return [self loadObjectWithClass:aClass primaryKey:[CLNumber numberWithUnsignedInt:anID]];
-}
-
--(id) loadExistingObjectWithClass:(Class) aClass objectID:(CLUInteger) anID
-{
-  return [self loadExistingObjectWithClass:aClass
-                                primaryKey:[CLNumber numberWithUnsignedInt:anID]];
 }
 
 -(id) loadObjectWithClass:(Class) aClass primaryKey:(id) pk

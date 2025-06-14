@@ -48,6 +48,7 @@
 +(id) numberWithDouble:(double) aValue;
 +(id) numberWithRomanNumeral:(CLString *) aString;
 +(id) numberWithBool:(BOOL) aValue;
++(id) numberWithPK:(CLUnsignedPK) pk;
 
 -(id) initWithInt:(int) aValue;
 -(id) initWithLong:(long) aValue;
@@ -58,6 +59,7 @@
 -(id) initWithFloat:(float) aValue;
 -(id) initWithDouble:(double) aValue;
 -(id) initWithRomanNumeral:(CLString *) aString;
+-(id) initWithPK:(CLUnsignedPK) pk;
 
 -(int) intValue;
 -(long) longValue;
@@ -69,6 +71,7 @@
 -(CLString *) romanNumeralValue;
 -(BOOL) boolValue;
 -(CLDecimal) decimalValue;
+-(CLUnsignedPK) unsignedPK;
 -(CLString *) humanReadableBytes;
 -(BOOL) isEqual:(id) anObject;
 -(CLComparisonResult) compareLong:(long) aValue;

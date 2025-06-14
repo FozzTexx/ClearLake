@@ -31,6 +31,7 @@
 #import "CLStandardContent.h"
 #import "CLClassConstants.h"
 #import "CLFQTableName.h"
+#import "CLNumber.h"
 
 #include <stdlib.h>
 
@@ -40,7 +41,7 @@ static CLMutableArray *categories = nil;
 
 @implementation CLCategory
 
-+(CLCategory *) categoryWithID:(int) anID
++(CLCategory *) categoryWithID:(CLUnsignedPK) anID
 {
   int i, j;
   CLCategory *aCat;
@@ -50,16 +51,17 @@ static CLMutableArray *categories = nil;
     categories = [[CLMutableArray alloc] init];
 
   for (i = 0, j = [categories count]; i < j; i++)
-    if ([(aCat = [categories objectAtIndex:i]) objectID] == anID)
+    if ([[(aCat = [categories objectAtIndex:i]) primaryKey] unsignedPK] == anID)
       return aCat;
 
-  aCat = [CLDefaultContext loadObjectWithClass:CLCategoryClass objectID:anID];
+  aCat = [CLDefaultContext loadObjectWithClass:CLCategoryClass primaryKey:
+	       [CLNumber numberWithPK:anID]];
   [categories addObject:aCat];
   [aCat release];
   return aCat;
 }
 
-+(CLCategory *) categoryWithTitle:(CLString *) aString andParentID:(int) anID
++(CLCategory *) categoryWithTitle:(CLString *) aString andParentID:(CLUnsignedPK) anID
 {
   CLArray *attr, *rows;
   CLString *qual;
@@ -84,7 +86,7 @@ static CLMutableArray *categories = nil;
   rows = [db read:attr qualifier:qual errors:NULL];
 
   if ([rows count])
-    return [self categoryWithID:[[[rows objectAtIndex:0] objectForKey:@"id"] intValue]];
+    return [self categoryWithID:[[[rows objectAtIndex:0] objectForKey:@"id"] unsignedPK]];
 
   return nil;
 }
@@ -109,7 +111,7 @@ static CLMutableArray *categories = nil;
   mArray = [[CLMutableArray alloc] init];
   for (i = 0, j = [anArray count]; i < j; i++)
     [mArray addObject:[[anArray objectAtIndex:i] title]];
-  aString = [CLString stringWithFormat:@"%i,%@", [self objectID], mArray];
+  aString = [CLString stringWithFormat:@"%u,%@", [[self primaryKey] unsignedPK], mArray];
   [mArray release];
   return aString;
 }
@@ -146,12 +148,12 @@ static CLMutableArray *categories = nil;
 -(BOOL) isChildOfCategory:(CLCategory *) aCategory
 {
   CLCategory *aParent;
-  int oid = [aCategory objectID];
+  CLUnsignedPK oid = [[aCategory primaryKey] unsignedPK];
 
 
   aParent = self;
   while (aParent) {
-    if ([aParent objectID] == oid)
+    if ([[aParent primaryKey] unsignedPK] == oid)
       return YES;
     aParent = [aParent parent];
   }

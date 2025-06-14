@@ -28,7 +28,7 @@
 
 #define DEBUG_LEAK      0
 #define DEBUG_RETAIN    0
-#define DEBUG_RELEASE   0
+#define DEBUG_RELEASE   1
 #define DEBUG_ALLOC     0
 
 typedef enum CLComparisonResult {
@@ -39,6 +39,7 @@ typedef enum CLComparisonResult {
 
 typedef int CLInteger;
 typedef unsigned int CLUInteger;
+typedef CLUInteger CLUnsignedPK;
 
 #define CLIntegerMax    INT_MAX
 #define CLIntegerMin    INT_MIN

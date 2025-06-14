@@ -470,7 +470,7 @@ static CLMutableDictionary *CLConfig = nil;
   return [super read:stream];
 }
 
--(void) setupSession:(int) anID
+-(void) setupSession:(CLUnsignedPK) anID
 {
   CLDatabase *db;
   CLArray *attr, *rows;
@@ -497,7 +497,7 @@ static CLMutableDictionary *CLConfig = nil;
     return;
   }
 
-  if (anID && anID == [activeSession objectID])
+  if (anID && anID == [[activeSession primaryKey] unsignedPK])
     return;
 
   sessionDef = [CLEditingContext recordDefinitionForClass:sessionClass];
@@ -518,7 +518,7 @@ static CLMutableDictionary *CLConfig = nil;
   if ((anObject = [CLQuery objectForKey:QUERY_SESSIONID])) {
     aCookie = [[CLCookie alloc] init];
     [aCookie setKey:COOKIE_SESSION];
-    [aCookie setValue:[CLNumber numberWithInt:[anObject intValue]]];
+    [aCookie setValue:[CLNumber numberWithPK:[anObject unsignedPK]]];
     if (cookies)
       cookies = [cookies arrayByAddingObject:aCookie];
     else
@@ -536,9 +536,9 @@ static CLMutableDictionary *CLConfig = nil;
     if (anID) {
       aString = [CLString stringWithFormat:
                             @"select %@, %@ from %@ where %@ = %i",
-                          [sessionDef columnNameForKey:OBJECTID_BINDING],
+                          [sessionDef columnNameForKey:PRIMARYKEY_BINDING],
                           [sessionDef columnNameForKey:@"browserHash"],
-                          localTable, [sessionDef columnNameForKey:OBJECTID_BINDING], anID];
+                          localTable, [sessionDef columnNameForKey:PRIMARYKEY_BINDING], anID];
       rows = [db read:attr qualifier:aString errors:NULL];
 
       if ([rows count]) {
@@ -557,10 +557,10 @@ static CLMutableDictionary *CLConfig = nil;
     }
 
     if (i < j && [[cookies objectAtIndex:i] value]) {
-      anID = [[[cookies objectAtIndex:i] value] intValue];
+      anID = [[[cookies objectAtIndex:i] value] unsignedPK];
       while (!anID && (i + 1) < j) {
         i++;
-        anID = [[[cookies objectAtIndex:i] value] intValue];
+        anID = [[[cookies objectAtIndex:i] value] unsignedPK];
       }
     }
     i++;
@@ -621,7 +621,8 @@ static CLMutableDictionary *CLConfig = nil;
 
 
     sessionContext = [[CLEditingContext alloc] init];
-    session = [sessionContext loadObjectWithClass:sessionClass objectID:anID];
+    session = [sessionContext loadObjectWithClass:sessionClass primaryKey:
+				[CLNumber numberWithPK:anID]];
     [session setLastSeen:[CLDatetime now]];
     [sessionContext saveChanges];
     [sessionContext release];
@@ -630,13 +631,14 @@ static CLMutableDictionary *CLConfig = nil;
        needs to be refreshed. */
   }
 
-  [self setActiveSession:[CLDefaultContext loadObjectWithClass:sessionClass objectID:anID]];
+  [self setActiveSession:[CLDefaultContext loadObjectWithClass:sessionClass primaryKey:
+			       [CLNumber numberWithPK:anID]]];
   if (newSession && [CLDelegate respondsTo:@selector(didCreateSession:)])
     [CLDelegate didCreateSession:[self activeSession]];
 
   aCookie = [[CLCookie alloc] init];
   [aCookie setKey:COOKIE_SESSION];
-  [aCookie setValue:[CLNumber numberWithInt:anID]];
+  [aCookie setValue:[CLNumber numberWithPK:anID]];
   [aCookie setExpires:
              [CLDatetime dateWithTimeIntervalSince1970:time(NULL) + 30 * 24 * 60 * 60]];
 #if 0
@@ -743,7 +745,7 @@ static CLMutableDictionary *CLConfig = nil;
 
     if ((!aString && !aPass) ||
         (aString && aPass && [aString isEqualToString:cryptPass])) {
-      uid = [[aDict objectForKey:OBJECTID_COLUMN] intValue];
+      uid = [[aDict objectForKey:PRIMARYKEY_COLUMN] unsignedPK];
       if ([CLDelegate respondsTo:@selector(willValidateAccountID:sender:)]
           && ![CLDelegate willValidateAccountID:uid sender:sender]) {
         uid = 0;
@@ -833,7 +835,8 @@ static CLMutableDictionary *CLConfig = nil;
 	[[sender pageForm] setValue:nil forFieldNamed:FIELD_PASSWORD];
         [[self activeSession]
           setAccount:[CLDefaultContext loadObjectWithClass:[CLEditingContext accountClass]
-                                                   objectID:user_id]];
+						primaryKey:
+			   [CLNumber numberWithPK:user_id]]];
         /* FIXME - use our own context */
         [CLDefaultContext saveChanges];
         [self return:sender];
@@ -1227,7 +1230,7 @@ static CLMutableDictionary *CLConfig = nil;
   return;
 }
 
--(CLString *) activationLink:(int) accountID
+-(CLString *) activationLink:(CLUnsignedPK) accountID
 {
   int i;
   char abuf[25];
@@ -1238,7 +1241,8 @@ static CLMutableDictionary *CLConfig = nil;
 
 
   anAccount = [CLDefaultContext loadObjectWithClass:[CLEditingContext accountClass]
-                                           objectID:accountID];
+					 primaryKey:
+		    [CLNumber numberWithPK:accountID]];
   for (i = 0; i < sizeof(abuf); i++)
     abuf[i] = random() % 128;
   h = htonl(accountID);

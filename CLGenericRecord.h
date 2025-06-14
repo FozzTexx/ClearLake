@@ -26,8 +26,8 @@
 #import <ClearLake/CLString.h>
 #import <ClearLake/CLHashTable.h>
 
-#define OBJECTID_BINDING	@"objectID"
-#define OBJECTID_COLUMN		@"id"
+#define PRIMARYKEY_BINDING	@"primaryKey"
+#define PRIMARYKEY_COLUMN	@"id"
 
 @class CLDictionary, CLMutableDictionary, CLArray, CLMutableArray,
   CLDatabase, CLDatetime, CLEditingContext, CLAttribute, CLRelationship,
@@ -35,7 +35,6 @@
 
 @interface CLGenericRecord:CLObject <CLArchiving, CLCopying>
 {
-  int objectID;
   CLFQTableName *_table;
   CLHashTable *_record;
   CLRecordDefinition *_recordDef;
@@ -60,8 +59,6 @@
 -(id) objectForCachedBinding:(CLCachedBinding *) cachedBinding;
 #endif
 -(CLFQTableName *) table;
--(CLUInteger) objectID;
--(void) setObjectID:(CLUInteger) oid;
 -(BOOL) exists;
 -(CLDictionary *) dictionary;
 -(CLString *) propertyList;

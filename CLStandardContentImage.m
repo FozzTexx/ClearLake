@@ -36,7 +36,7 @@
                                        imageFromField:aField table:aTable])) {
     [CLDefaultContext saveChanges];
     pImage = [[self alloc] initFromDictionary:nil table:aTable];
-    [pImage setObjectID:[anImage objectID]];
+    [pImage setObjectValue:[anImage primaryKey] forBinding:PRIMARYKEY_BINDING];
     [pImage addObject:anImage toBothSidesOfRelationship:@"image"];
     //    [pImage saveToDatabase];
   }
@@ -54,7 +54,7 @@
                                        imageFromFile:aFilename table:aTable])) {
     [CLDefaultContext saveChanges];
     pImage = [[self alloc] initFromDictionary:nil table:aTable];
-    [pImage setObjectID:[anImage objectID]];
+    [pImage setObjectValue:[anImage primaryKey] forBinding:PRIMARYKEY_BINDING];
     //    [pImage saveToDatabase];
   }
 

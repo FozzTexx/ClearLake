@@ -28,6 +28,8 @@
 
 @interface CLWikiMedia:CLWikiObject
 -(CLNumber *) fileID;
+-(id) primaryKey;
+-(id) initFromPrimaryKey:(id) aKey;
 -(CLOriginalFile *) file;
 -(void) setFileID:(CLNumber *) aValue;
 -(BOOL) setFileFromField:(CLInput *) aField;

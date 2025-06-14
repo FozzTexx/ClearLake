@@ -1,4 +1,4 @@
-PRODUCT= libClearLake.a
+PRODUCT= libClearLake.so
 # If PRODUCT= line is missing, be sure to insert one
 # $(PRODUCT).c will be automatically compiled, so it
 # doesn't need to be inserted below

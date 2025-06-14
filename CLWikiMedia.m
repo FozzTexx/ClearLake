@@ -39,39 +39,52 @@
 
 -(CLNumber *) fileID
 {
-  return [attributes objectForKey:OBJECTID_BINDING];
+  return [attributes objectForKey:PRIMARYKEY_BINDING];
+}
+
+-(id) primaryKey
+{
+  return [self fileID];
+}
+
+-(id) initFromPrimaryKey:(id) aKey
+{
+  [self init];
+  [self setFileID:[CLNumber numberWithPK:[aKey unsignedPK]]];
+  return self;
 }
 
 -(CLOriginalFile *) file
 {
   CLOriginalFile *aFile = nil;
-  int oid;
+  CLUnsignedPK upk;
 
 
-  if ((oid = [[self fileID] intValue]))
-    aFile = [CLDefaultContext loadObjectWithClass:CLOriginalFileClass objectID:oid];
+  if ((upk = [[self fileID] unsignedPK]))
+    aFile = [CLDefaultContext loadObjectWithClass:CLOriginalFileClass primaryKey:
+		  [CLNumber numberWithPK:upk]];
   return [aFile autorelease];
 }
 
 -(void) setFileID:(CLNumber *) aValue
 {
-  [attributes setObject:aValue forKey:OBJECTID_BINDING];
+  [attributes setObject:aValue forKey:PRIMARYKEY_BINDING];
   return;
 }
 
 -(BOOL) setFileFromField:(CLInput *) aField
 {
   CLData *aData;
-  int oid;
+  CLUnsignedPK upk;
 
 
-  if ((oid = [[self fileID] intValue]))
-    unlink([CLPathForFileID(oid) UTF8String]);
+  if ((upk = [[self fileID] unsignedPK]))
+    unlink([CLPathForFileID(upk) UTF8String]);
 
   aData = [[aField value] data];
-  if ((oid = CLStoreFile(aData, nil, nil))) {
-    [[aField value] setObjectID:oid];
-    [self setFileID:[CLNumber numberWithInt:oid]];
+  if ((upk = CLStoreFile(aData, nil, nil))) {
+    //[[aField value] setObjectID:upk];
+    [self setFileID:[CLNumber numberWithPK:upk]];
     return YES;
   }
   else {

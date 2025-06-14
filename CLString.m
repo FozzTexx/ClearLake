@@ -1810,6 +1810,11 @@ static int CLPrintObjectArgInfo(const struct printf_info *info, size_t n,
   return atof([self UTF8String]);
 }
 
+-(CLUnsignedPK) unsignedPK
+{
+  return [self unsignedIntValue];
+}
+
 @end
 
 @implementation CLString (CLStringCase)

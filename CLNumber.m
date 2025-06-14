@@ -100,6 +100,11 @@ CLNumber *CLTrueObject, *CLFalseObject;
   return [[[self alloc] initWithUnsignedInt:aValue] autorelease];
 }
 
++(id) numberWithPK:(CLUnsignedPK) aValue
+{
+  return [[[self alloc] initWithPK:aValue] autorelease];
+}
+
 -(id) init
 {
   return [super init];
@@ -167,6 +172,11 @@ CLNumber *CLTrueObject, *CLFalseObject;
   value.d = aValue;
   type = 'd';
   return self;
+}
+
+-(id) initWithPK:(CLUnsignedPK) aValue
+{
+  return [self initWithUnsignedInt:aValue];
 }
 
 /* 1 DIM V(26): FOR I = 0 to 1: READ A$,B:A = A + 1:C$(A) = A$:P = ASC
@@ -347,6 +357,11 @@ CLNumber *CLTrueObject, *CLFalseObject;
     aNumber = [CLDecimalNumber numberWithDouble:value.l];
 
   return [aNumber decimalValue];
+}
+
+-(CLUnsignedPK) unsignedPK
+{
+  return [self unsignedIntValue];
 }
 
 -(CLString *) humanReadableBytes
