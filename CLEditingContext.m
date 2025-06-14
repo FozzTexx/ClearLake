@@ -1276,6 +1276,16 @@ static int _modelInitState = MODEL_UNINIT;
   return errors;
 }
 
+-(id) loadObjectWithClass:(Class) aClass unsignedPK:(CLUnsignedPK) anID
+{
+  return [self loadObjectWithClass:aClass primaryKey:[CLNumber numberWithPK:anID]];
+}
+
+-(id) loadExistingObjectWithClass:(Class) aClass unsignedPK:(CLUnsignedPK) anID
+{
+  return [self loadExistingObjectWithClass:aClass primaryKey:[CLNumber numberWithPK:anID]];
+}
+
 -(id) loadObjectWithClass:(Class) aClass primaryKey:(id) pk
 {
   CLFQTableName *table;

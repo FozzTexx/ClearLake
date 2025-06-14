@@ -61,8 +61,7 @@
 
 
   if ((upk = [[self fileID] unsignedPK]))
-    aFile = [CLDefaultContext loadObjectWithClass:CLOriginalFileClass primaryKey:
-		  [CLNumber numberWithPK:upk]];
+    aFile = [CLDefaultContext loadObjectWithClass:CLOriginalFileClass unsignedPK:upk];
   return [aFile autorelease];
 }
 

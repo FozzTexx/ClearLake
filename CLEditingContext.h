@@ -78,6 +78,8 @@
 -(id) saveChanges;
 -(id) saveChangesWithoutTransaction:(BOOL) noTransaction;
 
+-(id) loadObjectWithClass:(Class) aClass unsignedPK:(CLUnsignedPK) anID;
+-(id) loadExistingObjectWithClass:(Class) aClass unsignedPK:(CLUnsignedPK) anID;
 -(id) loadObjectWithClass:(Class) aClass primaryKey:(id) pk;
 -(id) loadExistingObjectWithClass:(Class) aClass primaryKey:(id) pk;
 -(CLArray *) loadTableWithRecordDefinition:(CLRecordDefinition *) recordDef

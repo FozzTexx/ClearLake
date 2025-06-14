@@ -391,8 +391,7 @@
 		  unsignedPK]))
       break;
 
-    newObject = [[self editingContext] loadObjectWithClass:aClass primaryKey:
-				    [CLNumber numberWithPK:upk]];
+    newObject = [[self editingContext] loadObjectWithClass:aClass unsignedPK:upk];
     if (!anObject || [newObject isChildOf:anObject]) {
       [anObject autorelease];
       anObject = newObject;
@@ -670,8 +669,7 @@
           aRelationship = [[_recordDef relationships] objectForKey:@"images"];
           anImage = [[self editingContext] loadObjectWithClass:
                            [CLEditingContext classForTable:[aRelationship theirTable]]
-                                                 primaryKey:
-			       [CLNumber numberWithPK:upk]];
+						    unsignedPK:upk];
           [self addObject:anImage toBothSidesOfRelationship:@"images"];
         }
         newPos = [[sender valueOfFieldNamed:
@@ -746,10 +744,8 @@
     [pf setCaption:[sender valueOfFieldNamed:FIELD_FCAPTION]];
     if ([[sender valueOfFieldNamed:FIELD_FTYPE] unsignedIntValue])
       [pf setType:[[self editingContext] loadObjectWithClass:CLFileTypeClass
-						    primaryKey:
-			     [CLNumber numberWithPK:
-					 [[sender valueOfFieldNamed:FIELD_FTYPE]
-					   unsignedPK]]]];
+						  unsignedPK:
+				  [[sender valueOfFieldNamed:FIELD_FTYPE] unsignedPK]]];
     [self addObject:pf toBothSidesOfRelationship:@"files"];
     [[self editingContext] saveChanges];
   }
@@ -771,8 +767,7 @@
       if ((tid = [[sender valueOfFieldNamed:[CLString stringWithFormat:
                                                         FIELD_FTYPE @"_%i", i+1]] unsignedPK]))
         [aFile setType:[[self editingContext]
-                         loadObjectWithClass:CLFileTypeClass primaryKey:
-			   [CLNumber numberWithPK:tid]]];
+                         loadObjectWithClass:CLFileTypeClass unsignedPK:tid]];
 
       if ([sender valueOfFieldNamed:[CLString stringWithFormat:
                                                 FIELD_REMOVEFILE @"_%i", i+1]])

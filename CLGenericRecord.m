@@ -336,6 +336,21 @@
   return _primaryKey;
 }
 
+-(void) setPrimaryKey:(id) anObject
+{
+  CLArray *pkeys;
+  BOOL found;
+
+
+  if (_primaryKey)
+    [self error:@"cannot change primary key"];
+  pkeys = [_recordDef primaryKeys];
+  if ([pkeys count] != 1)
+    [self error:@"cannot set multi-key primary key"];
+  [self setObjectValue:anObject forKey:[[pkeys objectAtIndex:0] key] found:&found];
+  return;
+}
+
 -(CLFQTableName *) table
 {
   return _table;
@@ -1763,16 +1778,18 @@
   CLMutableArray *mArray;
   CLRecordDefinition *recordDef = [CLEditingContext recordDefinitionForClass:[self class]];
   BOOL found;
+  id relObject;
 
 
   /* FIXME - set editing context on anObject if it doesn't have one? */
 
-  if ([self objectValueForBinding:aKey] == anObject)
+  relObject = [self objectValueForBinding:aKey];
+  if (relObject == anObject)
     return;
 
   aRelationship = [[recordDef relationships] objectForKey:aKey];
   if ([aRelationship toMany]) {
-    mArray = [self objectValueForBinding:aKey];
+    mArray = relObject;
     if (!mArray) {
       mArray = [[CLMutableArray alloc] init];
       [self setObjectValue:mArray forBinding:aKey];
