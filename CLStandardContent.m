@@ -217,7 +217,8 @@
 
 -(void) addCategory:(id) sender
 {
-  int i, j, oid, depth;
+  CLUInteger i, j, depth;
+  CLUnsignedPK upk;
   id anObject = [self topCategory];
   CLCategory *aCat = nil, *newCat = nil;
   CLString *aString;
@@ -227,14 +228,14 @@
   if ([anObject isKindOfClass:[CLCategory class]])
     aCat = anObject;
 
-  depth = [[sender valueOfFieldNamed:FIELD_CATDEPTH] intValue];
+  depth = [[sender valueOfFieldNamed:FIELD_CATDEPTH] unsignedIntValue];
   for (i = 0; i < depth; i++) {
     aString = [sender valueOfFieldNamed:[CLString stringWithFormat:FIELD_CAT @"_%i", i+1]];
     if (![aString length])
       break;
 
-    oid = [aString intValue];
-    if (!oid) {
+    upk = [aString unsignedPK];
+    if (!upk) {
       CLRange aRange;
 
 
@@ -252,7 +253,7 @@
 
       aCat = newCat;
     }
-    else if (oid < 0) {
+    else if (upk < 0) {
       if (!(aString = [sender valueOfFieldNamed:FIELD_CATOTHER])) {
 #if 0
         [[sender page] appendErrorString:@"You must fill in a new category name"];
@@ -269,7 +270,7 @@
       break;
     }
     else {
-      newCat = [CLCategory categoryWithID:oid];
+      newCat = [CLCategory categoryWithID:upk];
       if (!aCat || [newCat isChildOfCategory:aCat])
         aCat = newCat;
       else
@@ -293,74 +294,58 @@
 {
   CLMutableArray *mArray;
   CLString *aString;
-  int i, j, k, l;
-  int oid;
+  CLUInteger i, j, k, l;
+  CLUnsignedPK upk;
 
 
   mArray = (CLMutableArray *) [self categories];
-  j = [[sender valueOfFieldNamed:FIELD_NUMCAT] intValue];
+  j = [[sender valueOfFieldNamed:FIELD_NUMCAT] unsignedIntValue];
   for (i = 0; i < j; i++) {
     aString = [CLString stringWithFormat:@"cl_sc_catremoveid_%i", i+1];
-    if ((oid = [[sender valueOfFieldNamed:aString] intValue])) {
-      for (k = 0, l = [mArray count]; k < l; k++)
-        if (oid == [[[mArray objectAtIndex:k] category] objectID]) {
+    if ((upk = [[sender valueOfFieldNamed:aString] unsignedPK])) {
+      for (k = 0, l = [mArray count]; k < l; k++) {
+	upk = [[[[mArray objectAtIndex:k] category] primaryKey] unsignedPK];
+        if (upk) {
           if (!_removedCategories)
             _removedCategories = [[CLMutableArray alloc] init];
           [_removedCategories addObject:[mArray objectAtIndex:k]];
           break;
         }
+      }
     }
   }
 
   return;
 }
 
--(CLStandardContentImage *) imageWithID:(int) oid
+-(id) objectInArray:(CLArray *) anArray withID:(CLUnsignedPK) upk
 {
-  int i, j;
-  CLArray *anArray = [self images];
-  CLStandardContentImage *anImage;
+  CLUInteger i, j;
+  id anObject;
 
 
   for (i = 0, j = [anArray count]; i < j; i++) {
-    anImage = [anArray objectAtIndex:i];
-    if ([anImage objectID] == oid)
-      return anImage;
+    anObject = [anArray objectAtIndex:i];
+    if ([[anObject primaryKey] unsignedPK] == upk)
+      return anObject;
   }
 
   return nil;
 }
 
--(CLOriginalImage *) wikiImageWithID:(int) oid
+-(CLStandardContentImage *) imageWithID:(CLUnsignedPK) upk
 {
-  int i, j;
-  CLArray *anArray = [[self body] images];
-  CLOriginalImage *anImage;
-
-
-  for (i = 0, j = [anArray count]; i < j; i++) {
-    anImage = (CLOriginalImage *) [[anArray objectAtIndex:i] image];
-    if ([anImage objectID] == oid)
-      return anImage;
-  }
-
-  return nil;
+  return [self objectInArray:[self images] withID:upk];
 }
 
--(CLStandardContentFile *) fileWithID:(int) oid
+-(CLOriginalImage *) wikiImageWithID:(CLUnsignedPK) upk
 {
-  int i, j;
-  CLArray *anArray = [self files];
-  CLStandardContentFile *aFile;
+  return [self objectInArray:[[self body] images] withID:upk];
+}
 
-
-  for (i = 0, j = [anArray count]; i < j; i++) {
-    aFile = [anArray objectAtIndex:i];
-    if ([aFile objectID] == oid)
-      return aFile;
-  }
-
-  return nil;
+-(CLStandardContentFile *) fileWithID:(CLUnsignedPK) upk
+{
+  return [self objectInArray:[self files] withID:upk];;
 }
 
 /* Returns all images in gallery and body, hidden or not */
@@ -390,7 +375,8 @@
 
 -(void) linkParent:(id) sender
 {
-  int i, oid, depth;
+  CLUInteger i, depth;
+  CLUnsignedPK upk;
   id anObject = nil, newObject = nil;
   CLRelationship *aRelationship;
   id aClass;
@@ -398,13 +384,15 @@
 
   aRelationship = [[_recordDef relationships] objectForKey:@"parent"];
   aClass = [CLEditingContext classForTable:[aRelationship theirTable]];
-  depth = [[sender valueOfFieldNamed:FIELD_PARENTDEPTH] intValue];
+  depth = [[sender valueOfFieldNamed:FIELD_PARENTDEPTH] unsignedIntValue];
   for (i = 0; i < depth; i++) {
-    if (!(oid = [[sender valueOfFieldNamed:
-                           [CLString stringWithFormat:FIELD_PARENT @"_%i", i+1]] intValue]))
+    if (!(upk = [[sender valueOfFieldNamed:
+                           [CLString stringWithFormat:FIELD_PARENT @"_%i", i+1]]
+		  unsignedPK]))
       break;
 
-    newObject = [[self editingContext] loadObjectWithClass:aClass objectID:oid];
+    newObject = [[self editingContext] loadObjectWithClass:aClass primaryKey:
+				    [CLNumber numberWithPK:upk]];
     if (!anObject || [newObject isChildOf:anObject]) {
       [anObject autorelease];
       anObject = newObject;
@@ -455,19 +443,19 @@
 
   {
     CLArray *anArray;
-    int i, j, k, l;
+    CLUInteger i, j, k, l;
     CLWikiImage *anImage;
     CLInput *aField;
     CLString *aString;
     CLPage *aPage;
     CLArray *fieldNames;
-    int oid;
+    CLUnsignedPK upk;
 
 
     /* FIXME - delete images that have been removed from body */
     anArray = [body images];
 
-    j = [[sender valueOfFieldNamed:FIELD_NUMWKIMG] intValue];
+    j = [[sender valueOfFieldNamed:FIELD_NUMWKIMG] unsignedIntValue];
     if (j) {
       aPage = [CLPage pageFromFile:@"CLWikiImage_editRow" owner:nil];
       fieldNames = [self findInputs:[aPage body]];
@@ -476,11 +464,12 @@
         fieldNames = [CLArray arrayWithObjects:FIELD_WKIMAGEID, FIELD_WKIMAGE, nil];
 
       for (i = 0; i < j; i++) {
-        oid = [[sender valueOfFieldNamed:[CLString stringWithFormat:
-                                                    FIELD_WKIMAGEID "_%i", i+1]] intValue];
+        upk = [[sender valueOfFieldNamed:[CLString stringWithFormat:
+                                                    FIELD_WKIMAGEID "_%i", i+1]]
+		unsignedPK];
         for (k = 0, l = [anArray count]; k < l; k++) {
           anImage = [anArray objectAtIndex:k];
-          if ([[anImage imageID] intValue] == oid)
+          if ([[anImage imageID] unsignedPK] == upk)
             break;
         }
         if (k < l) {
@@ -507,7 +496,7 @@
 
   {
     CLArray *anArray;
-    int i, j, k, l;
+    CLUInteger i, j, k, l;
     CLWikiLink *aLink = nil;
     CLInput *aField;
     CLString *aString;
@@ -518,7 +507,7 @@
     /* FIXME - delete images that have been removed from body */
     anArray = [body links];
 
-    j = [[sender valueOfFieldNamed:FIELD_NUMWKLINK] intValue];
+    j = [[sender valueOfFieldNamed:FIELD_NUMWKLINK] unsignedIntValue];
     if (j) {
       aPage = [CLPage pageFromFile:@"CLWikiLink_editRow" owner:nil];
       fieldNames = [self findInputs:[aPage body]];
@@ -550,30 +539,30 @@
 
   {
     CLArray *anArray;
-    int i, j, k, l;
+    CLUInteger i, j, k, l;
     CLWikiMedia *aFile;
     CLInput *aField;
     CLString *aString;
     CLPage *aPage;
     CLArray *fieldNames;
-    int oid;
+    CLUnsignedPK upk;
 
 
     /* FIXME - delete media that has been removed from body */
     anArray = [body media];
 
-    j = [[sender valueOfFieldNamed:FIELD_NUMWKMEDIA] intValue];
+    j = [[sender valueOfFieldNamed:FIELD_NUMWKMEDIA] unsignedIntValue];
     if (j) {
       aPage = [CLPage pageFromFile:@"CLWikiMedia_editRow" owner:nil];
       fieldNames = [self findInputs:[aPage body]];
       [aPage release];
 
       for (i = 0; i < j; i++) {
-        oid = [[sender valueOfFieldNamed:[CLString stringWithFormat:
-                                                     FIELD_WKMEDIAID "_%i", i+1]] intValue];
+        upk = [[sender valueOfFieldNamed:[CLString stringWithFormat:
+                                                     FIELD_WKMEDIAID "_%i", i+1]] unsignedPK];
         for (k = 0; k < j; k++) {
           aFile = [anArray objectAtIndex:k];
-          if ([[aFile fileID] intValue] == oid)
+          if ([[aFile fileID] unsignedPK] == upk)
             break;
         }
         if (k == j)
@@ -610,7 +599,7 @@
   }
 
   {
-    int i, j;
+    CLUInteger i, j;
     CLMutableArray *mArray;
     CLArray *anArray;
     id anObject;
@@ -634,7 +623,7 @@
     anArray = [self images];
     for (i = [anArray count]; i > 0; i--) {
       anImage = [anArray objectAtIndex:i-1];
-      anObject = [CLNumber numberWithInt:[anImage objectID]];
+      anObject = [anImage primaryKey];
       if (![mArray containsObject:anObject])
         [self removeObject:anImage fromBothSidesOfRelationship:@"images"];
     }
@@ -660,8 +649,8 @@
   }
 
   {
-    int i, j;
-    int oid, newPos;
+    CLUInteger i, j, newPos;
+    CLUnsignedPK upk;
     CLStandardContentImage *anImage;
     CLString *aField, *fieldIndex;
     CLArray *anArray;
@@ -672,8 +661,8 @@
       aField = [anArray objectAtIndex:i];
       if ([aField hasPrefix:FIELD_GALLERYID]) {
         fieldIndex = [aField substringFromIndex:[FIELD_GALLERYID length]];
-        oid = [[sender valueOfFieldNamed:aField] intValue];
-        if (!(anImage = [self imageWithID:oid]) && oid && ![self wikiImageWithID:oid]) {
+        upk = [[sender valueOfFieldNamed:aField] unsignedPK];
+        if (!(anImage = [self imageWithID:upk]) && upk && ![self wikiImageWithID:upk]) {
           /* plist reconstruction deleted it, put it back */
           CLRelationship *aRelationship;
 
@@ -681,12 +670,13 @@
           aRelationship = [[_recordDef relationships] objectForKey:@"images"];
           anImage = [[self editingContext] loadObjectWithClass:
                            [CLEditingContext classForTable:[aRelationship theirTable]]
-                                                 objectID:oid];
+                                                 primaryKey:
+			       [CLNumber numberWithPK:upk]];
           [self addObject:anImage toBothSidesOfRelationship:@"images"];
         }
         newPos = [[sender valueOfFieldNamed:
                             [CLString stringWithFormat:FIELD_GALLERYORDER @"%@",
-                                      fieldIndex]] intValue];
+                                      fieldIndex]] unsignedIntValue];
         if (newPos)
           [anImage setPosition:newPos];
         [anImage setCaption:[sender valueOfFieldNamed:
@@ -712,14 +702,14 @@
   {
     CLString *aString;
     CLArray *anArray;
-    int i, j;
+    CLUInteger i, j;
     CLStandardContentImage *anImage;
 
 
     if ((aString = [sender valueOfFieldNamed:FIELD_DELIMAGES])) {
       anArray = [aString decodeCSV];
       for (i = 0, j = [anArray count]; i < j; i++) {
-        anImage = [self imageWithID:[[anArray objectAtIndex:i] intValue]];
+        anImage = [self imageWithID:[[anArray objectAtIndex:i] unsignedPK]];
         [anImage setWillDelete:YES];
       }
     }
@@ -727,14 +717,15 @@
 
   if ([sender valueOfFieldNamed:FIELD_GALLERYORDER]) {
     CLArray *anArray;
-    int i, j, oid;
+    CLUInteger i, j;
+    CLUnsignedPK upk;
     CLStandardContentImage *anImage;
 
 
     anArray = [[sender valueOfFieldNamed:FIELD_GALLERYORDER] decodeCSV];
     for (i = 0, j = [anArray count]; i < j; i++) {
-      oid = [[anArray objectAtIndex:i] intValue];
-      anImage = [self imageWithID:oid];
+      upk = [[anArray objectAtIndex:i] unsignedPK];
+      anImage = [self imageWithID:upk];
       [anImage setPosition:i+1];
     }
   }
@@ -753,31 +744,35 @@
             fileFromField:[sender fieldNamed:FIELD_FILE]
                     table:[aRelationship theirTable]];
     [pf setCaption:[sender valueOfFieldNamed:FIELD_FCAPTION]];
-    if ([[sender valueOfFieldNamed:FIELD_FTYPE] intValue])
-      [pf setType:[[self editingContext] loadObjectWithClass:CLFileTypeClass objectID:
-                             [[sender valueOfFieldNamed:FIELD_FTYPE] intValue]]];
+    if ([[sender valueOfFieldNamed:FIELD_FTYPE] unsignedIntValue])
+      [pf setType:[[self editingContext] loadObjectWithClass:CLFileTypeClass
+						    primaryKey:
+			     [CLNumber numberWithPK:
+					 [[sender valueOfFieldNamed:FIELD_FTYPE]
+					   unsignedPK]]]];
     [self addObject:pf toBothSidesOfRelationship:@"files"];
     [[self editingContext] saveChanges];
   }
 
   {
-    int i, j;
-    int oid, tid;
+    CLUInteger i, j;
+    CLUnsignedPK oid, tid;
     CLStandardContentFile *aFile;
 
 
-    for (i = 0, j = [[sender valueOfFieldNamed:FIELD_NUMFILES] intValue]; i < j; i++) {
+    for (i = 0, j = [[sender valueOfFieldNamed:FIELD_NUMFILES] unsignedIntValue]; i < j; i++) {
       oid = [[sender valueOfFieldNamed:[CLString stringWithFormat:
                                                    FIELD_FILEID @"_%i", i+1]]
-              intValue];
+              unsignedPK];
       aFile = [self fileWithID:oid];
       [aFile setCaption:[sender valueOfFieldNamed:
                                   [CLString stringWithFormat:
                                               FIELD_FCAPTION @"_%i", i+1]]];
       if ((tid = [[sender valueOfFieldNamed:[CLString stringWithFormat:
-                                                        FIELD_FTYPE @"_%i", i+1]] intValue]))
+                                                        FIELD_FTYPE @"_%i", i+1]] unsignedPK]))
         [aFile setType:[[self editingContext]
-                         loadObjectWithClass:CLFileTypeClass objectID:tid]];
+                         loadObjectWithClass:CLFileTypeClass primaryKey:
+			   [CLNumber numberWithPK:tid]]];
 
       if ([sender valueOfFieldNamed:[CLString stringWithFormat:
                                                 FIELD_REMOVEFILE @"_%i", i+1]])
@@ -791,14 +786,14 @@
   {
     CLString *aString;
     CLArray *anArray;
-    int i, j;
+    CLUInteger i, j;
     CLStandardContentFile *aFile;
 
 
     if ((aString = [sender valueOfFieldNamed:FIELD_DELFILES])) {
       anArray = [aString decodeCSV];
       for (i = 0, j = [anArray count]; i < j; i++) {
-        aFile = [self fileWithID:[[anArray objectAtIndex:i] intValue]];
+        aFile = [self fileWithID:[[anArray objectAtIndex:i] unsignedPK]];
         [aFile setWillDelete:YES];
       }
     }
@@ -1123,7 +1118,7 @@
 -(CLArray *) categoryOptions
 {
   CLArray *anArray;
-  int i, j;
+  CLUInteger i, j;
   CLMutableArray *mArray;
   CLCategory *aCat;
   CLString *aString = nil;
@@ -1131,17 +1126,21 @@
   CLRecordDefinition *def;
   id anObject;
   CLMutableString *mString;
+  CLUnsignedPK upk;
 
 
   if ((anObject = [self topCategory])) {
-    if ([anObject isKindOfClass:[CLCategory class]])
-      aString = [CLString stringWithFormat:@"parent_id = %i", [anObject objectID]];
+    if ([anObject isKindOfClass:[CLCategory class]]) {
+      upk = [[anObject primaryKey] unsignedPK];
+      aString = [CLString stringWithFormat:@"parent_id = %u", upk];
+    }
     else if ([anObject isKindOfClass:[CLArray class]]) {
       mString = [CLMutableString string];
       for (i = 0, j = [anObject count]; i < j; i++) {
         if ([mString length])
           [mString appendString:@" or "];
-        [mString appendFormat:@"id = %i", [[anObject objectAtIndex:i] objectID]];
+	upk = [[[anObject objectAtIndex:i] primaryKey] unsignedPK];
+        [mString appendFormat:@"id = %u", upk];
       }
       aString = mString;
     }
@@ -1209,7 +1208,7 @@
 -(BOOL) isChildOf:(id) anObject
 {
   id aParent, lastParent = self;
-  int oid = [anObject objectID];
+  CLUnsignedPK upk = [[self primaryKey] unsignedPK];
   CLArray *anArray;
   int i, j;
 
@@ -1217,7 +1216,7 @@
   if ([anObject isKindOfClass:[self class]]) {
     aParent = self;
     while (aParent) {
-      if ([aParent objectID] == oid)
+      if ([[aParent primaryKey] unsignedPK] == upk)
         return YES;
       lastParent = aParent;
       aParent = [aParent parent];
@@ -1265,7 +1264,7 @@
     mArray = [[CLMutableArray alloc] init];
     for (i = 0, j = [_removedCategories count]; i < j; i++) {
       aCat = [_removedCategories objectAtIndex:i];
-      [mArray addObject:[CLNumber numberWithInt:[[aCat category] objectID]]];
+      [mArray addObject:[[aCat category] primaryKey]];
     }
     [mDict setObject:mArray forKey:@"removedCategories"];
     [mArray release];
@@ -1334,9 +1333,9 @@
 
 -(void) formDidRestoreObject:(CLForm *) aForm fromDictionary:(CLDictionary *) aDict
 {
-  int i, j, k, l;
+  CLUInteger i, j, k, l;
   CLArray *anArray, *categories;
-  int oid;
+  CLUInteger oid, cid;
   CLStandardContentCategory *aCat;
 
 
@@ -1344,10 +1343,11 @@
     anArray = [aDict objectForKey:@"removedCategories"];
     categories = [self categories];
     for (i = 0, j = [anArray count]; i < j; i++) {
-      oid = [[anArray objectAtIndex:i] intValue];
+      oid = [[anArray objectAtIndex:i] unsignedPK];
       for (k = 0, l = [categories count]; k < l; k++) {
         aCat = [categories objectAtIndex:k];
-        if ([[aCat category] objectID] == oid) {
+	cid = [[[aCat category] primaryKey] unsignedPK];
+        if (cid == oid) {
           if (!_removedCategories)
             _removedCategories = [[CLMutableArray alloc] init];
           [_removedCategories addObject:aCat];
@@ -1371,8 +1371,9 @@
   mArray = [[CLMutableArray alloc] init];
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
-    if ([anObject willDelete])
-      [mArray addObject:[CLNumber numberWithInt:[anObject objectID]]];
+    if ([anObject willDelete]) {
+      [mArray addObject:[anObject primaryKey]];
+    }
   }
 
   aString = [mArray componentsJoinedByString:@","];

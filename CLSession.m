@@ -143,25 +143,26 @@
 
 
   self = [super read:stream];
-  [stream readTypes:@"i", &objectID];
-  if ((anObject = [CLDefaultContext registerInstance:self inTable:[CLEditingContext
+  [stream readTypes:@"@", &primaryKey];
+  anObject = [CLDefaultContext registerInstance:self inTable:[CLEditingContext
                                                                     tableForClass:[self class]]
-                                      withPrimaryKey:[CLNumber numberWithInt:objectID]]) &&
-      anObject != self) {
+				 withPrimaryKey:primaryKey];
+  if (anObject && anObject != self) {
     [anObject retain];
     [self release];
     self = anObject;
   }
-  else
-    CLBecomeFault(self, [CLDecimalNumber numberWithInt:objectID],
+  else {
+    CLBecomeFault(self, primaryKey,
                   [CLEditingContext recordDefinitionForClass:[self class]], NO);
+  }
   return self;
 }
 
 -(void) write:(CLStream *) stream
 {
   [super write:stream];
-  [stream writeTypes:@"i", &objectID];
+  [stream writeTypes:@"@", &primaryKey];
   return;
 }
 
@@ -175,9 +176,9 @@
   return;
 }
 
--(int) objectID
+-(id) primaryKey
 {
-  return objectID;
+  return primaryKey;
 }
 
 -(id) account
@@ -237,15 +238,6 @@
     [returnTo release];
     returnTo = [anObject retain];
   }
-  return;
-}
-
--(void) setObjectID:(int) aValue
-{
-  if (objectID)
-    [self error:@"Changing primary key"];
-  [self willChange];
-  objectID = aValue;
   return;
 }
 

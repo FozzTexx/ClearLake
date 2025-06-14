@@ -45,7 +45,7 @@
   maxPages = 9;
 
   if ((aString = [attributes objectForKey:@"CL_MAXPAGES"])) {
-    maxPages = [[self expandBinding:aString success:&success] intValue];
+    maxPages = [[self expandBinding:aString success:&success] unsignedIntValue];
     [attributes removeObjectForKey:@"CL_MAXPAGES"];
   }
 
@@ -163,7 +163,7 @@
 
 -(void) first:(id) sender
 {
-  [CLQuery setObject:[CLNumber numberWithInt:0] forKey:QUERY_START];
+  [CLQuery setObject:[CLNumber numberWithUnsignedInt:0] forKey:QUERY_START];
   [self goto:sender];
   return;
 }
@@ -178,7 +178,7 @@
   /* FIXME - should probably do expandBinding but I'm not sure if the
      page is significant. */
   aView = [[sender page] datasourceForBinding:[aString substringFromIndex:1]];
-  [CLQuery setObject:[CLNumber numberWithInt:[aView count] - 1] forKey:QUERY_START];
+  [CLQuery setObject:[CLNumber numberWithUnsignedInt:[aView count] - 1] forKey:QUERY_START];
   [self goto:sender];
   return;
 }
@@ -188,10 +188,10 @@
   CLUInteger start;
 
 
-  start = [[CLQuery objectForKey:QUERY_START] intValue];
+  start = [[CLQuery objectForKey:QUERY_START] unsignedIntValue];
   if (start)
     start--;
-  [CLQuery setObject:[CLNumber numberWithInt:start] forKey:QUERY_START];
+  [CLQuery setObject:[CLNumber numberWithUnsignedInt:start] forKey:QUERY_START];
   [self goto:sender];
   return;
 }
@@ -207,9 +207,9 @@
   /* FIXME - should probably do expandBinding but I'm not sure if the
      page is significant. */
   aView = [[sender page] datasourceForBinding:[aString substringFromIndex:1]];
-  start = [[CLQuery objectForKey:QUERY_START] intValue];
+  start = [[CLQuery objectForKey:QUERY_START] unsignedIntValue];
   maxItems = [aView maxItems];
-  [CLQuery setObject:[CLNumber numberWithInt:start + maxItems] forKey:QUERY_START];
+  [CLQuery setObject:[CLNumber numberWithUnsignedInt:start + maxItems] forKey:QUERY_START];
   [self goto:sender];
   return;
 }
@@ -231,7 +231,7 @@
   maxItems = [aView maxItems];
   if (!maxItems)
     maxItems = 10;
-  aRange.location = [[CLQuery objectForKey:QUERY_START] intValue];
+  aRange.location = [[CLQuery objectForKey:QUERY_START] unsignedIntValue];
   if (aRange.location > [aView count])
     aRange.location = [aView count] - 1;
   aRange.location /= maxItems;
@@ -382,7 +382,8 @@
   for (i = 0, j = [anArray count]; i < j; i++) {
     anObject = [anArray objectAtIndex:i];
     if ([anObject isKindOfClass:CLControlClass])
-      [[anObject localQuery] setObject:[CLNumber numberWithInt:[datasource range].location]
+      [[anObject localQuery] setObject:[CLNumber
+					 numberWithUnsignedInt:[datasource range].location]
                                 forKey:QUERY_START];
     else if ([anObject respondsTo:@selector(content)] &&
              [(anObject = [anObject content]) isKindOfClass:CLArrayClass])
@@ -422,7 +423,7 @@
     aControl = [[[CLControl alloc] init] autorelease];
     [aControl setTarget:self];
     [aControl setAction:@selector(goto:)];
-    [[aControl localQuery] setObject:[CLNumber numberWithInt:i] forKey:QUERY_START];
+    [[aControl localQuery] setObject:[CLNumber numberWithUnsignedInt:i] forKey:QUERY_START];
     [[aControl localQuery] addEntriesFromDictionary:extraQuery];
     [aControl addObject:aString];
     [aControl setPage:page];

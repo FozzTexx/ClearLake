@@ -30,14 +30,11 @@
 #import "CLHashTable.h"
 #import "CLStandardContent.h"
 #import "CLClassConstants.h"
+#import "CLNumber.h"
 
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
-
-/* FIXME - some kind of bug in the linker where it ignores everything
-   in a .m file that isn't explicitly named in other source. */
-#import "CLStandardContentFile.m"
 
 #define FILE_CMD        @"/usr/local/bin/file"
 
@@ -82,19 +79,19 @@
 
 +(id) fileFromPath:(CLString *) aPath table:(CLFQTableName *) aTable hardlink:(BOOL) hardlink
 {
-  int oid;
+  CLUnsignedPK upk;
   CLString *dbPath;
   CLOriginalFile *aFile = nil;
   CLData *aData;
 
 
   if (hardlink) {
-    oid = CLStoreFile(nil, [aPath pathExtension], nil);
-    if ((dbPath = CLPathForFileID(oid))) {
+    upk = CLStoreFile(nil, [aPath pathExtension], nil);
+    if ((dbPath = CLPathForFileID(upk))) {
       unlink([dbPath UTF8String]);
       if (!link([aPath UTF8String], [dbPath UTF8String])) {
         aFile = [[self alloc] initFromDictionary:nil table:aTable];
-        [aFile setObjectID:oid];
+	[aFile setObjectValue:[CLNumber numberWithPK:upk] forBinding:PRIMARYKEY_BINDING];
       }
     }
   }
@@ -143,17 +140,9 @@
   return;
 }
 
--(int) objectID
-{
-  /* FIXME - just update the sequence number, don't have to actually write to disk */
-  if (![super objectID])
-    [self save];
-  return [super objectID];
-}
-
 -(CLString *) path
 {
-  return CLPathForFileID([self objectID]);
+  return CLPathForFileID([[self primaryKey] unsignedPK]);
 }
 
 -(void) load
@@ -168,13 +157,13 @@
 
 -(BOOL) save
 {
-  int oid;
+  CLUnsignedPK upk;
   CLString *aString = [self filename];
 
 
-  if (![super objectID] && loaded) {
-    if ((oid = CLStoreFile(data, nil, [aString pathExtension])))
-      [self setObjectID:oid];
+  if (![self primaryKey] && loaded) {
+    if ((upk = CLStoreFile(data, nil, [aString pathExtension])))
+      [self setObjectValue:[CLNumber numberWithPK:upk] forBinding:PRIMARYKEY_BINDING];
     else
       return NO;
   }
@@ -252,14 +241,14 @@
   CLStream *tFile = nil;
 
 
-  if (![super objectID]) {
+  if (![self primaryKey]) {
     tFile = [CLStream openTemporaryFile:@"file.XXXXXX"];
     [tFile writeData:data];
     [tFile close];
     aPath = [tFile path];
   }
   else
-    aPath = CLPathForFileID([self objectID]);
+    aPath = CLPathForFileID([[self primaryKey] unsignedPK]);
 
   mimeType = [CLStream mimeTypeForFile:aPath];
   [tFile remove];
@@ -380,7 +369,7 @@
 
 
   [super didDeleteFromDatabase];
-  if ((path = CLPathForFileID([super objectID])))
+  if ((path = CLPathForFileID([[self primaryKey] unsignedPK])))
     unlink([path UTF8String]);
   return;
 }

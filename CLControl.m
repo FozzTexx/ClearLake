@@ -176,17 +176,18 @@ void CLWriteURLForGet(CLStream *stream, id object, CLData *stateData, SEL action
   if (1 || CLCookiesEnabled)
     [mDict removeObjectForKey:QUERY_SESSIONID];
   else {
-    int sid;
+    CLUnsignedPK sid;
 
 
-    if ((sid = [[[CLManager manager] activeSession] objectID]))
-      [mDict setObject:[CLNumber numberWithInt:sid] forKey:QUERY_SESSIONID];
+    sid = [[[[CLManager manager] activeSession] primaryKey] unsignedPK];
+    if (sid)
+      [mDict setObject:[CLNumber numberWithPK:sid] forKey:QUERY_SESSIONID];
   }
 
   if (!withoutQuery) {
     CLString *aKey;
     CLArray *keys;
-    int i, j;
+    CLUInteger i, j;
     id aValue;
 
 
@@ -445,28 +446,17 @@ Class CLClassFromURLString(CLString *objectName)
     aString = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
     targetClass = CLClassFromURLString([CLQuery objectForKey:CL_URLCLASS]);
 
-    if ([CLEditingContext recordDefinitionForClass:targetClass]) {
+    {
       target = [[CLDefaultContext loadExistingObjectWithClass:targetClass
 						   primaryKey:[aString decodeJSON]] retain];
       if (!target)
-	target = [[targetClass alloc] init];
+	target = [[targetClass alloc] initFromPrimaryKey:[aString decodeJSON]];
       aString = [CLQuery objectForKey:CL_URLSEL];
       if (!aString)
 	aString = @"detail";
       aString = [CLString stringWithFormat:@"%@:", aString];
       action = CLSelectorFromString(aString);
       [target replacePage:self selector:action];
-    }
-    else {
-      CLStream *stream;
-
-
-      stream = [CLStream openWithData:aData mode:CLReadOnly];
-      [self readURL:stream];
-      [stream readTypes:@"i", &writeContents];
-      if (writeContents)
-	[stream readTypes:@"@", &content];
-      [stream close];
     }
   }
 
@@ -542,7 +532,7 @@ Class CLClassFromURLString(CLString *objectName)
 
 -(CLString *) generateURL
 {
-  CLStream *stream, *stream2;
+  CLStream *stream;
   CLString *aString, *aURL = nil;
   CLData *aData;
   BOOL success;
@@ -565,8 +555,10 @@ Class CLClassFromURLString(CLString *objectName)
       aRep = [anImage imageRep];
       if ((aString = [attributes objectForKey:@"CL_EFFECTS"]))
         aRep = [aRep imageRepFromEffects:aString];
-      [attributes setObject:[CLNumber numberWithInt:[aRep size].width] forKey:@"WIDTH"];
-      [attributes setObject:[CLNumber numberWithInt:[aRep size].height] forKey:@"HEIGHT"];
+      [attributes setObject:[CLNumber numberWithUnsignedInt:[aRep size].width]
+		     forKey:@"WIDTH"];
+      [attributes setObject:[CLNumber numberWithUnsignedInt:[aRep size].height]
+		     forKey:@"HEIGHT"];
       [anImage release];
     }
     else if ((aString = [attributes objectForKey:@"CL_HREF"]))
@@ -586,36 +578,16 @@ Class CLClassFromURLString(CLString *objectName)
     aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
     [stream close];
   }
-  else if (target && [CLEditingContext recordDefinitionForClass:[target class]]
-	   && [[target editingContext] primaryKeyForRecord:target]
-	   && [target selectorIsPage:action]) {
-    //id targetClass = nil;
+  else {
     CLData *state = nil;
-    id pk;
+    id primaryKey;
 
 
-    //targetClass = [target class];
-    pk = [[target editingContext] primaryKeyForRecord:target];
-    state = [[pk json] dataUsingEncoding:CLUTF8StringEncoding];
+    primaryKey = [target primaryKey];
+    state = [[primaryKey json] dataUsingEncoding:CLUTF8StringEncoding];
+    // FIXME - is state session specific? "encrypt" it.
     stream = [CLStream openMemoryForWriting];
     CLWriteURL(stream, target, state, action, localQuery);
-    aData = [stream data];
-    aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
-    [stream close];
-  }
-  else {
-    stream = [CLStream openMemoryForWriting];
-    stream2 = [CLStream openMemoryForWriting];
-    [self writeURL:stream2];
-    [stream2 writeTypes:@"i", &writeContents];
-    if (writeContents)
-      [stream2 writeTypes:@"@", &content];
-    aData = [stream2 data];
-    CLWriteURL(stream, self, aData, action, localQuery);
-    [stream2 close];
-    if (anchor)
-      [stream writeFormat:@"#%@" usingEncoding:CLUTF8StringEncoding, anchor];
-    /* FIXME - we should be using nocopy to move the stream buffer into the string */
     aData = [stream data];
     aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
     [stream close];

@@ -216,7 +216,7 @@
 
 -(CLUInteger) reserveIDs:(CLUInteger) count forTable:(CLString *) table
 {
-  CLUInteger rid = 0, rid2 = 0;
+  CLUnsignedPK rid = 0, rid2 = 0;
   CLDictionary *results;
   CLArray *anArray;
   CLString *aString;
@@ -231,7 +231,7 @@
                                      " WHERE table_name = '%@'", table]];
   anArray = [results objectForKey:@"rows"];
   if ([anArray count])
-    rid = [[[anArray objectAtIndex:0] objectAtIndex:0] intValue];
+    rid = [[[anArray objectAtIndex:0] objectAtIndex:0] unsignedPK];
 
   aString = [CLString stringWithFormat:@"SELECT max(id)+%i FROM %@", count, table];
   results = [self runQuery:aString];
@@ -239,7 +239,7 @@
   if ([anArray count]) {
     aValue = [[anArray objectAtIndex:0] objectAtIndex:0];
     if (aValue != CLNullObject)
-      rid2 = [aValue intValue];
+      rid2 = [aValue unsignedPK];
   }
   if (rid2 > rid)
     rid = rid2;

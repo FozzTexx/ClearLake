@@ -28,11 +28,13 @@
 
 @interface CLWikiImage:CLWikiObject
 -(CLNumber *) imageID;
+-(id) primaryKey;
+-(id) initFromPrimaryKey:(id) aKey;
 -(CLOriginalImage *) image;
 -(void) setImageID:(CLNumber *) aValue;
 -(BOOL) setImageFromField:(CLInput *) aField;
--(int) position;
--(void) setPosition:(int) aNumber;
+-(CLUInteger) position;
+-(void) setPosition:(CLUInteger) aNumber;
 -(CLComparisonResult) comparePosition:(id) anImage;
 @end
 

@@ -856,7 +856,7 @@ void CLFindFileDirectory()
   return;
 }
 
-CLString *CLPathForFileID(int file_id)
+CLString *CLPathForFileID(CLUnsignedPK file_id)
 {
   CLString *aPath;
   DIR *dir;
@@ -903,7 +903,8 @@ void CLCreateWorldWritableDirectory(CLString *aPath)
   return;
 }
 
-BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint, int seq)
+BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint,
+		     CLUnsignedPK seq)
 {
   CLString *aPath, *aString, *mimeType = nil;
   FILE *file;
@@ -970,7 +971,7 @@ BOOL CLStoreFileAsID(CLData *aData, CLString *extension, CLString *extensionHint
   return !!seq;
 }
 
-int CLNextFileSequence()
+CLUnsignedPK CLNextFileSequence()
 {
   int fd;
   FILE *file;
@@ -1014,7 +1015,7 @@ int CLNextFileSequence()
   return seq;
 }
 
-int CLStoreFile(CLData *aData, CLString *extension, CLString *extensionHint)
+CLUnsignedPK CLStoreFile(CLData *aData, CLString *extension, CLString *extensionHint)
 {
   int seq;
 
@@ -1144,14 +1145,13 @@ CLString *CLFullPathForFile(CLString *aFilename, CLArray *extensions,
   return aString;
 }
 
-int CLDeflate(const void *data, int len, int level, CLData **aData)
+CLUInteger CLDeflate(const void *data, CLUInteger len, CLUInteger level, CLData **aData)
 {
   int ret, flush;
   unsigned have;
   z_stream strm;
   unsigned char out[16384];
   CLMutableData *mData;
-
 
 
   strm.zalloc = Z_NULL;

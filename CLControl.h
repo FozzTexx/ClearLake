@@ -81,6 +81,10 @@ extern CLString *CLURLOrder[];
 -(BOOL) delegateDecodeSimpleURL:(CLString *) aString;
 @end
 
+@protocol CLControlUnarchiving
+-(id) initFromPrimaryKey:(id) aKey;
+@end
+
 extern CLMutableDictionary *CLControlState;
 
 extern void CLWriteURLForGet(CLStream *stream, id object, CLData *stateData, SEL action,

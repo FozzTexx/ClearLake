@@ -115,31 +115,32 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
 
 
   self = [super read:stream];
-  [stream readTypes:@"i", &objectID];
-  if ((anObject = [CLDefaultContext registerInstance:self inTable:[CLEditingContext
+  [stream readTypes:@"@", &primaryKey];
+  anObject = [CLDefaultContext registerInstance:self inTable:[CLEditingContext
                                                                     tableForClass:[self class]]
-                                      withPrimaryKey:[CLNumber numberWithInt:objectID]]) &&
-      anObject != self) {
+				 withPrimaryKey:primaryKey];
+  if (anObject && anObject != self) {
     [anObject retain];
     [self release];
     self = anObject;
   }
-  else
-    CLBecomeFault(self, [CLNumber numberWithInt:objectID],
+  else {
+    CLBecomeFault(self, primaryKey,
                   [CLEditingContext recordDefinitionForClass:[self class]], NO);
+  }
   return self;
 }
 
 -(void) write:(CLStream *) stream
 {
   [super write:stream];
-  [stream writeTypes:@"i", &objectID];
+  [stream writeTypes:@"@", &primaryKey];
   return;
 }
 
--(int) objectID
+-(id) primaryKey
 {
-  return objectID;
+  return primaryKey;
 }
 
 -(CLString *) email
@@ -360,21 +361,9 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   return;
 }
 
--(void) setObjectID:(int) aValue
-{
-  if (aValue == objectID)
-    return;
-
-  if (objectID)
-    [self error:@"Changing primary key"];
-  [self willChange];
-  objectID = aValue;
-  return;
-}
-
 -(CLString *) propertyList
 {
-  return [CLString stringWithFormat:@"{objectID = %i}", objectID];
+  return [CLString stringWithFormat:@"{primaryKey = %@}", primaryKey];
 }
 
 @end
@@ -403,7 +392,7 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   unichar *buf = NULL;
   int buflen;
   unsigned int seed;
-  int tkn;
+  CLUnsignedPK tkn;
   int i;
   unsigned int setlen = strlen(tokenset);
 
@@ -428,7 +417,8 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   }
   free(buf);
 
-  return [CLDefaultContext loadExistingObjectWithClass:[self class] objectID:tkn];
+  return [CLDefaultContext loadExistingObjectWithClass:[self class] primaryKey:
+		       [CLNumber numberWithUnsignedInt:tkn]];
 }
 
 -(void) reset:(id) sender
@@ -511,10 +501,10 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   int i;
   long int setlen = strlen(tokenset);
   unsigned char nv;
-  int tid;
+  CLUnsignedPK upk;
 
 
-  tid = [self objectID];
+  upk = [primaryKey unsignedPK];
   tkn = malloc(TOKEN_LEN + 1);
   memset(tkn, 0, TOKEN_LEN + 1);
   seed = random() % (setlen * setlen);
@@ -523,8 +513,8 @@ static char tokenset[] = "0123456789abcdefghijklmnopqrstuv";
   srandom(seed);
   for (i = 2; i < TOKEN_LEN; i++)
     tkn[i] = random() % setlen;
-  for (i = 2; tid; i++, tid /= setlen) {
-    nv = tid % setlen;
+  for (i = 2; upk; i++, upk /= setlen) {
+    nv = upk % setlen;
     tkn[i] ^= nv;
   }
   for (i = 0; i < TOKEN_LEN; i++)

@@ -45,14 +45,27 @@
   return [attributes objectForKey:IMAGEID_BINDING];
 }
 
+-(id) primaryKey
+{
+  return [self imageID];
+}
+
+-(id) initFromPrimaryKey:(id) aKey
+{
+  [self init];
+  [self setImageID:[CLNumber numberWithPK:[aKey unsignedPK]]];
+  return self;
+}
+
 -(CLOriginalImage *) image
 {
   CLOriginalImage *anImage = nil;
-  int oid;
+  CLUnsignedPK upk;
 
 
-  if ((oid = [[self imageID] intValue]))
-    anImage = [CLDefaultContext loadObjectWithClass:[CLOriginalImage imageClass] objectID:oid];
+  if ((upk = [[self imageID] unsignedPK]))
+    anImage = [CLDefaultContext loadObjectWithClass:[CLOriginalImage imageClass] primaryKey:
+		    [CLNumber numberWithPK:upk]];
   return [anImage autorelease];
 }
 
@@ -65,16 +78,16 @@
 -(BOOL) setImageFromField:(CLInput *) aField
 {
   CLData *aData;
-  int oid;
+  CLUnsignedPK upk;
 
 
-  if ((oid = [[self imageID] intValue]))
-    unlink([CLPathForImageID(oid) UTF8String]);
+  if ((upk = [[self imageID] unsignedPK]))
+    unlink([CLPathForImageID(upk) UTF8String]);
 
   aData = [[aField value] data];
-  if ((oid = CLStoreImage(aData))) {
-    [[aField value] setObjectID:oid];
-    [self setImageID:[CLNumber numberWithInt:oid]];
+  if ((upk = CLStoreImage(aData))) {
+    //[[aField value] setObjectID:upk];
+    [self setImageID:[CLNumber numberWithPK:upk]];
     return YES;
   }
   else {
@@ -90,14 +103,14 @@
   return @"image";
 }
 
--(int) position
+-(CLUInteger) position
 {
-  return [[attributes objectForKey:@"position"] intValue];
+  return [[attributes objectForKey:@"position"] unsignedIntValue];
 }
 
--(void) setPosition:(int) aNumber
+-(void) setPosition:(CLUInteger) aNumber
 {
-  [attributes setObject:[CLNumber numberWithInt:aNumber] forKey:@"position"];
+  [attributes setObject:[CLNumber numberWithUnsignedInt:aNumber] forKey:@"position"];
   return;
 }
 

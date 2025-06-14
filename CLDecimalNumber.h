@@ -72,6 +72,7 @@
 -(unsigned long long) unsignedLongLongValue;
 -(double) doubleValue;
 -(CLDecimal) decimalValue;
+-(CLUnsignedPK) unsignedPK;
 -(CLDecimalNumber *) absoluteValue;
 -(BOOL) isNegative;
 -(CLString *) description;

@@ -444,9 +444,9 @@
     cSize = [self size];
     nSize = mSize = CLMakeSize(0, 0);
     if ([(aString = [args objectAtIndex:0]) length])
-      mSize.width = [aString intValue];
+      mSize.width = [aString unsignedIntValue];
     if ([args count] > 1 && [(aString = [args objectAtIndex:1]) length])
-      mSize.height = [aString intValue];
+      mSize.height = [aString unsignedIntValue];
     if ([args count] > 2 && [(aString = [args objectAtIndex:2]) length])
       blend = [aString boolValue];
 
@@ -496,9 +496,9 @@
     nSize = cSize = [self size];
     mSize = CLMakeSize(0, 0);
     if ([(aString = [args objectAtIndex:0]) length])
-      mSize.width = [aString intValue];
+      mSize.width = [aString unsignedIntValue];
     if ([args count] > 1 && [(aString = [args objectAtIndex:1]) length])
-      mSize.height = [aString intValue];
+      mSize.height = [aString unsignedIntValue];
 
     if (mSize.width && mSize.width < nSize.width)
       nSize.width = mSize.width;
@@ -516,7 +516,8 @@
 
 
     aRect = CLMakeRect([[args objectAtIndex:0] intValue], [[args objectAtIndex:1] intValue],
-                       [[args objectAtIndex:2] intValue], [[args objectAtIndex:3] intValue]);
+                       [[args objectAtIndex:2] unsignedIntValue],
+		       [[args objectAtIndex:3] unsignedIntValue]);
     [self cropImage:aRect];
   }
   else if ([effect isEqualToString:@"autocrop"]) {
@@ -532,7 +533,8 @@
     BOOL blend = NO;
 
 
-    aSize = CLMakeSize([[args objectAtIndex:0] intValue], [[args objectAtIndex:1] intValue]);
+    aSize = CLMakeSize([[args objectAtIndex:0] unsignedIntValue],
+		       [[args objectAtIndex:1] unsignedIntValue]);
     if ([args count] > 2 && [(aString = [args objectAtIndex:2]) length])
       blend = [aString boolValue];
     [self scaleImage:aSize blend:blend];
@@ -545,9 +547,9 @@
 
     mSize = CLMakeSize(0, 0);
     if ([(aString = [args objectAtIndex:0]) length])
-      mSize.width = [aString intValue];
+      mSize.width = [aString unsignedIntValue];
     if ([args count] > 1 && [(aString = [args objectAtIndex:1]) length])
-      mSize.height = [aString intValue];
+      mSize.height = [aString unsignedIntValue];
     if ([args count] > 2 && [(aString = [args objectAtIndex:2]) length])
       blend = [aString boolValue];
     if ([args count] <= 3 || ![(aString = [args objectAtIndex:3]) length])

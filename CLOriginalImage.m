@@ -31,6 +31,7 @@
 #import "CLManager.h"
 #import "CLStandardContent.h"
 #import "CLClassConstants.h"
+#import "CLNumber.h"
 
 #include <sys/stat.h>
 #include <unistd.h>
@@ -99,8 +100,10 @@
   }
 
   if (anImage && (!(cachedPath = [anImage path]) || access([cachedPath UTF8String], R_OK))) {
+#if 0
     [[anImage editingContext] deleteObject:anImage];
     [self removeObject:anImage fromBothSidesOfRelationship:@"cachedImages"];
+#endif
     anImage = nil;
   }
 
@@ -132,7 +135,7 @@
 -(id) imageRepFromEffects:(CLString *) aString
 {
   CLImageRep *aRep, *aRep2;
-  int oid;
+  CLUnsignedPK upk;
   CLCachedImage *cImage;
   CLData *aData;
   CLString *format;
@@ -144,9 +147,9 @@
     format = [aRep bestFormat];
     aRep = aRep2;
 
-    if ((aData = [aRep representationUsingFormat:format]) && (oid = CLStoreImage(aData))) {
+    if ((aData = [aRep representationUsingFormat:format]) && (upk = CLStoreImage(aData))) {
       cImage = [[CLCachedImage alloc] initWithRep:aRep];
-      [cImage setObjectID:oid];
+      [cImage setObjectValue:[CLNumber numberWithPK:upk] forBinding:PRIMARYKEY_BINDING];
       [cImage setEffects:aString];
       [cImage addObject:self toBothSidesOfRelationship:@"parent"];
       [[cImage editingContext] saveChanges];
@@ -200,14 +203,14 @@
 
 
   [super didDeleteFromDatabase];
-  if ((path = CLPathForImageID([super objectID])))
+  if ((path = [self path]))
     unlink([path UTF8String]);
   return;
 }
 
 -(CLString *) path
 {
-  return CLPathForImageID([self objectID]);
+  return CLPathForImageID([[self primaryKey] unsignedPK]);
 }
 
 -(CLString *) bestFormat

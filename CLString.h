@@ -225,6 +225,7 @@ typedef enum {
 -(unsigned long) unsignedLongValue;
 -(unsigned long long) unsignedLongLongValue;
 -(double) doubleValue;
+-(CLUnsignedPK) unsignedPK;
 @end
 
 @interface CLString (CLStringCase)

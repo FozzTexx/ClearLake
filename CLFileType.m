@@ -45,7 +45,7 @@ static CLMutableArray *_allTypes;
     for (i = 0, j = [anArray count]; i < j; i++) {
       aType = [anArray objectAtIndex:i];
       [_allTypes addObject:[CLOption optionWithString:[aType title]
-                                     andValue:[CLNumber numberWithInt:[aType objectID]]]];
+					     andValue:[aType primaryKey]]];
     }
   }
 

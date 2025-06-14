@@ -341,36 +341,6 @@
   return _table;
 }
 
--(CLUInteger) objectID
-{
-  return objectID;
-  //return [[self objectValueForBinding:OBJECTID_BINDING] unsignedIntValue];
-}
-
--(void) setObjectID:(CLUInteger) oid
-{
-  CLAttribute *anAttr;
-  CLArray *anArray;
-  CLNumber *pk;
-  CLString *key;
-
-
-  anArray = [_recordDef primaryKeys];
-  if ([anArray count] != 1)
-    [self error:@"Can't set objectID for multi-key record"];
-
-  objectID = oid;
-  if (!_primaryKey) {
-    anAttr = [anArray objectAtIndex:0];
-    pk = [[CLNumber alloc] initWithUnsignedInt:oid];
-    key = [[anAttr key] copy];
-    CLHashTableSetData(_record, pk, key, [key hash]);
-    [self primaryKey];
-  }
-  //[self setObjectValue:[CLNumber numberWithUnsignedInt:oid] forBinding:OBJECTID_BINDING];
-  return;
-}
-
 -(BOOL) hasFieldNamed:(CLString *) aString
 {
   if ([[_recordDef fields] objectForKey:aString])
@@ -601,10 +571,8 @@
 	if (oldObject && ![oldObject isEqual:anObject])
 	  [self error:@"Changing primary key"];
 	if ([anObject isKindOfClass:CLNumberClass]) {
-	  if (![anObject intValue] && ![self allowZeroPrimaryKey])
+	  if (![anObject unsignedPK] && ![self allowZeroPrimaryKey])
 	    [self error:@"Trying to set primary key to 0"];
-	  if ([[_recordDef primaryKeys] count] == 1)
-	    [self setObjectID:[anObject intValue]];
 	}
       }
       anObject = [self retainField:aKey object:anObject oldObject:oldObject];
@@ -719,7 +687,7 @@
       if ([[self attributeForField:aField] isPrimaryKey]) {
 	if (oldObject && ![oldObject isEqual:anObject])
 	  [self error:@"Changing primary key"];
-	if ([anObject isKindOfClass:CLNumberClass] && ![anObject intValue] &&
+	if ([anObject isKindOfClass:CLNumberClass] && ![anObject unsignedPK] &&
 	    ![self allowZeroPrimaryKey])
 	  [self error:@"Trying to set primary key to 0"];
       }
@@ -797,7 +765,7 @@
     if ([[self attributeForField:aKey] isPrimaryKey]) {
       if (oldObject && ![oldObject isEqual:anObject])
         [self error:@"Changing primary key"];
-      if ([anObject isKindOfClass:CLNumberClass] && ![anObject intValue] &&
+      if ([anObject isKindOfClass:CLNumberClass] && ![anObject unsignedPK] &&
           ![self allowZeroPrimaryKey])
         [self error:@"Trying to set primary key to 0"];
     }
@@ -980,7 +948,7 @@
     if ([[self attributeForField:fieldName] isPrimaryKey]) {
       if (oldObject && ![oldObject isEqual:anObject])
         [self error:@"Changing primary key"];
-      if ([anObject isKindOfClass:CLNumberClass] && ![anObject intValue] &&
+      if ([anObject isKindOfClass:CLNumberClass] && ![anObject unsignedPK] &&
           ![self allowZeroPrimaryKey])
         [self error:@"Trying to set primary key to 0"];
     }
@@ -1138,7 +1106,7 @@
                       [[_recordDef table] tableName], [self generateQualifier]];
   results = [db runQuery:aString];
   anArray = [results objectForKey:@"rows"];
-  if ([anArray count] && [[[anArray objectAtIndex:0] objectAtIndex:0] intValue])
+  if ([anArray count] && [[[anArray objectAtIndex:0] objectAtIndex:0] unsignedIntValue])
     return YES;
 
   return NO;

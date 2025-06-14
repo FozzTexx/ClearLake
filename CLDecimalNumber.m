@@ -730,6 +730,11 @@ CLDecimalNumber *CLDecimalZero = nil, *CLDecimalOne = nil;
   return [aNumber autorelease];
 }
 
+-(CLUnsignedPK) unsignedPK
+{
+  return [self unsignedIntValue];
+}
+
 -(BOOL) isNegative
 {
   CLDecimalMPZ *num;

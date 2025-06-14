@@ -140,9 +140,9 @@
   for (i = 0, j = [anArray count]; i < j; i++) {
     anAttr = [anArray objectAtIndex:i];
     if ([[anAttr key] isEqualToString:fieldName] ||
-        ([fieldName isEqualToString:OBJECTID_BINDING] &&
+        ([fieldName isEqualToString:PRIMARYKEY_BINDING] &&
          [recordClass isKindOfClass:CLGenericRecordClass] &&
-         [[anAttr key] isEqualToString:OBJECTID_COLUMN]))
+         [[anAttr key] isEqualToString:PRIMARYKEY_COLUMN]))
       return [anAttr isPrimaryKey];
   }
 

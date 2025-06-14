@@ -26,8 +26,8 @@
 
 @interface CLCategory:CLGenericRecord
 
-+(CLCategory *) categoryWithID:(int) anID;
-+(CLCategory *) categoryWithTitle:(CLString *) aString andParentID:(int) anID;
++(CLCategory *) categoryWithID:(CLUnsignedPK) anID;
++(CLCategory *) categoryWithTitle:(CLString *) aString andParentID:(CLUnsignedPK) anID;
 
 -(CLString *) path;
 -(CLString *) pathID;

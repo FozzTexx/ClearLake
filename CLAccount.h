@@ -24,7 +24,7 @@
 
 #import <ClearLake/CLGenericRecord.h>
 
-@class CLDatetime;
+@class CLDatetime, CLNumber;
 
 typedef enum {
   CLAccountFlagAdmin = 'A',
@@ -35,7 +35,7 @@ typedef enum {
 
 @interface CLAccount:CLObject <CLArchiving>
 {
-  int objectID;
+  CLNumber *primaryKey;
   CLString *name, *email, *password, *flags, *ipAddress;
   CLDatetime *created, *lastSeen;
 
@@ -48,7 +48,7 @@ typedef enum {
 
 +(CLString *) makeNameValid:(CLString *) aString;
 
--(int) objectID;
+-(id) primaryKey;
 -(CLString *) email;
 -(CLString *) name;
 -(CLString *) password;

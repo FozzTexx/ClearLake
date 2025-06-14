@@ -92,7 +92,7 @@ void printFields(CLRecordDefinition *recordDef, CLDictionary *model)
   anArray = [aDict allKeys];
   for (i = 0, j = [anArray count]; i < j; i++) {
     aName = [anArray objectAtIndex:i];
-    if ([aName isEqualToString:OBJECTID_BINDING])
+    if ([aName isEqualToString:PRIMARYKEY_BINDING])
       continue;
 
     anAttribute = [aDict objectForKey:aName];
@@ -124,7 +124,7 @@ void printFields(CLRecordDefinition *recordDef, CLDictionary *model)
 
   for (i = 0, j = [anArray count]; i < j; i++) {
     aName = [anArray objectAtIndex:i];
-    if ([aName isEqualToString:OBJECTID_BINDING])
+    if ([aName isEqualToString:PRIMARYKEY_BINDING])
       continue;
 
     anAttribute = [aDict objectForKey:aName];

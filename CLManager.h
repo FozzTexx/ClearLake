@@ -62,7 +62,7 @@
 -(id) init;
 -(void) dealloc;
 
--(void) setupSession:(int) anID;
+-(void) setupSession:(CLUnsignedPK) anID;
 -(CLArray *) getUsers:(id) sender uniqueMask:(CLUInteger) mask ignoreInternal:(BOOL) ignore;
 -(int) validateUser:(id) sender uniqueMask:(CLUInteger) mask;
 -(BOOL) return:(id) sender;
@@ -83,7 +83,7 @@
 -(void) setActiveSession:(id) aSession;
 -(void) emailUser:(CLString *) aUser password:(CLString *) aPass to:(CLString *) anEmail
      instructions:(CLString *) instr bcc:(CLString *) bcc;
--(CLString *) activationLink:(int) accountID;
+-(CLString *) activationLink:(CLUnsignedPK) accountID;
 -(unsigned int) sessionExpire;
 -(void) setSessionExpiresAfter:(unsigned int) seconds;
 -(id) createAccount:(id) info requirements:(CLUInteger) mask errors:(CLDictionary **) errors;
