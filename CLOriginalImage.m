@@ -24,7 +24,7 @@
 #import "CLDictionary.h"
 #import "CLData.h"
 #import "CLImageRep.h"
-#import "CLArray.h"
+#import "CLMutableArray.h"
 #import "CLDatabase.h"
 #import "CLRelationship.h"
 #import "CLEditingContext.h"
@@ -80,31 +80,17 @@
   return;
 }
 
--(CLCachedImage *) cachedImageForEffects:(CLString *) effects
+-(BOOL) imageIsValid:(CLCachedImage *) anImage
 {
-  CLArray *anArray;
-  int i, j;
-  CLCachedImage *anImage = nil;
-  CLString *origPath, *cachedPath, *cEffects;
+  CLString *origPath, *cachedPath;
   struct stat orig, cached;
   time_t most_recent;
 
 
-  anArray = [self cachedImages];
-  for (i = 0, j = [anArray count]; i < j; i++) {
-    cEffects = [[anArray objectAtIndex:i] effects];
-    if ([cEffects isEqualToString:effects]) {
-      anImage = [anArray objectAtIndex:i];
-      break;
-    }
-  }
-
   if (anImage && (!(cachedPath = [anImage path]) || access([cachedPath UTF8String], R_OK))) {
-#if 0
     [[anImage editingContext] deleteObject:anImage];
     [self removeObject:anImage fromBothSidesOfRelationship:@"cachedImages"];
-#endif
-    anImage = nil;
+    return NO;
   }
 
   if (anImage && (origPath = [self path])) {
@@ -115,11 +101,32 @@
       [[anImage editingContext] deleteObject:anImage];
       [[anImage editingContext] saveChanges];
       [self removeObject:anImage fromBothSidesOfRelationship:@"cachedImages"];
-      anImage = nil;
+      return NO;
     }
   }
 
-  return anImage;
+  return YES;
+}
+
+-(CLCachedImage *) cachedImageForEffects:(CLString *) effects
+{
+  CLMutableArray *mArray;
+  CLUInteger i, j;
+  CLCachedImage *anImage = nil;
+  CLString *cEffects;
+
+
+  mArray = [[[self cachedImages] copy] autorelease];
+  for (i = 0, j = [mArray count]; i < j; i++) {
+    cEffects = [[mArray objectAtIndex:i] effects];
+    if ([cEffects isEqualToString:effects]) {
+      anImage = [mArray objectAtIndex:i];
+      if ([self imageIsValid:anImage])
+	return anImage;
+    }
+  }
+
+  return nil;
 }
 
 -(id) imageRep
@@ -149,7 +156,7 @@
 
     if ((aData = [aRep representationUsingFormat:format]) && (upk = CLStoreImage(aData))) {
       cImage = [[CLCachedImage alloc] initWithRep:aRep];
-      [cImage setObjectValue:[CLNumber numberWithPK:upk] forBinding:PRIMARYKEY_BINDING];
+      [cImage setPrimaryKey:[CLNumber numberWithPK:upk]];
       [cImage setEffects:aString];
       [cImage addObject:self toBothSidesOfRelationship:@"parent"];
       [[cImage editingContext] saveChanges];
