@@ -446,17 +446,28 @@ Class CLClassFromURLString(CLString *objectName)
     aString = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
     targetClass = CLClassFromURLString([CLQuery objectForKey:CL_URLCLASS]);
 
-    {
+    if ([CLEditingContext recordDefinitionForClass:targetClass]) {
       target = [[CLDefaultContext loadExistingObjectWithClass:targetClass
-						   primaryKey:[aString decodeJSON]] retain];
+                                                   primaryKey:[aString decodeJSON]] retain];
       if (!target)
-	target = [[targetClass alloc] initFromPrimaryKey:[aString decodeJSON]];
+        target = [[targetClass alloc] init];
       aString = [CLQuery objectForKey:CL_URLSEL];
       if (!aString)
-	aString = @"detail";
+        aString = @"detail";
       aString = [CLString stringWithFormat:@"%@:", aString];
       action = CLSelectorFromString(aString);
       [target replacePage:self selector:action];
+    }
+    else {
+      CLStream *stream;
+
+
+      stream = [CLStream openWithData:aData mode:CLReadOnly];
+      [self readURL:stream];
+      [stream readTypes:@"i", &writeContents];
+      if (writeContents)
+        [stream readTypes:@"@", &content];
+      [stream close];
     }
   }
 
@@ -534,7 +545,6 @@ Class CLClassFromURLString(CLString *objectName)
 {
   CLStream *stream;
   CLString *aString, *aURL = nil;
-  CLData *aData;
   BOOL success;
 
 
@@ -564,32 +574,59 @@ Class CLClassFromURLString(CLString *objectName)
     else if ((aString = [attributes objectForKey:@"CL_HREF"]))
       aURL = [self expandBinding:aString success:&success];
   }
-  else if ([target isKindOfClass:CLPageTargetClass]) {
-    CLString *path;
-
-
-    path = [target path];
-    if ([path hasPathPrefix:CLAppPath])
-      path = [path stringByDeletingPathPrefix:CLAppPath];
-    path = [path stringByDeletingPathExtension];
-    stream = [CLStream openMemoryForWriting];
-    CLWriteURL(stream, path, nil, NULL, localQuery);
-    aData = [stream data];
-    aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
-    [stream close];
-  }
   else {
-    CLData *state = nil;
-    id primaryKey;
+    id urlObject;
+    CLData *urlState;
+    SEL urlAction;
 
 
-    primaryKey = [target primaryKey];
-    state = [[primaryKey json] dataUsingEncoding:CLUTF8StringEncoding];
-    // FIXME - is state session specific? "encrypt" it.
+    if ([target isKindOfClass:CLPageTargetClass]) {
+      CLString *path;
+
+
+      path = [target path];
+      if ([path hasPathPrefix:CLAppPath])
+	path = [path stringByDeletingPathPrefix:CLAppPath];
+      path = [path stringByDeletingPathExtension];
+      urlObject = path;
+      urlState = nil;
+      urlAction = NULL;
+    }
+    else if (target && [CLEditingContext recordDefinitionForClass:[target class]]
+	     && [[target editingContext] primaryKeyForRecord:target]
+	     && [target selectorIsPage:action]) {
+      //id targetClass = nil;
+      id pk;
+
+
+      //targetClass = [target class];
+      pk = [[target editingContext] primaryKeyForRecord:target];
+      urlState = [[pk json] dataUsingEncoding:CLUTF8StringEncoding];
+      urlObject = target;
+      urlAction = action;
+    }
+    else {
+      CLStream *stream2;
+
+
+      // FIXME - give target an opportunity to create urlState
+      stream2 = [CLStream openMemoryForWriting];
+      [self writeURL:stream2];
+      [stream2 writeTypes:@"i", &writeContents];
+      if (writeContents)
+	[stream2 writeTypes:@"@", &content];
+      urlState = [stream2 data];
+      urlObject = self;
+      urlAction = action;
+      [stream2 close];
+    }
+
     stream = [CLStream openMemoryForWriting];
-    CLWriteURL(stream, target, state, action, localQuery);
-    aData = [stream data];
-    aURL = [CLString stringWithData:aData encoding:CLUTF8StringEncoding];
+    CLWriteURL(stream, urlObject, urlState, urlAction, localQuery);
+    if (anchor)
+      [stream writeFormat:@"#%@" usingEncoding:CLUTF8StringEncoding, anchor];
+    /* FIXME - we should be using nocopy to move the stream buffer into the string */
+    aURL = [CLString stringWithData:[stream data] encoding:CLUTF8StringEncoding];
     [stream close];
   }
 
