@@ -50,7 +50,13 @@ install_lib()
     cp *.h ${INCLUDE_DIR}
     make
     mkdir -p ${LIB_DIR}
-    cp ${OSTYPE}-${ARCH}_bin/lib${LIB}.a ${LIB_DIR}
+    for EXT in "so" "a" ; do
+	LIB_FILE=${OSTYPE}-${ARCH}_bin/lib${LIB}.${EXT}
+	if [ -e ${LIB_FILE} ] ; then
+	    break
+	fi
+    done
+    cp ${LIB_FILE} ${LIB_DIR}
     cd ${RESTORE}
 }
 
@@ -70,10 +76,10 @@ fi
 
 ldconfig
 
-CL_PYTHON=ClearLake/python
-if [ -d ${CL_PYTHON} ] ; then
-    make -C ${CL_PYTHON} INSTALL_PREFIX=--prefix=/usr
-fi
+# CL_PYTHON=ClearLake/python
+# if [ -d ${CL_PYTHON} ] ; then
+#     make -C ${CL_PYTHON} INSTALL_PREFIX=--prefix=/usr
+# fi
 
 # cd
 # rm -rf ${TMP}

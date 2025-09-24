@@ -4,3 +4,4 @@ Makefile.dependencies
 CLChainedSelect.jh
 *.rej
 *~
+*.bundle
