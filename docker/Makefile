@@ -69,7 +69,7 @@ site.tar: $(FP_SITE_FILES)
 	tar -cf $@ -C .. $(SITE_FILES)
 
 ClearLake-v3.tar: ClearLake-deps.make $(FPCLDEPS)
-	tar -cf $@ -C .. --transform 's,^,ClearLake/,' $(CLDEPS)
+	tar -cf $@ -C .. --transform 's,^,ClearLake/,' $(CLDEPS) .git
 
 ClearLake-v3.bundle: ClearLake-deps.make $(FPCLDEPS)
 	$(call bundle-recipe, $@, $(shell realpath ..), release/v3.x)
