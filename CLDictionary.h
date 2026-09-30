@@ -57,6 +57,7 @@
 -(CLUInteger) count;
 -(id) objectForKey:(id) aKey;
 -(CLArray *) allKeys;
+-(CLArray *) allKeysForObject:(id) anObject;
 -(CLArray *) allValues;
 -(CLUInteger) hash;
 @end
